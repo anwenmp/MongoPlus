@@ -8,7 +8,7 @@
     <artifactId>mongo-plus-parent</artifactId>
     <packaging>pom</packaging>
     <name>mongo-plus-parent</name>
-    <version>2.0.9.2</version>
+    <version>2.0.9.2-BETA</version>
     <description>mongo-plus版本控制</description>
     <url>https://gitee.com/anwena/mongo-plus</url>
     <inceptionYear>2023</inceptionYear>
@@ -17,7 +17,6 @@
         <module>../mongo-plus-annotation</module>
         <module>../mongo-plus-core</module>
         <module>../mongo-plus-boot-starter</module>
-        <module>../mongo-plus-solon-plugin</module>
     </modules>
 
     <licenses>
@@ -50,7 +49,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongoplus.version>2.0.9.2</mongoplus.version>
+        <mongoplus.version>2.0.9.2-BETA</mongoplus.version>
         <mongodb-driver-sync.version>4.9.0</mongodb-driver-sync.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
         <reload4j.version>1.2.25</reload4j.version>
@@ -195,14 +194,20 @@
                 </plugins>
             </build>
             <!-- maven中央仓库 -->
+<!--            <distributionManagement>-->
+<!--                <snapshotRepository>-->
+<!--                    <id>release</id>-->
+<!--                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--                </snapshotRepository>-->
+<!--                <repository>-->
+<!--                    <id>release</id>-->
+<!--                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+<!--                </repository>-->
+<!--            </distributionManagement>-->
             <distributionManagement>
-                <snapshotRepository>
-                    <id>release</id>
-                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
                 <repository>
-                    <id>release</id>
-                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <id>local-snapshot-and-release-allow-redeploy</id>
+                    <url>http://192.168.1.61:8081/repository/local-snapshot-and-release-allow-redeploy/</url>
                 </repository>
             </distributionManagement>
             <!-- 私服 -->
