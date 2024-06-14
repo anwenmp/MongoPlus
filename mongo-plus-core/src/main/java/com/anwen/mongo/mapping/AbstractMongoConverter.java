@@ -5,18 +5,22 @@ import com.anwen.mongo.annotation.collection.CollectionField;
 import com.anwen.mongo.bson.MongoPlusDocument;
 import com.anwen.mongo.cache.global.ConversionCache;
 import com.anwen.mongo.cache.global.HandlerCache;
+import com.anwen.mongo.cache.global.MappingCache;
 import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.convert.CollectionNameConvert;
+import com.anwen.mongo.domain.MongoPlusWriteException;
 import com.anwen.mongo.enums.FieldFill;
 import com.anwen.mongo.enums.IdTypeEnum;
+import com.anwen.mongo.handlers.TypeHandler;
 import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.model.AutoFillMetaObject;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
+import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.BsonUtil;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.client.MongoCollection;
@@ -27,10 +31,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * 抽象的映射处理器
@@ -39,17 +41,17 @@ import java.util.Optional;
  */
 public abstract class AbstractMongoConverter implements MongoConverter {
 
+    private final Log log = LogFactory.getLog(AbstractMongoConverter.class);
+
     private final MongoPlusClient mongoPlusClient;
 
     public AbstractMongoConverter(MongoPlusClient mongoPlusClient){
         this.mongoPlusClient = mongoPlusClient;
     }
 
-    private final Log log = LogFactory.getLog(AbstractMongoConverter.class);
-
     //定义添加自动填充字段
-    private final AutoFillMetaObject insertFillAutoFillMetaObject = new AutoFillMetaObject(new MongoPlusDocument());
-    private final AutoFillMetaObject updateFillAutoFillMetaObject = new AutoFillMetaObject(new MongoPlusDocument());
+    private final AutoFillMetaObject insertFillAutoFillMetaObject = new AutoFillMetaObject();
+    private final AutoFillMetaObject updateFillAutoFillMetaObject = new AutoFillMetaObject();
 
     @Override
     public void writeBySave(Object sourceObj, Document document) {
@@ -86,7 +88,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         //映射到Document
         write(sourceObj,document);
         //添加自动填充字段
-        document.putAll(insertFillAutoFillMetaObject.getAllFillField());
+        insertFillAutoFillMetaObject.getAllFillFieldAndClear(document);
         //经过一下Document处理器
         if (HandlerCache.documentHandler != null){
             HandlerCache.documentHandler.insertInvoke(Collections.singletonList(document));
@@ -112,13 +114,33 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             HandlerCache.metaObjectHandler.updateFill(updateFillAutoFillMetaObject);
         }
         //添加自动填充字段
-        document.putAll(updateFillAutoFillMetaObject.getAllFillField());
+        updateFillAutoFillMetaObject.getAllFillFieldAndClear(document);
         //映射到Document
         write(sourceObj,document);
         //经过一下Document处理器
         if (HandlerCache.documentHandler != null){
             HandlerCache.documentHandler.updateInvoke(Collections.singletonList(document));
         }
+    }
+
+    public void getFillInsertAndUpdateField(TypeInformation typeInformation, AutoFillMetaObject insertFillAutoFillMetaObject, AutoFillMetaObject updateFillAutoFillMetaObject){
+        typeInformation.getFields().forEach(field -> {
+            CollectionField collectionField = field.getCollectionField();
+            if (collectionField != null && collectionField.fill() != FieldFill.DEFAULT){
+                MongoPlusDocument insertFillAutoField = insertFillAutoFillMetaObject.getDocument();
+                MongoPlusDocument updateFillAutoField = updateFillAutoFillMetaObject.getDocument();
+                if (collectionField.fill() == FieldFill.INSERT){
+                    insertFillAutoField.put(field.getName(),field.getValue());
+                }
+                if (collectionField.fill() == FieldFill.UPDATE){
+                    updateFillAutoField.put(field.getName(),field.getValue());
+                }
+                if (collectionField.fill() == FieldFill.INSERT_UPDATE){
+                    insertFillAutoField.put(field.getName(),field.getValue());
+                    updateFillAutoField.put(field.getName(),field.getValue());
+                }
+            }
+        });
     }
 
     @Override
@@ -133,14 +155,32 @@ public abstract class AbstractMongoConverter implements MongoConverter {
 
     @Override
     public <T> T read(Document document, Class<T> clazz) {
-        if (document == null){
+        return readInternal(document,clazz,true);
+    }
+
+    @Override
+    public <T> T readInternal(Document document, Class<T> clazz){
+        return readInternal(document,clazz,false);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private <T> T readInternal(Document document, Class<T> clazz, boolean useIdAsFieldName) {
+        if (document == null) {
             return null;
         }
-        //拿到class封装类
+        if (clazz.isAssignableFrom(Document.class)) {
+            return (T) document;
+        } else if (clazz.isAssignableFrom(Map.class)) {
+            return (T) read(document, new TypeReference<Map<String, Object>>() {});
+        } else if (clazz.isAssignableFrom(Collection.class)){
+            return (T) read(document, new TypeReference<Collection<Object>>() {});
+        }
+        // 拿到class封装类
         TypeInformation typeInformation = TypeInformation.of(clazz);
-        //循环所有字段
+
+        // 循环所有字段
         typeInformation.getFields().forEach(fieldInformation -> {
-            String fieldName = fieldInformation.getIdOrCamelCaseName();
+            String fieldName = useIdAsFieldName ? fieldInformation.getIdOrCamelCaseName() : fieldInformation.getCamelCaseName();
             if (fieldInformation.isSkipCheckField()) {
                 return;
             }
@@ -148,31 +188,26 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             if (obj == null) {
                 return;
             }
-            obj = fieldInformation.isId() ? String.valueOf(obj) : obj;
-            fieldInformation.setValue(read(fieldInformation, obj, fieldInformation.getTypeClass()));
+            if (useIdAsFieldName && fieldInformation.isId()) {
+                obj = String.valueOf(obj);
+            }
+            CollectionField collectionField = fieldInformation.getCollectionField();
+            Object resultObj = null;
+            if (collectionField != null && TypeHandler.class.isAssignableFrom(collectionField.typeHandler())){
+                try {
+                    TypeHandler typeHandler = (TypeHandler) collectionField.typeHandler().getDeclaredConstructor().newInstance();
+                    resultObj = typeHandler.getResult(obj);
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    log.error("Failed to create TypeHandler, message: {}", e.getMessage(), e);
+                    throw new MongoPlusWriteException("Failed to create TypeHandler, message: " + e.getMessage());
+                }
+            }
+            if (resultObj == null) {
+                resultObj = read(obj, TypeReference.of(fieldInformation.getGenericType()));
+            }
+            fieldInformation.setValue(resultObj);
         });
-        return typeInformation.getInstance();
-    }
 
-    @Override
-    public <T> T readInternal(Document document, Class<T> clazz){
-        if (document == null){
-            return null;
-        }
-        //拿到class封装类
-        TypeInformation typeInformation = TypeInformation.of(clazz);
-        //循环所有字段
-        typeInformation.getFields().forEach(fieldInformation -> {
-            String fieldName = fieldInformation.getCamelCaseName();
-            if (fieldInformation.isSkipCheckField()){
-                return;
-            }
-            Object obj = document.get(fieldName);
-            if (obj == null){
-                return;
-            }
-            fieldInformation.setValue(read(fieldInformation,obj,fieldInformation.getTypeClass()));
-        });
         return typeInformation.getInstance();
     }
 
@@ -185,13 +220,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @date 2024/5/1 下午6:40
      */
     public abstract void write(Object sourceObj, Bson bson, TypeInformation typeInformation);
-
-    /**
-     * 映射
-     * @author anwen
-     * @date 2024/5/7 下午5:11
-     */
-    public abstract <T> T read(FieldInformation fieldInformation,Object sourceObj, Class<T> clazz);
 
     /**
      * 生成id，写在这里，方便自己自定义
@@ -272,26 +300,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         return Enum.class.isAssignableFrom(value.getClass()) ? ((Enum<?>) value).name() : value;
     }
 
-    public void getFillInsertAndUpdateField(TypeInformation typeInformation, AutoFillMetaObject insertFillAutoFillMetaObject, AutoFillMetaObject updateFillAutoFillMetaObject){
-        typeInformation.getFields().forEach(field -> {
-            CollectionField collectionField = field.getCollectionField();
-            if (collectionField != null && collectionField.fill() != FieldFill.DEFAULT){
-                MongoPlusDocument insertFillAutoField = insertFillAutoFillMetaObject.getAllFillField();
-                MongoPlusDocument updateFillAutoField = updateFillAutoFillMetaObject.getAllFillField();
-                if (collectionField.fill() == FieldFill.INSERT){
-                    insertFillAutoField.put(field.getName(),field.getValue());
-                }
-                if (collectionField.fill() == FieldFill.UPDATE){
-                    updateFillAutoField.put(field.getName(),field.getValue());
-                }
-                if (collectionField.fill() == FieldFill.INSERT_UPDATE){
-                    insertFillAutoField.put(field.getName(),field.getValue());
-                    updateFillAutoField.put(field.getName(),field.getValue());
-                }
-            }
-        });
-    }
-
     /**
      * 调用该方法，肯定会走集合和map之外的转换器
      * @param obj 值
@@ -318,6 +326,11 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             target = Enum.class;
         }
         return ConversionCache.getConversionStrategy(target);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected MappingStrategy<Object> getMappingStrategy(Class<?> target){
+        return (MappingStrategy<Object>) MappingCache.getMappingStrategy(target);
     }
 
 }

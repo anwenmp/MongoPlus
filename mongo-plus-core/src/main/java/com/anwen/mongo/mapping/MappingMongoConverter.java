@@ -1,17 +1,20 @@
 package com.anwen.mongo.mapping;
 
+import com.anwen.mongo.annotation.collection.CollectionField;
 import com.anwen.mongo.cache.global.ConversionCache;
 import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.domain.MongoPlusWriteException;
+import com.anwen.mongo.handlers.TypeHandler;
+import com.anwen.mongo.logging.Log;
+import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
+import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.BsonUtil;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -25,36 +28,62 @@ import java.util.*;
  **/
 public class MappingMongoConverter extends AbstractMongoConverter {
 
-    private static final Logger log = LoggerFactory.getLogger(MappingMongoConverter.class);
-    private final SimpleTypeHolder simpleTypeHolder = new SimpleTypeHolder();
+    private final Log log = LogFactory.getLog(MappingMongoConverter.class);
 
-    public MappingMongoConverter(MongoPlusClient mongoPlusClient) {
+    private final SimpleTypeHolder simpleTypeHolder;
+
+    public MappingMongoConverter(MongoPlusClient mongoPlusClient,SimpleTypeHolder simpleTypeHolder) {
         super(mongoPlusClient);
+        this.simpleTypeHolder = simpleTypeHolder;
     }
 
     @Override
-    public void write(Object sourceObj, Bson bson, TypeInformation typeInformation){
-        typeInformation.getFields().stream()
-                .filter(fieldInformation -> !fieldInformation.isSkipCheckField() && !fieldInformation.isId())
-                .forEach(fieldInformation -> writeProperties(bson, fieldInformation.getName(), fieldInformation.getValue()));
+    public void write(Object sourceObj, Bson bson, TypeInformation typeInformation) {
+        processFields(typeInformation.getFields(), bson, true);
     }
-
-
 
     /**
      * 写入内部对象
      * @param sourceObj 源对象
      * @param bson bson
      * @return {@link Bson}
-     * @author anwen
-     * @date 2024/5/1 下午11:44
      */
-    public Bson writeInternal(Object sourceObj, Bson bson){
-        TypeInformation.of(sourceObj).getFields().stream()
-                .filter(fieldInformation -> !fieldInformation.isSkipCheckField())
-                .forEach(fieldInformation -> writeProperties(bson, fieldInformation.getName(), fieldInformation.getValue()));
+    public Bson writeInternal(Object sourceObj, Bson bson) {
+        processFields(TypeInformation.of(sourceObj).getFields(), bson, false);
         return bson;
     }
+
+    /**
+     * 处理字段信息并写入 BSON
+     * @param fields 字段信息列表
+     * @param bson BSON 对象
+     * @param filterId 是否过滤掉 ID 字段
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void processFields(List<FieldInformation> fields, Bson bson, boolean filterId) {
+        fields.stream()
+                .filter(fieldInformation -> !fieldInformation.isSkipCheckField() && (!filterId || !fieldInformation.isId()))
+                .forEach(fieldInformation -> {
+                    CollectionField collectionField = fieldInformation.getCollectionField();
+                    Object obj = null;
+                    if (collectionField != null && TypeHandler.class.isAssignableFrom(collectionField.typeHandler())) {
+                        try {
+                            TypeHandler typeHandler = (TypeHandler) collectionField.typeHandler().getDeclaredConstructor().newInstance();
+                            obj = typeHandler.setParameter(fieldInformation.getName(),fieldInformation.getValue());
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            log.error("Failed to create TypeHandler, message: {}", e.getMessage(), e);
+                            throw new MongoPlusWriteException("Failed to create TypeHandler, message: " + e.getMessage());
+                        }
+                    }
+                    //如果类型处理器返回null，则继续走默认处理
+                    if (obj != null) {
+                        BsonUtil.addToMap(bson, fieldInformation.getName(), obj);
+                    } else {
+                        writeProperties(bson, fieldInformation.getName(), fieldInformation.getValue());
+                    }
+                });
+    }
+
 
     /**
      * 属性写入Bson中
@@ -80,9 +109,21 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      */
     private Object writeProperties(Object sourceObj){
         Object resultObj;
-        if (sourceObj == null || simpleTypeHolder.isSimpleType(sourceObj.getClass())) {
+        MappingStrategy<Object> mappingStrategy = null;
+        if (sourceObj != null) {
+            mappingStrategy = getMappingStrategy(sourceObj.getClass());
+        }
+        if (mappingStrategy != null){
+            try {
+                resultObj = mappingStrategy.mapping(sourceObj);
+            } catch (IllegalAccessException e) {
+                String error = String.format("Exception mapping %s to simple type", sourceObj.getClass().getName());
+                log.error(error,e);
+                throw new MongoPlusWriteException(error);
+            }
+        } else if (sourceObj == null || simpleTypeHolder.isSimpleType(sourceObj.getClass())) {
             resultObj = getPotentiallyConvertedSimpleWrite(sourceObj);
-        } else if (sourceObj instanceof Collection || sourceObj.getClass().isArray()) {
+        } else if (Collection.class.isAssignableFrom(sourceObj.getClass()) || sourceObj.getClass().isArray()) {
             resultObj = writeCollectionInternal(BsonUtil.asCollection(sourceObj), new ArrayList<>());
         } else if (Map.class.isAssignableFrom(sourceObj.getClass())) {
             resultObj = writeMapInternal((Map<?, ?>) sourceObj,new Document());
@@ -96,7 +137,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * map类型的处理
      * @param obj 源对象
      * @param bson bson
-     * @return {@link org.bson.conversions.Bson}
+     * @return {@link Bson}
      * @author anwen
      * @date 2024/5/1 下午11:46
      */
@@ -138,24 +179,54 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T read(FieldInformation fieldInformation,Object sourceObj, Class<T> clazz) {
+    public <T> T read(Object sourceObj, TypeReference<T> typeReference) {
+        Class<?> clazz = typeReference.getClazz();
         ConversionStrategy<?> conversionStrategy = getConversionStrategy(clazz);
+
         try {
-            if (Collection.class.isAssignableFrom(clazz) && null == conversionStrategy){
-                Type type = getGenericTypeClass((ParameterizedType) fieldInformation.getField().getGenericType(), 0);
-                return (T) convertCollection(type,sourceObj,createCollectionInstance(clazz));
+            if (Collection.class.isAssignableFrom(clazz)) {
+                return handleCollectionType(sourceObj, typeReference, clazz, conversionStrategy);
+            } else if (Map.class.isAssignableFrom(clazz)) {
+                return handleMapType(sourceObj, typeReference, clazz, conversionStrategy);
+            } else {
+                return handleDefaultType(sourceObj, clazz, conversionStrategy);
             }
-            if (Map.class.isAssignableFrom(clazz) && null == conversionStrategy){
-                Type type = getGenericTypeClass((ParameterizedType) fieldInformation.getField().getGenericType(), 1);
-                return (T) convertMap(type,sourceObj,createMapInstance(clazz));
-            } else if (null == conversionStrategy){
-                conversionStrategy = ConversionCache.getConversionStrategy(Object.class);
-            }
-            return (T) conversionStrategy.convertValue(sourceObj, fieldInformation.getTypeClass() , this);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T handleCollectionType(Object sourceObj, TypeReference<T> typeReference, Class<?> clazz, ConversionStrategy<?> conversionStrategy) throws IllegalAccessException {
+        if (conversionStrategy == null) {
+            Type genericTypeClass = extractGenericType(typeReference, 0);
+            return (T) convertCollection(genericTypeClass, sourceObj, createCollectionInstance(clazz));
+        }
+        return (T) conversionStrategy.convertValue(sourceObj, clazz, this);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T handleMapType(Object sourceObj, TypeReference<T> typeReference, Class<?> clazz, ConversionStrategy<?> conversionStrategy) throws IllegalAccessException {
+        if (conversionStrategy == null) {
+            Type genericTypeClass = extractGenericType(typeReference, 1);
+            return (T) convertMap(genericTypeClass, sourceObj, createMapInstance(clazz));
+        }
+        return (T) conversionStrategy.convertValue(sourceObj, clazz, this);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T handleDefaultType(Object sourceObj, Class<?> clazz, ConversionStrategy<?> conversionStrategy) throws IllegalAccessException {
+        if (conversionStrategy == null) {
+            conversionStrategy = ConversionCache.getConversionStrategy(Object.class);
+        }
+        return (T) conversionStrategy.convertValue(sourceObj, clazz, this);
+    }
+
+    private Type extractGenericType(TypeReference<?> typeReference, int index) {
+        if (typeReference.getType() instanceof ParameterizedType) {
+            return getGenericTypeClass((ParameterizedType) typeReference.getType(), index);
+        }
+        return Object.class;
     }
 
     /**

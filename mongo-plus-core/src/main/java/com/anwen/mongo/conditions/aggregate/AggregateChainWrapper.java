@@ -4,16 +4,13 @@ import com.anwen.mongo.conditions.accumulator.Accumulator;
 import com.anwen.mongo.conditions.interfaces.aggregate.Aggregate;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.AddFields;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Let;
-import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
+import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.project.Projection;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.ReplaceRoot;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.enums.*;
-import com.anwen.mongo.model.AggregateBasicDBObject;
-import com.anwen.mongo.model.BaseAggregate;
-import com.anwen.mongo.model.FuncGroupField;
-import com.anwen.mongo.model.GroupField;
+import com.anwen.mongo.model.*;
 import com.anwen.mongo.strategy.aggregate.impl.*;
 import com.anwen.mongo.support.SFunction;
 import com.mongodb.BasicDBObject;
@@ -22,9 +19,7 @@ import com.mongodb.client.model.CollationStrength;
 import org.bson.BsonValue;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author JiaChaoYang
@@ -225,7 +220,7 @@ public class AggregateChainWrapper<T, Children> implements Aggregate<T, Children
                 new SortConcretePipeline(
                         new ArrayList<Order>() {{
                             for (SFunction<T, Object> sFunction : field) {
-                                add(new Order(OrderEnum.ORDER_BY.getFlag(), sFunction.getFieldNameLine()));
+                                add(new Order(OrderEnum.ASC.getValue(), sFunction.getFieldNameLine()));
                             }
                         }}
                 ),
@@ -239,7 +234,7 @@ public class AggregateChainWrapper<T, Children> implements Aggregate<T, Children
         this.baseAggregateList.add(new BaseAggregate(AggregateTypeEnum.SORT.getType(), new SortConcretePipeline(
             new ArrayList<Order>(){{
                 for (String col : field) {
-                    add(new Order(OrderEnum.ORDER_BY.getFlag(), col));
+                    add(new Order(OrderEnum.ASC.getValue(), col));
                 }
             }}
         ),getNextAggregateOrder()));
@@ -252,7 +247,7 @@ public class AggregateChainWrapper<T, Children> implements Aggregate<T, Children
         this.baseAggregateList.add(new BaseAggregate(AggregateTypeEnum.SORT.getType(), new SortConcretePipeline(
                 new ArrayList<Order>(){{
                     for (SFunction<T, Object> sFunction : field) {
-                        add(new Order(OrderEnum.ORDER_BY_DESC.getFlag(),sFunction.getFieldNameLine()));
+                        add(new Order(OrderEnum.DESC.getValue(),sFunction.getFieldNameLine()));
                     }
                 }}
         ),getNextAggregateOrder()));
@@ -264,7 +259,7 @@ public class AggregateChainWrapper<T, Children> implements Aggregate<T, Children
         this.baseAggregateList.add(new BaseAggregate(AggregateTypeEnum.SORT.getType(), new SortConcretePipeline(
             new ArrayList<Order>(){{
                 for (String col : field) {
-                    add(new Order(OrderEnum.ORDER_BY_DESC.getFlag(), col));
+                    add(new Order(OrderEnum.DESC.getValue(), col));
                 }
             }}
         ),getNextAggregateOrder()));
@@ -552,6 +547,9 @@ public class AggregateChainWrapper<T, Children> implements Aggregate<T, Children
     public Children lookup(String from, List<Let> letList, AggregateChainWrapper<T, ?> pipeline, String as) {
         this.baseAggregateList.add(new BaseAggregate(AggregateTypeEnum.LOOKUP.getType(), new LookupConcretePipeline(new BasicDBObject(){{
             put("from",from);
+            put("let",new BasicDBObject(){{
+                letList.forEach(let -> put(let.getVariable(),let.getValue()));
+            }});
             put("pipeline",new ArrayList<BasicDBObject>(){{
                 pipeline.getBaseAggregateList().forEach(baseAggregate -> add(new BasicDBObject("$"+baseAggregate.getType(),baseAggregate.getPipelineStrategy().buildAggregate())));
                 addAll(pipeline.getBasicDBObjectList());

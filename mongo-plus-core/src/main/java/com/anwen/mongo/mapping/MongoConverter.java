@@ -11,6 +11,8 @@ import org.bson.types.ObjectId;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static com.anwen.mongo.convert.Converter.convertKeysToCamelCase;
+
 /**
  * 将对象映射为Document和将Document映射为对象
  * @author JiaChaoYang
@@ -25,18 +27,33 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      */
     void writeBySave(Object sourceObj, Document document);
 
+    /**
+     * 添加的映射器
+     * @author JiaChaoYang
+     * @date 2024/5/1 下午11:52
+     */
     default Document writeBySave(Object sourceObj){
         Document document = new Document();
         writeBySave(sourceObj,document);
         return document;
     }
 
+    /**
+     * map映射到document
+     * @author anwen
+     * @date 2024/5/28 下午8:35
+     */
     default Document write(Map<String,Object> map){
         Document document = new Document();
         write(map,document);
         return document;
     }
 
+    /**
+     * 批量映射
+     * @author anwen
+     * @date 2024/5/28 下午8:35
+     */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection, List<Document> documentList){
         sourceObjCollection.forEach(sourceObj -> {
             documentList.add(write(sourceObj));
@@ -44,6 +61,11 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         return documentList;
     }
 
+    /**
+     * 批量映射
+     * @author anwen
+     * @date 2024/5/28 下午8:35
+     */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection){
         return new ArrayList<Document>(){{
             sourceObjCollection.forEach(sourceObj -> {
@@ -52,6 +74,11 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         }};
     }
 
+    /**
+     * 批量映射
+     * @author anwen
+     * @date 2024/5/28 下午8:35
+     */
     default void writeBySaveBatch(Collection<?> sourceObjCollection, List<Document> documentList){
         sourceObjCollection.forEach(sourceObj -> {
             Document document = new Document();
@@ -60,6 +87,11 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         });
     }
 
+    /**
+     * 批量映射
+     * @author anwen
+     * @date 2024/5/28 下午8:35
+     */
     default List<Document> writeBySaveBatch(Collection<?> sourceObjCollection){
         return new ArrayList<Document>(){{
             sourceObjCollection.forEach(sourceObj -> {
@@ -98,24 +130,62 @@ public interface MongoConverter extends MongoWriter,EntityRead {
 
     <T> T readInternal(Document document, Class<T> clazz);
 
-    default <T> List<T> read(MongoIterable<Document> findIterable, Class<T> clazz){
+    /**
+     * 写为Class
+     * @author anwen
+     * @date 2024/5/28 下午8:37
+     */
+    default <T> List<T> read(MongoIterable<Document> findIterable, Class<T> clazz) {
         List<T> resultList = new ArrayList<>();
         try (MongoCursor<Document> mongoCursor = findIterable.iterator()) {
-            while (mongoCursor.hasNext()){
-                resultList.add(read(mongoCursor.next(), clazz));
+            while (mongoCursor.hasNext()) {
+                Document document = mongoCursor.next();
+                T convertedDocument = convertDocument(document, clazz);
+                resultList.add(convertedDocument);
             }
         }
         return resultList;
     }
 
+    /**
+     * 写为class，根据传入的type
+     * @author anwen
+     * @date 2024/5/28 下午8:37
+     */
+    default <T> List<T> read(MongoIterable<Document> findIterable, TypeReference<T> typeReference){
+        List<T> resultList = new ArrayList<>();
+        try (MongoCursor<Document> mongoCursor = findIterable.iterator()) {
+            while (mongoCursor.hasNext()) {
+                Document document = mongoCursor.next();
+                T convertedDocument = read(document, typeReference);
+                resultList.add(convertedDocument);
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 写为class
+     * @author anwen
+     * @date 2024/5/28 下午8:37
+     */
     @SuppressWarnings("unchecked")
     default <T> T readDocument(MongoIterable<Document> findIterable,Class<?> clazz){
         try (MongoCursor<Document> mongoCursor = findIterable.iterator()) {
             if (mongoCursor.hasNext()){
-                return (T)read(mongoCursor.next(), clazz);
+                return (T) convertDocument(mongoCursor.next(), clazz);
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    default  <T> T convertDocument(Document document, Class<T> clazz) {
+        if (clazz.isAssignableFrom(Map.class)) {
+            return (T) convertKeysToCamelCase(document);
+        } else {
+            return read(document, clazz);
+        }
     }
 
     default void reSetIdValue(Object sourceObj, Document document) {

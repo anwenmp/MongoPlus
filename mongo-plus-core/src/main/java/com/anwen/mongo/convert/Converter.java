@@ -29,6 +29,7 @@ public class Converter {
         return resultList;
     }
 
+
     public static Map<String,Object> convertDocumentToMapOne(FindIterable<Map> iterable){
         try (MongoCursor<Map> cursor = iterable.iterator()) {
             if (cursor.hasNext()) {

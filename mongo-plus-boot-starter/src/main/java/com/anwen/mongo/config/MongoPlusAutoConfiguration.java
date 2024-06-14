@@ -4,6 +4,8 @@ import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.DocumentHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
+import com.anwen.mongo.incrementer.IdentifierGenerator;
+import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.listener.Listener;
 import com.anwen.mongo.listener.business.BlockAttackInnerListener;
@@ -18,6 +20,7 @@ import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.service.IService;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
+import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.CollUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -66,6 +69,8 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         setListener();
         setInterceptor();
         setReplacer();
+        setMapping();
+        setIdGenerator();
         this.baseMapper = baseMapper;
     }
 
@@ -187,6 +192,46 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             replacers = replacers.stream().sorted(Comparator.comparing(Replacer::order)).collect(Collectors.toList());
         }
         ExecutorReplacerCache.replacers = new ArrayList<>(replacers);
+    }
+
+    /**
+     * 从Bean中拿到映射器
+     *
+     * @author JiaChaoYang
+     * @date 2024/3/17 0:30
+     */
+    private void setMapping() {
+        applicationContext.getBeansOfType(MappingStrategy.class).values().forEach(mappingStrategy -> {
+            try {
+                if (mappingStrategy.getClass().isInterface()){
+                    MappingCache.putMappingStrategy(mappingStrategy.getClass(), mappingStrategy);
+                    return;
+                }
+                Type[] genericInterfaces = mappingStrategy.getClass().getGenericInterfaces();
+                for (Type anInterface : genericInterfaces) {
+                    ParameterizedType parameterizedType = (ParameterizedType) anInterface;
+                    if (parameterizedType.getRawType().equals(MappingStrategy.class)) {
+                        Class<?> clazz = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                        MappingCache.putMappingStrategy(clazz, mappingStrategy);
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Unknown Mapping type", e);
+                throw new MongoPlusConvertException("Unknown converter type");
+            }
+        });
+    }
+
+    /**
+     * 自定义id生成器
+     * @author anwen
+     * @date 2024/5/30 下午1:35
+     */
+    private void setIdGenerator() {
+        try {
+            IdWorker.setIdentifierGenerator(applicationContext.getBean(IdentifierGenerator.class));
+        } catch (Exception ignored){}
     }
 
 }

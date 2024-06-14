@@ -1,7 +1,7 @@
 package com.anwen.mongo.conditions;
 
 import com.anwen.mongo.conditions.interfaces.Compare;
-import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
+import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.project.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
@@ -493,22 +493,22 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
-    public Children all(boolean condition, SFunction<T, Object> column, Collection<Object> value) {
+    public Children all(boolean condition, SFunction<T, Object> column, Collection<?> value) {
         return condition ? all(column,value) : typedThis;
     }
 
     @Override
-    public Children all(SFunction<T, Object> column, Collection<Object> value) {
+    public Children all(SFunction<T, Object> column, Collection<?> value) {
         return getBaseCondition(column,value);
     }
 
     @Override
-    public Children all(boolean condition, String column, Collection<Object> value) {
+    public Children all(boolean condition, String column, Collection<?> value) {
         return condition ? all(column,value) : typedThis;
     }
 
     @Override
-    public Children all(String column, Collection<Object> value) {
+    public Children all(String column, Collection<?> value) {
         return getBaseCondition(column,value);
     }
 
