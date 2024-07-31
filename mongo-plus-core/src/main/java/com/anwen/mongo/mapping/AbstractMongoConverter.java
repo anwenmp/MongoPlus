@@ -199,9 +199,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             if (obj == null) {
                 return;
             }
-            if (useIdAsFieldName && fieldInformation.isId()) {
-                obj = String.valueOf(obj);
-            }
             CollectionField collectionField = fieldInformation.getCollectionField();
             Object resultObj = null;
             if (collectionField != null && ClassTypeUtil.isTargetClass(TypeHandler.class,collectionField.typeHandler())){
@@ -263,6 +260,9 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         }
         if (idTypeEnum.getKey() == IdTypeEnum.AUTO.getKey()){
             return generateAutoId(typeInformation);
+        }
+        if (idTypeEnum.getKey() == IdTypeEnum.OBJECT_ID.getKey()){
+            return new ObjectId();
         }
         return null;
     }
@@ -342,14 +342,8 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         }
     }
 
-    protected ConversionStrategy<?> getConversionStrategy(Class<?> target){
-        /*if (classEnumTypeMap.containsKey(target)) {
-            target = classEnumTypeMap.get(target) ? Enum.class : target;
-        } else if (ClassTypeUtil.isTargetClass(Enum.class,target)) {
-            classEnumTypeMap.put(target, true);
-            target = Enum.class;
-        }
-        return ConversionCache.getConversionStrategy(target);*/
+    @Override
+    public ConversionStrategy<?> getConversionStrategy(Class<?> target){
         // 使用 computeIfAbsent 来减少重复计算
         Boolean isEnumType = classEnumTypeMap.computeIfAbsent(target, key -> ClassTypeUtil.isTargetClass(Enum.class, key));
 

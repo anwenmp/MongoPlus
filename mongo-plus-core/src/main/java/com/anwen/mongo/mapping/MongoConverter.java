@@ -3,6 +3,7 @@ package com.anwen.mongo.mapping;
 import com.anwen.mongo.annotation.ID;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.domain.MongoPlusFieldException;
+import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.client.MongoCursor;
@@ -221,14 +222,13 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class, "@ID field not found");
         Object idValue = idFieldInformation.getValue();
         if (Objects.isNull(idValue)) {
-            Object idV = document.get(SqlOperationConstant._ID);
-            Field field = idFieldInformation.getField();
-            field.setAccessible(true);
             try {
-                if (idV instanceof ObjectId) {
-                    field.set(sourceObj, idV.toString());
+                Object idV = document.get(SqlOperationConstant._ID);
+                ConversionStrategy<?> conversionStrategy = getConversionStrategy(idV.getClass());
+                if (conversionStrategy != null && idV.getClass() != idFieldInformation.getTypeClass()){
+                    idFieldInformation.setValue(conversionStrategy.convertValue(idV,idFieldInformation.getTypeClass(),this));
                 } else {
-                    field.set(sourceObj, idV);
+                    idFieldInformation.setValue(idV);
                 }
             } catch (Exception e) {
                 throw new MongoPlusFieldException("reSet id value error", e);
@@ -245,4 +245,5 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         }
     }
 
+    ConversionStrategy<?> getConversionStrategy(Class<?> target);
 }
