@@ -10,8 +10,8 @@
     <name>mongo-plus-parent</name>
     <version>2.1.2</version>
     <description>mongo-plus版本控制</description>
-    <url>https://gitee.com/anwena/mongo-plus</url>
-    <inceptionYear>2023</inceptionYear>
+    <url>https://www.mongoplus.com</url>
+    <inceptionYear>2024</inceptionYear>
 
     <modules>
         <module>../mongo-plus-annotation</module>
@@ -23,20 +23,20 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
     <scm>
-        <connection>https://gitee.com/anwena/mongo-plus.git</connection>
-        <developerConnection>scm:git:ssh://git@gitee.com:anwena/mongo-plus.git</developerConnection>
-        <url>https://gitee.com/anwena/mongo-plus</url>
+        <connection>https://gitee.com/aizuda/mongo-plus.git</connection>
+        <developerConnection>https://gitee.com/aizuda/mongo-plus.git</developerConnection>
+        <url>https://gitee.com/aizuda/mongo-plus</url>
     </scm>
 
     <developers>
         <developer>
-            <id>jiachaoyang</id>
-            <name>jiachaoyang</name>
+            <id>anwen</id>
+            <name>anwen</name>
             <email>j15030047216@163.com</email>
             <roles>
                 <role>Project Manager</role>
