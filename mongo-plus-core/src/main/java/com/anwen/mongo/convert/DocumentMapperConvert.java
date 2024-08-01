@@ -8,12 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Description: Document转对象
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.convert
- * @Author: JiaChaoYang
- * @CreateTime: 2023-06-07 19:30
- * @Version: 1.0
+ * Document转对象
+ * @author anwen
+ * @date 2024/8/2 上午1:13
  */
 public class DocumentMapperConvert {
 

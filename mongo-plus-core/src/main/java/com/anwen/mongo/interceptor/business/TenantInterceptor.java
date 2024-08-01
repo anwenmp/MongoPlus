@@ -8,7 +8,6 @@ import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.enums.AggregateEnum;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.interceptor.Interceptor;
-import com.anwen.mongo.model.AggregateBasicDBObject;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.QueryParam;
 import com.anwen.mongo.toolkit.BsonUtil;
@@ -76,18 +75,6 @@ public class TenantInterceptor implements Interceptor {
     }
 
     @Override
-    public MutablePair<Bson, Bson> executeUpdate(Bson queryBasic, Bson updateBasic, MongoCollection<Document> collection) {
-        if (!checkTenant(collection)){
-            if (queryBasic == null){
-                queryBasic = Filters.eq(tenantHandler.getTenantIdColumn(),tenantHandler.getTenantId());
-            } else if (!queryBasic.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).containsKey(tenantHandler.getTenantIdColumn())) {
-                queryBasic = BsonUtil.addToMap(queryBasic, tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
-            }
-        }
-        return new MutablePair<>(queryBasic,updateBasic);
-    }
-
-    @Override
     public List<MutablePair<Bson, Bson>> executeUpdate(List<MutablePair<Bson, Bson>> updatePairList, MongoCollection<Document> collection) {
         if (!checkTenant(collection)){
             for (MutablePair<Bson, Bson> mutablePair : updatePairList) {
@@ -113,28 +100,6 @@ public class TenantInterceptor implements Interceptor {
             }
         }
         return new QueryParam(queryBasic,projectionList,sortCond);
-    }
-
-    @Override
-    public List<AggregateBasicDBObject> executeAggregate(List<AggregateBasicDBObject> aggregateConditionList, MongoCollection<Document> collection) {
-        if (!checkTenant(collection)){
-            Bson matchBson = new AggregateWrapper().match(new QueryWrapper<>().eq(tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId())).getAggregateConditionList().get(0);
-            if (CollUtil.isNotEmpty(aggregateConditionList)) {
-                aggregateConditionList.forEach(aggregateBasicDBObject -> {
-                    if (aggregateBasicDBObject.containsKey(AggregateEnum.MATCH.getValue())) {
-                        Bson bson = (Bson) aggregateBasicDBObject.get(AggregateEnum.MATCH.getValue());
-                        if (!bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).containsKey(tenantHandler.getTenantIdColumn())) {
-                            BsonUtil.addToMap(bson, tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
-                        }
-                    } else {
-                        aggregateConditionList.add(new AggregateBasicDBObject(BasicDBObject.parse(matchBson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toJson()), 0));
-                    }
-                });
-            } else {
-                aggregateConditionList.add(new AggregateBasicDBObject(BasicDBObject.parse(matchBson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toJson()), 0));
-            }
-        }
-        return aggregateConditionList;
     }
 
     @Override
@@ -191,10 +156,11 @@ public class TenantInterceptor implements Interceptor {
             }
             List<WriteModel<Document>> updateDocumentList = writeModelList.stream().filter(writeModel -> writeModel instanceof UpdateManyModel).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(updateDocumentList)) {
-                updateDocumentList.forEach(writeModel -> {
+                List<MutablePair<Bson, Bson>> updatePairList = updateDocumentList.stream().map(writeModel -> {
                     UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
-                    executeUpdate(updateManyModel.getFilter(), updateManyModel.getUpdate(), collection);
-                });
+                    return new MutablePair<>(updateManyModel.getFilter(), updateManyModel.getUpdate());
+                }).collect(Collectors.toList());
+                executeUpdate(updatePairList, collection);
             }
         }
         return writeModelList;

@@ -1,14 +1,11 @@
 package com.anwen.mongo.cache.codec;
 
-import org.bson.*;
 import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.jsr310.Jsr310CodecProvider;
-import org.bson.types.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -19,29 +16,6 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
  * @author JiaChaoYang
  **/
 public class MapCodecCache {
-
-    public static List<Class<?>> codecClassCache = new ArrayList<Class<?>>() {{
-        add(Decimal128.class);
-        add(BsonRegularExpression.class);
-        add(Double.class);
-        add(String.class);
-        add(MinKey.class);
-        add(Document.class);
-        add(Date.class);
-        add(Binary.class);
-        add(Symbol.class);
-//        add(List.class);
-        add(Long.class);
-        add(MaxKey.class);
-        add(Code.class);
-        add(Boolean.class);
-        add(BsonDbPointer.class);
-        add(Integer.class);
-        add(BsonTimestamp.class);
-        add(ObjectId.class);
-        add(CodeWithScope.class);
-        add(BsonUndefined.class);
-    }};
 
     /**
      * 默认编解码器

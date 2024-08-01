@@ -6,9 +6,8 @@ import com.anwen.mongo.model.command.CommandStarted;
 import com.anwen.mongo.model.command.CommandSucceeded;
 
 /**
+ * MongoPlus监听器
  * @author JiaChaoYang
- * @project mongo-plus
- * @description MongoPlus拦截器
  * @date 2023-11-22 14:55
  **/
 public class MongoPlusListener implements Listener {

@@ -11,21 +11,18 @@ public class BaseLambdaQueryResult {
 
     /**
      * 条件策略
-     * @author JiaChaoYang
      * @date 2023/12/30 17:30
     */
     private BasicDBObject condition;
 
     /**
      * projection策略
-     * @author JiaChaoYang
      * @date 2023/12/30 17:30
     */
     private BasicDBObject projection;
 
     /**
      * 排序策略
-     * @author JiaChaoYang
      * @date 2023/12/30 17:30
     */
     private BasicDBObject sort;

@@ -9,14 +9,12 @@ public class MutablePair<L,R> extends Pair<L, R> {
 
    /**
     * 左侧对象
-    * @author JiaChaoYang
     * @date 2024/3/16 22:49
    */
     public L left;
 
     /**
      * 右侧对象
-     * @author JiaChaoYang
      * @date 2024/3/16 22:49
     */
     public R right;

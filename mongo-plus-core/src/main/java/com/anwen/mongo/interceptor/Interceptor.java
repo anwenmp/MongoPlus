@@ -1,7 +1,6 @@
 package com.anwen.mongo.interceptor;
 
 import com.anwen.mongo.enums.ExecuteMethodEnum;
-import com.anwen.mongo.model.AggregateBasicDBObject;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.QueryParam;
 import com.mongodb.BasicDBObject;
@@ -79,19 +78,6 @@ public interface Interceptor {
 
     /**
      * 修改拦截方法
-     * @param queryBasic 条件
-     * @param updateBasic 更新
-     * @return {@link com.anwen.mongo.model.MutablePair<org.bson.conversions.Bson,org.bson.conversions.Bson>}
-     * @author anwen
-     * @date 2024/6/27 下午4:38
-     */
-    @Deprecated
-    default MutablePair<Bson, Bson> executeUpdate(Bson queryBasic, Bson updateBasic) {
-        return new MutablePair<>(queryBasic, updateBasic);
-    }
-
-    /**
-     * 修改拦截方法
      * @param updatePairList 值 left=查询条件 right=更新条件
      * @return {@link java.util.List<com.anwen.mongo.model.MutablePair<org.bson.conversions.Bson,org.bson.conversions.Bson>>}
      * @author anwen
@@ -112,18 +98,6 @@ public interface Interceptor {
      */
     default QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond) {
         return new QueryParam(queryBasic, projectionList, sortCond);
-    }
-
-    /**
-     * 管道拦截方法
-     * @param aggregateConditionList 管道对象
-     * @return {@link java.util.List<com.anwen.mongo.model.AggregateBasicDBObject>}
-     * @author anwen
-     * @date 2024/6/27 下午4:39
-     */
-    @Deprecated
-    default List<AggregateBasicDBObject> executeAggregate(List<AggregateBasicDBObject> aggregateConditionList) {
-        return aggregateConditionList;
     }
 
     /**
@@ -183,17 +157,6 @@ public interface Interceptor {
 
     /**
      * 修改拦截方法
-     *
-     * @author JiaChaoYang
-     * @date 2024/3/19 19:18
-     */
-    @Deprecated
-    default MutablePair<Bson, Bson> executeUpdate(Bson queryBasic, Bson updateBasic, MongoCollection<Document> collection) {
-        return new MutablePair<>(queryBasic, updateBasic);
-    }
-
-    /**
-     * 修改拦截方法
      * @param updatePairList 值 left=查询条件 right=更新条件
      * @return {@link java.util.List<com.anwen.mongo.model.MutablePair<org.bson.conversions.Bson,org.bson.conversions.Bson>>}
      * @author anwen
@@ -211,16 +174,6 @@ public interface Interceptor {
      */
     default QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, MongoCollection<Document> collection) {
         return new QueryParam(queryBasic, projectionList, sortCond);
-    }
-
-    /**
-     * 管道拦截方法
-     *
-     * @author JiaChaoYang
-     * @date 2024/3/19 19:18
-     */
-    default List<AggregateBasicDBObject> executeAggregate(List<AggregateBasicDBObject> aggregateConditionList, MongoCollection<Document> collection) {
-        return aggregateConditionList;
     }
 
     /**

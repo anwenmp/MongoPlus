@@ -18,7 +18,6 @@ import java.util.Objects;
  * 执行器代理
  *
  * @author JiaChaoYang
- * @project mongo-plus
  * @date 2024-02-05 09:15
  **/
 public class ExecutorProxy implements InvocationHandler {

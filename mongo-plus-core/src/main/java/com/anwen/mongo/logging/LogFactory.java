@@ -18,7 +18,6 @@ package com.anwen.mongo.logging;
 import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.logging.commons.JakartaCommonsLoggingImpl;
 import com.anwen.mongo.logging.jdk14.Jdk14LoggingImpl;
-import com.anwen.mongo.logging.log4j.Log4jImpl;
 import com.anwen.mongo.logging.log4j2.Log4j2Impl;
 import com.anwen.mongo.logging.nologging.NoLoggingImpl;
 import com.anwen.mongo.logging.slf4j.Slf4jImpl;
@@ -46,7 +45,6 @@ public final class LogFactory {
     tryImplementation(LogFactory::useSlf4jLogging);
     tryImplementation(LogFactory::useCommonsLogging);
     tryImplementation(LogFactory::useLog4J2Logging);
-    tryImplementation(LogFactory::useLog4JLogging);
     tryImplementation(LogFactory::useJdkLogging);
     tryImplementation(LogFactory::useNoLogging);
   }
@@ -81,14 +79,6 @@ public final class LogFactory {
 
   public static void useCommonsLogging() {
     setImplementation(JakartaCommonsLoggingImpl.class);
-  }
-
-  /**
-   * @deprecated Since 3.5.9 - See https://github.com/mybatis/mybatis-3/issues/1223. This method will remove future.
-   */
-  @Deprecated
-  public static void useLog4JLogging() {
-    setImplementation(Log4jImpl.class);
   }
 
   public static void useLog4J2Logging() {

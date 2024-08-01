@@ -3,7 +3,6 @@ package com.anwen.mongo.config;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
-import com.anwen.mongo.handlers.DocumentHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
@@ -73,8 +72,6 @@ public class MongoPlusAutoConfiguration {
         setConversion(context);
         //拿到自动填充处理器
         setMetaObjectHandler(context);
-        //拿到Document处理器
-        setDocumentHandler(context);
         //拿到监听器
         setListener(context);
         //拿到拦截器
@@ -141,10 +138,6 @@ public class MongoPlusAutoConfiguration {
      */
     private void setMetaObjectHandler(AppContext context){
         context.getBeansOfType(MetaObjectHandler.class).forEach(metaObjectHandler -> HandlerCache.metaObjectHandler = metaObjectHandler);
-    }
-
-    private void setDocumentHandler(AppContext appContext){
-        appContext.getBeansOfType(DocumentHandler.class).forEach(documentHandler -> HandlerCache.documentHandler = documentHandler);
     }
 
     /**

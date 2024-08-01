@@ -45,6 +45,7 @@ public class Sorts {
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
      */
+    @SafeVarargs
     public static <T> Bson asc(final SFunction<T,?>... fieldNames) {
         return asc(Arrays.stream(fieldNames).map(SFunction::getFieldNameLine).toArray(String[]::new));
     }
@@ -90,6 +91,7 @@ public class Sorts {
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
      */
+    @SafeVarargs
     public static <T> Bson desc(final SFunction<T,?>... fieldNames) {
         return desc(Arrays.stream(fieldNames).map(SFunction::getFieldNameLine).collect(Collectors.toList()));
     }

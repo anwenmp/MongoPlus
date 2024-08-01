@@ -40,21 +40,6 @@ public class CollectionLogiceInterceptor implements Interceptor {
     }
 
     @Override
-    public MutablePair<Bson, Bson> executeUpdate(Bson queryBasic, Bson updateBasic, MongoCollection<Document> collection) {
-
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
-            return new MutablePair<>(queryBasic, updateBasic);
-        }
-        Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
-        if (LogicDeleteHandler.close() || Objects.isNull(clazz)) {
-            return new MutablePair<>(queryBasic, updateBasic);
-        }
-        Bson query = LogicDeleteHandler.doBsonLogicDel(queryBasic, clazz);
-        return new MutablePair<>(query, updateBasic);
-
-    }
-
-    @Override
     public QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, MongoCollection<Document> collection) {
 
         if (CollectionLogicDeleteCache.getLogicIgnore()) {

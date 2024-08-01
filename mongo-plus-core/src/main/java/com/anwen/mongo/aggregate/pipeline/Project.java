@@ -1,6 +1,6 @@
 package com.anwen.mongo.aggregate.pipeline;
 
-import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
+import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.support.SFunction;
 
 /**

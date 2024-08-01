@@ -1,7 +1,6 @@
 package com.anwen.mongo.mapper;
 
 import com.anwen.mongo.aggregate.Aggregate;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
@@ -180,24 +179,6 @@ public interface SuperMapper {
      * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> list(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, TypeReference<R> typeReference);
-
-    /**
-     * 管道查询
-     * @param queryChainWrapper 管道构建
-     * @return {@link List<T>}
-     * @author anwen
-     * @date 2024/5/4 下午1:24
-     */
-    <T,R> List<R> aggregateList(String database,String collectionName,AggregateChainWrapper<T, ?> queryChainWrapper,Class<R> rClazz);
-
-    /**
-     * 管道查询
-     * @param queryChainWrapper 管道构建
-     * @return {@link List<R>}
-     * @author anwen
-     * @date 2024/5/4 下午1:24
-     */
-    <T,R> List<R> aggregateList(String database,String collectionName,AggregateChainWrapper<T, ?> queryChainWrapper,TypeReference<R> typeReference);
 
     /**
      * 管道查询

@@ -12,7 +12,6 @@ import com.anwen.mongo.manager.DataSourceManager;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapper.DefaultBaseMapperImpl;
-import com.anwen.mongo.mapper.MongoPlusMapMapper;
 import com.anwen.mongo.mapping.MappingMongoConverter;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.SimpleTypeHolder;
@@ -178,20 +177,6 @@ public class MongoPlusConfiguration {
     @ConditionalOnMissingBean(BaseMapper.class)
     public BaseMapper mongoBaseMapper(MongoPlusClient mongoPlusClient, MongoConverter mongoConverter){
         return new DefaultBaseMapperImpl(mongoPlusClient,mongoConverter);
-    }
-
-    /**
-     * 注册MongoPlusMapMapper
-     * @param mongoPlusClient mongoPlusClient
-     * @param mongoConverter 转换器
-     * @return {@link com.anwen.mongo.mapper.MongoPlusMapMapper}
-     * @author anwen
-     * @date 2024/5/27 下午11:19
-     */
-    @Bean("mongoPlusMapMapper")
-    @ConditionalOnMissingBean
-    public MongoPlusMapMapper mongoPlusMapMapper(MongoPlusClient mongoPlusClient,MongoConverter mongoConverter) {
-        return new MongoPlusMapMapper(mongoPlusClient,mongoConverter);
     }
 
     /**

@@ -98,10 +98,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         write(sourceObj,document);
         //添加自动填充字段
         insertFillAutoFillMetaObject.getAllFillFieldAndClear(document);
-        //经过一下Document处理器
-        if (HandlerCache.documentHandler != null){
-            HandlerCache.documentHandler.insertInvoke(Collections.singletonList(document));
-        }
     }
 
     @Override
@@ -132,10 +128,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         write(sourceObj,document);
         //添加自动填充字段
         updateFillAutoFillMetaObject.getAllFillFieldAndClear(document);
-        //经过一下Document处理器
-        if (HandlerCache.documentHandler != null){
-            HandlerCache.documentHandler.updateInvoke(Collections.singletonList(document));
-        }
     }
 
     public void getFillInsertAndUpdateField(TypeInformation typeInformation, AutoFillMetaObject insertFillAutoFillMetaObject, AutoFillMetaObject updateFillAutoFillMetaObject){

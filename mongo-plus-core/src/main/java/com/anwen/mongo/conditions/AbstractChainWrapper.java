@@ -2,7 +2,7 @@ package com.anwen.mongo.conditions;
 
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.conditions.interfaces.Compare;
-import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
+import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
@@ -31,6 +31,7 @@ import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
  */
 public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>> implements Compare<T,Children> {
 
+    @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
 
     /**
@@ -47,14 +48,12 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     /**
      * 构建显示字段
-     * @author JiaChaoYang
      * @date 2023/7/30 20:34
      */
     List<Projection> projectionList = new ArrayList<>();
 
     /**
      * 自定义条件语句
-     * @author JiaChaoYang
      * @date 2023/8/20 19:40
      */
     List<BasicDBObject> basicDBObjectList = new ArrayList<>();

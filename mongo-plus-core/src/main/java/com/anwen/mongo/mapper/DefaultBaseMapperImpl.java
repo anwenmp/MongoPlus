@@ -3,7 +3,6 @@ package com.anwen.mongo.mapper;
 import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.aware.MongoAwareUtils;
 import com.anwen.mongo.aware.impl.NamespaceAware;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -26,7 +25,6 @@ import java.util.List;
  * baseMapper默认实现
  *
  * @author JiaChaoYang
- * @project mongo-plus
  * @date 2024-02-05 11:47
  **/
 public class DefaultBaseMapperImpl extends AbstractBaseMapper {
@@ -54,13 +52,6 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
         Class<?> clazz = entityList.iterator().next().getClass();
         MutablePair<String, String> namespace = getNamespace(clazz);
         return saveBatch(namespace.left, namespace.right, entityList);
-    }
-
-    @Override
-    @Deprecated
-    public Long update(Bson queryBasic, Bson updateBasic, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return update(namespace.left, namespace.right, queryBasic, updateBasic);
     }
 
     @Override
@@ -106,18 +97,6 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     public <T, R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return list(namespace.left, namespace.right, queryChainWrapper, typeReference);
-    }
-
-    @Override
-    public <T, R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, Class<R> rClazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return aggregateList(namespace.left, namespace.right, queryChainWrapper, rClazz);
-    }
-
-    @Override
-    public <T, R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return aggregateList(namespace.left, namespace.right, queryChainWrapper, typeReference);
     }
 
     @Override

@@ -20,10 +20,8 @@ public class ExecutorProxyCache {
     static {
         EXECUTOR_MAP.put(ExecuteMethodEnum.SAVE, new SaveExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.REMOVE, new RemoveExecutorStrategy());
-        EXECUTOR_MAP.put(ExecuteMethodEnum.UPDATE_OLD, new UpdateExecutorOldStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.UPDATE, new UpdateExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.QUERY, new QueryExecutorStrategy());
-        EXECUTOR_MAP.put(ExecuteMethodEnum.AGGREGATE_OLD, new AggregateExecutorOldStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.AGGREGATE, new AggregateExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.COUNT, new CountExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.BULK_WRITE, new BulkWriteExecutorStrategy());

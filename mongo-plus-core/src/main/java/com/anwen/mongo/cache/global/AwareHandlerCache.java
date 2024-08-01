@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author loser
  * @date 2024/6/29
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AwareHandlerCache<T extends Aware> {
 
     private final Map<Class<T>, List<T>> handlerMap = new ConcurrentHashMap<>();

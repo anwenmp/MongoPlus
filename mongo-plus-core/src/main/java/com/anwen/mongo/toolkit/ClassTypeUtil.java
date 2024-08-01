@@ -1,7 +1,6 @@
 package com.anwen.mongo.toolkit;
 
 import com.anwen.mongo.annotation.ID;
-import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.domain.MongoPlusFieldException;
 import com.anwen.mongo.logging.Log;
@@ -12,12 +11,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Description: 获取对象中的所有字段类型
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.utils
- * @Author: JiaChaoYang
- * @CreateTime: 2023-06-06 23:34
- * @Version: 1.0
+ * Class工具类
+ * @author anwen
+ * @date 2024/8/2 上午1:04
  */
 public class ClassTypeUtil {
 
@@ -164,84 +160,7 @@ public class ClassTypeUtil {
     }
 
     /**
-     * 获取类中所有的字段，如果是自定义类型或者Map、Bson类型，也将子字段获取
-     * @author JiaChaoYang
-     * @date 2023/11/9 23:23
-    */
-    public static <T> Set<Class<?>> getAllClass(T entity){
-        Set<Class<?>> set = new HashSet<>();
-        if (entity == null || !CustomClassUtil.isCustomObject(ClassTypeUtil.getClass(entity))){
-            return set;
-        }
-        Class<?> clazz = entity.getClass();
-        if (cacheClass.containsKey(clazz)){
-            return cacheClass.get(clazz);
-        }
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Class<?> fieldType = field.getType();
-            if (MapCodecCache.codecClassCache.contains(fieldType)){
-                continue;
-            }
-            try {
-                if (ClassTypeUtil.isTargetClass(Map.class,fieldType)){
-                    set.addAll(getMapClass((Map<?, ?>) field.get(entity)));
-                }
-                if (CustomClassUtil.isCustomObject(fieldType)){
-                    set.addAll(getAllClass(field.get(entity)));
-                }
-                if (ClassTypeUtil.isTargetClass(List.class,fieldType)){
-                    Class<?> listGenericType = ClassTypeUtil.getListGenericType(field);
-                    if (Map.class.equals(listGenericType) || CustomClassUtil.isCustomObject(listGenericType)){
-                        if (Map.class.equals(listGenericType)){
-                            Type[] typeArguments = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
-                            List<Map<?, ?>> mapList = (List<Map<?, ?>>) field.get(entity);
-                            if (typeArguments[1].equals(Object.class)){
-                                for (Map<?, ?> map : mapList) {
-                                    set.addAll(getMapClass(map));
-                                }
-                            }else {
-                                set.addAll(getMapClass(mapList.get(0)));
-                            }
-                        }else {
-                            set.add(listGenericType);
-                            set.addAll(getAllClass(((List<?>) field.get(entity)).get(0)));
-                        }
-                    }
-                }
-                set.add(fieldType);
-            } catch (IllegalAccessException e) {
-                log.error("get value error: {}",field.getName());
-            }
-        }
-        set.add(entity.getClass());
-        cacheClass.put(clazz,set);
-        return set;
-    }
-
-    private static Set<Class<?>> getMapClass(Map<?,?> map){
-        if (map == null){
-            return new HashSet<>();
-        }
-        return new HashSet<Class<?>>(){{
-            map.values().forEach(value -> {
-                Class<?> clazz = value.getClass();
-                if (MapCodecCache.codecClassCache.contains(clazz)){
-                    return;
-                }
-                add(clazz);
-                if (CustomClassUtil.isCustomObject(clazz)){
-                    addAll(getAllClass(value));
-                }
-            });
-        }};
-    }
-
-    /**
      * 获取类的所有字段，包括父类中的字段
-     * @author: JiaChaoYang
-     * @date: 2023/6/7 21:27
      **/
     public static List<Field> getFields(Class<?> clazz) {
         List<Field> fields = FIELD_CACHE.get(clazz);

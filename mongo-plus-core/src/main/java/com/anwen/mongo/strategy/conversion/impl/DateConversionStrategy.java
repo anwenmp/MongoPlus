@@ -6,9 +6,8 @@ import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import java.util.Date;
 
 /**
+ * Date类型转换器策略实现
  * @author JiaChaoYang
- * @project mongo-plus
- * @description Date类型转换器策略实现
  * @date 2023-10-17 10:40
  **/
 public class DateConversionStrategy implements ConversionStrategy<Date> {

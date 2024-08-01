@@ -3,12 +3,9 @@ package com.anwen.mongo.annotation.collection;
 import java.lang.annotation.*;
 
 /**
- * @Description: 指定表名，不使用此注解默认取实体类名
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.annotation.table
- * @Author: JiaChaoYang
- * @CreateTime: 2023-02-17 21:19
- * @Version: 1.0
+ * 指定表名，不使用此注解默认取实体类名
+ * @author anwen
+ * @date 2024/8/2 上午1:24
  */
 @Target(ElementType.TYPE)
 //运行时注解
@@ -19,14 +16,6 @@ import java.lang.annotation.*;
 public @interface CollectionName {
     String value();
 
-    /**
-     * 多数据源选项，对应配置文件中的slaveName
-     * @author JiaChaoYang
-     * @date 2023/10/17 0:22
-    */
-    @Deprecated
-    String dataSource() default "";
-    
     /**
      * 选择数据库，可以写配置文件中没有的
      * @author JiaChaoYang

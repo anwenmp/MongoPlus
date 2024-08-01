@@ -1,6 +1,5 @@
 package com.anwen.mongo.cache.global;
 
-import com.anwen.mongo.handlers.DocumentHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.ReadHandler;
 import com.anwen.mongo.handlers.condition.ConditionHandler;
@@ -22,12 +21,6 @@ public class HandlerCache {
      * @date 2023/11/23 12:53
     */
     public static MetaObjectHandler metaObjectHandler;
-
-    /**
-     * Document处理器，只应有一个
-     * @date 2023/11/23 12:54
-    */
-    public static DocumentHandler documentHandler;
 
     /**
      * 读取处理器，可多个

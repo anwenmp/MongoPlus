@@ -9,12 +9,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * @Description: 拼接mongodb连接
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.utils
- * @Author: JiaChaoYang
- * @CreateTime: 2023-02-26 21:56
- * @Version: 1.0
+ * 拼接mongodb连接
+ * @author anwen
+ * @date 2024/8/2 上午1:07
  */
 public class UrlJoint {
 

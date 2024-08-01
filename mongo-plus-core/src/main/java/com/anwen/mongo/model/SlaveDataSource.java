@@ -1,12 +1,9 @@
 package com.anwen.mongo.model;
 
 /**
- * @Description:
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.sql.model
- * @Author: JiaChaoYang
- * @CreateTime: 2023-02-18 15:05
- * @Version: 1.0
+ * 从配置
+ * @author anwen
+ * @date 2024/8/2 上午1:01
  */
 public class SlaveDataSource extends BaseProperty {
     /**

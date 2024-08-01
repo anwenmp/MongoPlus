@@ -8,9 +8,8 @@ import java.time.LocalDate;
 import java.util.Date;
 
 /**
+ * LocalDate类型转换策略
  * @author JiaChaoYang
- * @project mongo-plus
- * @description LocalDate类型转换策略
  * @date 2023-10-17 09:59
  **/
 public class LocalDateConversionStrategy implements ConversionStrategy<LocalDate> {

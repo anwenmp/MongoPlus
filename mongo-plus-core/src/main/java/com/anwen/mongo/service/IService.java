@@ -2,7 +2,6 @@ package com.anwen.mongo.service;
 
 import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.aggregate.LambdaAggregateChainWrapper;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.query.LambdaQueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.update.LambdaUpdateChainWrapper;
@@ -212,41 +211,6 @@ public interface IService<T> {
 
     /**
      * 管道查询
-     * 请使用：{@link #list(Aggregate)}
-     * @param queryChainWrapper 管道
-     * @return {@link java.util.List<T>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    List<T> aggregateList(AggregateChainWrapper<T,?> queryChainWrapper);
-
-    /**
-     * 管道查询
-     * 请使用: {@link #list(Aggregate, Class)}
-     * @param queryChainWrapper 管道
-     * @param rClazz 返回值类型
-     * @return {@link java.util.List<R>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    <R> List<R> aggregateList(AggregateChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
-
-    /**
-     * 管道查询
-     * 请使用: {@link #list(Aggregate, Class)}
-     * @param queryChainWrapper 管道
-     * @param typeReference 返回值类型
-     * @return {@link java.util.List<R>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    <R> List<R> aggregateList(AggregateChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
-
-    /**
-     * 管道查询
      * @param aggregate 管道
      * @return {@link List<T>}
      * @author anwen
@@ -331,41 +295,6 @@ public interface IService<T> {
      * @date 2024/6/23 下午5:13
      */
     <R> List<R> list(QueryChainWrapper<T ,?> queryChainWrapper,TypeReference<R> typeReference);
-
-    /**
-     * 管道查询
-     * 请使用：{@link #list(Aggregate)}
-     * @param queryChainWrapper 管道
-     * @return {@link java.util.List<T>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    List<T> list(AggregateChainWrapper<T,?> queryChainWrapper);
-
-    /**
-     * 管道查询
-     * 请使用: {@link #list(Aggregate, Class)}
-     * @param queryChainWrapper 管道
-     * @param rClazz 返回值类型
-     * @return {@link java.util.List<R>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    <R> List<R> list(AggregateChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
-
-    /**
-     * 管道查询
-     * 请使用: {@link #list(Aggregate, Class)}
-     * @param queryChainWrapper 管道
-     * @param typeReference 返回值类型
-     * @return {@link java.util.List<R>}
-     * @author anwen
-     * @date 2024/6/23 下午5:03
-     */
-    @Deprecated
-    <R> List<R> list(AggregateChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
 
     /**
      * 获取总数
@@ -1058,14 +987,13 @@ public interface IService<T> {
      */
     LambdaQueryChainWrapper<T> lambdaQuery();
 
-    @Deprecated
     /**
-     * 获取管道构造器，请使用 {@link #lambdaAggregates()}
-     * @return {@link com.anwen.mongo.conditions.aggregate.LambdaAggregateChainWrapper<T>}
+     * 获取管道构造器
+     * @return {@link com.anwen.mongo.aggregate.LambdaAggregateChainWrapper<T>}
      * @author anwen
      * @date 2024/6/20 下午11:34
      */
-    com.anwen.mongo.conditions.aggregate.LambdaAggregateChainWrapper<T> lambdaAggregate();
+    LambdaAggregateChainWrapper<T> lambdaAggregate();
 
     /**
      * 获取管道构造器

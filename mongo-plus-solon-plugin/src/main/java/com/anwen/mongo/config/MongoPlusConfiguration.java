@@ -12,7 +12,6 @@ import com.anwen.mongo.manager.DataSourceManager;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapper.DefaultBaseMapperImpl;
-import com.anwen.mongo.mapper.MongoPlusMapMapper;
 import com.anwen.mongo.mapping.MappingMongoConverter;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.SimpleTypeHolder;
@@ -127,12 +126,6 @@ public class MongoPlusConfiguration {
     }
 
     @Bean
-    @Condition(onMissingBean = MongoPlusMapMapper.class)
-    public MongoPlusMapMapper mongoPlusMapMapper(MongoPlusClient mongoPlusClient,MongoConverter mongoConverter) {
-        return new MongoPlusMapMapper(mongoPlusClient,mongoConverter);
-    }
-
-    @Bean
     @Condition(onMissingBean = SimpleTypeHolder.class)
     public SimpleTypeHolder simpleTypeHolder() {
         SimpleTypeHolder simpleTypeHolder = new SimpleTypeHolder();
@@ -147,7 +140,6 @@ public class MongoPlusConfiguration {
     }
 
     @Bean("mongoTransactionalAspect")
-    @Deprecated
     @Condition(onMissingBean = MongoTransactionalAspect.class)
     public MongoTransactionalAspect mongoTransactionalAspect(MongoClient mongoClient) {
         return new MongoTransactionalAspect(mongoClient);

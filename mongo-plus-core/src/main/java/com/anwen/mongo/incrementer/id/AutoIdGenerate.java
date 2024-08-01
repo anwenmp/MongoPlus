@@ -3,9 +3,8 @@ package com.anwen.mongo.incrementer.id;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 自增id生成
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 自增id生成
  * @date 2023-11-24 09:19
  **/
 public class AutoIdGenerate {
@@ -39,14 +38,6 @@ public class AutoIdGenerate {
         counter = new AtomicInteger(0);
     }
 
-    /**
-     * 默认从X开始
-     * @author JiaChaoYang
-     * @date 2023/11/24 9:22
-    */
-/*    public AutoIdGenerate(int initialValue){
-        counter = new AtomicInteger(initialValue);
-    }*/
 
     /**
      * 获取下一个id
@@ -54,8 +45,7 @@ public class AutoIdGenerate {
      * @date 2023/11/24 9:21
     */
     public synchronized int getNextId() {
-        int i = counter.incrementAndGet();
-        return i;
+        return counter.incrementAndGet();
     }
 
     public synchronized void addAndGet(int delta){

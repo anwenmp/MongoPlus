@@ -3,7 +3,6 @@ package com.anwen.mongo.mapper;
 import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.cache.global.InterceptorCache;
 import com.anwen.mongo.cache.global.TenantCache;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -18,7 +17,10 @@ import com.anwen.mongo.logic.LogicDeleteHandler;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.TypeReference;
-import com.anwen.mongo.model.*;
+import com.anwen.mongo.model.BaseLambdaQueryResult;
+import com.anwen.mongo.model.MutablePair;
+import com.anwen.mongo.model.PageParam;
+import com.anwen.mongo.model.PageResult;
 import com.anwen.mongo.toolkit.Filters;
 import com.anwen.mongo.toolkit.*;
 import com.mongodb.BasicDBObject;
@@ -225,26 +227,6 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         BaseLambdaQueryResult baseLambdaQuery = lambdaOperate.baseLambdaQuery(queryChainWrapper.getCompareList(),queryChainWrapper.getOrderList(),queryChainWrapper.getProjectionList(),queryChainWrapper.getBasicDBObjectList());
         FindIterable<Document> documentFindIterable = factory.getExecute().executeQuery(baseLambdaQuery.getCondition(), baseLambdaQuery.getProjection(), baseLambdaQuery.getSort(), Document.class, mongoPlusClient.getCollection(database, collectionName));
         return mongoConverter.read(documentFindIterable, typeReference);
-    }
-
-    @Override
-    public <T, R> List<R> aggregateList(String database, String collectionName, AggregateChainWrapper<T, ?> queryChainWrapper, Class<R> rClazz) {
-        return aggregateList(database,collectionName,queryChainWrapper,new TypeReference<R>(rClazz){});
-    }
-
-    @Override
-    public <T, R> List<R> aggregateList(String database, String collectionName, AggregateChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
-        List<BaseAggregate> aggregateList = queryChainWrapper.getBaseAggregateList();
-        List<AggregateBasicDBObject> basicDBObjectList = queryChainWrapper.getBasicDBObjectList();
-        BasicDBObject optionsBasicDBObject = queryChainWrapper.getOptionsBasicDBObject();
-        List<AggregateBasicDBObject> aggregateConditionList = new ArrayList<AggregateBasicDBObject>() {{
-            aggregateList.forEach(aggregate -> add(new AggregateBasicDBObject("$" + aggregate.getType(), aggregate.getPipelineStrategy().buildAggregate(),aggregate.getOrder())));
-            addAll(basicDBObjectList);
-        }};
-        aggregateConditionList.sort(Comparator.comparingInt(AggregateBasicDBObject::getOrder));
-        AggregateIterable<Document> aggregateIterable = factory.getExecute().executeAggregateOld(aggregateConditionList, Document.class, mongoPlusClient.getCollection(database, collectionName));
-        AggregateUtil.aggregateOptions(aggregateIterable,optionsBasicDBObject);
-        return mongoConverter.read(aggregateIterable,typeReference);
     }
 
     @Override

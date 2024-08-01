@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * id 获取器
- * @reference mp
+ * @since mp
  * @author JiaChaoYang
  * @date 2023/8/12 0:33
 */

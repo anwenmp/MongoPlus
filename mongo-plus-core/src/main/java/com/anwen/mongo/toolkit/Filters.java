@@ -36,7 +36,7 @@ public final class Filters {
      * @param value   the value, which may be null
      * @param <TItem> the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/eq $eq
+     * &#064;mongodb.driver.manual  reference/operator/query/eq $eq
      * @since 3.4
      */
     public static <TItem> Bson eq(@Nullable final TItem value) {
@@ -51,7 +51,7 @@ public final class Filters {
      * @param value     the value, which may be null
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/eq $eq
+     * &#064;mongodb.driver.manual  reference/operator/query/eq $eq
      */
     public static <TItem> Bson eq(final String fieldName, @Nullable final TItem value) {
         return new SimpleEncodingFilter<>(fieldName, value);
@@ -64,7 +64,7 @@ public final class Filters {
      * @param value     the value, which may be null
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/ne $ne
+     * &#064;mongodb.driver.manual  reference/operator/query/ne $ne
      */
     public static <TItem> Bson ne(final String fieldName, @Nullable final TItem value) {
         return new OperatorFilter<>("$ne", fieldName, value);
@@ -77,7 +77,7 @@ public final class Filters {
      * @param value     the value
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/gt $gt
+     * &#064;mongodb.driver.manual reference/operator/query/gt $gt
      */
     public static <TItem> Bson gt(final String fieldName, final TItem value) {
         return new OperatorFilter<>("$gt", fieldName, value);
@@ -90,7 +90,7 @@ public final class Filters {
      * @param value     the value
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/lt $lt
+     * &#064;mongodb.driver.manual reference/operator/query/lt $lt
      */
     public static <TItem> Bson lt(final String fieldName, final TItem value) {
         return new OperatorFilter<>("$lt", fieldName, value);
@@ -103,7 +103,7 @@ public final class Filters {
      * @param value     the value
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/gte $gte
+     * &#064;mongodb.driver.manual reference/operator/query/gte $gte
      */
     public static <TItem> Bson gte(final String fieldName, final TItem value) {
         return new OperatorFilter<>("$gte", fieldName, value);
@@ -116,7 +116,7 @@ public final class Filters {
      * @param value     the value
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/lte $lte
+     * &#064;mongodb.driver.manual reference/operator/query/lte $lte
      */
     public static <TItem> Bson lte(final String fieldName, final TItem value) {
         return new OperatorFilter<>("$lte", fieldName, value);
@@ -129,7 +129,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/in $in
+     * &#064;mongodb.driver.manual reference/operator/query/in $in
      */
     @SafeVarargs
     @SuppressWarnings("varargs")
@@ -144,7 +144,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/in $in
+     * &#064;mongodb.driver.manual reference/operator/query/in $in
      */
     public static <TItem> Bson in(final String fieldName, final Iterable<TItem> values) {
         return new IterableOperatorFilter<>(fieldName, "$in", values);
@@ -157,7 +157,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/nin $nin
+     * &#064;mongodb.driver.manual reference/operator/query/nin $nin
      */
     @SafeVarargs
     @SuppressWarnings("varargs")
@@ -172,7 +172,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/nin $nin
+     * &#064;mongodb.driver.manual reference/operator/query/nin $nin
      */
     public static <TItem> Bson nin(final String fieldName, final Iterable<TItem> values) {
         return new IterableOperatorFilter<>(fieldName, "$nin", values);
@@ -192,7 +192,7 @@ public final class Filters {
      *
      * @param filters the list of filters to and together
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/and $and
+     * &#064;mongodb.driver.manual reference/operator/query/and $and
      */
     public static Bson and(final Iterable<Bson> filters) {
         return new AndFilter(filters);
@@ -212,7 +212,7 @@ public final class Filters {
      *
      * @param filters the list of filters to and together
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/and $and
+     * &#064;mongodb.driver.manual reference/operator/query/and $and
      */
     public static Bson and(final Bson... filters) {
         return and(asList(filters));
@@ -223,7 +223,7 @@ public final class Filters {
      *
      * @param filters the list of filters to and together
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/or $or
+     * &#064;mongodb.driver.manual reference/operator/query/or $or
      */
     public static Bson or(final Iterable<Bson> filters) {
         return new OrNorFilter(OrNorFilter.Operator.OR, filters);
@@ -234,7 +234,7 @@ public final class Filters {
      *
      * @param filters the list of filters to and together
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/or $or
+     * &#064;mongodb.driver.manual reference/operator/query/or $or
      */
     public static Bson or(final Bson... filters) {
         return or(asList(filters));
@@ -255,7 +255,7 @@ public final class Filters {
      *
      * @param filter the value
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/not $not
+     * &#064;mongodb.driver.manual reference/operator/query/not $not
      */
     public static Bson not(final Bson filter) {
         return new NotFilter(filter);
@@ -266,7 +266,7 @@ public final class Filters {
      *
      * @param filters the list of values
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/nor $nor
+     * &#064;mongodb.driver.manual reference/operator/query/nor $nor
      */
     public static Bson nor(final Bson... filters) {
         return nor(asList(filters));
@@ -277,7 +277,7 @@ public final class Filters {
      *
      * @param filters the list of values
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/nor $nor
+     * &#064;mongodb.driver.manual reference/operator/query/nor $nor
      */
     public static Bson nor(final Iterable<Bson> filters) {
         return new OrNorFilter(OrNorFilter.Operator.NOR, filters);
@@ -288,7 +288,7 @@ public final class Filters {
      *
      * @param fieldName the field name
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/exists $exists
+     * &#064;mongodb.driver.manual reference/operator/query/exists $exists
      */
     public static Bson exists(final String fieldName) {
         return exists(fieldName, true);
@@ -301,7 +301,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param exists    true to check for existence, false to check for absence
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/exists $exists
+     * &#064;mongodb.driver.manual reference/operator/query/exists $exists
      */
 
     public static Bson exists(final String fieldName, final boolean exists) {
@@ -314,7 +314,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param type      the BSON type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/type $type
+     * &#064;mongodb.driver.manual reference/operator/query/type $type
      */
     public static Bson type(final String fieldName, final BsonType type) {
         return new OperatorFilter<>("$type", fieldName, new BsonInt32(type.getValue()));
@@ -326,7 +326,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param type      the string representation of the BSON type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/type $type
+     * &#064;mongodb.driver.manual reference/operator/query/type $type
      */
     public static Bson type(final String fieldName, final String type) {
         return new OperatorFilter<>("$type", fieldName, new BsonString(type));
@@ -340,7 +340,7 @@ public final class Filters {
      * @param divisor   the modulus
      * @param remainder the remainder
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/mod $mod
+     * &#064;mongodb.driver.manual reference/operator/query/mod $mod
      */
     public static Bson mod(final String fieldName, final long divisor, final long remainder) {
         return new OperatorFilter<>("$mod", fieldName, new BsonArray(asList(new BsonInt64(divisor), new BsonInt64(remainder))));
@@ -352,7 +352,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param pattern   the pattern
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/regex $regex
+     * &#064;mongodb.driver.manual reference/operator/query/regex $regex
      */
     public static Bson regex(final String fieldName, final String pattern) {
         return regex(fieldName, pattern, null);
@@ -366,7 +366,7 @@ public final class Filters {
      * @param pattern   the pattern
      * @param options   the options
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/regex $regex
+     * &#064;mongodb.driver.manual reference/operator/query/regex $regex
      */
     public static Bson regex(final String fieldName, final String pattern, @Nullable final String options) {
         notNull("pattern", pattern);
@@ -379,7 +379,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param pattern   the pattern
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/regex $regex
+     * &#064;mongodb.driver.manual reference/operator/query/regex $regex
      */
     public static Bson regex(final String fieldName, final Pattern pattern) {
         notNull("pattern", pattern);
@@ -402,7 +402,7 @@ public final class Filters {
      *
      * @param javaScriptExpression the JavaScript expression
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/where $where
+     * &#064;mongodb.driver.manual reference/operator/query/where $where
      */
     public static Bson where(final String javaScriptExpression) {
         notNull("javaScriptExpression", javaScriptExpression);
@@ -415,8 +415,8 @@ public final class Filters {
      * @param expression    the aggregation expression
      * @param <TExpression> the expression type
      * @return the filter
-     * @mongodb.server.release 3.6
-     * @mongodb.driver.manual reference/operator/query/expr/ $expr
+     * &#064;mongodb.server.release  3.6
+     * &#064;mongodb.driver.manual reference/operator/query/expr/ $expr
      * @since 3.6
      */
     public static <TExpression> Bson expr(final TExpression expression) {
@@ -430,7 +430,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/all $all
+     * &#064;mongodb.driver.manual reference/operator/query/all $all
      */
     @SafeVarargs
     @SuppressWarnings("varargs")
@@ -445,7 +445,7 @@ public final class Filters {
      * @param values    the list of values
      * @param <TItem>   the value type
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/all $all
+     * &#064;mongodb.driver.manual reference/operator/query/all $all
      */
     public static <TItem> Bson all(final String fieldName, final Iterable<TItem> values) {
         return new IterableOperatorFilter<>(fieldName, "$all", values);
@@ -458,7 +458,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param filter    the filter to apply to each element
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/elemMatch $elemMatch
+     * &#064;mongodb.driver.manual reference/operator/query/elemMatch $elemMatch
      */
     public static Bson elemMatch(final String fieldName, final Bson filter) {
         return new Bson() {
@@ -475,7 +475,7 @@ public final class Filters {
      * @param fieldName the field name
      * @param size      the size of the array
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/size $size
+     * &#064;mongodb.driver.manual reference/operator/query/size $size
      */
     public static Bson size(final String fieldName, final int size) {
         return new OperatorFilter<>("$size", fieldName, size);
@@ -487,8 +487,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param bitmask   the bitmask
      * @return the filter
-     * @mongodb.server.release 3.2
-     * @mongodb.driver.manual reference/operator/query/bitsAllClear $bitsAllClear
+     * &#064;mongodb.server.release  3.2
+     * &#064;mongodb.driver.manual reference/operator/query/bitsAllClear $bitsAllClear
      * @since 3.2
      */
     public static Bson bitsAllClear(final String fieldName, final long bitmask) {
@@ -501,8 +501,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param bitmask   the bitmask
      * @return the filter
-     * @mongodb.server.release 3.2
-     * @mongodb.driver.manual reference/operator/query/bitsAllSet $bitsAllSet
+     * &#064;mongodb.server.release 3.2
+     * &#064;mongodb.driver.manual reference/operator/query/bitsAllSet $bitsAllSet
      * @since 3.2
      */
     public static Bson bitsAllSet(final String fieldName, final long bitmask) {
@@ -515,8 +515,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param bitmask   the bitmask
      * @return the filter
-     * @mongodb.server.release 3.2
-     * @mongodb.driver.manual reference/operator/query/bitsAllClear $bitsAllClear
+     * &#064;mongodb.server.release 3.2
+     * &#064;mongodb.driver.manual reference/operator/query/bitsAllClear $bitsAllClear
      * @since 3.2
      */
     public static Bson bitsAnyClear(final String fieldName, final long bitmask) {
@@ -529,8 +529,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param bitmask   the bitmask
      * @return the filter
-     * @mongodb.server.release 3.2
-     * @mongodb.driver.manual reference/operator/query/bitsAnySet $bitsAnySet
+     * &#064;mongodb.server.release 3.2
+     * &#064;mongodb.driver.manual reference/operator/query/bitsAnySet $bitsAnySet
      * @since 3.2
      */
     public static Bson bitsAnySet(final String fieldName, final long bitmask) {
@@ -543,8 +543,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param geometry  the bounding GeoJSON geometry object
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithin(final String fieldName, final Geometry geometry) {
@@ -557,8 +557,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param geometry  the bounding GeoJSON geometry object
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithin(final String fieldName, final Bson geometry) {
@@ -575,9 +575,9 @@ public final class Filters {
      * @param upperRightX the upper left x coordinate of the box
      * @param upperRightY the upper left y coordinate of the box
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.driver.manual reference/operator/query/box/#op._S_box $box
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.driver.manual reference/operator/query/box/#op._S_box $box
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithinBox(final String fieldName, final double lowerLeftX, final double lowerLeftY, final double upperRightX,
@@ -597,9 +597,9 @@ public final class Filters {
      * @param fieldName the field name
      * @param points    a list of pairs of x, y coordinates.  Any extra dimensions are ignored
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.driver.manual reference/operator/query/polygon/#op._S_polygon $polygon
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.driver.manual reference/operator/query/polygon/#op._S_polygon $polygon
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithinPolygon(final String fieldName, final List<List<Double>> points) {
@@ -620,9 +620,9 @@ public final class Filters {
      * @param y         the y coordinate of the circle
      * @param radius    the radius of the circle, as measured in the units used by the coordinate system
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.driver.manual reference/operator/query/center/#op._S_center $center
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.driver.manual reference/operator/query/center/#op._S_center $center
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithinCenter(final String fieldName, final double x, final double y, final double radius) {
@@ -642,9 +642,9 @@ public final class Filters {
      * @param y         the y coordinate of the circle
      * @param radius    the radius of the circle, in radians
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
-     * @mongodb.driver.manual reference/operator/query/centerSphere/#op._S_centerSphere $centerSphere
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoWithin/ $geoWithin
+     * &#064;mongodb.driver.manual reference/operator/query/centerSphere/#op._S_centerSphere $centerSphere
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoWithinCenterSphere(final String fieldName, final double x, final double y, final double radius) {
@@ -661,8 +661,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param geometry  the bounding GeoJSON geometry object
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoIntersects/ $geoIntersects
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoIntersects/ $geoIntersects
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoIntersects(final String fieldName, final Bson geometry) {
@@ -675,8 +675,8 @@ public final class Filters {
      * @param fieldName the field name
      * @param geometry  the bounding GeoJSON geometry object
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/geoIntersects/ $geoIntersects
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/geoIntersects/ $geoIntersects
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson geoIntersects(final String fieldName, final Geometry geometry) {
@@ -691,8 +691,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in meters. It may be null.
      * @param minDistance the minimum distance from the point, in meters. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson near(final String fieldName, final Point geometry, @Nullable final Double maxDistance,
@@ -708,8 +708,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in meters. It may be null.
      * @param minDistance the minimum distance from the point, in meters. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson near(final String fieldName, final Bson geometry, @Nullable final Double maxDistance,
@@ -726,8 +726,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in radians. It may be null.
      * @param minDistance the minimum distance from the point, in radians. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson near(final String fieldName, final double x, final double y, @Nullable final Double maxDistance,
@@ -744,8 +744,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in meters. It may be null.
      * @param minDistance the minimum distance from the point, in meters. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson nearSphere(final String fieldName, final Point geometry, @Nullable final Double maxDistance,
@@ -762,8 +762,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in meters. It may be null.
      * @param minDistance the minimum distance from the point, in meters. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson nearSphere(final String fieldName, final Bson geometry, @Nullable final Double maxDistance,
@@ -781,8 +781,8 @@ public final class Filters {
      * @param maxDistance the maximum distance from the point, in radians. It may be null.
      * @param minDistance the minimum distance from the point, in radians. It may be null.
      * @return the filter
-     * @mongodb.driver.manual reference/operator/query/near/ $near
-     * @mongodb.server.release 2.4
+     * &#064;mongodb.driver.manual reference/operator/query/near/ $near
+     * &#064;mongodb.server.release 2.4
      * @since 3.1
      */
     public static Bson nearSphere(final String fieldName, final double x, final double y, @Nullable final Double maxDistance,
@@ -795,8 +795,8 @@ public final class Filters {
      *
      * @param schema the JSON schema to validate against
      * @return the filter
-     * @mongodb.server.release 3.6
-     * @mongodb.driver.manual reference/operator/query/jsonSchema/ $jsonSchema
+     * &#064;mongodb.server.release 3.6
+     * &#064;mongodb.driver.manual reference/operator/query/jsonSchema/ $jsonSchema
      * @since 3.6
      */
     public static Bson jsonSchema(final Bson schema) {

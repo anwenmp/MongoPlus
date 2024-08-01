@@ -54,9 +54,7 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection, List<Document> documentList){
-        sourceObjCollection.forEach(sourceObj -> {
-            documentList.add(write(sourceObj));
-        });
+        sourceObjCollection.forEach(sourceObj -> documentList.add(write(sourceObj)));
         return documentList;
     }
 
@@ -67,9 +65,7 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection){
         return new ArrayList<Document>(){{
-            sourceObjCollection.forEach(sourceObj -> {
-                add(write(sourceObj));
-            });
+            sourceObjCollection.forEach(sourceObj -> add(write(sourceObj)));
         }};
     }
 

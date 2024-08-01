@@ -5,9 +5,8 @@ import com.anwen.mongo.model.command.CommandStarted;
 import com.anwen.mongo.model.command.CommandSucceeded;
 
 /**
+ * 监听器
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 拦截器，实际上是通过mongo的命令监听器实现，MongoDB团队并不推荐这么做
  * @date 2023-11-22 14:12
  **/
 public interface Listener {

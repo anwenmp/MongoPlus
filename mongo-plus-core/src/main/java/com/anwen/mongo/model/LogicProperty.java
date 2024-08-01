@@ -2,8 +2,6 @@ package com.anwen.mongo.model;
 
 /**
  * @author JiaChaoYang
- * @project mongo-plus
- * @description
  * @date 2023-02-23 10:42
  **/
 public class LogicProperty {

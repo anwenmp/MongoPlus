@@ -1,12 +1,10 @@
 package com.anwen.mongo.mapper;
 
 import com.anwen.mongo.aggregate.Aggregate;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
-import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.TypeReference;
 import com.anwen.mongo.model.PageResult;
 import com.mongodb.client.model.*;
@@ -38,14 +36,6 @@ public interface BaseMapper extends Mapper {
      * @date 2024/5/4 下午1:20
      */
     <T> Boolean saveBatch(Collection<T> entityList);
-
-    /**
-     * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
-     * @author anwen
-     * @date 2024/5/4 下午1:21
-     */
-    @Deprecated
-    Long update(Bson queryBasic,Bson updateBasic,Class<?> clazz);
 
     /**
      * 批量操作
@@ -193,39 +183,6 @@ public interface BaseMapper extends Mapper {
      * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> list(QueryChainWrapper<T,?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference);
-
-    /**
-     * 管道查询
-     * @param queryChainWrapper 管道构建
-     * @param clazz class
-     * @return {@link List<T>}
-     * @author anwen
-     * @date 2024/5/4 下午1:24
-     */
-    <T,R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, Class<R> rClazz);
-
-    /**
-     * 管道查询
-     * @param queryChainWrapper 管道构建
-     * @param clazz class
-     * @return {@link List<T>}
-     * @author anwen
-     * @date 2024/5/4 下午1:24
-     */
-    @SuppressWarnings("unchecked")
-    default <T,R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<R> clazz){
-        return aggregateList(queryChainWrapper, (Class<T>)clazz, clazz);
-    }
-
-    /**
-     * 管道查询
-     * @param queryChainWrapper 管道构建
-     * @param clazz class
-     * @return {@link List<T>}
-     * @author anwen
-     * @date 2024/5/4 下午1:24
-     */
-    <T,R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference);
 
     /**
      * 管道查询

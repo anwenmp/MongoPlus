@@ -2,7 +2,6 @@ package com.anwen.mongo.execute.instance;
 
 import com.anwen.mongo.convert.DocumentMapperConvert;
 import com.anwen.mongo.execute.Execute;
-import com.anwen.mongo.model.AggregateBasicDBObject;
 import com.anwen.mongo.model.MutablePair;
 import com.mongodb.BasicDBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * 默认执行器实例
  *
  * @author JiaChaoYang
- * @project mongo-plus
  * @date 2023-12-28 11:03
  **/
 public class DefaultExecute implements Execute {
@@ -55,11 +53,6 @@ public class DefaultExecute implements Execute {
     }
 
     @Override
-    public <T> AggregateIterable<T> executeAggregateOld(List<AggregateBasicDBObject> aggregateConditionList, Class<T> clazz, MongoCollection<Document> collection) {
-        return collection.aggregate(aggregateConditionList, clazz);
-    }
-
-    @Override
     public <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList, Class<T> clazz, MongoCollection<Document> collection) {
         return collection.aggregate(aggregateConditionList,clazz);
     }
@@ -72,11 +65,6 @@ public class DefaultExecute implements Execute {
     @Override
     public long estimatedDocumentCount(MongoCollection<Document> collection) {
         return collection.estimatedDocumentCount();
-    }
-
-    @Override
-    public UpdateResult executeUpdate(Bson queryBasic, Bson updateBasic, MongoCollection<Document> collection) {
-        return collection.updateMany(queryBasic,updateBasic);
     }
 
     @Override

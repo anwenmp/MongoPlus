@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 集合工具类
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 集合工具类
  * @date 2023-09-22 11:48
  **/
 public class CollUtil {

@@ -30,7 +30,6 @@ public class MongoPlusClient {
 
     /**
      * 连接管理器
-     * @author JiaChaoYang
      * @date 2024/1/6 2:12
     */
     private Map<String,Map<String,CollectionManager>> collectionManagerMap;

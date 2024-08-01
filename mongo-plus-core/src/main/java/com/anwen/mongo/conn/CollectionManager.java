@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 连接管理器
  *
  * @author JiaChaoYang
- * @project mongo-plus
  * @date 2023-12-28 11:13
  **/
 public class CollectionManager {
@@ -22,7 +21,6 @@ public class CollectionManager {
     /**
      * 缓存mongoCollection
      *
-     * @author JiaChaoYang
      * @date 2023/12/28 10:58
      */
     private final Map<String, MongoCollection<Document>> collectionMap = new ConcurrentHashMap<>();

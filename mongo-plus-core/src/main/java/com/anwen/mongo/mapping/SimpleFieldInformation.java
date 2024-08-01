@@ -109,7 +109,7 @@ public class SimpleFieldInformation<T> implements FieldInformation {
     @Override
     public String getCamelCaseName() {
         if (this.camelCaseName == null) {
-            this.camelCaseName = PropertyCache.camelToUnderline || PropertyCache.mapUnderscoreToCamelCase ? StringUtils.camelToUnderline(getName()) : getName();
+            this.camelCaseName = PropertyCache.camelToUnderline ? StringUtils.camelToUnderline(getName()) : getName();
         }
         return this.camelCaseName;
     }

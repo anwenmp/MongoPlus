@@ -9,7 +9,6 @@ import com.anwen.mongo.domain.InitMongoLogicException;
 import com.anwen.mongo.domain.InitMongoPlusException;
 import com.anwen.mongo.enums.CollectionNameConvertEnum;
 import com.anwen.mongo.factory.MongoClientFactory;
-import com.anwen.mongo.handlers.DocumentHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
@@ -25,7 +24,6 @@ import com.anwen.mongo.logic.replacer.LogicRemoveReplacer;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapper.DefaultBaseMapperImpl;
-import com.anwen.mongo.mapper.MongoPlusMapMapper;
 import com.anwen.mongo.mapping.FieldInformation;
 import com.anwen.mongo.mapping.MappingMongoConverter;
 import com.anwen.mongo.mapping.MongoConverter;
@@ -60,7 +58,6 @@ public class Configuration {
     /**
      * MongoDB连接URL
      *
-     * @author JiaChaoYang
      * @date 2024/3/19 18:25
      */
     private String url;
@@ -68,15 +65,12 @@ public class Configuration {
     /**
      * 属性配置文件，url和baseProperty存在一个即可
      *
-     * @author JiaChaoYang
      * @date 2024/3/19 18:25
      */
     private BaseProperty baseProperty = new BaseProperty();
 
     /**
      * 逻辑删除配置
-     *
-     * @author loser
      */
     private LogicProperty logicProperty = new LogicProperty();
 
@@ -172,19 +166,6 @@ public class Configuration {
      */
     public Configuration metaObjectHandler(MetaObjectHandler metaObjectHandler) {
         HandlerCache.metaObjectHandler = metaObjectHandler;
-        return this;
-    }
-
-    /**
-     * 设置Document处理器
-     *
-     * @param documentHandler document处理器
-     * @return com.anwen.mongo.config.Configuration
-     * @author JiaChaoYang
-     * @date 2024/3/19 18:30
-     */
-    public Configuration documentHandler(DocumentHandler documentHandler) {
-        HandlerCache.documentHandler = documentHandler;
         return this;
     }
 
@@ -353,14 +334,6 @@ public class Configuration {
 
     public BaseMapper getBaseMapper(MongoConverter mongoConverter) {
         return new DefaultBaseMapperImpl(getMongoPlusClient(), mongoConverter);
-    }
-
-    public MongoPlusMapMapper getMongoPlusMapMapper() {
-        return new MongoPlusMapMapper(getMongoPlusClient(), new MappingMongoConverter(getMongoPlusClient()));
-    }
-
-    public MongoPlusMapMapper getMongoPlusMapMapper(MongoConverter mongoConverter) {
-        return new MongoPlusMapMapper(getMongoPlusClient(), mongoConverter);
     }
 
     /**

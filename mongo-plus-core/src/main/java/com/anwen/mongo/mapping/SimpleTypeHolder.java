@@ -124,7 +124,6 @@ public class SimpleTypeHolder {
      * 返回给定类型是否被视为简单类型。
      *
      * @param type 不得为{@literal null}。
-     * @return
      */
     public boolean isSimpleType(Class<?> type) {
 

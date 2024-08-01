@@ -4,23 +4,20 @@ import com.mongodb.event.CommandSucceededEvent;
 import org.bson.BsonDocument;
 
 /**
+ * 命令成功信息
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 命令成功信息
  * @date 2023-11-22 14:27
  **/
 public class CommandSucceeded extends BaseCommand{
 
     /**
      * 执行的结果
-     * @author JiaChaoYang
      * @date 2023/11/22 14:29
     */
     private BsonDocument response;
 
     /**
      * MongoDB提供，比较全的成功结果
-     * @author JiaChaoYang
      * @date 2023/11/22 14:30
     */
     private CommandSucceededEvent commandSucceededEvent;

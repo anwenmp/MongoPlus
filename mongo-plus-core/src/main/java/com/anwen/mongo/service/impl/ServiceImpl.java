@@ -4,7 +4,6 @@ import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.aggregate.LambdaAggregateChainWrapper;
 import com.anwen.mongo.annotation.ID;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
-import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.query.LambdaQueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -218,21 +217,6 @@ public class ServiceImpl<T> implements IService<T> {
     }
 
     @Override
-    public List<T> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper) {
-        return aggregateList(queryChainWrapper,clazz);
-    }
-
-    @Override
-    public <R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, Class<R> rClazz) {
-        return baseMapper.aggregateList(queryChainWrapper,clazz,rClazz);
-    }
-
-    @Override
-    public <R> List<R> aggregateList(AggregateChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
-        return baseMapper.aggregateList(queryChainWrapper,clazz,typeReference);
-    }
-
-    @Override
     public List<T> list(Aggregate<?> aggregate) {
         return list(aggregate,clazz);
     }
@@ -290,21 +274,6 @@ public class ServiceImpl<T> implements IService<T> {
     @Override
     public <R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
         return baseMapper.list(queryChainWrapper,clazz,typeReference);
-    }
-
-    @Override
-    public List<T> list(AggregateChainWrapper<T,?> queryChainWrapper) {
-        return aggregateList(queryChainWrapper,clazz);
-    }
-
-    @Override
-    public <R> List<R> list(AggregateChainWrapper<T, ?> queryChainWrapper, Class<R> rClazz) {
-        return baseMapper.aggregateList(queryChainWrapper,clazz,rClazz);
-    }
-
-    @Override
-    public <R> List<R> list(AggregateChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
-        return baseMapper.aggregateList(queryChainWrapper,clazz,typeReference);
     }
 
     @Override
@@ -647,8 +616,8 @@ public class ServiceImpl<T> implements IService<T> {
     }
 
     @Override
-    public com.anwen.mongo.conditions.aggregate.LambdaAggregateChainWrapper<T> lambdaAggregate() {
-        return ChainWrappers.lambdaAggregateChain(baseMapper,clazz);
+    public LambdaAggregateChainWrapper<T> lambdaAggregate() {
+        return ChainWrappers.lambdaAggregatesChain(baseMapper,clazz);
     }
 
     @Override

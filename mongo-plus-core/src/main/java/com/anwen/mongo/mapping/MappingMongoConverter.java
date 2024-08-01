@@ -3,7 +3,6 @@ package com.anwen.mongo.mapping;
 import com.anwen.mongo.annotation.collection.CollectionField;
 import com.anwen.mongo.annotation.comm.FieldEncrypt;
 import com.anwen.mongo.cache.global.ConversionCache;
-import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.cache.global.SimpleCache;
 import com.anwen.mongo.domain.MongoPlusWriteException;
@@ -202,10 +201,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     @Override
     public void write(Map<?, ?> map, Bson bson) {
         writeMapInternal(map,bson);
-        //经过一下Document处理器
-        if (HandlerCache.documentHandler != null && bson instanceof Document){
-            HandlerCache.documentHandler.insertInvoke(Collections.singletonList((Document) bson));
-        }
     }
 
     @Override

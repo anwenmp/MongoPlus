@@ -4,7 +4,6 @@ import com.anwen.mongo.aware.Aware;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
-import com.anwen.mongo.handlers.DocumentHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
@@ -71,7 +70,6 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         this.baseMapper = baseMapper;
         setConversion();
         setMetaObjectHandler();
-        setDocumentHandler();
         setListener();
         setInterceptor();
         setReplacer();
@@ -158,16 +156,6 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      */
     private void setMetaObjectHandler() {
         applicationContext.getBeansOfType(MetaObjectHandler.class).values().forEach(metaObjectHandler -> HandlerCache.metaObjectHandler = metaObjectHandler);
-    }
-
-    /**
-     * 从Bean中拿到Document的处理器
-     *
-     * @author JiaChaoYang
-     * @date 2023/11/23 12:58
-     */
-    private void setDocumentHandler() {
-        applicationContext.getBeansOfType(DocumentHandler.class).values().forEach(documentHandler -> HandlerCache.documentHandler = documentHandler);
     }
 
     /**

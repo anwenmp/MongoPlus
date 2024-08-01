@@ -1,6 +1,6 @@
 package com.anwen.mongo.handlers.condition;
 
-import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
+import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
 import com.anwen.mongo.model.MutablePair;

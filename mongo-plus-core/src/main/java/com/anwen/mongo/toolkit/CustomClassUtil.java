@@ -4,12 +4,9 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 
 /**
- * @Description: 获取集合中的自定义类
- * @BelongsProject: mongo
- * @BelongsPackage: com.anwen.mongo.utils
- * @Author: JiaChaoYang
- * @CreateTime: 2023-06-06 23:42
- * @Version: 1.0
+ * 获取集合中的自定义类
+ * @author anwen
+ * @date 2024/8/2 上午1:05
  */
 public class CustomClassUtil {
 

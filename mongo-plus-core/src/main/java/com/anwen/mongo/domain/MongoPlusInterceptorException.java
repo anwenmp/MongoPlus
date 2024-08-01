@@ -1,9 +1,8 @@
 package com.anwen.mongo.domain;
 
 /**
+ * 危险操作异常
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 危险操作异常
  * @date 2023-11-23 11:57
  **/
 public class MongoPlusInterceptorException extends Error {

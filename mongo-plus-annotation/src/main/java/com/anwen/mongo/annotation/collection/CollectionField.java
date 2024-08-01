@@ -6,8 +6,8 @@ import java.lang.annotation.*;
 
 /**
  * 指定列名，不指定默认取属性名
- * @author: JiaChaoYang
- * @date: 2023/2/17 21:21
+ * @author JiaChaoYang
+ * @date 2023/2/17 21:21
  **/
 @Target(ElementType.FIELD)
 //运行时注解

@@ -6,7 +6,6 @@ public class AggregationOperators {
 
     /**
      * $concatArrays
-     * @author anwen
      * @date 2024/6/7 下午4:38
      */
     public final static String CONCAT_ARRAYS = "$concatArrays";

@@ -21,14 +21,12 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     /**
      * 实例
-     * @author JiaChaoYang
      * @date 2024/4/16 下午9:58
     */
     private T instance;
 
     /**
      * 实例的Class
-     * @author JiaChaoYang
      * @date 2024/4/16 下午9:58
     */
     private final Class<?> clazz;
@@ -39,14 +37,12 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     /**
      * 实例的所有Field
-     * @author JiaChaoYang
      * @date 2024/4/16 下午9:58
     */
     private final List<FieldInformation> fieldList = new ArrayList<>();
 
     /**
      * 实例的某个注解的Field
-     * @author JiaChaoYang
      * @date 2024/4/16 下午9:58
     */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationFieldMap = new HashMap<>();

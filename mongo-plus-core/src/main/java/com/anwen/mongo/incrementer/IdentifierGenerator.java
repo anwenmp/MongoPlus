@@ -20,7 +20,7 @@ import com.anwen.mongo.toolkit.StringUtils;
 
 /**
  * Id生成器接口
- * @reference mp
+ * @since mp
  * @author JiaChaoYang
  * @date 2023/8/12 0:34
 */

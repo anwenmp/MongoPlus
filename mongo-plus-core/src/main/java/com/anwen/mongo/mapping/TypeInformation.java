@@ -115,7 +115,7 @@ public interface TypeInformation {
 
     /**
      * 获取原始Class
-     * @return {@link Class<?>}
+     * @return {@link Class}
      * @author anwen
      * @date 2024/7/28 下午11:56
      */

@@ -185,6 +185,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T> BsonField firstN(
             final String fieldName, final NExpression nExpression, final SFunction<T,?>... inExpression) {
         return firstN(fieldName, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()), nExpression);
@@ -251,6 +252,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <T,R> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
         return top(fieldName.getFieldNameLine(),sortBy, Arrays.stream(outExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
     }
@@ -340,6 +342,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T,R> BsonField topN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final SFunction<R,?>... outExpression) {
         return topN(fieldName.getFieldNameLine(), sortBy,nExpression, Arrays.stream(outExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
@@ -495,6 +498,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T,R> BsonField lastN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?>... inExpression) {
         return lastN(fieldName.getFieldNameLine(),nExpression, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
@@ -561,6 +565,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <T,R> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
         return bottom(fieldName.getFieldNameLine(),sortBy, Arrays.stream(outExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
     }
@@ -653,6 +658,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T,R> BsonField bottomN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final SFunction<R,?>... outExpression) {
         return bottomN(fieldName.getFieldNameLine(),sortBy,nExpression, Arrays.stream(outExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
@@ -781,6 +787,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T,R> BsonField maxN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?>... inExpression) {
         return maxN(fieldName.getFieldNameLine(),nExpression, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
@@ -908,6 +915,7 @@ public final class Accumulators {
      * @since 4.7
      * @since mongodb.server.release 5.2
      */
+    @SafeVarargs
     public static <NExpression,T,R> BsonField minN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?>... inExpression) {
         return minN(fieldName.getFieldNameLine(), nExpression, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
@@ -976,6 +984,7 @@ public final class Accumulators {
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
      */
+    @SafeVarargs
     public static <T,R> BsonField push(final SFunction<T,?> fieldName, final SFunction<R,?>... expression) {
         BasicDBObject basicDBObject = new BasicDBObject();
         for (SFunction<R, ?> function : expression) {
