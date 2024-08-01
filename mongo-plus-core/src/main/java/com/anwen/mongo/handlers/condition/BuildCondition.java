@@ -1,21 +1,28 @@
 package com.anwen.mongo.handlers.condition;
 
-import com.anwen.mongo.annotation.comm.FieldEncrypt;
 import com.anwen.mongo.bson.MongoPlusBasicDBObject;
+import com.anwen.mongo.cache.codec.MapCodecCache;
+import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
+import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.QueryOperatorEnum;
+import com.anwen.mongo.enums.SpecialConditionEnum;
 import com.anwen.mongo.enums.TypeEnum;
-import com.anwen.mongo.toolkit.EncryptorUtil;
+import com.anwen.mongo.model.BuildUpdate;
+import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
+import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.conversions.Bson;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 /**
  * 构建条件
@@ -23,16 +30,30 @@ import java.util.Objects;
  * @author anwen
  * @date 2024/6/30 下午4:07
  */
-public class BuildCondition extends AbstractConditionHandler {
+public class BuildCondition extends AbstractCondition {
+
+    private static Condition DEFAULT_BUSINESS_CONDITION;
+
+    public static Condition condition() {
+        return DEFAULT_BUSINESS_CONDITION;
+    }
+
+    public static void setCondition(Condition condition){
+        DEFAULT_BUSINESS_CONDITION = condition;
+    }
+
+    static {
+        DEFAULT_BUSINESS_CONDITION = new BuildCondition();
+    }
+
+    private BuildCondition() {
+    }
 
     @Override
     @SuppressWarnings("unchecked")
     public BasicDBObject queryCondition(CompareCondition compareCondition, MongoPlusBasicDBObject mongoPlusBasicDBObject) {
+        HandlerCache.conditionHandlerList.forEach(conditionHandler -> conditionHandler.beforeQueryCondition(compareCondition,mongoPlusBasicDBObject));
         QueryOperatorEnum query = QueryOperatorEnum.getQueryOperator(compareCondition.getCondition());
-        Field originalField = compareCondition.getOriginalField();
-        if (originalField != null && originalField.isAnnotationPresent(FieldEncrypt.class)){
-            compareCondition.setValue(EncryptorUtil.encrypt(originalField.getAnnotation(FieldEncrypt.class),compareCondition.getValue()));
-        }
         switch (Objects.requireNonNull(query)){
             case EQ:
                 mongoPlusBasicDBObject.put(Filters.eq(compareCondition.getColumn(), compareCondition.getValue()));
@@ -57,24 +78,30 @@ public class BuildCondition extends AbstractConditionHandler {
                 mongoPlusBasicDBObject.put(Filters.regex(compareCondition.getColumn(), (String) compareCondition.getValue()));
                 break;
             case IN:
-                mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(), (Collection<?>)compareCondition.getValue()));
                 break;
             case NIN:
-                mongoPlusBasicDBObject.put(Filters.nin(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.nin(compareCondition.getColumn(), (Collection<?>)compareCondition.getValue()));
                 break;
             case AND:
                 List<Bson> andBsonList = new ArrayList<>();
-                ((List<CompareCondition>) compareCondition.getValue()).forEach(andCompareCondition -> andBsonList.add(buildQueryCondition(andCompareCondition)));
+                QueryChainWrapper<?, ?> andWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                andWrapper.getCompareList().forEach(andCompareCondition -> andBsonList.add(queryCondition(andCompareCondition)));
+                andBsonList.addAll(andWrapper.getBasicDBObjectList());
                 mongoPlusBasicDBObject.put(Filters.and(andBsonList));
                 break;
             case OR:
                 List<Bson> orBsonList = new ArrayList<>();
-                ((List<CompareCondition>) compareCondition.getValue()).forEach(andCompareCondition -> orBsonList.add(buildQueryCondition(andCompareCondition)));
+                QueryChainWrapper<?, ?> orWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                orWrapper.getCompareList().forEach(orCompareCondition -> orBsonList.add(queryCondition(orCompareCondition)));
+                orBsonList.addAll(orWrapper.getBasicDBObjectList());
                 mongoPlusBasicDBObject.put(Filters.or(orBsonList));
                 break;
             case NOR:
                 List<Bson> norBsonList = new ArrayList<>();
-                ((List<CompareCondition>) compareCondition.getValue()).forEach(andCompareCondition -> norBsonList.add(buildQueryCondition(andCompareCondition)));
+                QueryChainWrapper<?, ?> norWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                norWrapper.getCompareList().forEach(norCompareCondition -> norBsonList.add(queryCondition(norCompareCondition)));
+                norBsonList.addAll(norWrapper.getBasicDBObjectList());
                 mongoPlusBasicDBObject.put(Filters.nor(norBsonList));
                 break;
             case TYPE:
@@ -92,10 +119,16 @@ public class BuildCondition extends AbstractConditionHandler {
                 mongoPlusBasicDBObject.put(Filters.exists(compareCondition.getColumn(), (Boolean) compareCondition.getValue()));
                 break;
             case NOT:
-                mongoPlusBasicDBObject.put(Filters.not(buildQueryCondition((CompareCondition) compareCondition.getValue())));
-                break;
             case EXPR:
-                mongoPlusBasicDBObject.put(Filters.expr(buildQueryCondition((CompareCondition) compareCondition.getValue())));
+                QueryChainWrapper<?, ?> exprWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                BasicDBObject exprBasicDBObject = queryCondition(exprWrapper.getCompareList());
+                List<BasicDBObject> exprBasicDBObjectList = exprWrapper.getBasicDBObjectList();
+                exprBasicDBObjectList.forEach(basicDBObject -> exprBasicDBObject.putAll(basicDBObject.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
+                java.util.Optional<String> exprOptional = exprBasicDBObject.keySet().stream().findFirst();
+                if (exprOptional.isPresent()){
+                    String exprKey = exprOptional.get();
+                    mongoPlusBasicDBObject.put(Filters.expr(new BasicDBObject(exprKey, exprBasicDBObject.get(exprKey))));
+                }
                 break;
             case MOD:
                 List<Long> modList = (List<Long>) compareCondition.getValue();
@@ -105,10 +138,16 @@ public class BuildCondition extends AbstractConditionHandler {
                 mongoPlusBasicDBObject.put(Filters.mod(compareCondition.getColumn(), modList.get(0),modList.get(1)));
                 break;
             case ELEM_MATCH:
-                mongoPlusBasicDBObject.put(Filters.elemMatch(compareCondition.getColumn(),queryCondition((List<CompareCondition>) compareCondition.getValue())));
+                QueryChainWrapper<?, ?> elemMatchWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                BasicDBObject elemMatchBasicDBObject = queryCondition(elemMatchWrapper.getCompareList());
+                Bson elemMatchBson = Filters.elemMatch(compareCondition.getColumn(), elemMatchBasicDBObject);
+                if (CollUtil.isNotEmpty(elemMatchWrapper.getBasicDBObjectList())){
+                    elemMatchWrapper.getBasicDBObjectList().forEach(bson -> elemMatchBson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).putAll(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
+                }
+                mongoPlusBasicDBObject.put(elemMatchBson);
                 break;
             case ALL:
-                mongoPlusBasicDBObject.put(Filters.all(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.all(compareCondition.getColumn(), (Collection<?>)compareCondition.getValue()));
                 break;
             case TEXT:
                 mongoPlusBasicDBObject.put(Filters.text(compareCondition.getValue().toString()));
@@ -132,11 +171,24 @@ public class BuildCondition extends AbstractConditionHandler {
                 mongoPlusBasicDBObject.put(Filters.bitsAnySet(compareCondition.getColumn(), (Integer) compareCondition.getValue()));
                 break;
         }
+        HandlerCache.conditionHandlerList.forEach(conditionHandler -> conditionHandler.afterQueryCondition(compareCondition,mongoPlusBasicDBObject));
         return mongoPlusBasicDBObject;
     }
 
-    public BasicDBObject buildQueryCondition(CompareCondition compareCondition){
-        return queryCondition(compareCondition,new MongoPlusBasicDBObject());
+    @Override
+    public BasicDBObject buildUpdateCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        buildUpdate.getUpdateBasicDBObject().put(currentCompareCondition.getColumn(),currentCompareCondition.getValue());
+        return updateBasicDBObject;
     }
 
+    @Override
+    public BasicDBObject buildPushCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        List<Object> valueList = compareConditionList.stream().filter(condition -> Objects.equals(condition.getColumn(), currentCompareCondition.getColumn())).map(CompareCondition::getValue).collect(Collectors.toList());
+        updateBasicDBObject.put(currentCompareCondition.getColumn(),new BasicDBObject(SpecialConditionEnum.EACH.getCondition(),valueList));
+        return updateBasicDBObject;
+    }
 }

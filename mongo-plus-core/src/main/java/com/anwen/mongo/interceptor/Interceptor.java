@@ -31,29 +31,27 @@ public interface Interceptor {
 
     /**
      * 前置处理
+     *
      * @param executeMethodEnum 执行类型
-     * @param source 值
-     * @param collection 集合对象
-     * @return {@link java.lang.Object[]}
+     * @param source            值
+     * @param collection        集合对象
      * @author anwen
      * @date 2024/6/27 下午4:38
      */
-    default Object[] beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection){
-        return source;
+    default void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection){
     }
 
     /**
      * 后置处理
+     *
      * @param executeMethodEnum 执行类型
-     * @param source 参数值
-     * @param result 返回值
-     * @param collection 集合对象
-     * @return {@link java.lang.Object}
+     * @param source            参数值
+     * @param result            返回值
+     * @param collection        集合对象
      * @author anwen
      * @date 2024/6/27 下午5:20
      */
-    default Object afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source,Object result, MongoCollection<Document> collection){
-        return result;
+    default void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection){
     }
 
     /**

@@ -5,13 +5,9 @@ import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.domain.MongoPlusFieldException;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
-import com.anwen.mongo.toolkit.CollUtil;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoIterable;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import static com.anwen.mongo.convert.Converter.convertKeysToCamelCase;

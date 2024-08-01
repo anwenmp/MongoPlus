@@ -1,7 +1,6 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
 import com.anwen.mongo.cache.codec.MapCodecCache;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
 import com.anwen.mongo.toolkit.CollUtil;
@@ -9,6 +8,8 @@ import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 
 import java.util.List;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * match策略实现类
@@ -31,7 +32,7 @@ public class MatchConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        BasicDBObject basicDBObject = BuildCondition.buildQueryCondition(compareList);
+        BasicDBObject basicDBObject = condition().queryCondition(compareList);
         if (CollUtil.isNotEmpty(basicDBObjectList)){
             basicDBObjectList.forEach(basic -> basicDBObject.putAll(basic.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
         }

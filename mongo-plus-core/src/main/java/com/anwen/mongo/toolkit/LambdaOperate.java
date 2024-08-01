@@ -1,7 +1,6 @@
 package com.anwen.mongo.toolkit;
 
 import com.anwen.mongo.cache.codec.MapCodecCache;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
@@ -19,6 +18,8 @@ import org.bson.Document;
 import java.util.List;
 import java.util.Map;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
+
 /**
  * lambda形式调用，预构建条件
  *
@@ -33,13 +34,13 @@ public class LambdaOperate {
         if (CollUtil.isNotEmpty(orderList)) {
             orderList.forEach(order -> sortCond.put(order.getColumn(), order.getType()));
         }
-        BasicDBObject basicDBObject = BuildCondition.buildQueryCondition(compareConditionList);
+        BasicDBObject basicDBObject = condition().queryCondition(compareConditionList);
         if (CollUtil.isNotEmpty(basicDBObjectList)){
             basicDBObjectList.forEach(basic -> {
                 basicDBObject.putAll(basic.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()));
             });
         }
-        return new BaseLambdaQueryResult(basicDBObject,BuildCondition.buildProjection(projectionList),sortCond);
+        return new BaseLambdaQueryResult(basicDBObject,condition().projectionCondition(projectionList),sortCond);
     }
 
     public <T> PageResult<T> getLambdaQueryResultPage(FindIterable<Document> documentFindIterable, long totalSize, PageParam pageParams, TypeReference<T> typeReference, MongoConverter mongoConverter) {

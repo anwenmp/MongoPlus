@@ -109,9 +109,9 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     private OperationResult operationResult;
 
     @Override
-    public Object[] beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
+    public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
         if (ignoredColumnList.contains(collection.getNamespace().getCollectionName())){
-            return source;
+            return;
         }
         long startTs = System.currentTimeMillis();
         OperationResult operationResult = null;
@@ -135,13 +135,12 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
             log.info(String.format("%s DataChangeRecord: %s",executeMethodEnum.name(), operationResult));
             this.operationResult = operationResult;
         }
-        return source;
     }
 
     @Override
-    public Object afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
+    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
         if (ignoredColumnList.contains(collection.getNamespace().getCollectionName())){
-            return result;
+            return;
         }
         if (enableSaveDatabase){
             String datasource = DataSourceNameCache.getDataSource();
@@ -157,7 +156,6 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
             }
             baseMapper.save(databaseName,collectionName,operationResult);
         }
-        return result;
     }
 
     private OperationResult processSave(Object[] source) throws DataUpdateLimitationException {

@@ -2,7 +2,6 @@ package com.anwen.mongo.aggregate;
 
 import com.anwen.mongo.aggregate.pipeline.UnwindOption;
 import com.anwen.mongo.cache.codec.MapCodecCache;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.constant.AggregationOperators;
@@ -28,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 import static com.mongodb.assertions.Assertions.notNull;
 
 @SuppressWarnings("unchecked")
@@ -231,7 +231,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children match(QueryChainWrapper<?, ?> queryChainWrapper) {
-        BasicDBObject basicDBObject = BuildCondition.buildQueryCondition(queryChainWrapper.getCompareList());
+        BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
         queryChainWrapper.getBasicDBObjectList().forEach(bson -> basicDBObject.putAll(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
         return custom(Aggregates.match(basicDBObject));
     }
@@ -872,7 +872,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     private Children buildProject(List<Projection> projectionList){
-        return project(Aggregates.project(BuildCondition.buildProjection(projectionList)));
+        return project(Aggregates.project(condition().projectionCondition(projectionList)));
     }
 
     private Bson orderBy(final String fieldName, final Integer value){

@@ -3,7 +3,6 @@ package com.anwen.mongo.mapper;
 import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.cache.global.InterceptorCache;
 import com.anwen.mongo.cache.global.TenantCache;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.aggregate.AggregateChainWrapper;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
@@ -34,6 +33,8 @@ import org.bson.conversions.Bson;
 
 import java.io.Serializable;
 import java.util.*;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * 抽象的baseMapper
@@ -133,13 +134,13 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public boolean isExist(String database, String collectionName, QueryChainWrapper<?, ?> queryChainWrapper) {
-        BasicDBObject basicDBObject = BuildCondition.buildQueryCondition(queryChainWrapper.getCompareList());
+        BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
         return factory.getExecute().executeCount(basicDBObject,null,mongoPlusClient.getCollection(database,collectionName)) >= 1;
     }
 
     @Override
     public Boolean update(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper) {
-        MutablePair<BasicDBObject, BasicDBObject> pair = BuildCondition.buildUpdateCondition(updateChainWrapper);
+        MutablePair<BasicDBObject, BasicDBObject> pair = condition().updateCondition(updateChainWrapper);
         BasicDBObject targetBasicDBObject = new BasicDBObject();
         mongoConverter.write(pair.getRight(),targetBasicDBObject);
         return update(database,collectionName,pair.getLeft(),targetBasicDBObject) >= 1;
@@ -147,7 +148,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper) {
-        return remove(database,collectionName,BuildCondition.buildQueryCondition(updateChainWrapper.getCompareList())) >= 1;
+        return remove(database,collectionName,condition().queryCondition(updateChainWrapper.getCompareList())) >= 1;
     }
 
     @Override
@@ -163,7 +164,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
             line = execute.estimatedDocumentCount(collection);
         } else {
-            line = execute.executeCount(BuildCondition.buildQueryCondition(queryChainWrapper.getCompareList()), null, collection);
+            line = execute.executeCount(condition().queryCondition(queryChainWrapper.getCompareList()), null, collection);
         }
         return line;
     }
@@ -192,13 +193,13 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         CountOptions countOptions = new CountOptions();
         countOptions.skip(limitParam).limit(1);
         MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
-        long isExists = factory.getExecute().executeCount(BuildCondition.buildQueryCondition(compareConditionList),countOptions, collection);
+        long isExists = factory.getExecute().executeCount(condition().queryCondition(compareConditionList),countOptions, collection);
         //如果查询结果为空 则查询总条数，如果不为空则 limitParam为总条数
         if (isExists == 0) {
             // 查询真实总条数
             CountOptions countOptionsReal = new CountOptions();
             countOptionsReal.limit(limitParam);
-            return factory.getExecute().executeCount(BuildCondition.buildQueryCondition(compareConditionList),countOptions, collection);
+            return factory.getExecute().executeCount(condition().queryCondition(compareConditionList),countOptions, collection);
         }
         return limitParam;
     }

@@ -2,6 +2,8 @@ package com.anwen.mongo.mapping;
 
 import com.anwen.mongo.toolkit.Assert;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
+import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -52,6 +54,8 @@ public class SimpleTypeHolder {
     }
 
     private final Map<Class<?>, Boolean> simpleTypes;
+
+    private final Map<Class<?>, Boolean> mongoType = new ConcurrentHashMap<>();
 
     /**
      * 创建一个包含默认类型的新｛@link SimpleTypeHolder｝。
@@ -109,6 +113,11 @@ public class SimpleTypeHolder {
 
             this.simpleTypes.put(entry.getKey(), true);
         }
+    }
+
+    public boolean isMongoType(Class<?> type){
+        Assert.notNull(type, "Type must not be null");
+        return ObjectId.class.equals(type) || ClassTypeUtil.isTargetClass(BsonValue.class, type);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.anwen.mongo.toolkit;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.enums.SpecialConditionEnum;
@@ -11,6 +10,8 @@ import org.bson.Document;
 
 import java.util.List;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
+
 public class ConditionUtil {
 
     /**
@@ -19,7 +20,7 @@ public class ConditionUtil {
      * @date 2024/5/4 下午1:16
      */
     public static MutablePair<BasicDBObject,BasicDBObject> getUpdateCondition(List<CompareCondition> compareConditionList, Object sourceObj, MongoConverter mongoConverter){
-        BasicDBObject queryBasic = BuildCondition.buildQueryCondition(compareConditionList);
+        BasicDBObject queryBasic = condition().queryCondition(compareConditionList);
         Document document = mongoConverter.writeByUpdate(sourceObj);
         document.remove(SqlOperationConstant._ID);
         BasicDBObject updateField = new BasicDBObject(SpecialConditionEnum.SET.getCondition(), document);

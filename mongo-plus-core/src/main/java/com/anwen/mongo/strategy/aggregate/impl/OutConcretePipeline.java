@@ -1,7 +1,7 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
+import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.BasicDBObject;
 
 /**
@@ -22,6 +22,11 @@ public class OutConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildOut(db,coll);
+        return new BasicDBObject(){{
+            if (StringUtils.isNotBlank(db)){
+                put("db",db);
+                put("coll",coll);
+            }
+        }};
     }
 }

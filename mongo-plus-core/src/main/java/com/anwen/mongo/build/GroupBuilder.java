@@ -1,7 +1,6 @@
 package com.anwen.mongo.build;
 
 import com.anwen.mongo.bson.MongoPlusBasicDBObject;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.accumulator.Accumulator;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.model.GroupField;
@@ -27,7 +26,7 @@ public class GroupBuilder {
 
     public GroupBuilder withAccumulatorList(List<Accumulator> accumulatorList) {
         if (CollUtil.isNotEmpty(accumulatorList)) {
-            basicDBObject = BuildCondition.buildGroup(accumulatorList);
+            basicDBObject = buildGroup(accumulatorList);
         }
         return this;
     }
@@ -52,13 +51,21 @@ public class GroupBuilder {
 
     public GroupBuilder withIdAccumulator(List<Accumulator> idAccumulator) {
         if (CollUtil.isNotEmpty(idAccumulator)) {
-            basicDBObject.put(SqlOperationConstant._ID, BuildCondition.buildGroup(idAccumulator));
+            basicDBObject.put(SqlOperationConstant._ID, buildGroup(idAccumulator));
         }
         return this;
     }
 
     public BasicDBObject build() {
         return basicDBObject;
+    }
+
+    public MongoPlusBasicDBObject buildGroup(List<Accumulator> accumulatorList){
+        return new MongoPlusBasicDBObject(){{
+            accumulatorList.forEach(accumulator -> put(accumulator.getResultMappingField(),new BasicDBObject(){{
+                put("$"+accumulator.getCondition(),accumulator.getField());
+            }}));
+        }};
     }
 
 }

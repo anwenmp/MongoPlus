@@ -22,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
+
 /**
  * 查询条件
  * @author JiaChaoYang
@@ -460,7 +462,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children not(CompareCondition compareCondition) {
-        return getBaseCondition(Collections.singletonList(BuildCondition.buildQueryCondition(compareCondition)));
+        return getBaseCondition(Collections.singletonList(condition().queryCondition(compareCondition)));
     }
 
     @Override
@@ -515,7 +517,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children expr(CompareCondition compareCondition) {
-        return getBaseCondition(Collections.singletonList(BuildCondition.buildQueryCondition(compareCondition)));
+        return getBaseCondition(Collections.singletonList(condition().queryCondition(compareCondition)));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.enums.ProjectionEnum;
@@ -10,6 +9,8 @@ import com.mongodb.BasicDBObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * project策略实现类
@@ -37,6 +38,6 @@ public class ProjectConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildProjection(projectionList);
+        return condition().projectionCondition(projectionList);
     }
 }

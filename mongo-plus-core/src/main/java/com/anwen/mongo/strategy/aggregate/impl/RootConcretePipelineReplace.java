@@ -1,6 +1,5 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.ReplaceRoot;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
 import com.anwen.mongo.support.SFunction;
@@ -52,6 +51,23 @@ public class RootConcretePipelineReplace implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildReplaceRoot(reserveOriginalDocument,replaceRootList);
+        return new BasicDBObject(){{
+            if (replaceRootList.size() == 1 && !reserveOriginalDocument){
+                put("newRoot","$"+replaceRootList.get(0).getField());
+            }else {
+                put("newRoot",new BasicDBObject(){{
+                    put("$mergeObjects",new ArrayList<Object>(){{
+                        if (reserveOriginalDocument){
+                            add("$$ROOT");
+                        }
+                        for (ReplaceRoot replaceRoot : replaceRootList) {
+                            add(new BasicDBObject(){{
+                                put(replaceRoot.getResultMappingField(),"$"+replaceRoot.getField());
+                            }});
+                        }
+                    }});
+                }});
+            }
+        }};
     }
 }

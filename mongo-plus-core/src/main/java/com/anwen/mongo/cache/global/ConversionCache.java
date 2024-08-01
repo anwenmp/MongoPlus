@@ -2,7 +2,8 @@ package com.anwen.mongo.cache.global;
 
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.conversion.impl.*;
-import org.bson.Document;
+import com.anwen.mongo.strategy.conversion.impl.bson.*;
+import org.bson.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -42,6 +43,13 @@ public class ConversionCache {
         conversionStrategieMap.put(Document.class,new DocumentConversionStrategy());
         conversionStrategieMap.put(byte[].class,new ByteArrayConversionStrategy());
         conversionStrategieMap.put(Byte.class,new ByteConversionStrategy());
+        // bson
+        conversionStrategieMap.put(BsonBoolean.class,new BsonBooleanConversionStrategy());
+        conversionStrategieMap.put(BsonDateTime.class,new BsonDateTimeConversionStrategy());
+        conversionStrategieMap.put(BsonDouble.class,new BsonDoubleConversionStrategy());
+        conversionStrategieMap.put(BsonInt32.class,new BsonInt32ConversionStrategy());
+        conversionStrategieMap.put(BsonInt64.class,new BsonInt64ConversionStrategy());
+        conversionStrategieMap.put(BsonString.class,new BsonStringConversionStrategy());
     }
 
     public static ConversionStrategy<?> getConversionStrategy(Class<?> clazz){

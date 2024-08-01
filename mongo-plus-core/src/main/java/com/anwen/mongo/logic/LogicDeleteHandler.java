@@ -2,7 +2,6 @@ package com.anwen.mongo.logic;
 
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -20,6 +19,8 @@ import org.bson.conversions.Bson;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * 逻辑删除处理类
@@ -71,7 +72,7 @@ public interface LogicDeleteHandler {
         if (Objects.isNull(query)) {
             QueryChainWrapper wrapper = new QueryWrapper();
             wrapper.eq(result.getColumn(), result.getLogicNotDeleteValue());
-            return BuildCondition.buildQueryCondition(wrapper.getCompareList());
+            return condition().queryCondition(wrapper.getCompareList());
         }
         if (query instanceof BasicDBObject) {
             BasicDBObject bdb = (BasicDBObject) query;

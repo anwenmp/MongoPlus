@@ -1,6 +1,5 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
 import com.mongodb.BasicDBObject;
 
@@ -19,6 +18,8 @@ public class SampleConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildSample(size);
+        return new BasicDBObject(){{
+            put("size",size);
+        }};
     }
 }

@@ -1,6 +1,5 @@
 package com.anwen.mongo.execute.inject;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
@@ -30,6 +29,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * Map类型
@@ -90,7 +91,7 @@ public class InjectAbstractExecute {
     public <T> Boolean saveOrUpdateWrapper(String collectionName, Map<String, Object> entityMap,List<CompareCondition> compareConditionList){
         long count = count(collectionName,compareConditionList);
         if (count > 0){
-            BasicDBObject queryBasic = BuildCondition.buildQueryCondition(compareConditionList);
+            BasicDBObject queryBasic = condition().queryCondition(compareConditionList);
             Document document = mongoConverter.write(entityMap);
             document.remove(SqlOperationConstant._ID);
             BasicDBObject updateField = new BasicDBObject(SpecialConditionEnum.SET.getCondition(), document);
@@ -192,7 +193,7 @@ public class InjectAbstractExecute {
     }
 
     public boolean isExist(String collectionName,QueryChainWrapper<?,?> queryChainWrapper){
-        BasicDBObject basicDBObject = BuildCondition.buildQueryCondition(queryChainWrapper.getCompareList());
+        BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
         return execute.executeCount(basicDBObject,null,collectionManager.getCollection(collectionName)) >= 1;
     }
 
@@ -217,15 +218,15 @@ public class InjectAbstractExecute {
     }
 
     public Boolean update(String collectionName,List<CompareCondition> compareConditionList){
-        BasicDBObject queryBasic = BuildCondition.buildQueryCondition(compareConditionList);
+        BasicDBObject queryBasic = condition().queryCondition(compareConditionList);
         List<CompareCondition> pushConditionList = compareConditionList.stream().filter(compareCondition -> Objects.equals(compareCondition.getCondition(), SpecialConditionEnum.PUSH.getSubCondition())).collect(Collectors.toList());
         List<CompareCondition> setConditionList = compareConditionList.stream().filter(compareCondition -> Objects.equals(compareCondition.getCondition(), SpecialConditionEnum.SET.getSubCondition())).collect(Collectors.toList());
         BasicDBObject basicDBObject = new BasicDBObject() {{
             if (CollUtil.isNotEmpty(setConditionList)){
-                append(SpecialConditionEnum.SET.getCondition(), BuildCondition.buildUpdateValue(setConditionList));
+                append(SpecialConditionEnum.SET.getCondition(), condition().queryCondition(setConditionList));
             }
             if (CollUtil.isNotEmpty(pushConditionList)){
-                append(SpecialConditionEnum.PUSH.getCondition(), BuildCondition.buildPushUpdateValue(pushConditionList));
+                append(SpecialConditionEnum.PUSH.getCondition(), condition().queryCondition(pushConditionList));
             }
         }};
         BasicDBObject targetBasicDBObject = new BasicDBObject();
@@ -234,11 +235,11 @@ public class InjectAbstractExecute {
     }
 
     public Boolean remove(String collectionName,List<CompareCondition> compareConditionList){
-        return execute.executeRemove(BuildCondition.buildQueryCondition(compareConditionList),collectionManager.getCollection(collectionName)).getDeletedCount() >= 1;
+        return execute.executeRemove(condition().queryCondition(compareConditionList),collectionManager.getCollection(collectionName)).getDeletedCount() >= 1;
     }
 
     public long count(String collectionName,List<CompareCondition> compareConditionList){
-        return execute.executeCount(BuildCondition.buildQueryCondition(compareConditionList),null,collectionManager.getCollection(collectionName));
+        return execute.executeCount(condition().queryCondition(compareConditionList),null,collectionManager.getCollection(collectionName));
     }
 
     public List<Map<String,Object>> aggregateList(String collectionName, List<BaseAggregate> aggregateList, List<AggregateBasicDBObject> basicDBObjectList, BasicDBObject optionsBasicDBObject){

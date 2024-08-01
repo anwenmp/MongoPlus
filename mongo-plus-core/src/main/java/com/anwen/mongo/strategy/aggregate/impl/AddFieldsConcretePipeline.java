@@ -1,6 +1,5 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.interfaces.aggregate.pipeline.AddFields;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
 import com.mongodb.BasicDBObject;
@@ -28,6 +27,8 @@ public class AddFieldsConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildAddFields(addFieldsList);
+        return new BasicDBObject(){{
+            addFieldsList.forEach(addFields -> put(addFields.getResultMappingField(),addFields.getField()));
+        }};
     }
 }

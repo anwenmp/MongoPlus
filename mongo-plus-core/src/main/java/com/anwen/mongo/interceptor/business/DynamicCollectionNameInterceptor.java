@@ -31,10 +31,9 @@ public class DynamicCollectionNameInterceptor implements Interceptor {
     }
 
     @Override
-    public Object[] beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
+    public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
         MongoNamespace namespace = collection.getNamespace();
         String collectionName = collectionNameHandler.dynamicCollectionName(executeMethodEnum,source,namespace);
         source[source.length-1] = mongoPlusClient.getCollection(namespace.getDatabaseName(),collectionName);
-        return source;
     }
 }

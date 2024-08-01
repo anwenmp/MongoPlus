@@ -1,6 +1,5 @@
 package com.anwen.mongo.strategy.aggregate.impl;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.strategy.aggregate.PipelineStrategy;
 import com.mongodb.BasicDBObject;
 
@@ -22,6 +21,10 @@ public class UnwindConcretePipeline implements PipelineStrategy {
 
     @Override
     public BasicDBObject buildAggregate() {
-        return BuildCondition.buildUnwind(preserveNullAndEmptyArrays,field);
+        return new BasicDBObject(){{
+            put("path","$"+field);
+            put("preserveNullAndEmptyArrays",preserveNullAndEmptyArrays);
+        }};
     }
+
 }

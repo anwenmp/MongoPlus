@@ -146,7 +146,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                 log.error(error,e);
                 throw new MongoPlusWriteException(error);
             }
-        } else if (sourceObj == null || simpleTypeHolder.isSimpleType(sourceObj.getClass())) {
+        } else if (sourceObj == null || simpleTypeHolder.isSimpleType(sourceObj.getClass()) || simpleTypeHolder.isMongoType(sourceObj.getClass())) {
             resultObj = getPotentiallyConvertedSimpleWrite(sourceObj);
         } else if (ClassTypeUtil.isTargetClass(Collection.class,sourceObj.getClass()) || sourceObj.getClass().isArray()) {
             resultObj = writeCollectionInternal(BsonUtil.asCollection(sourceObj), new ArrayList<>());

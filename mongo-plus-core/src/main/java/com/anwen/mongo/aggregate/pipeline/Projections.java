@@ -1,6 +1,5 @@
 package com.anwen.mongo.aggregate.pipeline;
 
-import com.anwen.mongo.conditions.BuildCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.support.SFunction;
 import com.mongodb.client.model.Aggregates;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 import static com.mongodb.assertions.Assertions.notNull;
 import static java.util.Arrays.asList;
 
@@ -222,7 +222,7 @@ public class Projections {
      * @since mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
      */
     public static Bson elemMatch(final String fieldName, final QueryChainWrapper<?, ?> queryChainWrapper) {
-        return elemMatch(fieldName, BuildCondition.buildQueryCondition(queryChainWrapper.getCompareList()));
+        return elemMatch(fieldName, condition().queryCondition(queryChainWrapper.getCompareList()));
     }
 
     /**
