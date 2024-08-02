@@ -76,16 +76,26 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
         final AtomicReference<List<CompareCondition>> finalCompareConditionList = new AtomicReference<>(compareConditionList);
         BiFunction<AbstractCondition,BuildUpdate,BasicDBObject> updateValueFunc =  (condition,buildUpdate) -> {
             List<CompareCondition> currentCompareConditionList = finalCompareConditionList.get();
-            if (updateConditionEnum == UpdateConditionEnum.SET) {
-                return condition.buildUpdateCondition(currentCompareConditionList,buildUpdate);
-            }
-            if (updateConditionEnum == UpdateConditionEnum.PUSH) {
-                finalCompareConditionList.set(currentCompareConditionList.stream().distinct().collect(Collectors.toList()));
-                currentCompareConditionList = finalCompareConditionList.get();
-                return condition.buildPushCondition(currentCompareConditionList,buildUpdate);
-            }
-            if (updateConditionEnum == UpdateConditionEnum.INC) {
-                return condition.buildUpdateCondition(currentCompareConditionList,buildUpdate);
+            switch (updateConditionEnum){
+                case SET:
+                case INC:
+                case MIN:
+                case MAX:
+                case MUL:
+                case POP:
+                    return condition.buildUpdateCondition(currentCompareConditionList,buildUpdate);
+                case PUSH:
+                    finalCompareConditionList.set(currentCompareConditionList.stream().distinct().collect(Collectors.toList()));
+                    currentCompareConditionList = finalCompareConditionList.get();
+                    return condition.buildPushCondition(currentCompareConditionList,buildUpdate);
+                case CURRENT_DATE:
+                    return condition.buildCurrentDateCondition(currentCompareConditionList,buildUpdate);
+                case RENAME:
+                    return condition.buildRenameCondition(currentCompareConditionList,buildUpdate);
+                case UNSET:
+                    return condition.buildUnsetCondition(currentCompareConditionList,buildUpdate);
+                case ADD_TO_SET:
+                    return condition.buildAddToSetCondition(currentCompareConditionList,buildUpdate);
             }
             return null;
         };

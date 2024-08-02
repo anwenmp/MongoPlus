@@ -3,10 +3,18 @@ package com.anwen.mongo.conditions.update;
 import com.anwen.mongo.conditions.AbstractChainWrapper;
 import com.anwen.mongo.conditions.interfaces.Update;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
+import com.anwen.mongo.domain.MongoPlusException;
+import com.anwen.mongo.enums.CurrentDateType;
+import com.anwen.mongo.enums.PopType;
+import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.support.SFunction;
+import com.anwen.mongo.toolkit.ClassTypeUtil;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * update接口实现
@@ -156,13 +164,237 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
         return getBaseUpdateCompare(column,value);
     }
 
+    @Override
+    public Children currentDate(boolean condition, SFunction<T, Object> column) {
+        return condition ? currentDate(column) : typedThis;
+    }
+
+    @Override
+    public Children currentDate(SFunction<T, Object> column) {
+        return currentDate(column,CurrentDateType.DATE);
+    }
+
+    @Override
+    public Children currentDate(boolean condition, String column) {
+        return condition ? currentDate(column) : typedThis;
+    }
+
+    @Override
+    public Children currentDate(String column) {
+        return currentDate(column,CurrentDateType.DATE);
+    }
+
+    @Override
+    public Children currentDate(boolean condition, SFunction<T, Object> column, CurrentDateType currentDateType) {
+        return condition ? currentDate(column,currentDateType) : typedThis;
+    }
+
+    @Override
+    public Children currentDate(SFunction<T, Object> column, CurrentDateType currentDateType) {
+        return getBaseUpdateCompare(column,currentDateType);
+    }
+
+    @Override
+    public Children currentDate(boolean condition, String column, CurrentDateType currentDateType) {
+        return condition ? currentDate(column,currentDateType) : typedThis;
+    }
+
+    @Override
+    public Children currentDate(String column, CurrentDateType currentDateType) {
+        return getBaseUpdateCompare(column,currentDateType);
+    }
+
+    @Override
+    public Children min(boolean condition, SFunction<T, Object> column, Object value) {
+        return condition ? min(column,value) : typedThis;
+    }
+
+    @Override
+    public Children min(SFunction<T, Object> column, Object value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children min(boolean condition, String column, Object value) {
+        return condition ? min(column,value) : typedThis;
+    }
+
+    @Override
+    public Children min(String column, Object value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children max(boolean condition, SFunction<T, Object> column, Object value) {
+        return condition ? max(column,value) : typedThis;
+    }
+
+    @Override
+    public Children max(SFunction<T, Object> column, Object value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children max(boolean condition, String column, Object value) {
+        return condition ? max(column,value) : typedThis;
+    }
+
+    @Override
+    public Children max(String column, Object value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children mul(boolean condition, SFunction<T, Object> column, Number value) {
+        return condition ? mul(column,value) : typedThis;
+    }
+
+    @Override
+    public Children mul(SFunction<T, Object> column, Number value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children mul(boolean condition, String column, Number value) {
+        return condition ? mul(column,value) : typedThis;
+    }
+
+    @Override
+    public Children mul(String column, Number value) {
+        return getBaseUpdateCompare(column,value);
+    }
+
+    @Override
+    public Children rename(boolean condition, String oldFieldName, String newFieldName) {
+        return condition ? rename(oldFieldName,newFieldName) : typedThis;
+    }
+
+    @Override
+    public Children rename(String oldFieldName, String newFieldName) {
+        return getBaseUpdateCompare(new MutablePair<>(oldFieldName, newFieldName));
+    }
+
+    @Override
+    public <O> Children rename(boolean condition, SFunction<O, Object> oldFieldName, String newFieldName) {
+        return condition ? rename(oldFieldName,newFieldName) : typedThis;
+    }
+
+    @Override
+    public <O> Children rename(SFunction<O, Object> oldFieldName, String newFieldName) {
+        return getBaseUpdateCompare(new MutablePair<>(oldFieldName.getFieldNameLine(),newFieldName));
+    }
+
+    @Override
+    public <O, N> Children rename(boolean condition, SFunction<O, Object> oldFieldName, SFunction<N, Object> newFieldName) {
+        return condition ? rename(oldFieldName,newFieldName) : typedThis;
+    }
+
+    @Override
+    public <O, N> Children rename(SFunction<O, Object> oldFieldName, SFunction<N, Object> newFieldName) {
+        return getBaseUpdateCompare(new MutablePair<>(oldFieldName.getFieldNameLine(),newFieldName.getFieldNameLine()));
+    }
+
+    @SafeVarargs
+    @Override
+    public final Children unset(SFunction<T, Object>... columns) {
+        return unset(Arrays.stream(columns).map(SFunction::getFieldNameLine).collect(Collectors.toList()));
+    }
+
+    @SafeVarargs
+    @Override
+    public final Children unset(boolean condition, SFunction<T, Object>... columns) {
+        return condition ? unset(columns) : typedThis;
+    }
+
+    @Override
+    public Children unset(String... columns) {
+        return unset(Arrays.asList(columns));
+    }
+
+    @Override
+    public Children unset(boolean condition, String... columns) {
+        return condition ? unset(columns) : typedThis;
+    }
+
+    @Override
+    public Children unset(List<String> columns) {
+        return getBaseUpdateCompare(columns);
+    }
+
+    @Override
+    public Children unset(boolean condition, List<String> columns) {
+        return condition ? unset(columns) : typedThis;
+    }
+
+    @Override
+    public Children addToSet(boolean condition, SFunction<T, Object> column, Object value, boolean each) {
+        return condition ? addToSet(column,value,each) : typedThis;
+    }
+
+    @Override
+    public Children addToSet(SFunction<T, Object> column, Object value, boolean each) {
+        if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
+            throw new MongoPlusException("$each requires data of Collection type");
+        }
+        return getBaseUpdateCompare(column,value,each);
+    }
+
+    @Override
+    public Children addToSet(boolean condition, String column, Object value, boolean each) {
+        return condition ? addToSet(column,value,each) : typedThis;
+    }
+
+    @Override
+    public Children addToSet(String column, Object value, boolean each) {
+        if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
+            throw new MongoPlusException("$each requires data of Collection type");
+        }
+        return getBaseUpdateCompare(column,value,each);
+    }
+
+    @Override
+    public Children pop(boolean condition, SFunction<T, Object> column, PopType popType) {
+        return condition ? pop(column,popType) : typedThis;
+    }
+
+    @Override
+    public Children pop(SFunction<T, Object> column, PopType popType) {
+        return getBaseUpdateCompare(column,popType.getValue());
+    }
+
+    @Override
+    public Children pop(boolean condition, String column, PopType popType) {
+        return condition ? pop(column,popType) : typedThis;
+    }
+
+    @Override
+    public Children pop(String column, PopType popType) {
+        return getBaseUpdateCompare(column,popType.getValue());
+    }
+
+    private Children getBaseUpdateCompare(SFunction<T, Object> column, Object value,Object extraValue){
+        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField(),extraValue));
+        return typedThis;
+    }
+
     private Children getBaseUpdateCompare(SFunction<T, Object> column, Object value){
         updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField()));
         return typedThis;
     }
 
+    private Children getBaseUpdateCompare(Object value){
+        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        updateCompareList.add(new CompareCondition(methodName,methodName,value,Object.class,null));
+        return typedThis;
+    }
+
     private Children getBaseUpdateCompare(String column, Object value){
         updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null));
+        return typedThis;
+    }
+
+    private Children getBaseUpdateCompare(String column, Object value,Object extraValue){
+        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null,extraValue));
         return typedThis;
     }
 

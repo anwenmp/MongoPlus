@@ -6,10 +6,12 @@ import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
+import com.anwen.mongo.enums.CurrentDateType;
 import com.anwen.mongo.enums.QueryOperatorEnum;
 import com.anwen.mongo.enums.SpecialConditionEnum;
 import com.anwen.mongo.enums.TypeEnum;
 import com.anwen.mongo.model.BuildUpdate;
+import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
@@ -179,7 +181,7 @@ public class BuildCondition extends AbstractCondition {
     public BasicDBObject buildUpdateCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
         CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        buildUpdate.getUpdateBasicDBObject().put(currentCompareCondition.getColumn(),currentCompareCondition.getValue());
+        updateBasicDBObject.put(currentCompareCondition.getColumn(),currentCompareCondition.getValue());
         return updateBasicDBObject;
     }
 
@@ -191,4 +193,45 @@ public class BuildCondition extends AbstractCondition {
         updateBasicDBObject.put(currentCompareCondition.getColumn(),new BasicDBObject(SpecialConditionEnum.EACH.getCondition(),valueList));
         return updateBasicDBObject;
     }
+
+    @Override
+    public BasicDBObject buildCurrentDateCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate){
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        CurrentDateType currentDateType = currentCompareCondition.getValue(CurrentDateType.class);
+        updateBasicDBObject.put(currentCompareCondition.getColumn(), new BasicDBObject(SpecialConditionEnum.TYPE.getCondition(),currentDateType.getType()));
+        return updateBasicDBObject;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BasicDBObject buildRenameCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        MutablePair<String,String> pairValue = currentCompareCondition.getValue(MutablePair.class);
+        updateBasicDBObject.put(pairValue.getLeft(),pairValue.getRight());
+        return updateBasicDBObject;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BasicDBObject buildUnsetCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        List<String> pairValue = currentCompareCondition.getValue(List.class);
+        pairValue.forEach(column -> updateBasicDBObject.put(column,""));
+        return updateBasicDBObject;
+    }
+
+    @Override
+    public BasicDBObject buildAddToSetCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        updateBasicDBObject.put(currentCompareCondition.getColumn(),
+                currentCompareCondition.getExtraValue(Boolean.class) ?
+                        new BasicDBObject(SpecialConditionEnum.EACH.getCondition(),currentCompareCondition.getValue()) :
+                        currentCompareCondition.getValue());
+        return updateBasicDBObject;
+    }
+
 }

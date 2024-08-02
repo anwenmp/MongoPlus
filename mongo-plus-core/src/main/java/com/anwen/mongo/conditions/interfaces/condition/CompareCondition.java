@@ -41,6 +41,12 @@ public class CompareCondition {
      */
     private Field originalField;
 
+    /**
+     * 一些额外的值
+     * @date 2024/8/2 下午3:25
+     */
+    private Object extraValue;
+
     public static CompareConditionBuilder builder() {
         return new CompareConditionBuilder();
     }
@@ -55,6 +61,11 @@ public class CompareCondition {
 
     public Object getValue() {
         return this.value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getValue(Class<T> clazz){
+        return (T) this.value;
     }
 
     public void setCondition(String condition) {
@@ -85,6 +96,19 @@ public class CompareCondition {
         this.originalField = originalField;
     }
 
+    public Object getExtraValue() {
+        return extraValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getExtraValue(Class<T> clazz) {
+        return (T) extraValue;
+    }
+
+    public void setExtraValue(Object extraValue) {
+        this.extraValue = extraValue;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
@@ -106,6 +130,7 @@ public class CompareCondition {
                 "value=" + value +
                 "originalClass=" + originalClass +
                 "originalField=" + originalField +
+                "extraValue=" + extraValue +
                 '}';
     }
 
@@ -115,6 +140,15 @@ public class CompareCondition {
         this.value = value;
         this.originalClass = originalClass;
         this.originalField = originalField;
+    }
+
+    public CompareCondition(String condition, String column, Object value, Class<?> originalClass, Field originalField,Object extraValue) {
+        this.condition = condition;
+        this.column = column;
+        this.value = value;
+        this.originalClass = originalClass;
+        this.originalField = originalField;
+        this.extraValue = extraValue;
     }
 
     public CompareCondition(String condition, Object value,Class<?> originalClass, Field originalField){

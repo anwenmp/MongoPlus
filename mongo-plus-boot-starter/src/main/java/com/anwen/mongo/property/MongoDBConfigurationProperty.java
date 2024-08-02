@@ -13,21 +13,18 @@ public class MongoDBConfigurationProperty {
 
     /**
      * banner打印
-     * @author JiaChaoYang
      * @date 2024/1/26 21:58
     */
     private Boolean banner = true;
 
     /**
      * 存放自增id的集合
-     * @author JiaChaoYang
      * @date 2024/5/1 下午8:55
      */
     private String autoIdCollectionName;
 
     /**
      * 是否开启小黑子模式
-     * @author JiaChaoYang
      * @date 2024/5/2 上午2:23
      */
     private Boolean ikun = false;

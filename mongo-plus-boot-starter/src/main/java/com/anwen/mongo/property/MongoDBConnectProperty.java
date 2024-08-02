@@ -16,8 +16,7 @@ public class MongoDBConnectProperty extends BaseProperty {
 
     /**
      * 从数据源
-     * @author: JiaChaoYang
-     * @date: 2023/2/18 15:03
+     * @date 2023/2/18 15:03
      **/
     private List<SlaveDataSource> slaveDataSource;
 

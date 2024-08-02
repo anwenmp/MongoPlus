@@ -17,6 +17,8 @@ public enum SpecialConditionEnum {
 
     EACH("$each"),
 
+    TYPE("$type"),
+
     IN("$in"),
 
     EQ("$eq"),

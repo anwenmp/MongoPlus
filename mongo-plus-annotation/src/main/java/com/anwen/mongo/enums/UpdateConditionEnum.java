@@ -13,6 +13,22 @@ public enum UpdateConditionEnum {
 
     INC("$inc"),
 
+    CURRENT_DATE("$currentDate"),
+
+    MIN("$min"),
+
+    MAX("$max"),
+
+    MUL("$mul"),
+
+    RENAME("$rename"),
+
+    UNSET("$unset"),
+
+    ADD_TO_SET("$addToSet"),
+
+    POP("$pop"),
+
     ;
 
     private final String condition;
