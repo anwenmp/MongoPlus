@@ -11,6 +11,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,28 @@ public class MongoPlusClient {
             database = managerMap.keySet().stream().findFirst().get();
         }
         return database;
+    }
+
+    /**
+     * 获取database
+     * @param database database名称
+     * @return {@link com.mongodb.client.MongoDatabase}
+     * @author anwen
+     * @date 2024/8/6 下午9:21
+     */
+    public MongoDatabase getMongoDatabase(String database){
+        return getMongoClient().getDatabase(database);
+    }
+
+    /**
+     * 获取database下的所有集合名称
+     * @param database database名称
+     * @return {@link java.util.List<java.lang.String>}
+     * @author anwen
+     * @date 2024/8/6 下午9:25
+     */
+    public List<String> getCollectionListByDatabase(String database){
+        return getMongoDatabase(database).listCollectionNames().into(new ArrayList<>());
     }
 
     public String getCollectionName(Class<?> clazz){

@@ -57,6 +57,16 @@ public interface IService<T> {
     Boolean saveOrUpdate(T entity);
 
     /**
+     * 添加或修改
+     * @param entity 对象
+     * @param isQueryDatabase 是否查询数据库判断添加或修改
+     * @return {@link boolean}
+     * @author anwen
+     * @date 2024/8/6 下午7:37
+     */
+    boolean saveOrUpdate(T entity, boolean isQueryDatabase);
+
+    /**
      * 根据传入wrapper条件判断添加修改，传递_id并不会修改
      * @param entity 对象
      * @param queryChainWrapper 条件
@@ -74,6 +84,16 @@ public interface IService<T> {
      * @since 2023/2/9 13:57
     */
     Boolean saveOrUpdateBatch(Collection<T> entityList);
+
+    /**
+     * 批量添加或修改
+     * @param entityList 对象集合
+     * @param isQueryDatabase 是否查询数据库判断添加或修改
+     * @return {@link boolean}
+     * @author anwen
+     * @date 2024/8/6 下午7:41
+     */
+    boolean saveOrUpdateBatch(Collection<T> entityList,boolean isQueryDatabase);
 
     /**
      * 根据传入wrapper条件判断批量添加修改，传递_id并不会修改

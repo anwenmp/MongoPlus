@@ -144,7 +144,7 @@ public class ClassTypeUtil {
      * @author JiaChaoYang
      * @date 2023/8/30 22:05
     */
-    public static <T> String getIdByEntity(T entity,boolean exception){
+    public static <T> Object getIdByEntity(T entity,boolean exception){
         Optional<Field> fieldOptional = getFields(ClassTypeUtil.getClass(entity)).stream().peek(field -> field.setAccessible(true)).filter(field -> field.getAnnotation(ID.class) != null).findFirst();
         if (!fieldOptional.isPresent()){
             if (exception){
@@ -153,7 +153,7 @@ public class ClassTypeUtil {
             throw new MongoPlusFieldException("_id undefined");
         }
         try {
-            return String.valueOf(fieldOptional.get().get(entity));
+            return fieldOptional.get().get(entity);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

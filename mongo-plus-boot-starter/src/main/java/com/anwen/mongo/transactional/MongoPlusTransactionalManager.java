@@ -15,8 +15,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.Objects;
 
 /**
- * 自定义事务管理器
- * 不再维护使用Spring的注解控制事务，请使用MongoPlus提供的事务注解，继续使用可能导致多数据源无法回滚。单数据源依然不受影响
+ * 自定义事务管理器，只支持简单的开启事务，如需其他事务配置，可以继承此类，重写{@link #doGetTransaction()}方法，或者写事务管理器
  * @author JiaChaoYang
  **/
 public class MongoPlusTransactionalManager extends AbstractPlatformTransactionManager {
@@ -45,7 +44,6 @@ public class MongoPlusTransactionalManager extends AbstractPlatformTransactionMa
         ClientSession clientSession = (ClientSession) status.getTransaction();
         if (clientSession.hasActiveTransaction()) {
             clientSession.commitTransaction();
-            clientSession.close();
         }
         MongoTransactionSpring.clear();
         if (log.isDebugEnabled()){
@@ -58,7 +56,6 @@ public class MongoPlusTransactionalManager extends AbstractPlatformTransactionMa
         ClientSession clientSession = (ClientSession) status.getTransaction();
         if (clientSession.hasActiveTransaction()) {
             clientSession.abortTransaction();
-            clientSession.close();
         }
         MongoTransactionSpring.clear();
         if (log.isDebugEnabled()){

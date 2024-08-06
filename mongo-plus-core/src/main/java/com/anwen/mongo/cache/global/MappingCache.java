@@ -2,6 +2,7 @@ package com.anwen.mongo.cache.global;
 
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.strategy.mapping.impl.BigIntegerMappingStrategy;
+import com.anwen.mongo.strategy.mapping.impl.ObjectMappingStrategy;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ public class MappingCache {
 
     static {
         mappingStrategyMap.put(BigInteger.class,new BigIntegerMappingStrategy());
+        mappingStrategyMap.put(Object.class,new ObjectMappingStrategy());
     }
 
     public static MappingStrategy<?> getMappingStrategy(Class<?> clazz){
