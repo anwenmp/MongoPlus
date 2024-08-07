@@ -20,12 +20,12 @@ import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.WriteModel;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
-import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * 数据变动记录拦截器
@@ -51,7 +51,7 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
      *
      * @date 2024/6/27 下午5:33
      */
-    private List<String> ignoredColumnList = new ArrayList<String>(){{
+    private List<String> ignoredColumnList = new CopyOnWriteArrayList<String>(){{
         add("DATA_CHANGE_RECORD");
     }};
 
@@ -106,24 +106,17 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
      */
     private String collectionName = "DATA_CHANGE_RECORD";
 
-    private OperationResult operationResult;
+    private static final ThreadLocal<OperationResult> operationResultThreadLocal = ThreadLocal.withInitial(() -> null);
 
     @Override
     public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
-        if (ignoredColumnList.contains(collection.getNamespace().getCollectionName())){
+        if (shouldIgnoreCollection(collection)) {
             return;
         }
+
         long startTs = System.currentTimeMillis();
-        OperationResult operationResult = null;
-        if (executeMethodEnum == ExecuteMethodEnum.SAVE) {
-            operationResult = processSave(source);
-        } else if (executeMethodEnum == ExecuteMethodEnum.UPDATE) {
-            operationResult = processUpdate(source);
-        } else if (executeMethodEnum == ExecuteMethodEnum.REMOVE) {
-            operationResult = processRemove(source);
-        } else if (executeMethodEnum == ExecuteMethodEnum.BULK_WRITE) {
-            operationResult = processBulkWrite(source);
-        }
+        OperationResult operationResult = processOperation(executeMethodEnum, source);
+
         if (operationResult != null) {
             MongoNamespace namespace = collection.getNamespace();
             operationResult.setDatasourceName(DataSourceNameCache.getDataSource());
@@ -133,113 +126,149 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
             long costThis = System.currentTimeMillis() - startTs;
             operationResult.setCost(costThis);
             log.info(String.format("%s DataChangeRecord: %s",executeMethodEnum.name(), operationResult));
-            this.operationResult = operationResult;
+            if (enableSaveDatabase) {
+                operationResultThreadLocal.set(operationResult);
+            }
         }
     }
 
     @Override
     public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
-        if (ignoredColumnList.contains(collection.getNamespace().getCollectionName())){
+        if (shouldIgnoreCollection(collection) || !isRelevantMethod(executeMethodEnum)) {
             return;
         }
-        if (enableSaveDatabase){
-            String datasource = DataSourceNameCache.getDataSource();
-            if (StringUtils.isNotBlank(this.datasourceName)){
-                datasource = this.datasourceName;
-            } else if (this.isMasterDatasource){
-                datasource = DataSourceConstant.DEFAULT_DATASOURCE;
-            }
+
+        if (enableSaveDatabase) {
+            String datasource = determineDatasource();
             DataSourceNameCache.setDataSource(datasource);
-            String databaseName = DataSourceNameCache.getDatabase();
-            if (StringUtils.isNotBlank(this.databaseName)){
-                databaseName = this.databaseName;
-            }
-            baseMapper.save(databaseName,collectionName,operationResult);
+            String databaseName = determineDatabaseName();
+            baseMapper.save(databaseName, collectionName, operationResultThreadLocal.get());
+            operationResultThreadLocal.remove();
+        }
+    }
+
+    private boolean shouldIgnoreCollection(MongoCollection<Document> collection) {
+        return ignoredColumnList.contains(collection.getNamespace().getCollectionName());
+    }
+
+    private boolean isRelevantMethod(ExecuteMethodEnum executeMethodEnum) {
+        return executeMethodEnum == ExecuteMethodEnum.SAVE ||
+                executeMethodEnum == ExecuteMethodEnum.UPDATE ||
+                executeMethodEnum == ExecuteMethodEnum.REMOVE ||
+                executeMethodEnum == ExecuteMethodEnum.BULK_WRITE;
+    }
+
+    private String determineDatasource() {
+        if (StringUtils.isNotBlank(this.datasourceName)) {
+            return this.datasourceName;
+        } else if (this.isMasterDatasource) {
+            return DataSourceConstant.DEFAULT_DATASOURCE;
+        }
+        return DataSourceNameCache.getDataSource();
+    }
+
+    private String determineDatabaseName() {
+        return StringUtils.isNotBlank(this.databaseName) ? this.databaseName : DataSourceNameCache.getDatabase();
+    }
+
+    private OperationResult processOperation(ExecuteMethodEnum executeMethodEnum, Object[] source) throws DataUpdateLimitationException {
+        switch (executeMethodEnum) {
+            case SAVE:
+                return processSave(source);
+            case UPDATE:
+                return processUpdate(source);
+            case REMOVE:
+                return processRemove(source);
+            case BULK_WRITE:
+                return processBulkWrite(source);
+            default:
+                return null;
         }
     }
 
     private OperationResult processSave(Object[] source) throws DataUpdateLimitationException {
-        OperationResult operationResult = new OperationResult();
-        List<Document> documentList = (List<Document>) source[0];
+        List<Document> documentList = castList(source[0]);
         if (documentList.size() > batchUpdateLimit) {
-            log.error("batch save limit exceed: count={}, BATCH_UPDATE_LIMIT={}",documentList.size(), batchUpdateLimit);
+            log.error("batch save limit exceed: count={}, BATCH_UPDATE_LIMIT={}", documentList.size(), batchUpdateLimit);
             throw new DataUpdateLimitationException(exceptionMessage);
         }
+        OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.SAVE.name());
         operationResult.setChangedData(displayCompleteData ? documentList.toString() : String.valueOf(documentList.size()));
         return operationResult;
     }
 
     private OperationResult processUpdate(Object[] source) throws DataUpdateLimitationException {
-        OperationResult operationResult = new OperationResult();
-        List<MutablePair<Bson, Bson>> documentList = (List<MutablePair<Bson, Bson>>) source[0];
+        List<MutablePair<Bson, Bson>> documentList = castList(source[0]);
         if (documentList.size() > batchUpdateLimit) {
-            log.error("batch update limit exceed: count={}, BATCH_UPDATE_LIMIT={}",documentList.size(),batchUpdateLimit);
+            log.error("batch update limit exceed: count={}, BATCH_UPDATE_LIMIT={}", documentList.size(), batchUpdateLimit);
             throw new DataUpdateLimitationException(exceptionMessage);
         }
+        OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.UPDATE.name());
-        List<String> dataList = new ArrayList<>();
-        documentList.forEach(mutablePair -> {
-            String left = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
-            String right = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
-            dataList.add("(left="+left+",right="+right+")");
-        });
+        List<String> dataList = documentList.stream()
+                .map(mutablePair -> {
+                    String left = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+                    String right = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+                    return "(left=" + left + ",right=" + right + ")";
+                })
+                .collect(Collectors.toList());
         operationResult.setChangedData(displayCompleteData ? dataList.toString() : String.valueOf(documentList.size()));
         return operationResult;
     }
 
     private OperationResult processRemove(Object[] source) throws DataUpdateLimitationException {
-        OperationResult operationResult = new OperationResult();
         Bson bson = (Bson) source[0];
         BsonDocument bsonDocument = bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
         bsonDocument.forEach((k, v) -> {
-            if (v.isDocument()) {
-                BsonDocument document = v.asDocument();
-                if (document.containsKey(SpecialConditionEnum.IN.getCondition())) {
-                    BsonValue bsonValue = document.get(SpecialConditionEnum.IN.getCondition());
-                    BsonArray inArray = bsonValue.asArray();
-                    if (inArray.size() > batchUpdateLimit) {
-                        log.error("batch remove limit exceed: count={}, BATCH_UPDATE_LIMIT={}",inArray.size(), batchUpdateLimit);
-                        throw new DataUpdateLimitationException(exceptionMessage);
-                    }
+            if (v.isDocument() && v.asDocument().containsKey(SpecialConditionEnum.IN.getCondition())) {
+                BsonArray inArray = v.asDocument().get(SpecialConditionEnum.IN.getCondition()).asArray();
+                if (inArray.size() > batchUpdateLimit) {
+                    log.error("batch remove limit exceed: count={}, BATCH_UPDATE_LIMIT={}", inArray.size(), batchUpdateLimit);
+                    throw new DataUpdateLimitationException(exceptionMessage);
                 }
             }
         });
+        OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.REMOVE.name());
         operationResult.setChangedData(displayCompleteData ? bsonDocument.toString() : String.valueOf(bsonDocument.size()));
         return operationResult;
     }
 
     private OperationResult processBulkWrite(Object[] source) {
-        OperationResult operationResult = new OperationResult();
-        List<WriteModel<Document>> writeModelList = (List<WriteModel<Document>>) source[0];
+        List<WriteModel<Document>> writeModelList = castList(source[0]);
         long insertCount = writeModelList.stream().filter(writeModel -> writeModel instanceof InsertOneModel).count();
         long updateCount = writeModelList.stream().filter(writeModel -> writeModel instanceof UpdateManyModel).count();
         if (insertCount > batchUpdateLimit || updateCount > batchUpdateLimit) {
-            log.error("batch bulkWrite limit exceed: count={}, BATCH_UPDATE_LIMIT={}",insertCount, batchUpdateLimit);
+            log.error("batch bulkWrite limit exceed: count={}, BATCH_UPDATE_LIMIT={}", insertCount, batchUpdateLimit);
             throw new DataUpdateLimitationException(exceptionMessage);
         }
+        OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.BULK_WRITE.name());
-        String changedData = String.valueOf(writeModelList.size());
         if (displayCompleteData) {
-            List<String> dataList = new ArrayList<>();
-            for (WriteModel<Document> writeModel : writeModelList) {
-                if (writeModel instanceof InsertOneModel) {
-                    dataList.add(((InsertOneModel<Document>) writeModel).toString());
-                } else if (writeModel instanceof UpdateManyModel) {
-                    UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
-                    String updateManyModelString = "UpdateManyModel{"
-                            + "filter=" + updateManyModel.getFilter()
-                            + ", update=" + (updateManyModel.getUpdate() != null ? updateManyModel.getUpdate().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString() : updateManyModel.getUpdatePipeline())
-                            + ", options=" + updateManyModel.getUpdatePipeline()
-                            + '}';
-                    dataList.add(updateManyModelString);
-                }
-            }
-            changedData = dataList.toString();
+            List<String> dataList = writeModelList.stream()
+                    .map(writeModel -> {
+                        if (writeModel instanceof InsertOneModel) {
+                            return writeModel.toString();
+                        } else if (writeModel instanceof UpdateManyModel) {
+                            UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
+                            return "UpdateManyModel{filter=" + updateManyModel.getFilter() +
+                                    ", update=" + (updateManyModel.getUpdate() != null ? updateManyModel.getUpdate().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString() : updateManyModel.getUpdatePipeline()) +
+                                    ", options=" + updateManyModel.getUpdatePipeline() + '}';
+                        }
+                        return "";
+                    })
+                    .collect(Collectors.toList());
+            operationResult.setChangedData(dataList.toString());
+        } else {
+            operationResult.setChangedData(String.valueOf(writeModelList.size()));
         }
-        operationResult.setChangedData(changedData);
         return operationResult;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> castList(Object obj) {
+        return (List<T>) obj;
     }
 
     public String getDatasourceName() {

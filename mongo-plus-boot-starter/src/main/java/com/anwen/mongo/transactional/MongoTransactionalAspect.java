@@ -21,62 +21,49 @@ public class MongoTransactionalAspect {
 
     @Pointcut("@annotation(com.anwen.mongo.annotation.transactional.MongoTransactional)")
     private void markMongoTransactional() {
+        // MongoTransactional注解的切入点方法
     }
 
     @Around(value = "markMongoTransactional() && @annotation(mongoTransactional)")
     public Object manageTransaction(ProceedingJoinPoint joinPoint, MongoTransactional mongoTransactional) throws Throwable {
-
         MongoTransactionalManager.startTransaction(mongoTransactional);
         try {
-            Object proceed = joinPoint.proceed();
+            Object result = joinPoint.proceed();
             MongoTransactionalManager.commitTransaction();
-            return proceed;
+            return result;
         } catch (Exception e) {
-            Class<? extends Exception> eClass = e.getClass();
-            boolean finish = doRollBack(mongoTransactional, eClass);
-            if (!finish) {
-                finish = doUnRollBack(mongoTransactional, eClass);
-            }
-            if (!finish) {
-                MongoTransactionalManager.rollbackTransaction();
-            }
+            handleTransactionException(mongoTransactional, e);
             throw e;
         } finally {
             MongoTransactionalManager.closeSession();
         }
-
     }
 
-    private static boolean doUnRollBack(MongoTransactional mongoTransactional, Class<? extends Exception> eClass) {
+    private void handleTransactionException(MongoTransactional mongoTransactional, Exception e) {
+        Class<? extends Exception> eClass = e.getClass();
+        boolean finished = processRollback(mongoTransactional, eClass, true)
+                || processRollback(mongoTransactional, eClass, false);
+        if (!finished) {
+            MongoTransactionalManager.rollbackTransaction();
+        }
+    }
 
-        Class<? extends Throwable>[] noRollBackList = mongoTransactional.noRollbackFor();
-        if (ArrayUtils.isEmpty(noRollBackList)) {
+    private boolean processRollback(MongoTransactional mongoTransactional, Class<? extends Exception> eClass, boolean isRollback) {
+        Class<? extends Throwable>[] exceptionList = isRollback ? mongoTransactional.rollbackFor() : mongoTransactional.noRollbackFor();
+        if (ArrayUtils.isEmpty(exceptionList)) {
             return false;
         }
-        for (Class<? extends Throwable> eType : noRollBackList) {
-            if (ClassTypeUtil.isTargetClass(eType,eClass)) {
-                MongoTransactionalManager.commitTransaction();
+        for (Class<? extends Throwable> exceptionType : exceptionList) {
+            if (ClassTypeUtil.isTargetClass(exceptionType, eClass)) {
+                if (isRollback) {
+                    MongoTransactionalManager.rollbackTransaction();
+                } else {
+                    MongoTransactionalManager.commitTransaction();
+                }
                 return true;
             }
         }
         return false;
-
     }
-
-    private static boolean doRollBack(MongoTransactional mongoTransactional, Class<? extends Exception> eClass) {
-
-        Class<? extends Throwable>[] rollBackList = mongoTransactional.rollbackFor();
-        if (ArrayUtils.isEmpty(rollBackList)) {
-            return false;
-        }
-        for (Class<? extends Throwable> eType : rollBackList) {
-            if (ClassTypeUtil.isTargetClass(eType,eClass)) {
-                MongoTransactionalManager.rollbackTransaction();
-                return true;
-            }
-        }
-        return false;
-
-    }
-
 }
+

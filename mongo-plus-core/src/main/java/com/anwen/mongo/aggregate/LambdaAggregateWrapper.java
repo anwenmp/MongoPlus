@@ -882,6 +882,6 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     private Bson orderBy(final List<String> fieldNames, final Integer value) {
         BsonDocument document = new BsonDocument();
         fieldNames.forEach(fieldName -> document.append(fieldName, new BsonInt32(value)));
-        return document;
+        return Aggregates.sort(document);
     }
 }
