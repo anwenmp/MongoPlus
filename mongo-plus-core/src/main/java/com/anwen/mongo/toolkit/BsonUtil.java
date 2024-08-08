@@ -560,7 +560,7 @@ public class BsonUtil {
 
     public static Bson getIdsCondition(Collection<? extends Serializable> idList){
         List<Object> convertedIds = idList.stream()
-                .map(StringUtils::getObjectIdValue)
+                .map(ObjectIdUtil::getObjectIdValue)
                 .collect(Collectors.toList());
         return Filters.in(SqlOperationConstant._ID, convertedIds);
     }

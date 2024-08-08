@@ -71,22 +71,24 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             getFillInsertAndUpdateField(typeInformation,insertFillAutoFillMetaObject,updateFillAutoFillMetaObject);
         }
         //拿到类中的@ID字段
-        FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class, "@ID field not found");
-        //如果没有设置
-        Object idValue = idFieldInformation.getValue();
-        if (idValue != null){
-            if (ObjectId.isValid(String.valueOf(idValue)) && !idValue.getClass().equals(ObjectId.class)) {
-                document.put(SqlOperationConstant._ID, new ObjectId(String.valueOf(idValue)));
+        FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class);
+        if (idFieldInformation != null) {
+            //如果没有设置
+            Object idValue = idFieldInformation.getValue();
+            if (idValue != null) {
+                if (ObjectId.isValid(String.valueOf(idValue)) && !idValue.getClass().equals(ObjectId.class)) {
+                    document.put(SqlOperationConstant._ID, new ObjectId(String.valueOf(idValue)));
+                }
+            } else {
+                idValue = generateId(idFieldInformation.getId().type(), typeInformation);
             }
-        } else {
-            idValue = generateId(idFieldInformation.getId().type(), typeInformation);
-        }
-        if (idValue != null){
-            Object value = convertValue(idValue,idFieldInformation.getTypeClass());
-            document.put(SqlOperationConstant._ID, value);
-            //为自行设置id，需要在这里判断一下重入，自行设置checkTableField方法会进行处理
-            if (idFieldInformation.getId().saveField()){
-                document.put(idFieldInformation.getName(),value);
+            if (idValue != null) {
+                idValue = idValue instanceof ObjectId ? idValue : convertValue(idValue, idFieldInformation.getTypeClass());
+                document.put(SqlOperationConstant._ID, idValue);
+                //为自行设置id，需要在这里判断一下重入，自行设置checkTableField方法会进行处理
+                if (idFieldInformation.getId().saveField()) {
+                    document.put(idFieldInformation.getName(), idValue);
+                }
             }
         }
         //如果存在元对象处理器，且插入或更新字段不为空，则获取自动填充字段

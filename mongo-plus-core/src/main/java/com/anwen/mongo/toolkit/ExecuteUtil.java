@@ -16,7 +16,7 @@ public class ExecuteUtil {
             throw new MongoPlusFieldException("_id undefined");
         }
         Object _idValue = entityMap.get(SqlOperationConstant._ID);
-        BasicDBObject filter = new BasicDBObject(SqlOperationConstant._ID, StringUtils.getObjectIdValue(_idValue));
+        BasicDBObject filter = new BasicDBObject(SqlOperationConstant._ID, ObjectIdUtil.getObjectIdValue(_idValue));
         entityMap.remove(SqlOperationConstant._ID);
         return filter;
     }

@@ -1,5 +1,6 @@
 package com.anwen.mongo.toolkit;
 
+import com.anwen.mongo.cache.global.PropertyCache;
 import org.bson.types.ObjectId;
 
 import java.util.Collection;
@@ -31,4 +32,20 @@ public class ObjectIdUtil {
         }
         return ids.stream().map(ObjectIdUtil::convertObjectId).collect(Collectors.toList());
     }
+
+    /**
+     * 转换ObjectId，如果value类型为ObjectId，则直接返回
+     * @param value 值
+     * @return {@link Object}
+     * @author anwen
+     * @date 2024/8/8 下午3:29
+     */
+    public static Object getObjectIdValue(Object value) {
+        if (value instanceof ObjectId){
+            return value;
+        }
+        String convertValue = String.valueOf(value);
+        return ObjectId.isValid(convertValue) && PropertyCache.autoConvertObjectId ? new ObjectId(convertValue) : value;
+    }
+
 }

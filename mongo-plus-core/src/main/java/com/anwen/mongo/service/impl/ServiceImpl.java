@@ -263,7 +263,7 @@ public class ServiceImpl<T> implements IService<T> {
 
     @Override
     public Boolean removeById(Serializable id) {
-        Bson filterId = Filters.eq(SqlOperationConstant._ID, StringUtils.getObjectIdValue(id));
+        Bson filterId = Filters.eq(SqlOperationConstant._ID, ObjectIdUtil.getObjectIdValue(id));
         return baseMapper.remove(filterId, clazz) >= 1;
     }
 
@@ -274,7 +274,7 @@ public class ServiceImpl<T> implements IService<T> {
 
     @Override
     public Boolean removeByColumn(String column, Object value) {
-        Bson filter = Filters.eq(column, StringUtils.getObjectIdValue(value));
+        Bson filter = Filters.eq(column, ObjectIdUtil.getObjectIdValue(value));
         return baseMapper.remove(filter, clazz) >= 1;
     }
 

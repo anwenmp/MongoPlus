@@ -321,7 +321,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public <R> R getById(String database, String collectionName, Serializable id, TypeReference<R> typeReference) {
-        BasicDBObject queryBasic = new BasicDBObject(SqlOperationConstant._ID, new BasicDBObject(SpecialConditionEnum.EQ.getCondition(), StringUtils.getObjectIdValue(id)));
+        BasicDBObject queryBasic = new BasicDBObject(SqlOperationConstant._ID, new BasicDBObject(SpecialConditionEnum.EQ.getCondition(), ObjectIdUtil.getObjectIdValue(id)));
         return mongoConverter.read(factory.getExecute().executeQuery(queryBasic,null,null, Document.class, mongoPlusClient.getCollection(database, collectionName)).first(),typeReference);
     }
 
@@ -344,7 +344,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public <R> List<R> getByColumn(String database, String collectionName, String column, Object value, TypeReference<R> typeReference) {
-        Bson filter = Filters.eq(column, StringUtils.getObjectIdValue(value));
+        Bson filter = Filters.eq(column, ObjectIdUtil.getObjectIdValue(value));
         return mongoConverter.read(factory.getExecute().executeQuery(filter,null,null, Document.class, mongoPlusClient.getCollection(database, collectionName)),typeReference);
     }
 

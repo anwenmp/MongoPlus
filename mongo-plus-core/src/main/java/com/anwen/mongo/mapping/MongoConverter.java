@@ -216,7 +216,7 @@ public interface MongoConverter extends MongoWriter,EntityRead {
         if (Objects.isNull(idValue)) {
             try {
                 Object idV = document.get(SqlOperationConstant._ID);
-                ConversionStrategy<?> conversionStrategy = getConversionStrategy(idV.getClass());
+                ConversionStrategy<?> conversionStrategy = getConversionStrategy(idFieldInformation.getTypeClass());
                 if (conversionStrategy != null && idV.getClass() != idFieldInformation.getTypeClass()){
                     idFieldInformation.setValue(conversionStrategy.convertValue(idV,idFieldInformation.getTypeClass(),this));
                 } else {

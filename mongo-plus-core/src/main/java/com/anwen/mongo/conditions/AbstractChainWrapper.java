@@ -11,7 +11,7 @@ import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.enums.ProjectionEnum;
 import com.anwen.mongo.enums.TypeEnum;
 import com.anwen.mongo.support.SFunction;
-import com.anwen.mongo.toolkit.StringUtils;
+import com.anwen.mongo.toolkit.ObjectIdUtil;
 import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
@@ -758,10 +758,10 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
         if (Objects.equals(column, SqlOperationConstant._ID)) {
             if (value instanceof List<?>) {
                 value = ((List<?>) value).stream()
-                        .map(StringUtils::getObjectIdValue)
+                        .map(ObjectIdUtil::getObjectIdValue)
                         .collect(Collectors.toList());
             } else {
-                value = StringUtils.getObjectIdValue(value);
+                value = ObjectIdUtil.getObjectIdValue(value);
             }
         }
         this.compareList.add(new CompareCondition(condition, column, value,clazz,field));

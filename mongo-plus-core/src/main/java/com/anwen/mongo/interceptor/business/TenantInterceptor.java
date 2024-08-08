@@ -12,6 +12,7 @@ import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.QueryParam;
 import com.anwen.mongo.toolkit.BsonUtil;
 import com.anwen.mongo.toolkit.CollUtil;
+import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoCollection;
@@ -149,7 +150,11 @@ public class TenantInterceptor implements Interceptor {
                         tenantHandler.ignoreDataSource(dataSource);
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Bson> T appendTenantFilter(T filter, MongoCollection<Document> collection) {
+        if (filter == null){
+            filter = (T) new Document();
+        }
         if (!isTenantIgnored(collection)) {
             BsonDocument filterDoc = filter.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
             if (!filterDoc.containsKey(tenantHandler.getTenantIdColumn())) {
