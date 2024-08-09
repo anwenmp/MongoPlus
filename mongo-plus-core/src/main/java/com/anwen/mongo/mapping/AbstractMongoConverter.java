@@ -84,6 +84,9 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             }
             if (idValue != null) {
                 idValue = idValue instanceof ObjectId ? idValue : convertValue(idValue, idFieldInformation.getTypeClass());
+                if (PropertyCache.objectIdConvertType && idValue instanceof ObjectId) {
+                    idValue = convertValue(idValue,idFieldInformation.getTypeClass());
+                }
                 document.put(SqlOperationConstant._ID, idValue);
                 //为自行设置id，需要在这里判断一下重入，自行设置checkTableField方法会进行处理
                 if (idFieldInformation.getId().saveField()) {

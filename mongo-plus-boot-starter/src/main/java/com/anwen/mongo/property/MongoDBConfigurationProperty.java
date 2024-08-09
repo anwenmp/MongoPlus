@@ -35,6 +35,12 @@ public class MongoDBConfigurationProperty {
      */
     private Boolean autoConvertObjectId = true;
 
+    /**
+     * 是否将Id字段的ObjectId转换为字段的类型
+     * @date 2024/8/9 14:52
+     */
+    private Boolean objectIdConvertType = false;
+
     public Boolean getIkun() {
         return ikun;
     }
@@ -60,6 +66,15 @@ public class MongoDBConfigurationProperty {
     public void setAutoIdCollectionName(String autoIdCollectionName) {
         PropertyCache.autoIdCollectionName = autoIdCollectionName;
         this.autoIdCollectionName = autoIdCollectionName;
+    }
+
+    public Boolean getObjectIdConvertType() {
+        return objectIdConvertType;
+    }
+
+    public void setObjectIdConvertType(Boolean objectIdConvertType) {
+        PropertyCache.objectIdConvertType = objectIdConvertType;
+        this.objectIdConvertType = objectIdConvertType;
     }
 
     public Boolean getBanner() {

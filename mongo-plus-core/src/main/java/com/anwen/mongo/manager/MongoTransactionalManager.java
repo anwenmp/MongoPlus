@@ -83,7 +83,6 @@ public class MongoTransactionalManager {
         if (options == null){
             options = TransactionOptions.builder().build();
         }
-        session.
         session.startTransaction(options);
         MongoTransactionStatus status = new MongoTransactionStatus(session);
         MongoTransactionContext.setTransactionStatus(status);

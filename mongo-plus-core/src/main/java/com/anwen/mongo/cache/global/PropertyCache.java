@@ -68,6 +68,12 @@ public class PropertyCache {
     public static Boolean autoConvertObjectId = true;
 
     /**
+     * 是否将Id字段的ObjectId转换为字段的类型
+     * @date 2024/8/9 14:53
+     */
+    public static Boolean objectIdConvertType = false;
+
+    /**
      * 是否打印日志
      * @date 2024/7/28 下午5:59
      */

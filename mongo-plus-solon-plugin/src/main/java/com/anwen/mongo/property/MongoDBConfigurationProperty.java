@@ -11,7 +11,6 @@ public class MongoDBConfigurationProperty {
 
     /**
      * banner打印
-     * @author JiaChaoYang
      * @date 2024/1/26 21:58
     */
     private Boolean banner = true;
@@ -20,10 +19,16 @@ public class MongoDBConfigurationProperty {
 
     /**
      * 存放自增id的集合
-     * @author JiaChaoYang
      * @date 2024/5/1 下午8:55
      */
     private String autoIdCollectionName;
+
+
+    /**
+     * 是否将Id字段的ObjectId转换为字段的类型
+     * @date 2024/8/9 14:52
+     */
+    private Boolean objectIdConvertType = false;
 
     /**
      * 自动转换ObjectId
@@ -56,6 +61,16 @@ public class MongoDBConfigurationProperty {
     public void setIkun(Boolean ikun) {
         PropertyCache.ikun = ikun;
         this.ikun = ikun;
+    }
+
+
+    public Boolean getObjectIdConvertType() {
+        return objectIdConvertType;
+    }
+
+    public void setObjectIdConvertType(Boolean objectIdConvertType) {
+        PropertyCache.objectIdConvertType = objectIdConvertType;
+        this.objectIdConvertType = objectIdConvertType;
     }
 
     public Boolean getBanner() {
