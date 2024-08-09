@@ -38,26 +38,11 @@ public class MongoTransactionalManager {
 
     }
 
-    /**
-     * 事务开启
-     *
-     * @author JiaChaoYang
-     * @date 2023/7/30 18:15
-     */
-    public static void startTransaction() {
-        startTransaction(getMongoClient());
+    public static ClientSession getTransaction(){
+        return getTransaction(null);
     }
 
-    public static void startTransaction(MongoClient mongoClient) {
-        startTransaction(mongoClient, null);
-    }
-
-    public static void startTransaction(MongoTransactional transactional) {
-        startTransaction(getMongoClient(), transactional);
-    }
-
-    public static void startTransaction(MongoClient mongoClient, MongoTransactional transactional) {
-
+    public static ClientSession getTransaction(MongoTransactional transactional){
         //获取线程中的session
         ClientSession session = MongoTransactionContext.getClientSessionContext();
         if (session == null) {
@@ -66,17 +51,47 @@ public class MongoTransactionalManager {
             if (Objects.nonNull(transactional)) {
                 config(transactional, builder);
             }
-            session = mongoClient.startSession(builder.build());
-            session.startTransaction();
-            MongoTransactionStatus status = new MongoTransactionStatus(session);
-            MongoTransactionContext.setTransactionStatus(status);
+            session = getMongoClient().startSession(builder.build());
         }
+        return session;
+    }
+
+    /**
+     * 事务开启
+     *
+     * @author JiaChaoYang
+     * @date 2023/7/30 18:15
+     */
+    public static void startTransaction() {
+        startTransaction(getTransaction());
+    }
+
+    public static void startTransaction(TransactionOptions options) {
+        startTransaction(getTransaction(),options);
+    }
+
+    public static void startTransaction(MongoTransactional transactional) {
+        startTransaction(getTransaction(transactional));
+    }
+
+    public static void startTransaction(ClientSession session) {
+        startTransaction(session,null);
+    }
+
+    public static void startTransaction(ClientSession session,TransactionOptions options) {
+        //获取线程中的session
+        if (options == null){
+            options = TransactionOptions.builder().build();
+        }
+        session.
+        session.startTransaction(options);
+        MongoTransactionStatus status = new MongoTransactionStatus(session);
+        MongoTransactionContext.setTransactionStatus(status);
         // 每个被切到的方法都引用加一
         MongoTransactionContext.getMongoTransactionStatus().incrementReference();
         if (log.isDebugEnabled()) {
             log.debug("Mongo transaction created, Thread:{}, session hashcode:{}", Thread.currentThread().getName(), session.hashCode());
         }
-
     }
 
     /**

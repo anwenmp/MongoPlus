@@ -22,6 +22,7 @@ import com.anwen.mongo.property.MongoDBLogProperty;
 import com.anwen.mongo.tenant.TenantAspect;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.transactional.MongoTransactionalAspect;
+import com.mongodb.TransactionOptions;
 import com.mongodb.client.MongoClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -191,9 +192,14 @@ public class MongoPlusConfiguration {
         return new MongoTransactionalAspect();
     }
 
+    @Bean("transactionOptions")
+    @ConditionalOnMissingBean
+    public TransactionOptions transactionOptions(){
+        return TransactionOptions.builder().build();
+    }
+
     /**
      * 注册mongoPlus多数据源切面
-     * @param
      * @return {@link MongoDataSourceAspect}
      * @author anwen
      * @date 2024/5/27 下午11:19
