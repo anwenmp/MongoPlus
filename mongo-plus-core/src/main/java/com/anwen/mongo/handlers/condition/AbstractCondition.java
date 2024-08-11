@@ -83,6 +83,7 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
                 case MAX:
                 case MUL:
                 case POP:
+                case PULL_ALL:
                     return condition.buildUpdateCondition(currentCompareConditionList,buildUpdate);
                 case PUSH:
                     finalCompareConditionList.set(currentCompareConditionList.stream().distinct().collect(Collectors.toList()));

@@ -37,7 +37,7 @@ public class MutablePair<L,R> extends Pair<L, R> {
      * @author JiaChaoYang
      * @date 2024/3/16 22:49
      */
-    public static <L, R> MutablePair<L, R> of(final SFunction<L,Object> left, final R right) {
+    public static <T, R> MutablePair<String, R> of(final SFunction<T,Object> left, final R right) {
         return new MutablePair<>(left, right);
     }
 
@@ -67,7 +67,7 @@ public class MutablePair<L,R> extends Pair<L, R> {
      * @date 2024/3/16 22:50
      */
     @SuppressWarnings("unchecked")
-    public MutablePair(final SFunction<L,Object> left, final R right) {
+    public MutablePair(final SFunction<?,Object> left, final R right) {
         super();
         this.left = (L) left.getFieldNameLine();
         this.right = right;

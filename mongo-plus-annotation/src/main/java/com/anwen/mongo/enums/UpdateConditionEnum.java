@@ -31,6 +31,8 @@ public enum UpdateConditionEnum {
 
     PULL("$pull"),
 
+    PULL_ALL("$pullAll"),
+
     ;
 
     private final String condition;

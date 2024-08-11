@@ -238,16 +238,16 @@ public class BuildCondition extends AbstractCondition {
     public BasicDBObject buildPullCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
         CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        Object value = currentCompareCondition.getValue();
         if (currentCompareCondition.getExtraValue(Boolean.class)){
             QueryChainWrapper<?,?> wrapper = currentCompareCondition.getValue(QueryChainWrapper.class);
             BasicDBObject queriedCondition = queryCondition(wrapper.getCompareList());
             if (CollUtil.isNotEmpty(wrapper.getBasicDBObjectList())){
-                wrapper.getBasicDBObjectList().forEach(basicDBObject -> basicDBObject.putAll(basicDBObject.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
-                value = queriedCondition;
+                wrapper.getBasicDBObjectList().forEach(basicDBObject -> queriedCondition.putAll(basicDBObject.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
             }
+            updateBasicDBObject.putAll(queriedCondition.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()));
+        } else {
+            updateBasicDBObject.put(currentCompareCondition.getColumn(),currentCompareCondition.getValue());
         }
-        updateBasicDBObject.put(currentCompareCondition.getColumn(),value);
         return updateBasicDBObject;
     }
 
