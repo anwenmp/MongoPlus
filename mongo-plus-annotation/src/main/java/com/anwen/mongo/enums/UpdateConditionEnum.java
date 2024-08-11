@@ -29,6 +29,8 @@ public enum UpdateConditionEnum {
 
     POP("$pop"),
 
+    PULL("$pull"),
+
     ;
 
     private final String condition;

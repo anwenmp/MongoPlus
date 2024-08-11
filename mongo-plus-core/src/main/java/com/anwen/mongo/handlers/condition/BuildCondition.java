@@ -48,7 +48,7 @@ public class BuildCondition extends AbstractCondition {
         DEFAULT_BUSINESS_CONDITION = new BuildCondition();
     }
 
-    private BuildCondition() {
+    public BuildCondition() {
     }
 
     @Override
@@ -231,6 +231,23 @@ public class BuildCondition extends AbstractCondition {
                 currentCompareCondition.getExtraValue(Boolean.class) ?
                         new BasicDBObject(SpecialConditionEnum.EACH.getCondition(),currentCompareCondition.getValue()) :
                         currentCompareCondition.getValue());
+        return updateBasicDBObject;
+    }
+
+    @Override
+    public BasicDBObject buildPullCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
+        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+        BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
+        Object value = currentCompareCondition.getValue();
+        if (currentCompareCondition.getExtraValue(Boolean.class)){
+            QueryChainWrapper<?,?> wrapper = currentCompareCondition.getValue(QueryChainWrapper.class);
+            BasicDBObject queriedCondition = queryCondition(wrapper.getCompareList());
+            if (CollUtil.isNotEmpty(wrapper.getBasicDBObjectList())){
+                wrapper.getBasicDBObjectList().forEach(basicDBObject -> basicDBObject.putAll(basicDBObject.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
+                value = queriedCondition;
+            }
+        }
+        updateBasicDBObject.put(currentCompareCondition.getColumn(),value);
         return updateBasicDBObject;
     }
 

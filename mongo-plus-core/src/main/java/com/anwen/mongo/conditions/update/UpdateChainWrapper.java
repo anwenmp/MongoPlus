@@ -3,11 +3,13 @@ package com.anwen.mongo.conditions.update;
 import com.anwen.mongo.conditions.AbstractChainWrapper;
 import com.anwen.mongo.conditions.interfaces.Update;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
+import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.CurrentDateType;
 import com.anwen.mongo.enums.PopType;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.support.SFunction;
+import com.anwen.mongo.toolkit.ArrayUtils;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
 
 import java.util.Arrays;
@@ -359,7 +361,7 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children pop(SFunction<T, Object> column, PopType popType) {
-        return getBaseUpdateCompare(column,popType.getValue());
+        return getBaseUpdateCompare(column,popType.getValue(),true);
     }
 
     @Override
@@ -369,7 +371,68 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children pop(String column, PopType popType) {
-        return getBaseUpdateCompare(column,popType.getValue());
+        return getBaseUpdateCompare(column,popType.getValue(),false);
+    }
+
+    @Override
+    public Children pull(boolean condition, SFunction<T, Object> column, Object value) {
+        return condition ? pull(column,value) : typedThis;
+    }
+
+    @Override
+    public Children pull(SFunction<T, Object> column, Object value) {
+        return getBaseUpdateCompare(column,value,false);
+    }
+
+    @Override
+    public Children pull(boolean condition, SFunction<T, Object> column, QueryChainWrapper<?, ?> wrapper) {
+        return condition ? pull(column,wrapper) : typedThis;
+    }
+
+    @Override
+    public Children pull(SFunction<T, Object> column, QueryChainWrapper<?, ?> wrapper) {
+        return getBaseUpdateCompare(column, wrapper,true);
+    }
+
+    @SafeVarargs
+    @Override
+    public final Children pull(boolean condition, MutablePair<String, Object>... pullPair) {
+        return condition ? pull(pullPair) : typedThis;
+    }
+
+    @SafeVarargs
+    @Override
+    public final Children pull(MutablePair<String, Object>... pullPair) {
+        if (ArrayUtils.isNotEmpty(pullPair)) {
+            for (MutablePair<String, Object> mutablePair : pullPair) {
+                if (mutablePair.getRight() instanceof QueryChainWrapper) {
+                    pull(mutablePair.getLeft(), (QueryChainWrapper<?, ?>) mutablePair.getRight());
+                } else {
+                    pull(mutablePair.getLeft(), mutablePair.getRight());
+                }
+            }
+        }
+        return typedThis;
+    }
+
+    @Override
+    public Children pull(boolean condition, String column, Object value) {
+        return condition ? pull(column,value) : typedThis;
+    }
+
+    @Override
+    public Children pull(String column, Object value) {
+        return getBaseUpdateCompare(column,value,false);
+    }
+
+    @Override
+    public Children pull(boolean condition, String column, QueryChainWrapper<?, ?> wrapper) {
+        return condition ? pull(column,wrapper) : typedThis;
+    }
+
+    @Override
+    public Children pull(String column, QueryChainWrapper<?, ?> condition) {
+        return getBaseUpdateCompare(column,condition,true);
     }
 
     private Children getBaseUpdateCompare(SFunction<T, Object> column, Object value,Object extraValue){

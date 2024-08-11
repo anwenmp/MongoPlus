@@ -1,5 +1,7 @@
 package com.anwen.mongo.model;
 
+import com.anwen.mongo.support.SFunction;
+
 /**
  * 可变的Pair
  *
@@ -30,6 +32,16 @@ public class MutablePair<L,R> extends Pair<L, R> {
     }
 
     /**
+     * 从两个推断泛型类型的对象中获得一对不可变的。
+     * 这个工厂允许使用推理来创建对，以获得泛型类型。
+     * @author JiaChaoYang
+     * @date 2024/3/16 22:49
+     */
+    public static <L, R> MutablePair<L, R> of(final SFunction<L,Object> left, final R right) {
+        return new MutablePair<>(left, right);
+    }
+
+    /**
      * 创建两个null的新对实例
      * @author JiaChaoYang
      * @date 2024/3/16 22:49
@@ -46,6 +58,18 @@ public class MutablePair<L,R> extends Pair<L, R> {
     public MutablePair(final L left, final R right) {
         super();
         this.left = left;
+        this.right = right;
+    }
+
+    /**
+     * 创建一个新的配对实例。
+     * @author JiaChaoYang
+     * @date 2024/3/16 22:50
+     */
+    @SuppressWarnings("unchecked")
+    public MutablePair(final SFunction<L,Object> left, final R right) {
+        super();
+        this.left = (L) left.getFieldNameLine();
         this.right = right;
     }
 

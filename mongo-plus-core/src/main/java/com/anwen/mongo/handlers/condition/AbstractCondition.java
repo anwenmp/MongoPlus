@@ -96,6 +96,8 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
                     return condition.buildUnsetCondition(currentCompareConditionList,buildUpdate);
                 case ADD_TO_SET:
                     return condition.buildAddToSetCondition(currentCompareConditionList,buildUpdate);
+                case PULL:
+                    return condition.buildPullCondition(currentCompareConditionList,buildUpdate);
             }
             return null;
         };

@@ -73,4 +73,14 @@ public interface UpdateCondition {
      */
     BasicDBObject buildAddToSetCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate);
 
+    /**
+     * $pull操作符具体的构建方法
+     * @param compareConditionList 条件集合
+     * @param buildUpdate 条件
+     * @return {@link com.mongodb.BasicDBObject}
+     * @author anwen
+     * @date 2024/8/1 下午6:40
+     */
+    BasicDBObject buildPullCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate);
+
 }

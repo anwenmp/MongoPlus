@@ -1,7 +1,9 @@
 package com.anwen.mongo.conditions.interfaces;
 
+import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.CurrentDateType;
 import com.anwen.mongo.enums.PopType;
+import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.support.SFunction;
 
 import java.io.Serializable;
@@ -677,5 +679,122 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 下午4:25
      */
     Children pop(String column, PopType popType);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(boolean condition,SFunction<T,Object> column,Object value);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(SFunction<T,Object> column,Object value);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param wrapper 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(boolean condition,SFunction<T,Object> column,QueryChainWrapper<?,?> wrapper);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param column 字段
+     * @param wrapper 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(SFunction<T,Object> column,QueryChainWrapper<?,?> wrapper);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * <p>示例：{@code pull(
+     *      new MutablePair<String,Object>(User::getRoleList,"admin"),
+     *      new MutablePair<String,Object>(User::getDeptList,
+     *          new QueryWrapper<Dept>()
+     *              .in(Dept::getDeptId,Arrays.asList(1,2,3)))
+     *     )}</p>
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param pullPair 多个条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:47
+     */
+    @SuppressWarnings("unchecked")
+    Children pull(boolean condition,MutablePair<String,Object>... pullPair);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * <p>示例：{@code pull(
+     *      new MutablePair<String,Object>(User::getRoleList,"admin"),
+     *      new MutablePair<String,Object>(User::getDeptList,
+     *          new QueryWrapper<Dept>()
+     *              .in(Dept::getDeptId,Arrays.asList(1,2,3)))
+     *     )}</p>
+     * @param pullPair 多个条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:47
+     */
+    @SuppressWarnings("unchecked")
+    Children pull(MutablePair<String,Object>... pullPair);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(boolean condition,String column,Object value);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(String column,Object value);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param wrapper 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(boolean condition,String column,QueryChainWrapper<?,?> wrapper);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param column 字段
+     * @param condition 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(String column,QueryChainWrapper<?,?> condition);
 
 }
