@@ -33,6 +33,7 @@ import org.bson.types.ObjectId;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +51,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         this.mongoPlusClient = mongoPlusClient;
     }
 
-    public final Map<Class<?>,Boolean> classEnumTypeMap = new HashMap<>();
+    public final Map<Class<?>,Boolean> classEnumTypeMap = new ConcurrentHashMap<>();
 
     //定义添加自动填充字段
     private final AutoFillMetaObject insertFillAutoFillMetaObject = new AutoFillMetaObject();
