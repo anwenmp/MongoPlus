@@ -128,9 +128,21 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     public FieldInformation getField(String fieldName) {
         if (!fieldMap.containsKey(fieldName)) {
             try {
-                fieldMap.put(fieldName, new SimpleFieldInformation<>(instance, clazz.getField(fieldName)));
+                fieldMap.put(fieldName, new SimpleFieldInformation<>(instance, clazz.getDeclaredField(fieldName)));
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
+            }
+        }
+        return fieldMap.get(fieldName);
+    }
+
+    @Override
+    public FieldInformation getFieldNotException(String fieldName) {
+        if (!fieldMap.containsKey(fieldName)) {
+            try {
+                fieldMap.put(fieldName, new SimpleFieldInformation<>(instance, clazz.getDeclaredField(fieldName)));
+            } catch (Exception e) {
+                return null;
             }
         }
         return fieldMap.get(fieldName);

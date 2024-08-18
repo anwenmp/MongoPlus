@@ -205,6 +205,9 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children like(SFunction<T, Object> column, Object value) {
+        if (value instanceof Pattern){
+            value = ((Pattern) value).pattern();
+        }
         return getBaseCondition(column,value);
     }
 
@@ -228,7 +231,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeLeft(SFunction<T, Object> column, Object value) {
-        return getBaseCondition(column,value);
+        return like(column,"^"+value);
     }
 
     @Override
@@ -248,7 +251,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeRight(SFunction<T, Object> column, Object value) {
-        return getBaseCondition(column,value);
+        return like(column,value+"&");
     }
 
     @Override
@@ -770,6 +773,10 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public Children getBaseCondition(SFunction<T, ?> column, Object value){
         return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField());
+    }
+
+    public Children getBaseCondition(String methodName,SFunction<T, ?> column, Object value){
+        return getBaseCondition(methodName,column.getFieldNameLine(),value,column.getImplClass(),column.getField());
     }
 
     public Children getBaseCondition(QueryChainWrapper<?,?> queryChainWrapper){

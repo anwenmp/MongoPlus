@@ -523,8 +523,18 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
+    public <T, TExpression> Children group(SFunction<T, ?> id, BsonField... fieldAccumulators) {
+        return group(Objects.requireNonNull(id).getFieldNameLineOption(),fieldAccumulators);
+    }
+
+    @Override
     public <TExpression> Children group(TExpression id, List<BsonField> fieldAccumulators) {
         return group(Aggregates.group(id,fieldAccumulators));
+    }
+
+    @Override
+    public <T, TExpression> Children group(SFunction<T, ?> id, List<BsonField> fieldAccumulators) {
+        return group(Objects.requireNonNull(id).getFieldNameLineOption(),fieldAccumulators);
     }
 
     @Override

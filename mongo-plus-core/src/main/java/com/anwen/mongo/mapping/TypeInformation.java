@@ -67,6 +67,15 @@ public interface TypeInformation {
     FieldInformation getField(String fieldName);
 
     /**
+     * 根据名称获取一个字段，不抛出异常
+     * @param fieldName 字段名
+     * @return {@link com.anwen.mongo.mapping.FieldInformation}
+     * @author anwen
+     * @date 2024/7/28 下午11:52
+     */
+    FieldInformation getFieldNotException(String fieldName);
+
+    /**
      * 根据注解获取字段
      * @param annotationClass 注解类
      * @return {@link java.util.List<com.anwen.mongo.mapping.FieldInformation>}

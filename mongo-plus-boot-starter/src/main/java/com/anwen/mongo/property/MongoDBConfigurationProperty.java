@@ -41,6 +41,20 @@ public class MongoDBConfigurationProperty {
      */
     private Boolean objectIdConvertType = false;
 
+    /**
+     * 自动创建索引
+     * @date 2024/8/18 15:25
+     */
+    private Boolean autoCreateIndex = false;
+
+    public Boolean getAutoCreateIndex() {
+        return autoCreateIndex;
+    }
+
+    public void setAutoCreateIndex(Boolean autoCreateIndex) {
+        this.autoCreateIndex = autoCreateIndex;
+    }
+
     public Boolean getIkun() {
         return ikun;
     }

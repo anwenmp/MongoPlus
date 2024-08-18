@@ -957,9 +957,29 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.anwen.mongo.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
+     * @date 2024/6/11 下午9:06
+     */
+    <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final BsonField... fieldAccumulators);
+
+    /**
+     * $group阶段
+     * @param id group的_id表达式，可以为null
+     * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.anwen.mongo.aggregate.pipeline.Accumulators}构建
+     * @return {@link Bson}
+     * @author anwen
      * @date 2024/6/11 下午9:07
      */
     <TExpression> Children group(@Nullable final TExpression id, final List<BsonField> fieldAccumulators);
+
+    /**
+     * $group阶段
+     * @param id group的_id表达式，可以为null
+     * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.anwen.mongo.aggregate.pipeline.Accumulators}构建
+     * @return {@link Bson}
+     * @author anwen
+     * @date 2024/6/11 下午9:07
+     */
+    <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final List<BsonField> fieldAccumulators);
 
     /**
      * $group阶段,如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson

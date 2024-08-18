@@ -295,7 +295,7 @@ public class BsonUtil {
             case ARRAY:
                 return value.asArray().toArray();
             case DOCUMENT:
-                return Document.parse(value.asDocument().toJson());
+                return Document.parse(value.asDocument().toJson(), MapCodecCache.getDefaultCodec());
             default:
                 return value;
         }

@@ -46,6 +46,10 @@ public class ServiceImpl<T> implements IService<T> {
 
     private BaseMapper baseMapper;
 
+    public BaseMapper getBaseMapper() {
+        return baseMapper;
+    }
+
     public void setBaseMapper(BaseMapper baseMapper) {
         this.baseMapper = baseMapper;
     }

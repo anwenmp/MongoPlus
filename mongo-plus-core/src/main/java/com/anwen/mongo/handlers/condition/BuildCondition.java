@@ -77,7 +77,7 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case REGEX:
             case LIKE:
-                mongoPlusBasicDBObject.put(Filters.regex(compareCondition.getColumn(), (String) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.regex(compareCondition.getColumn(), (String) compareCondition.getValue(),"i"));
                 break;
             case IN:
                 mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(), (Collection<?>)compareCondition.getValue()));

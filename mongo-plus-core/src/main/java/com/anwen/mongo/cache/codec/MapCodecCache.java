@@ -1,5 +1,8 @@
 package com.anwen.mongo.cache.codec;
 
+import com.anwen.mongo.bson.OverridableUuidRepresentationCodecProvider;
+import org.bson.Document;
+import org.bson.UuidRepresentation;
 import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -23,7 +26,6 @@ public class MapCodecCache {
      * {@link org.bson.codecs.CollectionCodecProvider},
      * {@link org.bson.codecs.EnumCodecProvider},
      * 因为有些版本并不支持，如需使用，请自行添加
-     * @author anwen
      * @date 2024/7/25 下午4:10
      */
     private static final List<CodecProvider> codecProviderList = new ArrayList<CodecProvider>() {{
@@ -57,6 +59,8 @@ public class MapCodecCache {
 
     private static CodecRegistry DEFAULT_CODEC_REGISTRY;
 
+    private static Codec<Document> DEFAULT_CODEC;
+
     /**
      * 获取默认编解码器
      * @author anwen
@@ -67,6 +71,32 @@ public class MapCodecCache {
             DEFAULT_CODEC_REGISTRY = fromProviders(codecProviderList);
         }
         return DEFAULT_CODEC_REGISTRY;
+    }
+
+    /**
+     * 获取Document默认编解码器
+     * @author anwen
+     * @date 2024/7/25 下午4:15
+     */
+    public static Codec<Document> getDefaultCodec() {
+        if (DEFAULT_CODEC == null) {
+            DEFAULT_CODEC = withUuidRepresentation(fromProviders(codecProviderList), UuidRepresentation.STANDARD)
+                    .get(Document.class);
+        }
+        return DEFAULT_CODEC;
+    }
+
+    /**
+     * 将给定的 {@link UuidRepresentation} 应用到给定的 {@link CodecRegistry}.
+     * @param codecRegistry 代码注册表
+     * @param uuidRepresentation UUID表示
+     * @return {@link org.bson.codecs.configuration.CodecRegistry} 一个 {@code CodecRegistry}，其中给定的
+     * {@code UuidRepresentation} 应用于给定的 {@code CodecRegistry}
+     * @author anwen
+     * @date 2024/8/18 22:06
+     */
+    public static CodecRegistry withUuidRepresentation(final CodecRegistry codecRegistry, final UuidRepresentation uuidRepresentation) {
+        return fromProviders(new OverridableUuidRepresentationCodecProvider(codecRegistry, uuidRepresentation));
     }
 
 }

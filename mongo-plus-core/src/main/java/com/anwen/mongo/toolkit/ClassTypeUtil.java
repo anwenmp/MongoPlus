@@ -22,13 +22,11 @@ public class ClassTypeUtil {
     // 内部缓存，存储已经处理过的对象类型及其字段的类型
     private static final Map<Class<?>, List<Class<?>>> cacheMap = new ConcurrentHashMap<>();
 
-    private static final Map<Class<?>, List<Field>> FIELD_CACHE = new HashMap<>();
+    private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     private static volatile ClassTypeUtil instance;
 
     private static final Map<Class<?>,Set<Class<?>>> cacheClass = new ConcurrentHashMap<>();
-
-    private static final Map<Class<?>,Object> instanceCache = new HashMap<>();
 
     private static final Map<Class<?>, ConcurrentHashMap<Class<?>, Boolean>> isTargetClassMap = new ConcurrentHashMap<>();
 
