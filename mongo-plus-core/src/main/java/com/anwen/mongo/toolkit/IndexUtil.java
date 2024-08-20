@@ -101,15 +101,6 @@ public class IndexUtil {
         ));
     }
 
-    private static String getFieldName(TypeInformation typeInformation, String key) {
-        key = key.substring(1);
-        FieldInformation fieldInformation = typeInformation.getFieldNotException(key);
-        if (fieldInformation != null) {
-            key = fieldInformation.getCamelCaseName();
-        }
-        return key;
-    }
-
     public static IndexOptions getIndexOptions(FieldInformation fieldInformation) {
         MongoIndex mongoIndex = fieldInformation.getAnnotation(MongoIndex.class);
         IndexOptions indexOptions = new IndexOptions();
@@ -200,6 +191,15 @@ public class IndexUtil {
             return TimeUnit.SECONDS;
         }
         throw new MongoPlusFieldException(String.format("Time unit with value %s not found", timeUnit));
+    }
+
+    private static String getFieldName(TypeInformation typeInformation, String key) {
+        key = key.substring(1);
+        FieldInformation fieldInformation = typeInformation.getFieldNotException(key);
+        if (fieldInformation != null) {
+            key = fieldInformation.getCamelCaseName();
+        }
+        return key;
     }
 
 }

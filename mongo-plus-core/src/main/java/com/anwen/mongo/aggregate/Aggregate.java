@@ -394,6 +394,15 @@ public interface Aggregate<Children> extends Project<Children> {
     Children match(final QueryChainWrapper<?, ?> queryChainWrapper);
 
     /**
+     * $match阶段
+     * @param function 函数
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/20 16:19
+     */
+    Children match(final SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
+
+    /**
      * $match阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson
      * @param bson bson
      * @author anwen

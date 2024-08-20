@@ -48,7 +48,7 @@ public @interface MongoCompoundIndex {
     boolean sparse() default false;
 
     /**
-     * 部分索引，和{@link MongoIndex#partialFilterExpression()}不通，该属性需手动指定字段
+     * 部分索引，和{@link MongoIndex#partialFilterExpression()}不同，该属性需手动指定字段
      * <p>例：{"field1" : {"$gt",5}}</p>
      * 同时也可使用{@code $}标识，该操作将会根据json值的key查找类中的该字段，不存在则直接使用json的key，例:
      * <p>例：{"$field1" : {"$gt",5}}</p>

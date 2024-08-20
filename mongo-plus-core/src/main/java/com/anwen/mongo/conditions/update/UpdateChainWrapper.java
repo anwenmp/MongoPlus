@@ -4,6 +4,7 @@ import com.anwen.mongo.conditions.AbstractChainWrapper;
 import com.anwen.mongo.conditions.interfaces.Update;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
+import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.CurrentDateType;
 import com.anwen.mongo.enums.PopType;
@@ -389,8 +390,18 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     @Override
+    public Children pull(boolean condition, SFunction<QueryChainWrapper<?, ?>, QueryChainWrapper<?, ?>> function) {
+        return pull(condition,function.apply(new QueryWrapper<>()));
+    }
+
+    @Override
     public Children pull(QueryChainWrapper<?, ?> wrapper) {
         return getBaseUpdateCompare(wrapper,true);
+    }
+
+    @Override
+    public Children pull(SFunction<QueryChainWrapper<?, ?>, QueryChainWrapper<?, ?>> function) {
+        return pull(function.apply(new QueryWrapper<>()));
     }
 
     @Override

@@ -533,7 +533,6 @@ public interface Update<T , Children> extends Serializable {
      */
     <O,N> Children rename(SFunction<O,Object> oldFieldName,SFunction<N,Object> newFieldName);
 
-
     /**
      * 删除特定字段
      * @param columns 字段
@@ -614,7 +613,7 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 下午3:13
      */
-    Children addToSet(SFunction<T,Object> column,Object value,boolean each);
+        Children addToSet(SFunction<T,Object> column,Object value,boolean each);
 
     /**
      * 将值添加到数组中
@@ -714,12 +713,31 @@ public interface Update<T , Children> extends Serializable {
 
     /**
      * 删除数组中符合条件或符合指定值的实例
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param function 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(boolean condition,SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
      * @param wrapper 值 条件
      * @return {@link Children}
      * @author anwen
      * @date 2024/8/11 16:46
      */
     Children pull(QueryChainWrapper<?,?> wrapper);
+
+    /**
+     * 删除数组中符合条件或符合指定值的实例
+     * @param function 值 条件
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/11 16:46
+     */
+    Children pull(SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
 
     /**
      * 删除数组中符合条件或符合指定值的实例

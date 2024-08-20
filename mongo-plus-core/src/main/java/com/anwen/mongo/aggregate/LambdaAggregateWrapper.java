@@ -4,6 +4,7 @@ import com.anwen.mongo.aggregate.pipeline.UnwindOption;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
+import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.constant.AggregationOperators;
 import com.anwen.mongo.constant.SqlOperationConstant;
 import com.anwen.mongo.enums.AggregateEnum;
@@ -234,6 +235,11 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
         BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
         queryChainWrapper.getBasicDBObjectList().forEach(bson -> basicDBObject.putAll(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
         return custom(Aggregates.match(basicDBObject));
+    }
+
+    @Override
+    public Children match(final SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function){
+        return match(function.apply(new QueryWrapper<>()));
     }
 
     @Override

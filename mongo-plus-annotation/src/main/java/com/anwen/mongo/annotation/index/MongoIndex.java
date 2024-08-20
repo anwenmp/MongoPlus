@@ -77,13 +77,6 @@ public @interface MongoIndex {
     String partialFilterExpression() default "";
 
     /**
-     * 表示字段的类型的类中存在索引注解
-     * @author anwen
-     * @date 2024/8/18 15:20
-     */
-    boolean internal() default false;
-
-    /**
      * 是否应该在后台创建索引
      * @author anwen
      * @date 2024/8/18 20:59
