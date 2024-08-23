@@ -1,0 +1,10 @@
+[
+  { "_id" : 1, "item" : "abc", "price" : 10, "quantity" : 2, "date" : "2014-03-01 08:00:00" },
+  { "_id" : 2, "item" : "jkl", "price" : 20, "quantity" : 1, "date" : "2014-03-01 09:00:00" },
+  { "_id" : 3, "item" : "xyz", "price" : 5, "quantity" : 10, "date" : "2014-03-15 09:00:00" },
+  { "_id" : 4, "item" : "xyz", "price" : 5, "quantity" :  20 , "date" : "2014-04-04 11:21:39.736" },
+  { "_id" : 5, "item" : "abc", "price" : 10, "quantity" : 10 , "date" : "2014-04-04 21:23:13.331" },
+  { "_id" : 6, "item" : "def", "price" : 7.5, "quantity": 5 , "date" : "2015-06-04 05:08:13" },
+  { "_id" : 7, "item" : "def", "price" : 7.5, "quantity": 10 , "date" : "2015-09-10 08:43:00" },
+  { "_id" : 8, "item" : "abc", "price" : 10, "quantity" : 5 , "date" : "2016-02-06 20:20:13" }
+]

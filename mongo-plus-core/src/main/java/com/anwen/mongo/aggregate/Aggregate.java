@@ -13,6 +13,7 @@ import com.mongodb.client.model.densify.DensifyRange;
 import com.mongodb.client.model.fill.FillOptions;
 import com.mongodb.client.model.fill.FillOutputField;
 import com.mongodb.lang.Nullable;
+import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.Collection;
@@ -27,6 +28,32 @@ public interface Aggregate<Children> extends Project<Children> {
      * @date 2024/6/11 下午8:18
      */
     List<Bson> getAggregateConditionList();
+
+    /**
+     * 获取管道
+     * <p>这里获取的是第0个，应对构建需要用到一个管道的情况</p>
+     * @author anwen
+     * @date 2024/8/23 10:43
+     */
+    default Bson getAggregateCondition(){
+        return getAggregateCondition(0);
+    }
+
+    /**
+     * 获取指定下标的管道
+     * @author anwen
+     * @date 2024/8/23 10:44
+     */
+    default Bson getAggregateCondition(int index){
+        return getAggregateConditionList().get(index);
+    }
+
+    /**
+     * 是否跳过获取结果
+     * @author anwen
+     * @date 2024/8/23 16:29
+     */
+    boolean isSkip();
 
     /**
      * 获取聚合管道选项
@@ -1007,6 +1034,26 @@ public interface Aggregate<Children> extends Project<Children> {
 
     /**
      * $unionWith阶段
+     * <p>要包含指定集合中的所有文档而不进行任何处理，您可以使用简化的形式</p>
+     * @param collectionName 集合名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/23 13:21
+     */
+    Children unionWith(final String collectionName);
+
+    /**
+     * $unionWith阶段
+     * <p>要包含指定集合中的所有文档而不进行任何处理，您可以使用简化的形式</p>
+     * @param collection 集合类
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/23 13:21
+     */
+    Children unionWith(final Class<?> collection);
+
+    /**
+     * $unionWith阶段
      * @param collectionName 要执行合并的同一数据库中的集合的名称
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
@@ -1237,6 +1284,15 @@ public interface Aggregate<Children> extends Project<Children> {
 
     /**
      * $replaceRoot阶段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/17 下午10:39
+     */
+    Children replaceRoot(final Document value);
+
+    /**
+     * $replaceRoot阶段
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
@@ -1267,6 +1323,15 @@ public interface Aggregate<Children> extends Project<Children> {
      * @date 2024/6/17 下午10:42
      */
     <TExpression> Children replaceWith(final TExpression fieldName);
+
+    /**
+     * $replaceWith阶段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/17 下午10:42
+     */
+    Children replaceWith(final Document value);
 
     /**
      * $replaceWith阶段

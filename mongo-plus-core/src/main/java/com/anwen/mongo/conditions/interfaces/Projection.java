@@ -1,6 +1,10 @@
 package com.anwen.mongo.conditions.interfaces;
 
 import com.anwen.mongo.support.SFunction;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * @author JiaChaoYang
  **/
@@ -8,7 +12,7 @@ public class Projection {
 
     private String column;
 
-    private Integer value;
+    private Object value;
 
     public static <T> Projection chain(SFunction<T, Object> column, Boolean value) {
         return builder().column(column.getFieldNameLine()).value(value ? 1 : 0).build();
@@ -18,15 +22,35 @@ public class Projection {
         return builder().column(column.getFieldNameLine()).value(value).build();
     }
 
+    public static <T> Projection chain(SFunction<T, Object> column, Object value) {
+        return builder().column(column.getFieldNameLine()).value(value).build();
+    }
+
+    public static <T> Projection chain(String column, Boolean value) {
+        return builder().column(column).value(value ? 1 : 0).build();
+    }
+
+    public static <T> Projection chain(String column, Integer value) {
+        return builder().column(column).value(value).build();
+    }
+
+    public static <T> Projection chain(String column, Object value) {
+        return builder().column(column).value(value).build();
+    }
+
     public static ProjectionBuilder builder() {
         return new ProjectionBuilder();
+    }
+
+    public static ProjectionBuilder builder(List<Projection> projectionList) {
+        return new ProjectionBuilder(projectionList);
     }
 
     public String getColumn() {
         return this.column;
     }
 
-    public Integer getValue() {
+    public Object getValue() {
         return this.value;
     }
 
@@ -34,7 +58,7 @@ public class Projection {
         this.column = column;
     }
 
-    public void setValue(Integer value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 
@@ -90,7 +114,7 @@ public class Projection {
         return "Projection(column=" + this.getColumn() + ", value=" + this.getValue() + ")";
     }
 
-    public Projection(String column, Integer value) {
+    public Projection(String column, Object value) {
         this.column = column;
         this.value = value;
     }
@@ -99,10 +123,16 @@ public class Projection {
     }
 
     public static class ProjectionBuilder {
+        private final List<Projection> projectionList;
         private String column;
-        private Integer value;
+        private Object value;
 
         ProjectionBuilder() {
+            this.projectionList = new CopyOnWriteArrayList<>();
+        }
+
+        ProjectionBuilder(List<Projection> projectionList){
+            this.projectionList = projectionList;
         }
 
         public ProjectionBuilder column(String column) {
@@ -110,13 +140,59 @@ public class Projection {
             return this;
         }
 
-        public ProjectionBuilder value(Integer value) {
+        public <T> ProjectionBuilder column(SFunction<T,?> column) {
+            this.column = column.getFieldNameLine();
+            return this;
+        }
+
+        public ProjectionBuilder value(Object value) {
+            this.value = value;
+            return this;
+        }
+
+        public ProjectionBuilder display(String... column){
+            for (String c : column) {
+                this.projectionList.add(new Projection(c,1));
+            }
+            return this;
+        }
+
+        public ProjectionBuilder none(String... column){
+            for (String c : column) {
+                this.projectionList.add(new Projection(c,0));
+            }
+            return this;
+        }
+
+        @SafeVarargs
+        public final <T> ProjectionBuilder display(SFunction<T, ?>... column){
+            for (SFunction<T, ?> func : column) {
+                this.projectionList.add(new Projection(func.getFieldNameLine(),1));
+            }
+            return this;
+        }
+
+        @SafeVarargs
+        public final <T> ProjectionBuilder none(SFunction<T, ?>... column){
+            for (SFunction<T, ?> func : column) {
+                this.projectionList.add(new Projection(func.getFieldNameLine(),0));
+            }
+            return this;
+        }
+
+        public ProjectionBuilder projection(String column,Object value){
+            this.projectionList.add(Projection.chain(column,value));
+            this.column = column;
             this.value = value;
             return this;
         }
 
         public Projection build() {
             return new Projection(this.column, this.value);
+        }
+
+        public List<Projection> buildList(){
+            return this.projectionList;
         }
 
         public String toString() {

@@ -239,6 +239,10 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         List<Bson> aggregateConditionList = aggregate.getAggregateConditionList();
         AggregateIterable<Document> aggregateIterable = factory.getExecute().executeAggregate(aggregateConditionList, Document.class, mongoPlusClient.getCollection(database, collectionName));
         AggregateUtil.aggregateOptions(aggregateIterable,aggregate.getAggregateOptions());
+        if (aggregate.isSkip()){
+            aggregateIterable.toCollection();
+            return new ArrayList<>();
+        }
         return mongoConverter.read(aggregateIterable,typeReference);
     }
 

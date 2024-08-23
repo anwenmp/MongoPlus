@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG" monitorInterval="30">
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 过滤器 -->
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 缓冲bufferSize，默认值为256，可调整至1-256之间 -->
+            <Buffered mode="ONCE" bufferSize="256"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <!-- 默认日志 -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+
+        <!-- 指定包名的日志 -->
+        <Logger name="com.anwen" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+    </Loggers>
+</Configuration>

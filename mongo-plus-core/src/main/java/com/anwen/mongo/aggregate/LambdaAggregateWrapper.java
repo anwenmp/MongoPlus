@@ -44,10 +44,21 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
      */
     private final BasicDBObject aggregateOptions = new BasicDBObject();
 
+    /**
+     * 是否跳过获取结果
+     * @date 2024/8/23 16:29
+     */
+    private boolean isSkip = false;
+
 
     @Override
     public List<Bson> getAggregateConditionList() {
         return aggregateConditionList;
+    }
+
+    @Override
+    public boolean isSkip() {
+        return isSkip;
     }
 
     @Override
@@ -270,6 +281,21 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     @Override
     public Children project(boolean displayId, Projection... projection) {
         return buildProject(displayId, Arrays.stream(projection).collect(Collectors.toList()));
+    }
+
+    @Override
+    public Children project(Projection... projection) {
+        return project(true,projection);
+    }
+
+    @Override
+    public Children project(boolean displayId, Collection<? extends Projection> projection) {
+        return project(displayId,projection.toArray(new Projection[0]));
+    }
+
+    @Override
+    public Children project(Collection<? extends Projection> projection) {
+        return project(true,projection);
     }
 
     @Override
@@ -530,7 +556,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public <T, TExpression> Children group(SFunction<T, ?> id, BsonField... fieldAccumulators) {
-        return group(Objects.requireNonNull(id).getFieldNameLineOption(),fieldAccumulators);
+        return group(id == null ? null : id.getFieldNameLineOption(),fieldAccumulators);
     }
 
     @Override
@@ -540,12 +566,22 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public <T, TExpression> Children group(SFunction<T, ?> id, List<BsonField> fieldAccumulators) {
-        return group(Objects.requireNonNull(id).getFieldNameLineOption(),fieldAccumulators);
+        return group(id == null ? null : id.getFieldNameLineOption(),fieldAccumulators);
     }
 
     @Override
     public Children group(Bson bson) {
         return custom(bson);
+    }
+
+    @Override
+    public Children unionWith(String collectionName) {
+        return unionWith(new Document(AggregateEnum.UNION_WITH.getValue(), collectionName));
+    }
+
+    @Override
+    public Children unionWith(Class<?> collection) {
+        return unionWith(AnnotationOperate.getCollectionName(collection));
     }
 
     @Override
@@ -625,7 +661,8 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children out(Bson bson) {
-        return custom(Aggregates.out(bson));
+        this.isSkip = true;
+        return custom(bson);
     }
 
     @Override
@@ -660,12 +697,18 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children merge(Bson bson) {
+        this.isSkip = true;
         return custom(bson);
     }
 
     @Override
     public <TExpression> Children replaceRoot(TExpression fieldName) {
         return replaceRoot(Aggregates.replaceRoot(fieldName));
+    }
+
+    @Override
+    public Children replaceRoot(Document value) {
+        return replaceRoot(Aggregates.replaceRoot(value));
     }
 
     @Override
@@ -681,6 +724,11 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     @Override
     public <TExpression> Children replaceWith(TExpression fieldName) {
         return replaceWith(Aggregates.replaceWith(fieldName));
+    }
+
+    @Override
+    public Children replaceWith(Document value) {
+        return replaceWith(Aggregates.replaceWith(value));
     }
 
     @Override
@@ -765,7 +813,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children unset(String... field) {
-        return unset(Aggregates.unset(field));
+        return unset(Arrays.stream(field).collect(Collectors.toList()));
     }
 
     @Override
@@ -775,7 +823,12 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children unset(List<String> fields) {
-        return unset(Aggregates.unset(fields));
+        if (fields.size() == 1) {
+            return unset(new BsonDocument("$unset", new BsonString(fields.get(0))));
+        }
+        BsonArray array = new BsonArray();
+        fields.stream().map(BsonString::new).forEach(array::add);
+        return unset(new BsonDocument().append("$unset", array));
     }
 
     @Override
@@ -888,7 +941,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     private Children buildProject(List<Projection> projectionList){
-        return project(Aggregates.project(condition().projectionCondition(projectionList)));
+        return custom(Aggregates.project(condition().projectionCondition(projectionList)));
     }
 
     private Bson orderBy(final String fieldName, final Integer value){

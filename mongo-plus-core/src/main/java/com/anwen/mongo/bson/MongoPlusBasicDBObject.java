@@ -38,6 +38,7 @@ public class MongoPlusBasicDBObject extends BasicDBObject {
     }
 
     public void put(Bson bson){
+        BsonDocument superBsonDocument = super.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
         BsonDocument bsonDocument = bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
         bsonDocument.forEach((k,v) -> {
             if (super.containsKey(k)){

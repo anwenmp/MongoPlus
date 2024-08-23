@@ -39,6 +39,18 @@ public final class Accumulators {
 
     /**
      * 获取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的值的总和。
+     * 该累加器会默认count=1
+     * <p>count: { $sum: 1 }</p>
+     * @param <TExpression> 表达式类型
+     * @return $sum
+     * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
+     */
+    public static <TExpression> BsonField sum() {
+        return accumulatorOperator("$sum", "count", 1);
+    }
+
+    /**
+     * 获取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的值的总和。
      *
      * @param fieldName 字段名称
      * @param expression 表达式
@@ -48,6 +60,50 @@ public final class Accumulators {
      */
     public static <TExpression,T> BsonField sum(final SFunction<T,?> fieldName, final TExpression expression) {
         return sum(fieldName.getFieldNameLine(),expression);
+    }
+
+    /**
+     * 取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的总数。
+     * @param fieldName 字段名称
+     * @param expression 表达式
+     * @author anwen
+     * @date 2024/8/23 10:57
+     */
+    public static <TExpression> BsonField count(final String fieldName,final TExpression expression){
+        return accumulatorOperator("$count",fieldName,expression);
+    }
+
+    /**
+     * 取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的总数。
+     * @param fieldName 字段名称
+     * @param expression 表达式
+     * @author anwen
+     * @date 2024/8/23 10:57
+     */
+    public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName,final TExpression expression){
+        return count(fieldName.getFieldNameLine(),expression);
+    }
+
+    /**
+     * 取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的总数。
+     * 表达式默认为空对象
+     * @param fieldName 字段名称
+     * @author anwen
+     * @date 2024/8/23 10:57
+     */
+    public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName){
+        return count(fieldName.getFieldNameLine(),new Document());
+    }
+
+    /**
+     * 取 $group 操作的字段名称，该字段表示将给定表达式应用于组内所有成员时的总数。
+     * 表达式默认为空对象
+     * @param fieldName 字段名称
+     * @author anwen
+     * @date 2024/8/23 10:57
+     */
+    public static <TExpression> BsonField count(final String fieldName){
+        return count(fieldName,new Document());
     }
 
     /**

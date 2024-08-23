@@ -31,6 +31,20 @@ public class MongoPlusDocument extends Document {
         super.put(key.getFieldNameLine(),value);
     }
 
+    public <T,R> void putIsNotNull(String key, Object value){
+        if (value != null) {
+            super.put(key, value);
+        }
+    }
+
+    public <T,V> void put(SFunction<T,?> key, SFunction<V,?> value){
+        super.put(key.getFieldNameLine(),value.getFieldNameLine());
+    }
+
+    public <T,V> void putOption(SFunction<T,?> key, SFunction<V,?> value){
+        super.put(key.getFieldNameLine(),value.getFieldNameLineOption());
+    }
+
     public <T,R> void append(SFunction<T,R> key,Object value){
         super.append(key.getFieldNameLine(),value);
     }

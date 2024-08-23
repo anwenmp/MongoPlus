@@ -95,8 +95,19 @@ public class BuildCondition extends AbstractCondition {
             case OR:
                 List<Bson> orBsonList = new ArrayList<>();
                 QueryChainWrapper<?, ?> orWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
-                orWrapper.getCompareList().forEach(orCompareCondition -> orBsonList.add(queryCondition(orCompareCondition)));
+                List<CompareCondition> compareList = orWrapper.getCompareList();
+                // 找出重复的CompareCondition
+                List<CompareCondition> duplicatedConditions = compareList.stream()
+                        .collect(Collectors.groupingBy(CompareCondition::getColumn))
+                        .values().stream()
+                        .filter(list -> list.size() > 1)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList());
+                // 从原始List中删除这些重复的CompareCondition
+                compareList.removeAll(duplicatedConditions);
+                compareList.forEach(orCompareCondition -> orBsonList.add(queryCondition(orCompareCondition)));
                 orBsonList.addAll(orWrapper.getBasicDBObjectList());
+                orBsonList.add(queryCondition(duplicatedConditions));
                 mongoPlusBasicDBObject.put(Filters.or(orBsonList));
                 break;
             case NOR:

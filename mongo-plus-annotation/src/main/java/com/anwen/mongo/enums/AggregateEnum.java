@@ -37,6 +37,8 @@ public enum AggregateEnum {
     MERGE("$merge"),
 
     REPLACE_ROOT("$replaceRoot"),
+    
+    MERGE_OBJECTS("$mergeObjects")
 
     ;
 

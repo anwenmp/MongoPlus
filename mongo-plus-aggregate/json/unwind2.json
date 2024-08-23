@@ -1,0 +1,7 @@
+[
+  { "_id" : 1, "item" : "ABC", "price": 80, "sizes": [ "S", "M", "L"] },
+  { "_id" : 2, "item" : "EFG", "price": 120, "sizes" : [ ] },
+  { "_id" : 3, "item" : "IJK", "price": 160, "sizes": "M" },
+  { "_id" : 4, "item" : "LMN" , "price": 10 },
+  { "_id" : 5, "item" : "XYZ", "price": 5.75, "sizes" : null }
+]
