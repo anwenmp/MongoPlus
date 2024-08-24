@@ -1,8 +1,10 @@
 package com.anwen.mongo.handlers.condition;
 
+import com.anwen.mongo.conditions.AbstractChainWrapper;
 import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
+import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.BasicDBObject;
@@ -57,5 +59,14 @@ public interface Condition {
             }
         }};
     }
+
+    /**
+     * 根据wrapper构建查询条件
+     * @param wrapper wrapper
+     * @return {@link BaseConditionResult}
+     * @author anwen
+     * @date 2024/8/24 15:54
+     */
+    BaseConditionResult queryCondition(AbstractChainWrapper<?,?> wrapper);
 
 }

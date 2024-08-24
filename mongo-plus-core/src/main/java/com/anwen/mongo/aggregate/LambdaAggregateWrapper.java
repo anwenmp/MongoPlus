@@ -1,7 +1,6 @@
 package com.anwen.mongo.aggregate;
 
 import com.anwen.mongo.aggregate.pipeline.UnwindOption;
-import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -243,9 +242,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children match(QueryChainWrapper<?, ?> queryChainWrapper) {
-        BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
-        queryChainWrapper.getBasicDBObjectList().forEach(bson -> basicDBObject.putAll(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())));
-        return custom(Aggregates.match(basicDBObject));
+        return custom(Aggregates.match(queryChainWrapper.buildCondition().getCondition()));
     }
 
     @Override

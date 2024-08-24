@@ -362,9 +362,9 @@ public class AggregateTest {
                     "reportingHierarchy"
             );
             List<Document> aggregateList = execute("employees", aggregateWrapper, Document.class);
-/*            Assertions.assertTrue(
+            Assertions.assertTrue(
                     aggregateList.get(aggregateList.size()-1)
-                            .getList("reportingHierarchy",Document.class).get(2).getInteger("_id") == 4);*/
+                            .getList("reportingHierarchy",Document.class).stream().map(document -> document.getInteger("_id")).anyMatch(id -> id == 4));
             //跨多个集合
             //与 $lookup 一样，$graphLookup 可以访问同一数据库中的另一个集合。
             //例如，创建一个包含两个集合的数据库
@@ -395,6 +395,7 @@ public class AggregateTest {
             // 计算集合中的文档数量
             // 创建名为 sales 的示例集合
             Boolean group = baseMapper.saveBatch("group", getDocumentArray("group.json"));
+            log.info("group:{}", group);
             // 以下聚合操作使用 $group 阶段来计算 sales 集合中的文档数量
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.group(null, Accumulators.count("count"));

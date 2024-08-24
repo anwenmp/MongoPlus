@@ -16,7 +16,6 @@ import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.business.CollectionLogiceInterceptor;
 import com.anwen.mongo.interceptor.business.LogicAutoFillInterceptor;
 import com.anwen.mongo.interceptor.business.TenantInterceptor;
-import com.anwen.mongo.listener.BaseListener;
 import com.anwen.mongo.listener.Listener;
 import com.anwen.mongo.listener.business.BlockAttackInnerListener;
 import com.anwen.mongo.listener.business.LogListener;
@@ -34,12 +33,10 @@ import com.anwen.mongo.model.LogicProperty;
 import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
+import com.anwen.mongo.toolkit.MongoUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.anwen.mongo.toolkit.UrlJoint;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 import java.lang.reflect.ParameterizedType;
@@ -188,6 +185,7 @@ public class Configuration {
      */
     public Configuration log(Boolean pretty) {
         ListenerCache.listeners.add(new LogListener(pretty));
+        PropertyCache.log = true;
         return this;
     }
 
@@ -279,13 +277,11 @@ public class Configuration {
     }
 
     public MongoPlusClient initMongoPlusClient() {
-        return initMongoPlusClient(MongoClients.create(MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(this.url)).commandListenerList(Collections.singletonList(new BaseListener())).build()), baseProperty);
+        return initMongoPlusClient(MongoUtil.getMongo(DataSourceConstant.DEFAULT_DATASOURCE,baseProperty),baseProperty);
     }
 
     public MongoPlusClient initMongoPlusClient(BaseProperty baseProperty) {
-        return initMongoPlusClient(MongoClients.create(MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(this.url)).commandListenerList(Collections.singletonList(new BaseListener())).build()), baseProperty);
+        return initMongoPlusClient(MongoUtil.getMongo(DataSourceConstant.DEFAULT_DATASOURCE, baseProperty), baseProperty);
     }
 
     public MongoPlusClient initMongoPlusClient(MongoClient mongoClient, BaseProperty baseProperty) {

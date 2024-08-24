@@ -15,5 +15,4 @@ public class UpdateWrapper<T> extends UpdateChainWrapper<T,UpdateWrapper<T>> {
     public UpdateChainWrapper<T, UpdateWrapper<T>> lambdaUpdate(){
         return ChainWrappers.lambdaUpdateChain();
     }
-
 }

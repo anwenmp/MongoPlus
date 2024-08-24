@@ -7,7 +7,7 @@ import com.mongodb.BasicDBObject;
  *
  * @author JiaChaoYang
  **/
-public class BaseLambdaQueryResult {
+public class BaseConditionResult {
 
     /**
      * 条件策略
@@ -27,13 +27,13 @@ public class BaseLambdaQueryResult {
     */
     private BasicDBObject sort;
 
-    public BaseLambdaQueryResult(BasicDBObject condition, BasicDBObject projection, BasicDBObject sort) {
+    public BaseConditionResult(BasicDBObject condition, BasicDBObject projection, BasicDBObject sort) {
         this.condition = condition;
         this.projection = projection;
         this.sort = sort;
     }
 
-    public BaseLambdaQueryResult() {
+    public BaseConditionResult() {
     }
 
     public BasicDBObject getCondition() {

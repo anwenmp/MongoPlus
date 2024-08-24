@@ -3,6 +3,8 @@ package com.anwen.mongo.conditions.interfaces;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.TypeEnum;
+import com.anwen.mongo.handlers.condition.Condition;
+import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.support.SFunction;
 import com.mongodb.BasicDBObject;
 import org.bson.conversions.Bson;
@@ -11,12 +13,30 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
+
 /**
  * 查询条件封装
  * @author JiaChaoYang
  * @date 2023/6/24/024 1:37
 */
 public interface Compare<T,Children> extends Serializable {
+
+    /**
+     * 构建条件
+     * @author anwen
+     * @date 2024/8/24 15:42
+     */
+    default BaseConditionResult buildCondition(){
+        return buildCondition(condition());
+    }
+
+    /**
+     * 构建条件
+     * @author anwen
+     * @date 2024/8/24 16:06
+     */
+    BaseConditionResult buildCondition(Condition condition);
 
     /**
      * 等于
@@ -425,6 +445,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/6/20/020
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children in(boolean condition, SFunction<T,Object> column, TItem... values);
 
     /**
@@ -436,6 +457,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/6/20/020
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children in(SFunction<T,Object> column, TItem... values);
 
     /**
@@ -468,6 +490,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/6/20/020
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children in(boolean condition,String column,TItem... values);
 
     /**
@@ -478,6 +501,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/6/20/020
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children in(String column,TItem... values);
 
     /**
@@ -509,6 +533,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/7/15 15:57
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children nin(boolean condition , SFunction<T,Object> column , TItem... values);
 
     /**
@@ -519,6 +544,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/7/15 15:57
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children nin(SFunction<T,Object> column , TItem... values);
 
     /**
@@ -541,6 +567,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/7/15 15:58
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children nin(boolean condition , String column , TItem... values);
 
     /**
@@ -551,6 +578,7 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      * @date 2023/7/15 15:58
      */
+    @SuppressWarnings("unchecked")
     <TItem> Children nin(String column , TItem... values);
 
     /**

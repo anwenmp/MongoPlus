@@ -187,23 +187,149 @@ public class ConditionOperators {
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),value.getFieldNameLineOption());
     }
 
+    /**
+     * $mergeObjects操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/23 17:48
+     */
     public static Document mergeObjects(Collection<?> values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values);
     }
 
+    /**
+     * $mergeObjects操作符
+     * @param functions 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/23 17:48
+     */
     public static <T> Document mergeObjectsLambda(Collection<? extends SFunction<T,?>> functions){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),functions.stream()
                 .map(SFunction::getFieldNameLine).collect(Collectors.toList()));
     }
 
+    /**
+     * $mergeObjects操作符
+     * @param functions 值，带$符
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/23 17:48
+     */
     public static <T> Document mergeObjectsLambdaOption(Collection<? extends SFunction<T,?>> functions){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),functions.stream()
                 .map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
     }
 
-    public static <T> Document mergeObjects(Object... value){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(value).collect(Collectors.toList()));
+    /**
+     * $mergeObjects操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/23 17:48
+     */
+    public static <T> Document mergeObjects(Object... values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
     }
+
+    /**
+     * $each操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson each(Object... values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
+    }
+
+    /**
+     * $each and $position操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson eachPosition(Number position,Object... values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
+                .append(AggregateEnum.POSITION.getValue(), position);
+    }
+
+    /**
+     * $each and $slice操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson eachSlice(Number slice,Object... values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
+                .append(AggregateEnum.SLICE.getValue(), slice);
+    }
+
+    /**
+     * $each and $sort操作符
+     * @param sort sort
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:39
+     */
+    public static Bson eachSort(Object sort,Object... values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),Arrays.stream(values).collect(Collectors.toList()))
+                .append(AggregateEnum.SORT.getValue(), sort);
+    }
+
+    /**
+     * $each操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson each(Collection<?> values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values);
+    }
+
+    /**
+     * $each and $position操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson eachPosition(Number position,Collection<?> values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
+                .append(AggregateEnum.POSITION.getValue(), position);
+    }
+
+    /**
+     * $each and $slice操作符
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:26
+     */
+    public static Bson eachSlice(Number slice,Collection<?> values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
+                .append(AggregateEnum.SLICE.getValue(), slice);
+    }
+
+    /**
+     * $each and $sort操作符
+     * @param sort sort
+     * @param values 值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/8/24 15:39
+     */
+    public static Bson eachSort(Object sort,Collection<?> values){
+        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values)
+                .append(AggregateEnum.SORT.getValue(), sort);
+    }
+
+
 
 
 }

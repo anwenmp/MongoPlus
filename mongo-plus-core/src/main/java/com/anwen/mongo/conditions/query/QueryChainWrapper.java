@@ -4,6 +4,8 @@ import com.anwen.mongo.conditions.AbstractChainWrapper;
 import com.anwen.mongo.conditions.interfaces.Projection;
 import com.anwen.mongo.conditions.interfaces.Query;
 import com.anwen.mongo.enums.OrderEnum;
+import com.anwen.mongo.handlers.condition.Condition;
+import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.support.SFunction;
 
 import java.util.List;
@@ -14,6 +16,10 @@ import java.util.List;
  * @date 2024/2/3 13:10
 */
 public abstract class QueryChainWrapper<T,Children extends QueryChainWrapper<T,Children>> extends AbstractChainWrapper<T,Children> implements Query<T,Children> {
+    @Override
+    public BaseConditionResult buildCondition(Condition condition) {
+        return condition.queryCondition(this);
+    }
 
     @Override
     public Children project(Projection... projection) {

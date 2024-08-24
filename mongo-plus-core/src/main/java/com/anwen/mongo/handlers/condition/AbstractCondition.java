@@ -33,7 +33,8 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
     public BasicDBObject queryCondition(List<CompareCondition> compareConditionList) {
         MongoPlusBasicDBObject mongoPlusBasicDBObject = new MongoPlusBasicDBObject();
         if (CollUtil.isNotEmpty(compareConditionList)) {
-            compareConditionList.stream().filter(compareCondition -> isQueryOperator(compareCondition.getCondition())).forEach(compareCondition -> queryCondition(compareCondition,mongoPlusBasicDBObject));
+            compareConditionList.stream().filter(compareCondition -> isQueryOperator(compareCondition.getCondition()))
+                    .forEach(compareCondition -> queryCondition(compareCondition,mongoPlusBasicDBObject));
         }
         return mongoPlusBasicDBObject;
     }
@@ -46,12 +47,12 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
     @Override
     public MutablePair<BasicDBObject, BasicDBObject> updateCondition(UpdateChainWrapper<?, ?> updateChainWrapper) {
         List<CompareCondition> updateCompareList = updateChainWrapper.getUpdateCompareList();
-        BasicDBObject queryBasic = queryCondition(updateChainWrapper.getCompareList());
 
         Map<UpdateConditionEnum, List<CompareCondition>> conditionMap = Arrays.stream(UpdateConditionEnum.values())
                 .collect(Collectors.toMap(Function.identity(),
                         conditionEnum -> updateCompareList.stream()
-                                .filter(compareCondition -> Objects.equals(compareCondition.getCondition(), conditionEnum.getSubCondition()))
+                                .filter(compareCondition -> Objects.equals(compareCondition.getCondition(),
+                                        conditionEnum.getSubCondition()))
                                 .collect(Collectors.toList())));
 
         BasicDBObject updateBasicDBObject = new BasicDBObject();
@@ -61,7 +62,7 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
             }
         });
 
-        return new MutablePair<>(queryBasic, updateBasicDBObject);
+        return new MutablePair<>(updateChainWrapper.buildCondition().getCondition(), updateBasicDBObject);
     }
     
     /**

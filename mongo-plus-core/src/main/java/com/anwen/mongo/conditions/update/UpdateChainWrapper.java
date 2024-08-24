@@ -8,15 +8,20 @@ import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.CurrentDateType;
 import com.anwen.mongo.enums.PopType;
+import com.anwen.mongo.handlers.condition.Condition;
+import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.support.SFunction;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
+import com.mongodb.BasicDBObject;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
 
 /**
  * update接口实现
@@ -32,6 +37,27 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     public List<CompareCondition> getUpdateCompareList() {
         return updateCompareList;
+    }
+
+    /**
+     * 构建修改条件
+     * @return {@link com.anwen.mongo.model.MutablePair<com.mongodb.BasicDBObject,com.mongodb.BasicDBObject>}
+     * @author anwen
+     * @date 2024/8/24 16:24
+     */
+    public MutablePair<BasicDBObject, BasicDBObject> buildUpdateCondition(){
+        return buildUpdateCondition(condition());
+    }
+
+    /**
+     * 构建修改条件
+     * @param condition 条件构造器
+     * @return {@link com.anwen.mongo.model.MutablePair<com.mongodb.BasicDBObject,com.mongodb.BasicDBObject>}
+     * @author anwen
+     * @date 2024/8/24 16:24
+     */
+    public MutablePair<BasicDBObject, BasicDBObject> buildUpdateCondition(Condition condition){
+        return condition.updateCondition(this);
     }
 
     @Override
@@ -499,4 +525,8 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
         return typedThis;
     }
 
+    @Override
+    public BaseConditionResult buildCondition(Condition condition) {
+        return condition.queryCondition(this);
+    }
 }

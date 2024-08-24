@@ -38,7 +38,13 @@ public enum AggregateEnum {
 
     REPLACE_ROOT("$replaceRoot"),
     
-    MERGE_OBJECTS("$mergeObjects")
+    MERGE_OBJECTS("$mergeObjects"),
+
+    EACH("$each"),
+
+    POSITION("$position"),
+
+    SLICE("$slice"),
 
     ;
 
