@@ -20,6 +20,8 @@ public enum CommandEnum {
 
     COUNT("count"),
 
+    CREATE_INDEXES("createIndexes"),
+
     ;
 
     private final String command;

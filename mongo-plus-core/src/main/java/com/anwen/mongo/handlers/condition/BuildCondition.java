@@ -4,6 +4,7 @@ import com.anwen.mongo.bson.MongoPlusBasicDBObject;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.conditions.AbstractChainWrapper;
+import com.anwen.mongo.conditions.interfaces.TextSearchOptions;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
@@ -199,7 +200,15 @@ public class BuildCondition extends AbstractCondition {
                         (Collection<?>) compareCondition.getValue()));
                 break;
             case TEXT:
-                mongoPlusBasicDBObject.put(Filters.text(compareCondition.getValue().toString()));
+                Bson textBson;
+                Object value = compareCondition.getValue();
+                TextSearchOptions textSearchOptions = compareCondition.getExtraValue(TextSearchOptions.class);
+                if (textSearchOptions != null){
+                    textBson = Filters.text(value.toString(), textSearchOptions.to());
+                } else {
+                    textBson = Filters.text(value.toString());
+                }
+                mongoPlusBasicDBObject.put(textBson);
                 break;
             case WHERE:
                 mongoPlusBasicDBObject.put(Filters.where((String) compareCondition.getValue()));

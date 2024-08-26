@@ -1081,44 +1081,42 @@ public interface Compare<T,Children> extends Serializable {
     /**
      * 文本查询
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
-     * @param column 列名、字段名
      * @param value 值
      * @return Children
      * @author JiaChaoYang
      * @date 2023/7/30 1:06
     */
-    Children text(boolean condition , SFunction<T,Object> column, Object value);
+    Children text(boolean condition, Object value);
 
     /**
      * 文本查询
-     * @param column 列名、字段名
      * @param value 值
      * @return Children
      * @author JiaChaoYang
      * @date 2023/7/30 1:06
      */
-    Children text(SFunction<T,Object> column, Object value);
+    Children text(Object value);
 
     /**
      * 文本查询
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
-     * @param column 列名、字段名
      * @param value 值
-     * @return Children
-     * @author JiaChaoYang
-     * @date 2023/7/30 1:06
+     * @param textSearchOptions 搜索选项
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/26 18:56
      */
-    Children text(boolean condition , String column, Object value);
+    Children text(boolean condition, Object value,TextSearchOptions textSearchOptions);
 
     /**
      * 文本查询
-     * @param column 列名、字段名
      * @param value 值
-     * @return Children
-     * @author JiaChaoYang
-     * @date 2023/7/30 1:06
+     * @param textSearchOptions 搜索选项
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/26 18:56
      */
-    Children text(String column, Object value);
+    Children text(Object value,TextSearchOptions textSearchOptions);
 
     /**
      * 在。。。之间

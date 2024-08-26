@@ -2,6 +2,7 @@ package com.anwen.mongo.conditions.interfaces;
 
 import com.anwen.mongo.bson.MongoPlusDocument;
 import com.anwen.mongo.enums.AggregateEnum;
+import com.anwen.mongo.enums.CommonOperators;
 import com.anwen.mongo.support.SFunction;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -329,7 +330,14 @@ public class ConditionOperators {
                 .append(AggregateEnum.SORT.getValue(), sort);
     }
 
-
+    /**
+     * $abs操作符
+     * @author anwen
+     * @date 2024/8/25 11:20
+     */
+    public static Bson abs(Number value){
+        return new Document(CommonOperators.ABS.getOperator(),value);
+    }
 
 
 }

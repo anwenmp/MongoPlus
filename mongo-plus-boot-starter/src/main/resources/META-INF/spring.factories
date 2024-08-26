@@ -7,3 +7,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
     com.anwen.mongo.transactional.MongoTransactionManagerAutoConfiguration,\
     com.anwen.mongo.config.MongoPropertyConfiguration,\
     com.anwen.mongo.property.MongoLogicDelProperty
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.anwen.mongo.property.EncryptionPostProcessor

@@ -19,8 +19,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.anwen.mongo.enums.QueryOperatorEnum.isQueryOperator;
-
 /**
  * 抽象的条件处理器
  *
@@ -33,8 +31,7 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
     public BasicDBObject queryCondition(List<CompareCondition> compareConditionList) {
         MongoPlusBasicDBObject mongoPlusBasicDBObject = new MongoPlusBasicDBObject();
         if (CollUtil.isNotEmpty(compareConditionList)) {
-            compareConditionList.stream().filter(compareCondition -> isQueryOperator(compareCondition.getCondition()))
-                    .forEach(compareCondition -> queryCondition(compareCondition,mongoPlusBasicDBObject));
+            compareConditionList.forEach(compareCondition -> queryCondition(compareCondition,mongoPlusBasicDBObject));
         }
         return mongoPlusBasicDBObject;
     }

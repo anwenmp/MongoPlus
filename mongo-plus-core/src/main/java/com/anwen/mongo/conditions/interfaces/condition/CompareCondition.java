@@ -158,6 +158,14 @@ public class CompareCondition {
         this.originalField = originalField;
     }
 
+    public CompareCondition(String condition, Object value,Class<?> originalClass, Field originalField,Object extraValue){
+        this.condition = condition;
+        this.value = value;
+        this.originalClass = originalClass;
+        this.originalField = originalField;
+        this.extraValue = extraValue;
+    }
+
     public CompareCondition(String condition, List<CompareCondition> compareConditionList){
         this.condition = condition;
         this.value = compareConditionList;

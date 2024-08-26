@@ -6,6 +6,7 @@ import com.mongodb.event.CommandStartedEvent;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+import org.bson.Document;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class MongoCommandBuildUtils {
         HANDLERS.put(CommandEnum.DELETE.getCommand(), MongoCommandBuildUtils::buildDeleteCommand);
         HANDLERS.put(CommandEnum.UPDATE.getCommand(), MongoCommandBuildUtils::buildUpdateCommand);
         HANDLERS.put(CommandEnum.AGGREGATE.getCommand(), MongoCommandBuildUtils::buildAggregateCommand);
+        HANDLERS.put(CommandEnum.CREATE_INDEXES.getCommand(), MongoCommandBuildUtils::buildIndexCommand);
     }
 
     /**
@@ -49,9 +51,13 @@ public class MongoCommandBuildUtils {
 
         String collection = getJson("find", "", event);
         String json = getJson("filter", "", event);
+        String sort = getJson("sort","",event);
         String skip = getJson("skip", "", event);
         String limit = getJson("limit", "", event);
         String command = "db." + collection + "." + event.getCommandName() + "(" + json + ")";
+        if (StringUtils.isNotBlank(sort)){
+            command += ".sort(" + sort + ")";
+        }
         if (StringUtils.isNotBlank(skip) && !skip.equals("0")) {
             command += ".skip(" + skip + ")";
         }
@@ -119,6 +125,17 @@ public class MongoCommandBuildUtils {
         String collection = getJson("count", "", event);
         return "db." + collection + ".count" + "(" + json + ")";
 
+    }
+
+    private static String buildIndexCommand(CommandStartedEvent event){
+        Document document = new Document();
+        BsonDocument bsonDocument = event.getCommand();
+        String db = "getSiblingDB(\""+bsonDocument.getString("$db").getValue()+"\")";
+        String collection = bsonDocument.getString("createIndexes").getValue();
+        document.put("createIndexes",collection);
+        document.put("indexes",bsonDocument.getArray("indexes").getValues());
+        document.put("writeConcern",bsonDocument.getDocument("writeConcern"));
+        return "db."+db+".runCommand("+document.toJson()+")";
     }
 
     private static String getJson(BsonValue bs, String item) {

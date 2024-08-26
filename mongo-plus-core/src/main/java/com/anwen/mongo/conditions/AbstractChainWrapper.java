@@ -3,6 +3,7 @@ package com.anwen.mongo.conditions;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.conditions.interfaces.Compare;
 import com.anwen.mongo.conditions.interfaces.Projection;
+import com.anwen.mongo.conditions.interfaces.TextSearchOptions;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
@@ -626,23 +627,23 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
-    public Children text(boolean condition, SFunction<T, Object> column, Object value) {
-        return condition ? text(column,value) : typedThis;
+    public Children text(Object value, TextSearchOptions textSearchOptions) {
+        return getBaseConditionExtraValue(value,textSearchOptions);
     }
 
     @Override
-    public Children text(SFunction<T, Object> column, Object value) {
-        return getBaseCondition(column,value);
+    public Children text(boolean condition, Object value, TextSearchOptions textSearchOptions) {
+        return condition ? text(value,textSearchOptions) : typedThis;
     }
 
     @Override
-    public Children text(boolean condition, String column, Object value) {
-        return condition ? text(column,value) : typedThis;
+    public Children text(Object value) {
+        return text(value,null);
     }
 
     @Override
-    public Children text(String column, Object value) {
-        return getBaseCondition(column,value);
+    public Children text(boolean condition, Object value) {
+        return condition ? text(value) : typedThis;
     }
 
     @Override
@@ -786,6 +787,11 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public Children getBaseCondition(Object value){
         this.compareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null));
+        return typedThis;
+    }
+
+    public Children getBaseConditionExtraValue(Object value,Object extraValue){
+        this.compareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null,extraValue));
         return typedThis;
     }
 

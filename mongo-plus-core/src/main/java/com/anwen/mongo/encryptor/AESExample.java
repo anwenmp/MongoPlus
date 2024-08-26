@@ -1,6 +1,8 @@
 package com.anwen.mongo.encryptor;
 
 import com.anwen.mongo.cache.global.PropertyCache;
+import com.anwen.mongo.enums.AlgorithmEnum;
+import com.anwen.mongo.toolkit.EncryptorUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 
 import javax.crypto.Cipher;
@@ -8,6 +10,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import static com.anwen.mongo.toolkit.StringUtils.hexToBytes;
@@ -21,6 +24,24 @@ import static com.anwen.mongo.toolkit.StringUtils.hexToBytes;
 public class AESExample implements Encryptor {
 
     private final String ALGORITHM = "AES";
+
+    /**
+     * 默认字符串
+     * @date 2024/8/26 14:13
+     */
+    private static final String DEFAULT_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    
+    /**
+     * 默认获取大小
+     * @date 2024/8/26 14:13
+     */
+    private static final int DEFAULT_LENGTH = 16;
+    
+    /**
+     * 使用{@link SecureRandom}生成高质量的随机索引
+     * @date 2024/8/26 14:13
+     */
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
      * AES加密
@@ -73,6 +94,55 @@ public class AESExample implements Encryptor {
         // 使用前16字节生成AES密钥
         key = Arrays.copyOf(key, 16);
         return new SecretKeySpec(key, ALGORITHM);
+    }
+
+    /**
+     * 生成随机指定长度的AES秘钥
+     * @param length 长度
+     * @return {@link java.lang.String}
+     * @author anwen
+     * @date 2024/8/26 14:17
+     */
+    public static String generateRandom(int length){
+        char[] result = new char[length];
+        for (int i = 0; i< length; i++){
+            result[i] = DEFAULT_CHARACTERS.charAt(SECURE_RANDOM.nextInt(DEFAULT_CHARACTERS.length()));
+        }
+        return new String(result);
+    }
+
+    /**
+     * 生成16位随机AES秘钥
+     * @return {@link java.lang.String}
+     * @author anwen
+     * @date 2024/8/26 14:21
+     */
+    public static String generateRandom(){
+        return generateRandom(DEFAULT_LENGTH);
+    }
+
+    /**
+     * AES加密数据
+     * @param data 明文
+     * @param password 秘钥
+     * @return {@link java.lang.String}
+     * @author anwen
+     * @date 2024/8/26 14:31
+     */
+    public static String encrypt(String data, String password) throws Exception {
+        return EncryptorUtil.algorithmEnumEncryptorMap.get(AlgorithmEnum.AES).encrypt(data,password,null);
+    }
+
+    /**
+     * AES解密数据
+     * @param encryptedData 密文
+     * @param password 秘钥
+     * @return {@link java.lang.String}
+     * @author anwen
+     * @date 2024/8/26 14:31
+     */
+    public static String decrypt(String encryptedData, String password) throws Exception {
+        return EncryptorUtil.algorithmEnumEncryptorMap.get(AlgorithmEnum.AES).decrypt(encryptedData,password,null);
     }
 
 }

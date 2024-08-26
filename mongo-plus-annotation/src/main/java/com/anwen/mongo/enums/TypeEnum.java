@@ -2,8 +2,6 @@ package com.anwen.mongo.enums;
 
 /**
  * @author JiaChaoYang
- * @project mongo
- * @description
  * @date 2023-07-18 00:04
  **/
 public enum TypeEnum {

@@ -1,10 +1,7 @@
 package com.anwen.mongo.toolkit;
 
 import com.anwen.mongo.annotation.collection.CollectionField;
-import com.anwen.mongo.annotation.index.MongoCompoundIndex;
-import com.anwen.mongo.annotation.index.MongoCompoundIndexes;
-import com.anwen.mongo.annotation.index.MongoHashIndex;
-import com.anwen.mongo.annotation.index.MongoIndex;
+import com.anwen.mongo.annotation.index.*;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.domain.MongoPlusFieldException;
@@ -45,6 +42,9 @@ public class IndexUtil {
                         compoundIndex(typeInformation, indexModelList, mongoCompoundIndex);
                     }
                 }
+                if (collectionClass.isAnnotationPresent(MongoTextIndex.class)){
+                    textIndex(typeInformation,indexModelList);
+                }
                 List<FieldInformation> mongoIndexList = typeInformation.getAnnotationFields(MongoIndex.class);
                 if (CollUtil.isNotEmpty(mongoIndexList)) {
                     mongoIndexList.forEach(fieldInformation -> index(fieldInformation, indexModelList));
@@ -77,6 +77,34 @@ public class IndexUtil {
                         "hashed"
                 ),
                 new IndexOptions()
+        ));
+    }
+
+    public static void textIndex(TypeInformation typeInformation,List<IndexModel> indexModelList){
+        MongoTextIndex mongoTextIndex  = typeInformation.getClazz().getAnnotation(MongoTextIndex.class);
+        IndexOptions indexOptions = new IndexOptions();
+        indexOptions.defaultLanguage(mongoTextIndex.language().getLanguage());
+        if (mongoTextIndex.textIndexVersion() > -1) {
+            indexOptions.textVersion(mongoTextIndex.textIndexVersion());
+        }
+        Document document = new Document();
+        for (String field : mongoTextIndex.fields()) {
+            document.put(field,"text");
+        }
+        Map<String, Object> modifiedEntries = document.entrySet().stream()
+                .filter(entry -> {
+                    String key = entry.getKey();
+                    return key.startsWith("$") && !key.equals("$**");
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        modifiedEntries.keySet().forEach(document::remove);
+        document.putAll(modifiedEntries.entrySet().stream().collect(Collectors.toMap(
+                entry -> getFieldName(typeInformation, entry.getKey()),
+                Map.Entry::getValue
+        )));
+        indexModelList.add(new IndexModel(
+                document,
+                indexOptions
         ));
     }
 

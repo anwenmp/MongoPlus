@@ -2,8 +2,6 @@ package com.anwen.mongo.enums;
 
 /**
  * @author JiaChaoYang
- * @project mongo-plus
- * @description 字段填充策略枚举类
  * @date 2023-11-21 11:14
  * @since quote from: MyBatisPlus
  **/
