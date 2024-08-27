@@ -22,6 +22,7 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicNamespaceAware;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
+import com.anwen.mongo.mapping.TypeInformation;
 import com.anwen.mongo.model.IndexMetaObject;
 import com.anwen.mongo.property.MongoDBCollectionProperty;
 import com.anwen.mongo.property.MongoDBConfigurationProperty;
@@ -51,6 +52,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.toolkit.ClassTypeUtil.getFieldNameAndCheck;
 
 /**
  * MongoPlus自动注入配置
@@ -356,10 +359,11 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
                     log.warn("The {} temporal collection already exists",collectionName);
                     return;
                 }
-                TimeSeriesOptions options = new TimeSeriesOptions(timeSeries.timeField());
+                TypeInformation typeInformation = TypeInformation.of(collectionClass);
+                TimeSeriesOptions options = new TimeSeriesOptions(getFieldNameAndCheck(typeInformation,timeSeries.timeField()));
                 options.granularity(timeSeries.granularity());
                 if (StringUtils.isNotBlank(timeSeries.metaField())){
-                    options.metaField(timeSeries.metaField());
+                    options.metaField(getFieldNameAndCheck(typeInformation,timeSeries.metaField()));
                 }
                 if (timeSeries.bucketMaxSpan() > 0){
                     options.bucketMaxSpan(timeSeries.bucketMaxSpan(), TimeUnit.SECONDS);

@@ -5,6 +5,8 @@ import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.domain.MongoPlusFieldException;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
+import com.anwen.mongo.mapping.FieldInformation;
+import com.anwen.mongo.mapping.TypeInformation;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -260,6 +262,22 @@ public class ClassTypeUtil {
 
     public static Boolean isAnonymousClass(Class<?> clazz){
         return isAnonymousClassMap.computeIfAbsent(clazz, k -> clazz.isAnonymousClass());
+    }
+
+    public static String getFieldName(TypeInformation typeInformation, String key) {
+        key = key.substring(1);
+        FieldInformation fieldInformation = typeInformation.getFieldNotException(key);
+        if (fieldInformation != null) {
+            key = fieldInformation.getCamelCaseName();
+        }
+        return key;
+    }
+
+    public static String getFieldNameAndCheck(TypeInformation typeInformation, String key) {
+        if (!key.startsWith("$")){
+            return key;
+        }
+        return getFieldName(typeInformation, key);
     }
 
 }

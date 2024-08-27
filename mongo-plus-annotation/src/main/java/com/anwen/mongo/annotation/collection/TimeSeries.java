@@ -21,12 +21,20 @@ public @interface TimeSeries {
 
     /**
      * 包含每个时间序列文档中的日期的字段的名称
+     * <p>可使用{@code $}标识，该操作将会字段值查找类中的该字段，不存在则直接返回该值，如：</p>
+     * <p>
+     *      {@code @TimeSeries("$field1"})}
+     * </p>
      * @date 2024/8/27 01:23
      */
     String timeField();
 
     /**
      * 包含每个时间序列文档中的元数据的字段的名称
+     * <p>可使用{@code $}标识，该操作将会字段值查找类中的该字段，不存在则直接返回该值，如：</p>
+     * <p>
+     *      {@code @TimeSeries(metaField="$field1"})}
+     * </p>
      * @date 2024/8/27 01:23
      */
     String metaField() default "";

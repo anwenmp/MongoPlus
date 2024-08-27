@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.anwen.mongo.toolkit.ClassTypeUtil.getFieldName;
+
 /**
  * 索引工具类
  *
@@ -106,19 +108,16 @@ public class IndexUtil {
         for (String field : mongoTextIndex.fields()) {
             document.put(field,"text");
         }
-        Map<String, Object> modifiedEntries = document.entrySet().stream()
-                .filter(entry -> {
-                    String key = entry.getKey();
-                    return key.startsWith("$") && !key.equals("$**");
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        modifiedEntries.keySet().forEach(document::remove);
-        document.putAll(modifiedEntries.entrySet().stream().collect(Collectors.toMap(
-                entry -> getFieldName(typeInformation, entry.getKey()),
-                Map.Entry::getValue
-        )));
+        Document indexDocument = new Document();
+        document.forEach((key, value) -> {
+            String fieldName = key;
+            if (key.startsWith("$") && !key.equals("$**")){
+                fieldName = getFieldName(typeInformation, key);
+            }
+            indexDocument.put(fieldName,value);
+        });
         indexModelList.add(new IndexModel(
-                document,
+                indexDocument,
                 indexOptions
         ));
     }
@@ -130,16 +129,16 @@ public class IndexUtil {
         } catch (Exception e) {
             throw new MongoPlusConvertException("The partialFilterExpression is not a valid JSON string", e);
         }
-        Map<String, Object> modifiedEntries = document.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith("$"))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        modifiedEntries.keySet().forEach(document::remove);
-        document.putAll(modifiedEntries.entrySet().stream().collect(Collectors.toMap(
-                entry -> getFieldName(typeInformation, entry.getKey()),
-                Map.Entry::getValue
-        )));
+        Document indexDocument = new Document();
+        document.forEach((key, value) -> {
+            String fieldName = key;
+            if (key.startsWith("$")){
+                fieldName = getFieldName(typeInformation, key);
+            }
+            indexDocument.put(fieldName,value);
+        });
         indexModelList.add(new IndexModel(
-                document,
+                indexDocument,
                 getCompoundIndexOptions(typeInformation, mongoCompoundIndex)
         ));
     }
@@ -206,15 +205,15 @@ public class IndexUtil {
             } catch (Exception e) {
                 throw new MongoPlusConvertException("The partialFilterExpression is not a valid JSON string", e);
             }
-            Map<String, Object> modifiedEntries = document.entrySet().stream()
-                    .filter(entry -> entry.getKey().startsWith("$"))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            modifiedEntries.keySet().forEach(document::remove);
-            document.putAll(modifiedEntries.entrySet().stream().collect(Collectors.toMap(
-                    entry -> getFieldName(typeInformation, entry.getKey()),
-                    Map.Entry::getValue
-            )));
-            indexOptions.partialFilterExpression(document);
+            Document indexDocument = new Document();
+            document.forEach((key, value) -> {
+                String fieldName = key;
+                if (key.startsWith("$")){
+                    fieldName = getFieldName(typeInformation, key);
+                }
+                indexDocument.put(fieldName,value);
+            });
+            indexOptions.partialFilterExpression(indexDocument);
         }
         return indexOptions;
     }
@@ -234,15 +233,6 @@ public class IndexUtil {
             return TimeUnit.SECONDS;
         }
         throw new MongoPlusFieldException(String.format("Time unit with value %s not found", timeUnit));
-    }
-
-    private static String getFieldName(TypeInformation typeInformation, String key) {
-        key = key.substring(1);
-        FieldInformation fieldInformation = typeInformation.getFieldNotException(key);
-        if (fieldInformation != null) {
-            key = fieldInformation.getCamelCaseName();
-        }
-        return key;
     }
 
 }
