@@ -351,7 +351,8 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
                 paramDocument.put("listCollections",1);
                 paramDocument.put("filter",new Document("type","timeseries"));
                 Document document = mongoDatabase.runCommand(paramDocument);
-                List<String> timeSeriesList = document.get("cursor", Document.class).getList("firstBatch", Document.class)
+                List<String> timeSeriesList = document.get("cursor", Document.class)
+                        .getList("firstBatch", Document.class)
                         .stream().map(doc -> doc.getString("name"))
                         .collect(Collectors.toList());
                 String collectionName = AnnotationOperate.getCollectionName(collectionClass);
