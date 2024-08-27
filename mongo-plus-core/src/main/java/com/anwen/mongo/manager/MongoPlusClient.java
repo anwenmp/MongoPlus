@@ -103,6 +103,22 @@ public class MongoPlusClient {
         return database;
     }
 
+    public String getDatabase(String dataSource,Class<?> clazz){
+        String database = DataSourceNameCache.getDatabase(dataSource);
+        if (database.contains(",")){
+            database = Arrays.stream(database.split(",")).collect(Collectors.toList()).get(0);
+        }
+        String annotationDatabase = AnnotationOperate.getDatabase(clazz);
+        if (StringUtils.isNotBlank(annotationDatabase)){
+            database = annotationDatabase;
+        }
+        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
+        if (StringUtils.isBlank(database)){
+            database = managerMap.keySet().stream().findFirst().get();
+        }
+        return database;
+    }
+
     /**
      * 获取database
      * @param database database名称
@@ -151,6 +167,10 @@ public class MongoPlusClient {
 
     public MongoClient getMongoClient() {
         return MongoClientFactory.getInstance().getMongoClient();
+    }
+
+    public MongoClient getMongoClient(String dataSource) {
+        return MongoClientFactory.getInstance().getMongoClient(dataSource);
     }
 
     public List<MongoDatabase> getMongoDatabase() {

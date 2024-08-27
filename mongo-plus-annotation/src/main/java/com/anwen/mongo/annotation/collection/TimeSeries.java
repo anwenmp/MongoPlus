@@ -2,10 +2,15 @@ package com.anwen.mongo.annotation.collection;
 
 import com.mongodb.client.model.TimeSeriesGranularity;
 
+import java.lang.annotation.*;
+
 /**
  * 指定为时间序列集合
  * @author anwen
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface TimeSeries {
 
     /**
@@ -45,10 +50,9 @@ public @interface TimeSeries {
     long bucketRounding() default -1;
 
     /**
-     * 自动创建时间序列集合
-     * <p>开启此配置，在项目启动时会进行查询，然后创建</p>
-     * @date 2024/8/27 01:32
+     * 指定文档过期的秒数
+     * @date 2024/8/27 16:00
      */
-    boolean autoCreateTimeSeries() default true;
+    long expireAfter() default -1;
 
 }

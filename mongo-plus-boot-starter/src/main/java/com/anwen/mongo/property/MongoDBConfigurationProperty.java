@@ -47,6 +47,20 @@ public class MongoDBConfigurationProperty {
      */
     private Boolean autoCreateIndex = false;
 
+    /**
+     * 自动创建时间序列
+     * @date 2024/8/27 15:41
+     */
+    private Boolean autoCreateTimeSeries = false;
+
+    public Boolean getAutoCreateTimeSeries() {
+        return autoCreateTimeSeries;
+    }
+
+    public void setAutoCreateTimeSeries(Boolean autoCreateTimeSeries) {
+        this.autoCreateTimeSeries = autoCreateTimeSeries;
+    }
+
     public Boolean getAutoCreateIndex() {
         return autoCreateIndex;
     }

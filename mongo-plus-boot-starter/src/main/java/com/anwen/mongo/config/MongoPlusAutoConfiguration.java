@@ -1,6 +1,7 @@
 package com.anwen.mongo.config;
 
 import com.anwen.mongo.annotation.collection.CollectionName;
+import com.anwen.mongo.annotation.collection.TimeSeries;
 import com.anwen.mongo.aware.Aware;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
@@ -34,7 +35,12 @@ import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.IndexUtil;
 import com.anwen.mongo.toolkit.StringUtils;
+import com.mongodb.MongoCommandException;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.TimeSeriesOptions;
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScanner;
@@ -43,6 +49,7 @@ import org.springframework.context.ApplicationContext;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -96,6 +103,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         setDynamicCollectionHandler();
         setAware(applicationContext);
         collectionNameConvert();
+        autoCreateTimeSeries();
         autoCreateIndexes();
     }
 
@@ -311,6 +319,68 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      */
     public void collectionNameConvert() {
         AnnotationOperate.setCollectionNameConvertEnum(mongodbCollectionProperty.getMappingStrategy());
+    }
+
+    /**
+     * 自动创建时间序列
+     * @date 2024/8/27 15:42
+     */
+    public void autoCreateTimeSeries(){
+        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()){
+            Set<Class<?>> collectionClassSet;
+            try {
+                collectionClassSet = new EntityScanner(applicationContext).scan(TimeSeries.class);
+            } catch (ClassNotFoundException e) {
+                collectionClassSet = Collections.emptySet();
+            }
+            if (CollUtil.isEmpty(collectionClassSet)) {
+                return;
+            }
+            collectionClassSet.forEach(collectionClass -> {
+                TimeSeries timeSeries = collectionClass.getAnnotation(TimeSeries.class);
+                String dataSource = DataSourceNameCache.getDataSource();
+                if (StringUtils.isNotBlank(timeSeries.dataSource())){
+                    dataSource = timeSeries.dataSource();
+                }
+                MongoClient mongoClient = mongoPlusClient.getMongoClient(dataSource);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase(mongoPlusClient.getDatabase(collectionClass));
+                Document paramDocument = new Document();
+                paramDocument.put("listCollections",1);
+                paramDocument.put("filter",new Document("type","timeseries"));
+                Document document = mongoDatabase.runCommand(paramDocument);
+                List<String> timeSeriesList = document.get("cursor", Document.class).getList("firstBatch", Document.class)
+                        .stream().map(doc -> doc.getString("name"))
+                        .collect(Collectors.toList());
+                String collectionName = AnnotationOperate.getCollectionName(collectionClass);
+                if (timeSeriesList.contains(collectionName)){
+                    log.warn("The {} temporal collection already exists",collectionName);
+                    return;
+                }
+                TimeSeriesOptions options = new TimeSeriesOptions(timeSeries.timeField());
+                options.granularity(timeSeries.granularity());
+                if (StringUtils.isNotBlank(timeSeries.metaField())){
+                    options.metaField(timeSeries.metaField());
+                }
+                if (timeSeries.bucketMaxSpan() > 0){
+                    options.bucketMaxSpan(timeSeries.bucketMaxSpan(), TimeUnit.SECONDS);
+                    options.metaField(null);
+                }
+                if (timeSeries.bucketRounding() > 0){
+                    options.bucketRounding(timeSeries.bucketRounding(), TimeUnit.SECONDS);
+                    options.metaField(null);
+                }
+                CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions();
+                createCollectionOptions.timeSeriesOptions(options);
+                if (timeSeries.expireAfter() > 0){
+                    createCollectionOptions.expireAfter(timeSeries.expireAfter(), TimeUnit.SECONDS);
+                }
+                try {
+                    mongoDatabase.createCollection(
+                            collectionName,
+                            createCollectionOptions);
+                } catch (MongoCommandException ignored){}
+            });
+        }
     }
 
     /**

@@ -72,8 +72,7 @@ public class AggregateTest {
             //以下聚合操作fuel_type向嵌入文档和一级文档添加一个新字段specs
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.addFields("specs.fuel_type", "unleaded");
-            List<Map<String, Object>> aggregatedList = baseMapper.aggregateList("addFields", aggregateWrapper, new TypeReference<Map<String, Object>>() {
-            });
+            List<Map<String, Object>> aggregatedList = execute("addFields",aggregateWrapper);
             boolean exist = JSON.toJSONString(aggregatedList).contains("fuel_type");
             Assertions.assertTrue(exist);
         } finally {
@@ -94,8 +93,7 @@ public class AggregateTest {
             //以下聚合操作fuel_type向嵌入文档和一级文档添加一个新字段specs
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.set("specs.fuel_type", "unleaded");
-            List<Map<String, Object>> aggregatedList = baseMapper.aggregateList("set", aggregateWrapper, new TypeReference<Map<String, Object>>() {
-            });
+            List<Map<String, Object>> aggregatedList = execute("set",aggregateWrapper);
             boolean exist = JSON.toJSONString(aggregatedList).contains("fuel_type");
             Assertions.assertTrue(exist);
             aggregatedList.forEach(System.out::println);
@@ -115,11 +113,11 @@ public class AggregateTest {
             bucketOptions.defaultBucket("Other");
             bucketOptions.output(
                     Accumulators.sum("count", 1),
-                    Accumulators.push("artists", new BasicDBObject("$concat", Arrays.asList("$first_name", " ", "$last_name")))
+                    Accumulators.push("artists",
+                            new BasicDBObject("$concat", Arrays.asList("$first_name", " ", "$last_name")))
             );
             aggregateWrapper.bucket("$your_born", Arrays.asList(1840, 1850, 1860, 1870, 1880), bucketOptions);
-            List<Map<String, Object>> aggregatedList = baseMapper.aggregateList("bucket", aggregateWrapper, new TypeReference<Map<String, Object>>() {
-            });
+            List<Map<String, Object>> aggregatedList = execute("bucket",aggregateWrapper);
             aggregatedList.forEach(System.out::println);
         } finally {
             removeCollection("bucket");
@@ -135,8 +133,7 @@ public class AggregateTest {
             //在以下操作中，根据 price 字段中的值将输入文档分为四个存储桶
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.bucketAuto("$price", 4);
-            List<Map<String, Object>> aggregateList = baseMapper.aggregateList("bucketAuto", aggregateWrapper, new TypeReference<Map<String, Object>>() {
-            });
+            List<Map<String, Object>> aggregateList = execute("bucketAuto",aggregateWrapper);
             Assertions.assertEquals(4, aggregateList.size());
         } finally {
             removeCollection("bucketAuto");
@@ -154,8 +151,7 @@ public class AggregateTest {
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.match(new QueryWrapper<>().gt("score", 80));
             aggregateWrapper.count("passing_scores");
-            List<Map<String, Object>> aggregateList = baseMapper.aggregateList("count", aggregateWrapper, new TypeReference<Map<String, Object>>() {
-            });
+            List<Map<String, Object>> aggregateList = execute("count",aggregateWrapper);
             Assertions.assertEquals(1, aggregateList.size());
             Assertions.assertEquals(4, aggregateList.get(0).get("passing_scores"));
         } finally {
@@ -208,8 +204,11 @@ public class AggregateTest {
             //可以在聚合表达式中使用变量 REMOVE 来有条件地隐藏字段
             //只有当 $project 字段等于 REMOVE 时，以下 author.middle 阶段才使用 "" 变量将该字段排除
             AggregateWrapper removeAggregateWrapper = new AggregateWrapper();
-            Bson cond = ConditionOperators.cond("eq", Arrays.asList("", "$author.middle"), "$$REMOVE", "$author.middle");
-            removeAggregateWrapper.project(Projection.builder().display("title", "author.first", "author.last", "author.middle").projection("author.middle", cond).buildList());
+            Bson cond = ConditionOperators.cond("eq",
+                    Arrays.asList("", "$author.middle"), "$$REMOVE", "$author.middle");
+            removeAggregateWrapper.project(Projection.builder()
+                    .display("title", "author.first", "author.last", "author.middle")
+                    .projection("author.middle", cond).buildList());
             List<Document> aggregateRemoveList = execute("project", removeAggregateWrapper, Document.class);
             Assertions.assertEquals(3, aggregateRemoveList.size());
             Assertions.assertTrue(aggregateRemoveList.get(2).get("author", Document.class).containsKey("middle"));
@@ -364,7 +363,8 @@ public class AggregateTest {
             List<Document> aggregateList = execute("employees", aggregateWrapper, Document.class);
             Assertions.assertTrue(
                     aggregateList.get(aggregateList.size()-1)
-                            .getList("reportingHierarchy",Document.class).stream().map(document -> document.getInteger("_id")).anyMatch(id -> id == 4));
+                            .getList("reportingHierarchy",Document.class).stream()
+                            .map(document -> document.getInteger("_id")).anyMatch(id -> id == 4));
             //跨多个集合
             //与 $lookup 一样，$graphLookup 可以访问同一数据库中的另一个集合。
             //例如，创建一个包含两个集合的数据库
