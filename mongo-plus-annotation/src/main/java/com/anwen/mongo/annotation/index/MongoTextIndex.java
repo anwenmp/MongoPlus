@@ -25,6 +25,12 @@ public @interface MongoTextIndex {
     String[] fields();
 
     /**
+     * 索引名称
+     * @author anwen
+     */
+    String name() default "";
+
+    /**
      * 文本语言，默认英语
      * @author anwen
      */

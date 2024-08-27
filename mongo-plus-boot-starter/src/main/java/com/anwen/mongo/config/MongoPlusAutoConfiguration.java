@@ -21,6 +21,7 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicNamespaceAware;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
+import com.anwen.mongo.model.IndexMetaObject;
 import com.anwen.mongo.property.MongoDBCollectionProperty;
 import com.anwen.mongo.property.MongoDBConfigurationProperty;
 import com.anwen.mongo.property.MongoDBLogProperty;
@@ -32,7 +33,9 @@ import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.IndexUtil;
-import com.mongodb.client.model.IndexModel;
+import com.anwen.mongo.toolkit.StringUtils;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScanner;
 import org.springframework.context.ApplicationContext;
@@ -326,11 +329,18 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             if (CollUtil.isEmpty(collectionClassSet)) {
                 return;
             }
-            Map<Class<?>, List<IndexModel>> indexModelMap = IndexUtil.getIndex(collectionClassSet);
-            if (CollUtil.isNotEmpty(indexModelMap)) {
-                indexModelMap.forEach((clazz, indexModels) -> {
-                    if (CollUtil.isNotEmpty(indexModels)) {
-                        mongoPlusClient.getCollection(clazz).createIndexes(indexModels);
+            List<IndexMetaObject> indexMetaObjectList = IndexUtil.getIndex(collectionClassSet);
+            if (CollUtil.isNotEmpty(indexMetaObjectList)) {
+                indexMetaObjectList.forEach(indexMetaObject -> {
+                    if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())){
+                        String dataSource = DataSourceNameCache.getDataSource();
+                        if (StringUtils.isNotBlank(indexMetaObject.getDataSource())){
+                            dataSource = indexMetaObject.getDataSource();
+                        }
+                        Class<?> clazz = indexMetaObject.getTypeInformation().getClazz();
+                        MongoCollection<Document> collection = mongoPlusClient.getCollectionManager(dataSource,clazz)
+                                .getCollection(clazz);
+                        collection.createIndexes(indexMetaObject.getIndexModels());
                     }
                 });
             }

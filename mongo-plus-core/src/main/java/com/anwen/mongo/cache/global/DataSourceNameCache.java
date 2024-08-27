@@ -38,9 +38,13 @@ public class DataSourceNameCache {
 
     public static String getDatabase(){
         String currentDataSource = getDataSource();
-        BaseProperty baseProperty = basePropertyMap.get(currentDataSource);
+        return getDatabase(currentDataSource);
+    }
+
+    public static String getDatabase(String dataSource){
+        BaseProperty baseProperty = basePropertyMap.get(dataSource);
         if (baseProperty == null){
-            throw new MongoPlusDsException("The " + currentDataSource+" data source does not exist");
+            throw new MongoPlusDsException("The " + dataSource+" data source does not exist");
         }
         return baseProperty.getDatabase();
     }

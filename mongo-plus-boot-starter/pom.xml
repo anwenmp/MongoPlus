@@ -14,7 +14,6 @@
     <artifactId>mongo-plus-boot-starter</artifactId>
     <name>mongo-plus-boot-starter</name>
     <packaging>jar</packaging>
-    <version>${mongoplus.version}</version>
     <description>mongo-plus-boot-starter主程序</description>
     <url>https://www.mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
@@ -51,7 +50,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.test.skip>true</maven.test.skip>
-        <spring.boot.version>2.6.15</spring.boot.version>
+        <spring.boot.version>3.3.2</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -119,20 +118,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>${javadoc.version}</version>
                         <configuration>
                             <additionalJOptions>
                                 <additionalJOption>-Xdoclint:none</additionalJOption>
                             </additionalJOptions>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                     <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>

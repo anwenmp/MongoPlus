@@ -5,8 +5,10 @@ import com.anwen.mongo.annotation.index.*;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.domain.MongoPlusFieldException;
+import com.anwen.mongo.enums.IndexType;
 import com.anwen.mongo.mapping.FieldInformation;
 import com.anwen.mongo.mapping.TypeInformation;
+import com.anwen.mongo.model.IndexMetaObject;
 import com.mongodb.client.model.IndexModel;
 import com.mongodb.client.model.IndexOptions;
 import org.bson.Document;
@@ -15,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -26,14 +27,20 @@ import java.util.stream.Collectors;
  */
 public class IndexUtil {
 
-    public static Map<Class<?>, List<IndexModel>> getIndex(Set<? extends Class<?>> collectionEntityList) {
-        Map<Class<?>, List<IndexModel>> indexModelMap = new ConcurrentHashMap<>();
+    public static List<IndexMetaObject> getIndex(Set<? extends Class<?>> collectionEntityList) {
+        List<IndexMetaObject> indexList = new ArrayList<>();
         if (CollUtil.isNotEmpty(collectionEntityList)) {
             collectionEntityList.forEach(collectionClass -> {
+                IndexMetaObject indexMetaObject = new IndexMetaObject();
                 List<IndexModel> indexModelList = new ArrayList<>();
                 TypeInformation typeInformation = TypeInformation.of(collectionClass);
+                indexMetaObject.setTypeInformation(typeInformation);
+                if (collectionClass.isAnnotationPresent(MongoIndexDs.class)){
+                    indexMetaObject.setDataSource(collectionClass.getAnnotation(MongoIndexDs.class).dataSource());
+                }
                 if (collectionClass.isAnnotationPresent(MongoCompoundIndex.class)) {
                     compoundIndex(typeInformation, indexModelList, collectionClass.getAnnotation(MongoCompoundIndex.class));
+                    indexMetaObject.setIndexType(IndexType.COMPOUND_INDEX);
                 }
                 if (collectionClass.isAnnotationPresent(MongoCompoundIndexes.class)) {
                     MongoCompoundIndexes collectionClassAnnotation = collectionClass.getAnnotation(MongoCompoundIndexes.class);
@@ -41,22 +48,27 @@ public class IndexUtil {
                     for (MongoCompoundIndex mongoCompoundIndex : mongoCompoundIndices) {
                         compoundIndex(typeInformation, indexModelList, mongoCompoundIndex);
                     }
+                    indexMetaObject.setIndexType(IndexType.COMPOUND_INDEX);
                 }
                 if (collectionClass.isAnnotationPresent(MongoTextIndex.class)){
                     textIndex(typeInformation,indexModelList);
+                    indexMetaObject.setIndexType(IndexType.TEXT_INDEX);
                 }
                 List<FieldInformation> mongoIndexList = typeInformation.getAnnotationFields(MongoIndex.class);
                 if (CollUtil.isNotEmpty(mongoIndexList)) {
                     mongoIndexList.forEach(fieldInformation -> index(fieldInformation, indexModelList));
+                    indexMetaObject.setIndexType(IndexType.INDEX);
                 }
                 List<FieldInformation> mongoHashIndexList = typeInformation.getAnnotationFields(MongoHashIndex.class);
                 if (CollUtil.isNotEmpty(mongoHashIndexList)){
                     mongoHashIndexList.forEach(fieldInformation -> hashIndex(fieldInformation, indexModelList));
+                    indexMetaObject.setIndexType(IndexType.HASH_INDEX);
                 }
-                indexModelMap.put(collectionClass, indexModelList);
+                indexMetaObject.setIndexModels(indexModelList);
+                indexList.add(indexMetaObject);
             });
         }
-        return indexModelMap;
+        return indexList;
     }
 
     public static void index(FieldInformation fieldInformation, List<IndexModel> indexModelList) {
@@ -86,6 +98,9 @@ public class IndexUtil {
         indexOptions.defaultLanguage(mongoTextIndex.language().getLanguage());
         if (mongoTextIndex.textIndexVersion() > -1) {
             indexOptions.textVersion(mongoTextIndex.textIndexVersion());
+        }
+        if (StringUtils.isNotBlank(mongoTextIndex.name())){
+            indexOptions.name(mongoTextIndex.name());
         }
         Document document = new Document();
         for (String field : mongoTextIndex.fields()) {

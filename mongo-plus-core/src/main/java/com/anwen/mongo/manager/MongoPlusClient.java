@@ -51,6 +51,10 @@ public class MongoPlusClient {
         return getCollectionManager(database).getCollection(collectionName);
     }
 
+    public MongoCollection<Document> getCollection(String dataSource,String database,String collectionName){
+        return getCollectionManager(dataSource,database).getCollection(collectionName);
+    }
+
     public MongoCollection<Document> getCollection(String database,Class<?> clazz){
         return getCollectionManager(database).getCollection(clazz);
     }
@@ -59,8 +63,16 @@ public class MongoPlusClient {
         return getCollectionManager(getDatabase(clazz));
     }
 
+    public CollectionManager getCollectionManager(String dataSource,Class<?> clazz){
+        return getCollectionManager(dataSource,getDatabase(clazz));
+    }
+
     public CollectionManager getCollectionManager(String database){
-        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(DataSourceNameCache.getDataSource());
+        return getCollectionManager(DataSourceNameCache.getDataSource(),database);
+    }
+
+    public CollectionManager getCollectionManager(String dataSource,String database){
+        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
         if (StringUtils.isBlank(database)){
             database = managerMap.keySet().stream().findFirst().get();
         }
@@ -68,11 +80,11 @@ public class MongoPlusClient {
             CollectionManager collectionManager = new CollectionManager(database);
             getMongoDatabase().add(getMongoClient().getDatabase(database));
             String finalDatabase = database;
-            getCollectionManagerMap().put(DataSourceNameCache.getDataSource(),new ConcurrentHashMap<String,CollectionManager>(){{
+            getCollectionManagerMap().put(dataSource,new ConcurrentHashMap<String,CollectionManager>(){{
                 put(finalDatabase, collectionManager);
             }});
         }
-        return getCollectionManagerMap().get(DataSourceNameCache.getDataSource()).get(database);
+        return getCollectionManagerMap().get(dataSource).get(database);
     }
 
     public String getDatabase(Class<?> clazz){
