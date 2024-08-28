@@ -6,7 +6,7 @@
  * weChat: JiaChaoYang_
  */
 
-package com.anwen.mongo.entity;
+package com.anwen.compare.entity;
 
 import com.anwen.mongo.annotation.ID;
 import com.anwen.mongo.annotation.collection.CollectionName;

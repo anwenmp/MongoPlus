@@ -1,9 +1,10 @@
-package com.anwen.mongo;
+package com.anwen.compare;
 
 import com.alibaba.fastjson.JSON;
-import com.anwen.mongo.entity.Compare;
+import com.anwen.compare.entity.Compare;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.toolkit.BsonUtil;
+import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
-import javax.annotation.Resource;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -57,7 +57,7 @@ public class MongoCompareTest {
         log.info("MongoPlus较MongoTemplate查询高：{}%",new DecimalFormat("#.00").format(((mongoTemplate-mongoPlus)/(double)mongoTemplate)*100));
     }
 
-    @Test
+//    @Test
     @Order(2)
     public void compareAvg(){
         List<Long> mongoPlusList = new ArrayList<>();

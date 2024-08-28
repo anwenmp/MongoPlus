@@ -1,4 +1,4 @@
-package com.anwen.mongo;
+package com.anwen.compare;
 
 import com.anwen.mongo.config.MongoPropertyConfiguration;
 import com.anwen.mongo.config.OverrideMongoConfiguration;
