@@ -108,6 +108,13 @@
                                 <additionalJOption>-Xdoclint:none</additionalJOption>
                             </additionalJOptions>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
 
                     <!--<plugin>
