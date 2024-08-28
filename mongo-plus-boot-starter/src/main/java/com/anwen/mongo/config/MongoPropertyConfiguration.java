@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 /**
  * @author JiaChaoYang
  **/
-@Configuration
 public class MongoPropertyConfiguration {
 
     private final MongoDBConnectProperty mongoDBConnectProperty;

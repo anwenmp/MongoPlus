@@ -39,7 +39,12 @@ import static com.anwen.mongo.toolkit.MongoUtil.getMongo;
  * 连接配置
  * @since 2023-02-09 14:27
  **/
-@EnableConfigurationProperties(value = {MongoDBConnectProperty.class, MongoDBCollectionProperty.class, MongoDBConfigurationProperty.class, MongoDBLogProperty.class})
+@EnableConfigurationProperties(value = {
+        MongoDBConnectProperty.class,
+        MongoDBCollectionProperty.class,
+        MongoDBConfigurationProperty.class,
+        MongoDBLogProperty.class
+})
 public class MongoPlusConfiguration {
 
     private final MongoDBConnectProperty mongoDBConnectProperty;
@@ -48,7 +53,9 @@ public class MongoPlusConfiguration {
     protected final MongoDBLogProperty mongoDBLogProperty;
 
 
-    public MongoPlusConfiguration(MongoDBConnectProperty mongodbConnectProperty, MongoDBConfigurationProperty mongodbConfigurationProperty, MongoDBLogProperty mongoDBLogProperty) {
+    public MongoPlusConfiguration(MongoDBConnectProperty mongodbConnectProperty,
+                                  MongoDBConfigurationProperty mongodbConfigurationProperty,
+                                  MongoDBLogProperty mongoDBLogProperty) {
         this.mongoDBConnectProperty = mongodbConnectProperty;
         this.mongoDBConfigurationProperty = mongodbConfigurationProperty;
         this.mongoDBLogProperty = mongoDBLogProperty;
@@ -63,9 +70,15 @@ public class MongoPlusConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MongoClientFactory mongoClientFactory(){
-        MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance(getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty));
+        MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance(
+                getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty)
+        );
         if (CollUtil.isNotEmpty(mongoDBConnectProperty.getSlaveDataSource())){
-            mongoDBConnectProperty.getSlaveDataSource().forEach(slaveDataSource -> mongoClientFactory.addMongoClient(slaveDataSource.getSlaveName(),getMongo(slaveDataSource.getSlaveName(),slaveDataSource)));
+            mongoDBConnectProperty.getSlaveDataSource()
+                    .forEach(slaveDataSource -> mongoClientFactory.addMongoClient(
+                            slaveDataSource.getSlaveName(),
+                            getMongo(slaveDataSource.getSlaveName(), slaveDataSource)
+                    ));
         }
         return mongoClientFactory;
     }
@@ -93,9 +106,11 @@ public class MongoPlusConfiguration {
     @ConditionalOnMissingBean(MongoPlusClient.class)
     public MongoPlusClient mongoPlusClient(MongoClient mongo,MongoClientFactory mongoClientFactory){
         MongoPlusClient mongoPlusClient = Configuration.builder().initMongoPlusClient(mongo,mongoDBConnectProperty);
-        mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagerMap().put(ds,new LinkedHashMap<String, CollectionManager>(){{
+        mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagerMap()
+                .put(ds,new LinkedHashMap<String, CollectionManager>(){{
             String database = DataSourceNameCache.getBaseProperty(ds).getDatabase();
-            Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db -> put(db,new CollectionManager(db)));
+            Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db ->
+                    put(db,new CollectionManager(db)));
         }}));
         MongoPlusClientCache.mongoPlusClient = mongoPlusClient;
         if (mongoDBConfigurationProperty.getBanner()){
