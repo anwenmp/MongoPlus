@@ -57,7 +57,7 @@ public class MongoCompareTest {
         log.info("MongoPlus较MongoTemplate查询高：{}%",new DecimalFormat("#.00").format(((mongoTemplate-mongoPlus)/(double)mongoTemplate)*100));
     }
 
-//    @Test
+    @Test
     @Order(2)
     public void compareAvg(){
         List<Long> mongoPlusList = new ArrayList<>();
