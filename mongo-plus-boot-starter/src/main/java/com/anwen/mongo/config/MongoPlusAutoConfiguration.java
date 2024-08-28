@@ -22,8 +22,6 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicNamespaceAware;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
-import com.anwen.mongo.mapping.TypeInformation;
-import com.anwen.mongo.model.IndexMetaObject;
 import com.anwen.mongo.property.MongoDBCollectionProperty;
 import com.anwen.mongo.property.MongoDBConfigurationProperty;
 import com.anwen.mongo.property.MongoDBLogProperty;
@@ -33,16 +31,8 @@ import com.anwen.mongo.service.IService;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
+import com.anwen.mongo.toolkit.AutoUtil;
 import com.anwen.mongo.toolkit.CollUtil;
-import com.anwen.mongo.toolkit.IndexUtil;
-import com.anwen.mongo.toolkit.StringUtils;
-import com.mongodb.MongoCommandException;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.CreateCollectionOptions;
-import com.mongodb.client.model.TimeSeriesOptions;
-import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScanner;
 import org.springframework.context.ApplicationContext;
@@ -50,10 +40,7 @@ import org.springframework.context.ApplicationContext;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.anwen.mongo.toolkit.ClassTypeUtil.getFieldNameAndCheck;
 
 /**
  * MongoPlus自动注入配置
@@ -336,55 +323,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             } catch (ClassNotFoundException e) {
                 collectionClassSet = Collections.emptySet();
             }
-            if (CollUtil.isEmpty(collectionClassSet)) {
-                return;
-            }
-            collectionClassSet.forEach(collectionClass -> {
-                TimeSeries timeSeries = collectionClass.getAnnotation(TimeSeries.class);
-                String dataSource = DataSourceNameCache.getDataSource();
-                if (StringUtils.isNotBlank(timeSeries.dataSource())){
-                    dataSource = timeSeries.dataSource();
-                }
-                MongoClient mongoClient = mongoPlusClient.getMongoClient(dataSource);
-                MongoDatabase mongoDatabase = mongoClient.getDatabase(mongoPlusClient.getDatabase(collectionClass));
-                Document paramDocument = new Document();
-                paramDocument.put("listCollections",1);
-                paramDocument.put("filter",new Document("type","timeseries"));
-                Document document = mongoDatabase.runCommand(paramDocument);
-                List<String> timeSeriesList = document.get("cursor", Document.class)
-                        .getList("firstBatch", Document.class)
-                        .stream().map(doc -> doc.getString("name"))
-                        .collect(Collectors.toList());
-                String collectionName = AnnotationOperate.getCollectionName(collectionClass);
-                if (timeSeriesList.contains(collectionName)){
-                    log.warn("The {} temporal collection already exists",collectionName);
-                    return;
-                }
-                TypeInformation typeInformation = TypeInformation.of(collectionClass);
-                TimeSeriesOptions options = new TimeSeriesOptions(getFieldNameAndCheck(typeInformation,timeSeries.timeField()));
-                options.granularity(timeSeries.granularity());
-                if (StringUtils.isNotBlank(timeSeries.metaField())){
-                    options.metaField(getFieldNameAndCheck(typeInformation,timeSeries.metaField()));
-                }
-                if (timeSeries.bucketMaxSpan() > 0){
-                    options.bucketMaxSpan(timeSeries.bucketMaxSpan(), TimeUnit.SECONDS);
-                    options.metaField(null);
-                }
-                if (timeSeries.bucketRounding() > 0){
-                    options.bucketRounding(timeSeries.bucketRounding(), TimeUnit.SECONDS);
-                    options.metaField(null);
-                }
-                CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions();
-                createCollectionOptions.timeSeriesOptions(options);
-                if (timeSeries.expireAfter() > 0){
-                    createCollectionOptions.expireAfter(timeSeries.expireAfter(), TimeUnit.SECONDS);
-                }
-                try {
-                    mongoDatabase.createCollection(
-                            collectionName,
-                            createCollectionOptions);
-                } catch (MongoCommandException ignored){}
-            });
+            AutoUtil.autoCreateTimeSeries(collectionClassSet,mongoPlusClient);
         }
     }
 
@@ -401,24 +340,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             } catch (ClassNotFoundException e) {
                 collectionClassSet = Collections.emptySet();
             }
-            if (CollUtil.isEmpty(collectionClassSet)) {
-                return;
-            }
-            List<IndexMetaObject> indexMetaObjectList = IndexUtil.getIndex(collectionClassSet);
-            if (CollUtil.isNotEmpty(indexMetaObjectList)) {
-                indexMetaObjectList.forEach(indexMetaObject -> {
-                    if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())){
-                        String dataSource = DataSourceNameCache.getDataSource();
-                        if (StringUtils.isNotBlank(indexMetaObject.getDataSource())){
-                            dataSource = indexMetaObject.getDataSource();
-                        }
-                        Class<?> clazz = indexMetaObject.getTypeInformation().getClazz();
-                        MongoCollection<Document> collection = mongoPlusClient.getCollectionManager(dataSource,clazz)
-                                .getCollection(clazz);
-                        collection.createIndexes(indexMetaObject.getIndexModels());
-                    }
-                });
-            }
+            AutoUtil.autoCreateIndexes(collectionClassSet,mongoPlusClient);
         }
     }
 

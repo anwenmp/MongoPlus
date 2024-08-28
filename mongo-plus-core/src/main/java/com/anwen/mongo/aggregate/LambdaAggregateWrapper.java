@@ -739,13 +739,8 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
-    public Children sample(int size) {
-        return sample(Aggregates.sample(size));
-    }
-
-    @Override
-    public Children sample(long size) {
-        return sample(Math.toIntExact(size));
+    public Children sample(Number size) {
+        return sample(Aggregates.sample(size.intValue()));
     }
 
     @Override

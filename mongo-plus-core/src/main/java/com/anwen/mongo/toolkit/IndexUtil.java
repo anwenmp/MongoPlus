@@ -14,11 +14,9 @@ import com.mongodb.client.model.IndexOptions;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.anwen.mongo.toolkit.ClassTypeUtil.getFieldName;
 
@@ -29,7 +27,7 @@ import static com.anwen.mongo.toolkit.ClassTypeUtil.getFieldName;
  */
 public class IndexUtil {
 
-    public static List<IndexMetaObject> getIndex(Set<? extends Class<?>> collectionEntityList) {
+    public static List<IndexMetaObject> getIndex(Collection<? extends Class<?>> collectionEntityList) {
         List<IndexMetaObject> indexList = new ArrayList<>();
         if (CollUtil.isNotEmpty(collectionEntityList)) {
             collectionEntityList.forEach(collectionClass -> {

@@ -147,8 +147,19 @@ public class MongoPlusConfiguration {
 
     @Bean
     public MongoPlusAutoConfiguration mongoPlusAutoConfiguration(@Inject BaseMapper baseMapper,
-                                                                 @Inject(value = "${mongo-plus.configuration.logic}",required = false) MongoLogicDelProperty mongoLogicDelProperty){
-        return new MongoPlusAutoConfiguration(baseMapper,mongoDBLogProperty,mongoDBCollectionProperty,mongoLogicDelProperty);
+                                                                 @Inject(
+                                                                         value = "${mongo-plus.configuration.logic}",
+                                                                         required = false)
+                                                                 MongoLogicDelProperty mongoLogicDelProperty,
+                                                                 MongoPlusClient mongoPlusClient){
+        return new MongoPlusAutoConfiguration(
+                baseMapper,
+                mongoDBLogProperty,
+                mongoDBCollectionProperty,
+                mongoLogicDelProperty,
+                mongoPlusClient,
+                mongoDBConfigurationProperty
+        );
     }
 
     @Bean

@@ -14,6 +14,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
  * 自定义事务管理器
  * @author JiaChaoYang
  **/
+@SuppressWarnings("NullableProblems")
 public class MongoPlusTransactionalManager extends AbstractPlatformTransactionManager {
 
     Log log = LogFactory.getLog(MongoPlusTransactionalManager.class);

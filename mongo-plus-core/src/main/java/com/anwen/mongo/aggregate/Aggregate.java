@@ -504,6 +504,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/11 下午5:35
      */
+    @SuppressWarnings("unchecked")
     <T> Children sortAsc(final SFunction<T, ?>... field);
 
     /**
@@ -1364,16 +1365,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/17 下午10:46
      */
-    Children sample(final int size);
-
-    /**
-     * $sample阶段
-     * @param size 指定数量
-     * @return {@link Children}
-     * @author anwen
-     * @date 2024/6/17 下午10:46
-     */
-    Children sample(final long size);
+    Children sample(final Number size);
 
     /**
      * $sample阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson
@@ -1557,6 +1549,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/19 下午11:21
      */
+    @SuppressWarnings("unchecked")
     <T> Children unset(final SFunction<T,?>... field);
 
     /**

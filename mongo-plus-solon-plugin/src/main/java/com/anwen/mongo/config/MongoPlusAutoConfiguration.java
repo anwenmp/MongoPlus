@@ -1,5 +1,7 @@
 package com.anwen.mongo.config;
 
+import com.anwen.mongo.annotation.collection.CollectionName;
+import com.anwen.mongo.annotation.collection.TimeSeries;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
@@ -16,8 +18,10 @@ import com.anwen.mongo.listener.business.BlockAttackInnerListener;
 import com.anwen.mongo.listener.business.LogListener;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
+import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.property.MongoDBCollectionProperty;
+import com.anwen.mongo.property.MongoDBConfigurationProperty;
 import com.anwen.mongo.property.MongoDBLogProperty;
 import com.anwen.mongo.property.MongoLogicDelProperty;
 import com.anwen.mongo.replacer.Replacer;
@@ -25,6 +29,7 @@ import com.anwen.mongo.service.IService;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
+import com.anwen.mongo.toolkit.AutoUtil;
 import com.anwen.mongo.toolkit.CollUtil;
 import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
@@ -48,18 +53,30 @@ public class MongoPlusAutoConfiguration {
 
     private final MongoLogicDelProperty mongoLogicDelProperty;
 
+    private final MongoPlusClient mongoPlusClient;
+
+    private final MongoDBConfigurationProperty mongoDBConfigurationProperty;
+
     Log log = LogFactory.getLog(MongoPlusAutoConfiguration.class);
 
     public MongoPlusAutoConfiguration(BaseMapper baseMapper,
                                       MongoDBLogProperty mongoDBLogProperty,
                                       MongoDBCollectionProperty mongoDBCollectionProperty,
-                                      MongoLogicDelProperty mongoLogicDelProperty){
-        mongoDBCollectionProperty = Optional.ofNullable(mongoDBCollectionProperty).orElseGet(MongoDBCollectionProperty::new);
-        mongoLogicDelProperty = Optional.ofNullable(mongoLogicDelProperty).orElseGet(MongoLogicDelProperty::new);
+                                      MongoLogicDelProperty mongoLogicDelProperty,
+                                      MongoPlusClient mongoPlusClient,
+                                      MongoDBConfigurationProperty mongoDBConfigurationProperty){
+        mongoDBCollectionProperty = Optional.ofNullable(mongoDBCollectionProperty)
+                .orElseGet(MongoDBCollectionProperty::new);
+        mongoLogicDelProperty = Optional.ofNullable(mongoLogicDelProperty)
+                .orElseGet(MongoLogicDelProperty::new);
+        mongoDBConfigurationProperty = Optional.ofNullable(mongoDBConfigurationProperty)
+                .orElseGet(MongoDBConfigurationProperty::new);
         this.mongoDBLogProperty = mongoDBLogProperty;
         this.mongoDBCollectionProperty = mongoDBCollectionProperty;
         this.baseMapper = baseMapper;
         this.mongoLogicDelProperty = mongoLogicDelProperty;
+        this.mongoPlusClient = mongoPlusClient;
+        this.mongoDBConfigurationProperty = mongoDBConfigurationProperty;
         AppContext context = Solon.context();
         context.subBeansOfType(IService.class, bean -> {
             if (bean instanceof ServiceImpl){
@@ -68,6 +85,10 @@ public class MongoPlusAutoConfiguration {
                 setLogicFiled(service.getGenericityClass());
             }
         });
+        init(context);
+    }
+
+    public void init(AppContext context){
         //拿到转换器
         setConversion(context);
         //拿到自动填充处理器
@@ -84,6 +105,10 @@ public class MongoPlusAutoConfiguration {
         setIdGenerator(context);
         //初始化集合名称转换器
         collectionNameConvert();
+        //自动创建时间序列
+        autoCreateTimeSeries(context);
+        //自动创建索引
+        autoCreateIndexes(context);
     }
 
     /**
@@ -265,6 +290,36 @@ public class MongoPlusAutoConfiguration {
      */
     public void collectionNameConvert(){
         AnnotationOperate.setCollectionNameConvertEnum(mongoDBCollectionProperty.getMappingStrategy());
+    }
+
+    /**
+     * 自动创建时间序列
+     * @author anwen
+     * @date 2024/8/28 11:16
+     */
+    public void autoCreateTimeSeries(AppContext context){
+        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
+            AutoUtil.autoCreateTimeSeries(new HashSet<Class<?>>(){{
+                context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) -> {
+                    add(bw.clz());
+                });
+            }}, mongoPlusClient);
+        }
+    }
+
+    /**
+     * 自动创建序列
+     * @author anwen
+     * @date 2024/8/28 11:16
+     */
+    public void autoCreateIndexes(AppContext context){
+        if (mongoDBConfigurationProperty.getAutoCreateIndex()) {
+            AutoUtil.autoCreateIndexes(new HashSet<Class<?>>(){{
+                context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) -> {
+                    add(bw.clz());
+                });
+            }}, mongoPlusClient);
+        }
     }
 
 }

@@ -44,6 +44,7 @@ public class EncryptionPostProcessor implements EnvironmentPostProcessor, Ordere
                     String sourceName = propertySource.getName();
                     PropertySource<Object> encryptedPropertySource = new PropertySource<Object>(sourceName) {
                         @Override
+                        @SuppressWarnings("NullableProblems")
                         public Object getProperty(String name) {
                             Object property = propertySource.getProperty(name);
                             if (property != null) {
