@@ -11,12 +11,10 @@ import org.bson.conversions.Bson;
 import java.util.List;
 
 /**
- * UPDATE 策略执行器
+ * 修改 策略执行器
  *
- * @author loser
- * @date 2024/4/30
+ * @author anwen
  */
-@SuppressWarnings("unchecked")
 public class UpdateExecutorStrategy implements MethodExecutorStrategy {
 
     @Override
@@ -25,6 +23,7 @@ public class UpdateExecutorStrategy implements MethodExecutorStrategy {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void invoke(Interceptor interceptor, Object[] args) {
         List<MutablePair<Bson, Bson>> bsonBsonMutablePairList = interceptor.executeUpdate((List<MutablePair<Bson,Bson>>) args[0]);
         args[0] = bsonBsonMutablePairList;

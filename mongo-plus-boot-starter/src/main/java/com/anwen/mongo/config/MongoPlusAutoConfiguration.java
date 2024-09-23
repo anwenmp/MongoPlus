@@ -6,10 +6,12 @@ import com.anwen.mongo.aware.Aware;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
+import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.incrementer.IdentifierGenerator;
+import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.business.DynamicCollectionNameInterceptor;
@@ -95,6 +97,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         collectionNameConvert();
         autoCreateTimeSeries();
         autoCreateIndexes();
+        setIdGenerateHandler();
     }
 
     @Override
@@ -313,22 +316,24 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
 
     /**
      * 自动创建时间序列
+     *
      * @date 2024/8/27 15:42
      */
-    public void autoCreateTimeSeries(){
-        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()){
+    public void autoCreateTimeSeries() {
+        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
             Set<Class<?>> collectionClassSet;
             try {
                 collectionClassSet = new EntityScanner(applicationContext).scan(TimeSeries.class);
             } catch (ClassNotFoundException e) {
                 collectionClassSet = Collections.emptySet();
             }
-            AutoUtil.autoCreateTimeSeries(collectionClassSet,mongoPlusClient);
+            AutoUtil.autoCreateTimeSeries(collectionClassSet, mongoPlusClient);
         }
     }
 
     /**
      * 扫描索引并创建
+     *
      * @author anwen
      * @date 2024/8/18 19:59
      */
@@ -340,8 +345,22 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             } catch (ClassNotFoundException e) {
                 collectionClassSet = Collections.emptySet();
             }
-            AutoUtil.autoCreateIndexes(collectionClassSet,mongoPlusClient);
+            AutoUtil.autoCreateIndexes(collectionClassSet, mongoPlusClient);
         }
+    }
+
+    /**
+     * 设置id生成器
+     *
+     * @author anwen
+     * @date 2024/5/30 下午1:35
+     */
+    public void setIdGenerateHandler() {
+        IdGenerateHandler idGenerateHandler = new AbstractIdGenerateHandler(mongoPlusClient) {};
+        try {
+            idGenerateHandler = applicationContext.getBean(IdGenerateHandler.class);
+        } catch (Exception ignored) {}
+        HandlerCache.idGenerateHandler  = idGenerateHandler;
     }
 
 }

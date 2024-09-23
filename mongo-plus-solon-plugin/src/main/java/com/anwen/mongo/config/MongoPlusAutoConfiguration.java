@@ -5,10 +5,12 @@ import com.anwen.mongo.annotation.collection.TimeSeries;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
+import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.incrementer.IdentifierGenerator;
+import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.business.DynamicCollectionNameInterceptor;
@@ -320,6 +322,20 @@ public class MongoPlusAutoConfiguration {
                 });
             }}, mongoPlusClient);
         }
+    }
+
+    /**
+     * 设置id生成器
+     *
+     * @author anwen
+     * @date 2024/5/30 下午1:35
+     */
+    public void setIdGenerateHandler(AppContext context) {
+        IdGenerateHandler idGenerateHandler = new AbstractIdGenerateHandler(mongoPlusClient) {};
+        try {
+            idGenerateHandler = context.getBean(IdGenerateHandler.class);
+        } catch (Exception ignored) {}
+        HandlerCache.idGenerateHandler  = idGenerateHandler;
     }
 
 }

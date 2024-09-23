@@ -1,5 +1,6 @@
 package com.anwen.mongo.cache.global;
 
+import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.ReadHandler;
 import com.anwen.mongo.handlers.condition.ConditionHandler;
@@ -27,6 +28,12 @@ public class HandlerCache {
      * @date 2023/11/23 12:54
     */
     public static List<ReadHandler> readHandlerList = new ArrayList<>();
+
+    /**
+     * id生成处理器
+     * @date 2024/9/24 00:30
+     */
+    public static IdGenerateHandler idGenerateHandler;
 
     public static List<ConditionHandler> conditionHandlerList = new ArrayList<>();
 

@@ -68,6 +68,13 @@ public interface SuperMapper {
     Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic);
 
     /**
+     * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
+     * @author anwen
+     * @date 2024/5/4 下午1:21
+     */
+    Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic,UpdateOptions options);
+
+    /**
      * 批量操作
      * @param writeModelList writeModelList
      * @return {@link Integer}

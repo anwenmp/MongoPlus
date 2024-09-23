@@ -80,7 +80,9 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         try {
             Document document = new Document();
             mongoConverter.writeBySave(entity, document);
+            // TODO 选项
             InsertManyResult insertManyResult = factory.getExecute().executeSave(Collections.singletonList(document),
+                    null,
                     mongoPlusClient.getCollection(database, collectionName));
             mongoConverter.reSetIdValue(entity, document);
             return insertManyResult.wasAcknowledged();
@@ -97,7 +99,8 @@ public abstract class AbstractBaseMapper implements BaseMapper {
             List<Document> documentList = new ArrayList<>(entityList.size());
             mongoConverter.writeBySaveBatch(entityList, documentList);
             MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
-            InsertManyResult insertManyResult = factory.getExecute().executeSave(documentList, collection);
+            // TODO 选项
+            InsertManyResult insertManyResult = factory.getExecute().executeSave(documentList,null, collection);
             mongoConverter.batchReSetIdValue(entityList, documentList);
             return insertManyResult.getInsertedIds().size() == entityList.size();
         } catch (Exception e) {
@@ -108,8 +111,15 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public Long update(String database, String collectionName, Bson queryBasic, Bson updateBasic) {
+        return update(database, collectionName, queryBasic, updateBasic,null);
+    }
+
+    @Override
+    public Long update(String database, String collectionName, Bson queryBasic, Bson updateBasic,
+                       UpdateOptions options) {
         return factory.getExecute().executeUpdate(
                 Collections.singletonList(new MutablePair<>(queryBasic, updateBasic)),
+                options,
                 mongoPlusClient.getCollection(database, collectionName)
         ).getModifiedCount();
     }
@@ -117,7 +127,8 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     @Override
     public Integer bulkWrite(String database, String collectionName, List<WriteModel<Document>> writeModelList) {
         Assert.notEmpty(writeModelList, "writeModelList can not be empty");
-        BulkWriteResult bulkWriteResult = factory.getExecute().executeBulkWrite(writeModelList,
+        // TODO 选项
+        BulkWriteResult bulkWriteResult = factory.getExecute().executeBulkWrite(writeModelList, null,
                 mongoPlusClient.getCollection(database, collectionName));
         return bulkWriteResult.getModifiedCount() + bulkWriteResult.getInsertedCount();
     }
@@ -158,7 +169,8 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public Long remove(String database, String collectionName, Bson filter) {
-        return factory.getExecute().executeRemove(filter, mongoPlusClient.getCollection(database, collectionName))
+        // TODO 选项
+        return factory.getExecute().executeRemove(filter,null, mongoPlusClient.getCollection(database, collectionName))
                 .getDeletedCount();
     }
 

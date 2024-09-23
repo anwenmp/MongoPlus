@@ -11,7 +11,6 @@ package com.anwen.mongo.config;
 import com.anwen.mongo.property.MongoDBConnectProperty;
 import com.anwen.mongo.toolkit.StringUtils;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

@@ -25,12 +25,6 @@ public enum ExecuteMethodEnum {
      * 修改方法
      * @date 2024/6/27 下午3:01
      */
-    UPDATE_OLD("executeUpdateOld"),
-
-    /**
-     * 修改方法
-     * @date 2024/6/27 下午3:01
-     */
     UPDATE("executeUpdate"),
 
     /**
@@ -38,13 +32,6 @@ public enum ExecuteMethodEnum {
      * @date 2024/6/27 下午3:01
      */
     QUERY("executeQuery"),
-
-    /**
-     * 旧的管道执行方法
-     * @author anwen
-     * @date 2024/6/27 下午3:02
-     */
-    AGGREGATE_OLD("executeAggregateOld"),
 
     /**
      * 管道执行方法

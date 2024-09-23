@@ -17,6 +17,7 @@ import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -77,6 +78,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public List<BasicDBObject> getBasicDBObjectList() {
         return basicDBObjectList;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Children deepCopy() throws IOException, ClassNotFoundException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(this);
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            return (Children) new ObjectInputStream(bis).readObject();
+        }
     }
 
     @Override

@@ -29,22 +29,31 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DefaultExecute implements Execute {
 
     @Override
-    public InsertManyResult executeSave(List<Document> documentList, MongoCollection<Document> collection) {
-        return collection.insertMany(documentList);
+    public InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
+                                        MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.insertMany(documentList,o))
+                .orElseGet(() -> collection.insertMany(documentList));
     }
 
     @Override
-    public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
-        return collection.bulkWrite(writeModelList);
+    public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList, BulkWriteOptions options,
+                                            MongoCollection<Document> collection) {
+        return collection.bulkWrite(writeModelList,options);
     }
 
     @Override
-    public DeleteResult executeRemove(Bson filter, MongoCollection<Document> collection) {
-        return collection.deleteMany(filter);
+    public DeleteResult executeRemove(Bson filter, DeleteOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.deleteMany(filter,o))
+                .orElseGet(() -> collection.deleteMany(filter));
     }
 
     @Override
-    public <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, Class<T> clazz, MongoCollection<Document> collection) {
+    public <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList,
+                                            BasicDBObject sortCond,
+                                            Class<T> clazz,
+                                            MongoCollection<Document> collection) {
         return Optional.ofNullable(queryBasic)
                 .map(qb -> collection.find(qb,clazz))
                 .orElseGet(() -> collection.find(clazz))
@@ -53,13 +62,17 @@ public class DefaultExecute implements Execute {
     }
 
     @Override
-    public <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList, Class<T> clazz, MongoCollection<Document> collection) {
+    public <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList, Class<T> clazz,
+                                                     MongoCollection<Document> collection) {
         return collection.aggregate(aggregateConditionList,clazz);
     }
 
     @Override
-    public long executeCount(BasicDBObject queryBasic, CountOptions countOptions, MongoCollection<Document> collection) {
-        return Optional.ofNullable(countOptions).map(co -> collection.countDocuments(queryBasic,co)).orElseGet(() -> collection.countDocuments(queryBasic));
+    public long executeCount(BasicDBObject queryBasic, CountOptions countOptions,
+                             MongoCollection<Document> collection) {
+        return Optional.ofNullable(countOptions)
+                .map(co -> collection.countDocuments(queryBasic,co))
+                .orElseGet(() -> collection.countDocuments(queryBasic));
     }
 
     @Override
@@ -68,12 +81,15 @@ public class DefaultExecute implements Execute {
     }
 
     @Override
-    public UpdateResult executeUpdate(List<MutablePair<Bson, Bson>> bsonPairList, MongoCollection<Document> collection) {
+    public UpdateResult executeUpdate(List<MutablePair<Bson, Bson>> bsonPairList,
+                                         UpdateOptions options, MongoCollection<Document> collection) {
         AtomicReference<Long> matchedCount = new AtomicReference<>(0L);
         AtomicReference<Long> modifiedCount = new AtomicReference<>(0L);
         AtomicReference<BsonValue> upstartedId = new AtomicReference<>();
         bsonPairList.forEach(bsonPair -> {
-            UpdateResult updateResult = collection.updateMany(bsonPair.getLeft(), bsonPair.getRight());
+            UpdateResult updateResult = Optional.ofNullable(options)
+                    .map(o -> collection.updateMany(bsonPair.getLeft(), bsonPair.getRight(), o))
+                    .orElseGet(() -> collection.updateMany(bsonPair.getLeft(), bsonPair.getRight()));
             matchedCount.updateAndGet(v -> v + updateResult.getMatchedCount());
             modifiedCount.updateAndGet(v -> v + updateResult.getModifiedCount());
             upstartedId.set(updateResult.getUpsertedId());
@@ -97,7 +113,8 @@ public class DefaultExecute implements Execute {
     }
 
     @Override
-    public List<String> doCreateIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions, MongoCollection<Document> collection) {
+    public List<String> doCreateIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions,
+                                        MongoCollection<Document> collection) {
         return collection.createIndexes(indexes,createIndexOptions);
     }
 

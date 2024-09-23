@@ -6,6 +6,8 @@ import com.anwen.mongo.model.QueryParam;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
+import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -37,8 +39,9 @@ public interface Interceptor {
      * @author anwen
      * @date 2024/6/27 下午4:38
      */
-    default void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection){
-    }
+    default void beforeExecute(ExecuteMethodEnum executeMethodEnum,
+                               Object[] source,
+                               MongoCollection<Document> collection){}
 
     /**
      * 后置处理
@@ -50,8 +53,10 @@ public interface Interceptor {
      * @author anwen
      * @date 2024/6/27 下午5:20
      */
-    default void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection){
-    }
+    default void afterExecute(ExecuteMethodEnum executeMethodEnum,
+                              Object[] source,
+                              Object result,
+                              MongoCollection<Document> collection){}
 
     /**
      * 添加拦截方法
@@ -79,7 +84,7 @@ public interface Interceptor {
     /**
      * 修改拦截方法
      * @param updatePairList 值 left=查询条件 right=更新条件
-     * @return {@link java.util.List<com.anwen.mongo.model.MutablePair<org.bson.conversions.Bson,org.bson.conversions.Bson>>}
+     * @return {@link List<MutablePair>}
      * @author anwen
      * @date 2024/6/27 下午4:37
      */
@@ -92,7 +97,7 @@ public interface Interceptor {
      * @param queryBasic 条件
      * @param projectionList 显隐字段
      * @param sortCond 排序
-     * @return {@link com.anwen.mongo.model.QueryParam}
+     * @return {@link QueryParam}
      * @author anwen
      * @date 2024/6/27 下午4:39
      */
@@ -103,7 +108,7 @@ public interface Interceptor {
     /**
      * 管道拦截方法
      * @param aggregateConditionList 管道对象
-     * @return {@link java.util.List<org.bson.conversions.Bson>}
+     * @return {@link List}
      * @author anwen
      * @date 2024/6/27 下午4:40
      */
@@ -115,18 +120,19 @@ public interface Interceptor {
      * 统计拦截方法
      * @param queryBasic 条件
      * @param countOptions 选项
-     * @return {@link com.anwen.mongo.model.MutablePair<com.mongodb.BasicDBObject,com.mongodb.client.model.CountOptions>} left = 条件 right = 选项
+     * @return {@link MutablePair} left = 条件 right = 选项
      * @author anwen
      * @date 2024/6/27 下午4:40
      */
-    default MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic, CountOptions countOptions) {
+    default MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic,
+                                                                  CountOptions countOptions) {
         return new MutablePair<>(queryBasic, countOptions);
     }
 
     /**
      * 批量操作拦截方法
-     * @param writeModelList 操作对象，{@link com.mongodb.client.model.InsertOneModel}或{@link com.mongodb.client.model.UpdateManyModel}
-     * @return {@link java.util.List<com.mongodb.client.model.WriteModel<org.bson.Document>>}
+     * @param writeModelList 操作对象，{@link InsertOneModel}或{@link UpdateManyModel}
+     * @return {@link List}
      * @author anwen
      * @date 2024/6/27 下午4:41
      */
@@ -137,7 +143,7 @@ public interface Interceptor {
     /**
      * 添加拦截方法
      * @param documentList 添加的值
-     * @return {@link java.util.List<org.bson.Document>}
+     * @return {@link List<org.bson.Document>}
      * @author anwen
      * @date 2024/6/27 下午4:42
      */
@@ -158,7 +164,7 @@ public interface Interceptor {
     /**
      * 修改拦截方法
      * @param updatePairList 值 left=查询条件 right=更新条件
-     * @return {@link java.util.List<com.anwen.mongo.model.MutablePair<org.bson.conversions.Bson,org.bson.conversions.Bson>>}
+     * @return {@link java.util.List}
      * @author anwen
      * @date 2024/6/27 下午4:37
      */
@@ -172,7 +178,8 @@ public interface Interceptor {
      * @author JiaChaoYang
      * @date 2024/3/19 19:18
      */
-    default QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, MongoCollection<Document> collection) {
+    default QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond,
+                                    MongoCollection<Document> collection) {
         return new QueryParam(queryBasic, projectionList, sortCond);
     }
 
@@ -192,7 +199,9 @@ public interface Interceptor {
      * @author JiaChaoYang
      * @date 2024/3/19 19:18
      */
-    default MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic, CountOptions countOptions, MongoCollection<Document> collection) {
+    default MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic,
+                                                                  CountOptions countOptions,
+                                                                  MongoCollection<Document> collection) {
         return new MutablePair<>(queryBasic, countOptions);
     }
 
@@ -202,7 +211,8 @@ public interface Interceptor {
      * @author JiaChaoYang
      * @date 2024/3/19 19:19
      */
-    default List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
+    default List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList,
+                                                        MongoCollection<Document> collection) {
         return writeModelList;
     }
 

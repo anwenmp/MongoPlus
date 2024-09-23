@@ -6,6 +6,9 @@ import com.anwen.mongo.toolkit.EncryptorUtil;
 import com.mongodb.BasicDBObject;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +32,15 @@ public class EncryptorConditionHandler implements ConditionHandler {
                 return;
             }
             FieldEncrypt fieldEncrypt = fieldFieldEncryptMap.computeIfAbsent(originalField,field -> field.getAnnotation(FieldEncrypt.class));
-            compareCondition.setValue(EncryptorUtil.encrypt(fieldEncrypt,compareCondition.getValue()));
+            Object value = compareCondition.getValue();
+            if (value instanceof Collection) {
+                List<Object> encryptValueList = new ArrayList<>();
+                ((Collection<?>) value).forEach(o -> encryptValueList.add(EncryptorUtil.encrypt(fieldEncrypt,o)));
+                value = encryptValueList;
+            } else {
+                value = EncryptorUtil.encrypt(fieldEncrypt,value);
+            }
+            compareCondition.setValue(value);
         }
     }
 }

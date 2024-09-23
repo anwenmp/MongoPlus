@@ -36,22 +36,33 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public InsertManyResult executeSave(List<Document> documentList, MongoCollection<Document> collection) {
-        return collection.insertMany(clientSession,documentList);
+    public InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
+                                        MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.insertMany(clientSession,documentList,o))
+                .orElseGet(() -> collection.insertMany(clientSession,documentList));
     }
 
     @Override
-    public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
-        return collection.bulkWrite(clientSession,writeModelList);
+    public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,
+                                            BulkWriteOptions options,
+                                            MongoCollection<Document> collection) {
+        return collection.bulkWrite(clientSession,writeModelList,options);
     }
 
     @Override
-    public DeleteResult executeRemove(Bson filter, MongoCollection<Document> collection) {
-        return collection.deleteMany(clientSession, filter);
+    public DeleteResult executeRemove(Bson filter, DeleteOptions options,
+                                      MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.deleteMany(clientSession,filter,o))
+                .orElseGet(() -> collection.deleteMany(clientSession,filter));
     }
 
     @Override
-    public <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, Class<T> clazz, MongoCollection<Document> collection) {
+    public <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList,
+                                            BasicDBObject sortCond,
+                                            Class<T> clazz,
+                                            MongoCollection<Document> collection) {
         return Optional.ofNullable(queryBasic)
                 .map(qb -> collection.find(clientSession,qb,clazz))
                 .orElseGet(() -> collection.find(clientSession,clazz))
@@ -60,13 +71,18 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList, Class<T> clazz, MongoCollection<Document> collection) {
+    public <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList,
+                                                     Class<T> clazz,
+                                                     MongoCollection<Document> collection) {
         return collection.aggregate(clientSession,aggregateConditionList,clazz);
     }
 
     @Override
-    public long executeCount(BasicDBObject queryBasic, CountOptions countOptions, MongoCollection<Document> collection) {
-        return Optional.ofNullable(countOptions).map(co -> collection.countDocuments(clientSession, queryBasic,co)).orElseGet(() -> collection.countDocuments(clientSession, queryBasic));
+    public long executeCount(BasicDBObject queryBasic, CountOptions countOptions,
+                             MongoCollection<Document> collection) {
+        return Optional.ofNullable(countOptions)
+                .map(co -> collection.countDocuments(clientSession, queryBasic,co))
+                .orElseGet(() -> collection.countDocuments(clientSession, queryBasic));
     }
 
     @Override
@@ -75,12 +91,16 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public UpdateResult executeUpdate(List<MutablePair<Bson, Bson>> bsonPairList, MongoCollection<Document> collection) {
+    public UpdateResult executeUpdate(List<MutablePair<Bson, Bson>> bsonPairList,
+                                      UpdateOptions options,
+                                      MongoCollection<Document> collection) {
         AtomicReference<Long> matchedCount = new AtomicReference<>(0L);
         AtomicReference<Long> modifiedCount = new AtomicReference<>(0L);
         AtomicReference<BsonValue> upstartedId = new AtomicReference<>();
         bsonPairList.forEach(bsonPair -> {
-            UpdateResult updateResult = collection.updateMany(clientSession,bsonPair.getLeft(), bsonPair.getRight());
+            UpdateResult updateResult = Optional.ofNullable(options)
+                    .map(o -> collection.updateMany(clientSession,bsonPair.getLeft(), bsonPair.getRight(), o))
+                    .orElseGet(() -> collection.updateMany(clientSession,bsonPair.getLeft(), bsonPair.getRight()));
             matchedCount.updateAndGet(v -> v + updateResult.getMatchedCount());
             modifiedCount.updateAndGet(v -> v + updateResult.getModifiedCount());
             upstartedId.set(updateResult.getUpsertedId());
@@ -104,7 +124,8 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public List<String> doCreateIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions, MongoCollection<Document> collection) {
+    public List<String> doCreateIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions,
+                                        MongoCollection<Document> collection) {
         return collection.createIndexes(clientSession,indexes,createIndexOptions);
     }
 
@@ -119,7 +140,8 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public void doDropIndex(String indexName, DropIndexOptions dropIndexOptions, MongoCollection<Document> collection) {
+    public void doDropIndex(String indexName, DropIndexOptions dropIndexOptions,
+                            MongoCollection<Document> collection) {
         collection.dropIndex(clientSession,indexName,dropIndexOptions);
     }
 
@@ -129,7 +151,8 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public void doDropIndex(Bson keys, DropIndexOptions dropIndexOptions, MongoCollection<Document> collection) {
+    public void doDropIndex(Bson keys, DropIndexOptions dropIndexOptions,
+                            MongoCollection<Document> collection) {
         collection.dropIndex(clientSession,keys,dropIndexOptions);
     }
 
@@ -139,7 +162,8 @@ public class SessionExecute implements Execute {
     }
 
     @Override
-    public void doDropIndexes(DropIndexOptions dropIndexOptions, MongoCollection<Document> collection) {
+    public void doDropIndexes(DropIndexOptions dropIndexOptions,
+                              MongoCollection<Document> collection) {
         collection.dropIndexes(clientSession,dropIndexOptions);
     }
 }

@@ -8,13 +8,9 @@ import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.cache.global.MappingCache;
 import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.constant.SqlOperationConstant;
-import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.enums.FieldFill;
-import com.anwen.mongo.enums.IdTypeEnum;
 import com.anwen.mongo.handlers.ReadHandler;
 import com.anwen.mongo.handlers.TypeHandler;
-import com.anwen.mongo.handlers.collection.AnnotationOperate;
-import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
@@ -24,15 +20,14 @@ import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.BsonUtil;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
 import com.anwen.mongo.toolkit.CollUtil;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
-import com.mongodb.client.model.ReturnDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -81,7 +76,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
                     document.put(SqlOperationConstant._ID, new ObjectId(String.valueOf(idValue)));
                 }
             } else {
-                idValue = generateId(idFieldInformation.getId().type(), typeInformation);
+                idValue = HandlerCache.idGenerateHandler.generateId(idFieldInformation.getId().type(), typeInformation);
             }
             if (idValue != null) {
                 idValue = idValue instanceof ObjectId ? idValue : convertValue(idValue, idFieldInformation.getTypeClass());
@@ -237,63 +232,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @date 2024/6/26 下午2:23
      */
     public abstract Bson writeMapInternal(Map<?,?> obj,Bson bson);
-
-    /**
-     * 生成id，写在这里，方便自己自定义
-     * @param idTypeEnum id枚举类型
-     * @param typeInformation 类信息
-     * @return {@link Serializable}
-     * @author anwen
-     * @date 2024/5/1 下午9:26
-     */
-    public Serializable generateId(IdTypeEnum idTypeEnum, TypeInformation typeInformation){
-        if (idTypeEnum.getKey() == IdTypeEnum.ASSIGN_UUID.getKey()){
-            return IdWorker.get32UUID();
-        }
-        if (idTypeEnum.getKey() == IdTypeEnum.ASSIGN_ULID.getKey()){
-            return IdWorker.get26ULID();
-        }
-        if (idTypeEnum.getKey() == IdTypeEnum.ASSIGN_ID.getKey()){
-            return IdWorker.getId();
-        }
-        if (idTypeEnum.getKey() == IdTypeEnum.AUTO.getKey()){
-            return generateAutoId(typeInformation);
-        }
-        if (idTypeEnum.getKey() == IdTypeEnum.OBJECT_ID.getKey()){
-            return new ObjectId();
-        }
-        return null;
-    }
-
-    /**
-     * 生成自增id，写在这里，方便自定义
-     * @param typeInformation 类信息
-     * @return {@link Integer}
-     * @author anwen
-     * @date 2024/5/1 下午9:26
-     */
-    public Integer generateAutoId(TypeInformation typeInformation){
-        String collectionName = AnnotationOperate.getCollectionName(typeInformation.getClazz());
-        // 每个Collection单独加锁
-        synchronized (collectionName.intern()) {
-            MongoCollection<Document> collection = mongoPlusClient.getCollection(typeInformation.getClazz(), PropertyCache.autoIdCollectionName);
-            Document query = new Document(SqlOperationConstant._ID, collectionName);
-            Document update = new Document("$inc", new Document(SqlOperationConstant.AUTO_NUM, 1));
-            Document document = Optional.ofNullable(MongoTransactionContext.getClientSessionContext())
-                    .map(session -> collection.findOneAndUpdate(session, query, update, new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)))
-                    .orElseGet(() -> collection.findOneAndUpdate(query, update, new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)));
-            int finalNum = 1;
-            if (document == null) {
-                Map<String, Object> map = new HashMap<>();
-                map.put(SqlOperationConstant._ID, collectionName);
-                map.put(SqlOperationConstant.AUTO_NUM, finalNum);
-                collection.insertOne(new Document(map));
-            } else {
-                finalNum = Integer.parseInt(String.valueOf(document.get(SqlOperationConstant.AUTO_NUM)));
-            }
-            return finalNum;
-        }
-    }
 
     /**
      * 将简单类型进行转换
