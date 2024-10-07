@@ -11,10 +11,7 @@ import com.anwen.mongo.model.PageParam;
 import com.anwen.mongo.model.PageResult;
 import com.anwen.mongo.support.SFunction;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.CreateIndexOptions;
-import com.mongodb.client.model.DropIndexOptions;
-import com.mongodb.client.model.IndexModel;
-import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -36,7 +33,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:27
     */
-    Boolean save(T entity);
+    default Boolean save(T entity){
+        return save(entity,null);
+    }
+
+    /**
+     * 添加
+     * @param entity 添加的对象
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:27
+     */
+    Boolean save(T entity, InsertManyOptions options);
 
     /**
      * 添加多个
@@ -45,7 +53,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:56
     */
-    Boolean saveBatch(Collection<T> entityList);
+    default Boolean saveBatch(Collection<T> entityList){
+        return saveBatch(entityList,null);
+    }
+
+    /**
+     * 添加多个
+     * @param entityList 对象集合
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:56
+     */
+    Boolean saveBatch(Collection<T> entityList,InsertManyOptions options);
 
     /**
      * 添加或修改
@@ -111,7 +130,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:28
     */
-    Boolean updateById(T entity);
+    default Boolean updateById(T entity){
+        return updateById(entity,null);
+    }
+
+    /**
+     * 修改
+     * @param entity 修改的对象，需要包含id
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:28
+     */
+    Boolean updateById(T entity,UpdateOptions options);
 
     /**
      * 根据id修改多个
@@ -130,7 +160,19 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:46
     */
-    Boolean updateByColumn(T entity, SFunction<T, Object> column);
+    default Boolean updateByColumn(T entity, SFunction<T, Object> column){
+        return updateByColumn(entity,column,null);
+    }
+
+    /**
+     * 通过列进行修改
+     * @param entity 修改的实体
+     * @param column 根据什么列修改
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:46
+     */
+    Boolean updateByColumn(T entity, SFunction<T, Object> column,UpdateOptions options);
 
     /**
      * 通过列进行修改
@@ -140,7 +182,19 @@ public interface IService<T> {
      * @author anwen
      * @date 2024/6/23 下午5:13
      */
-    Boolean updateByColumn(T entity, String column);
+    default Boolean updateByColumn(T entity, String column){
+        return updateByColumn(entity,column,null);
+    }
+
+    /**
+     * 通过列进行修改
+     * @param entity 修改的实体
+     * @param column 根据什么列修改
+     * @return {@link java.lang.Boolean}
+     * @author anwen
+     * @date 2024/6/23 下午5:13
+     */
+    Boolean updateByColumn(T entity, String column,UpdateOptions options);
 
     /**
      * 根据条件删除
@@ -149,7 +203,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @date 2023/10/20 0:51
     */
-    Boolean remove(UpdateChainWrapper<T,?> updateChainWrapper);
+    default Boolean remove(UpdateChainWrapper<T,?> updateChainWrapper){
+        return remove(updateChainWrapper,null);
+    }
+
+    /**
+     * 根据条件删除
+     * @param updateChainWrapper 条件
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @date 2023/10/20 0:51
+     */
+    Boolean remove(UpdateChainWrapper<T,?> updateChainWrapper,DeleteOptions options);
 
     /**
      * 根据条件修改
@@ -158,14 +223,34 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @date 2023/10/20 0:51
      */
-    Boolean update(UpdateChainWrapper<T,?> updateChainWrapper);
+    default Boolean update(UpdateChainWrapper<T,?> updateChainWrapper){
+        return update(updateChainWrapper,null);
+    }
+
+    /**
+     * 根据条件修改
+     * @param updateChainWrapper 条件
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @date 2023/10/20 0:51
+     */
+    Boolean update(UpdateChainWrapper<T,?> updateChainWrapper,UpdateOptions options);
 
     /**
      * 根据条件修改
      * @author JiaChaoYang
      * @date 2024/2/3 13:10
     */
-    Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper);
+    default Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper){
+        return update(entity,queryChainWrapper,null);
+    }
+
+    /**
+     * 根据条件修改
+     * @author JiaChaoYang
+     * @date 2024/2/3 13:10
+     */
+    Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
     /**
      * 根据id删除
@@ -174,7 +259,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:47
     */
-    Boolean removeById(Serializable id);
+    default Boolean removeById(Serializable id){
+        return removeById(id,null);
+    }
+
+    /**
+     * 根据id删除
+     * @param id 数据id
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:47
+     */
+    Boolean removeById(Serializable id,DeleteOptions options);
 
     /**
      * 根据字段删除
@@ -183,7 +279,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 14:01
     */
-    Boolean removeByColumn(SFunction<T, Object> column, Object value);
+    default Boolean removeByColumn(SFunction<T, Object> column, Object value){
+        return removeByColumn(column,value,null);
+    }
+
+    /**
+     * 根据字段删除
+     * @param column 字段名
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 14:01
+     */
+    Boolean removeByColumn(SFunction<T, Object> column, Object value,DeleteOptions options);
 
     /**
      * 根据字段删除
@@ -193,7 +300,19 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 14:05
     */
-    Boolean removeByColumn(String column,Object value);
+    default Boolean removeByColumn(String column,Object value){
+        return removeByColumn(column,value,null);
+    }
+
+    /**
+     * 根据字段删除
+     * @param column 字段
+     * @param value 值
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 14:05
+     */
+    Boolean removeByColumn(String column,Object value,DeleteOptions options);
 
     /**
      * 根据id批量删除
@@ -202,7 +321,18 @@ public interface IService<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:59
     */
-    Boolean removeBatchByIds(Collection<? extends Serializable> idList);
+    default Boolean removeBatchByIds(Collection<? extends Serializable> idList){
+        return removeBatchByIds(idList,null);
+    }
+
+    /**
+     * 根据id批量删除
+     * @param idList id集合
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:59
+     */
+    Boolean removeBatchByIds(Collection<? extends Serializable> idList,DeleteOptions options);
 
     /**
      * 查询所有

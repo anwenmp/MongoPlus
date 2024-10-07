@@ -95,13 +95,13 @@ public class ServiceImpl<T> implements IService<T> {
     }
 
     @Override
-    public Boolean save(T entity) {
-        return baseMapper.save(entity);
+    public Boolean save(T entity, InsertManyOptions options) {
+        return baseMapper.save(entity,options);
     }
 
     @Override
-    public Boolean saveBatch(Collection<T> entityList) {
-        return baseMapper.saveBatch(entityList);
+    public Boolean saveBatch(Collection<T> entityList, InsertManyOptions options) {
+        return baseMapper.saveBatch(entityList,options);
     }
 
     @Override
@@ -228,8 +228,8 @@ public class ServiceImpl<T> implements IService<T> {
         Class<?> clazz = entityList.stream().findFirst().orElseThrow(() ->
                 new MongoPlusException("entityList is null")).getClass();
         List<WriteModel<Document>> writeModelList = new ArrayList<>();
+        long count = baseMapper.count(queryChainWrapper, clazz);
         entityList.forEach(entity -> {
-            long count = baseMapper.count(queryChainWrapper, clazz);
             if (count > 0) {
                 MutablePair<BasicDBObject, BasicDBObject> updatePair = ConditionUtil.
                         getUpdateCondition(
@@ -254,14 +254,14 @@ public class ServiceImpl<T> implements IService<T> {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public Boolean updateById(T entity) {
+    public Boolean updateById(T entity,UpdateOptions options) {
         QueryWrapper wrapper = new QueryWrapper<>();
         wrapper.eq(SqlOperationConstant._ID, TypeInformation
                 .of(entity)
                 .getAnnotationField(ID.class, "@ID is not found")
                 .getValue()
         );
-        return update(entity, wrapper);
+        return update(entity, wrapper,options);
     }
 
     @Override
@@ -283,54 +283,54 @@ public class ServiceImpl<T> implements IService<T> {
     }
 
     @Override
-    public Boolean updateByColumn(T entity, SFunction<T, Object> column) {
-        return updateByColumn(entity, column.getFieldNameLine());
+    public Boolean updateByColumn(T entity, SFunction<T, Object> column,UpdateOptions options) {
+        return updateByColumn(entity, column.getFieldNameLine(),options);
     }
 
     @Override
     @SuppressWarnings("rawtypes")
-    public Boolean updateByColumn(T entity, String column) {
+    public Boolean updateByColumn(T entity, String column,UpdateOptions options) {
         Object filterValue = ClassTypeUtil.getClassFieldValue(entity, column);
         QueryWrapper wrapper = new QueryWrapper<>();
         wrapper.eq(column, filterValue);
-        return update(entity, wrapper);
+        return update(entity, wrapper,options);
     }
 
     @Override
-    public Boolean remove(UpdateChainWrapper<T, ?> updateChainWrapper) {
-        return baseMapper.remove(updateChainWrapper, clazz);
+    public Boolean remove(UpdateChainWrapper<T, ?> updateChainWrapper,DeleteOptions options) {
+        return baseMapper.remove(updateChainWrapper, clazz,options);
     }
 
     @Override
-    public Boolean update(UpdateChainWrapper<T, ?> updateChainWrapper) {
-        return baseMapper.update(updateChainWrapper, clazz);
+    public Boolean update(UpdateChainWrapper<T, ?> updateChainWrapper,UpdateOptions options) {
+        return baseMapper.update(updateChainWrapper, clazz,options);
     }
 
     @Override
-    public Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper) {
-        return baseMapper.update(entity, queryChainWrapper);
+    public Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
+        return baseMapper.update(entity, queryChainWrapper,options);
     }
 
     @Override
-    public Boolean removeById(Serializable id) {
+    public Boolean removeById(Serializable id,DeleteOptions options) {
         Bson filterId = new Document(SqlOperationConstant._ID, ObjectIdUtil.getObjectIdValue(id));
-        return baseMapper.remove(filterId, clazz) >= 1;
+        return baseMapper.remove(filterId, clazz,options) >= 1;
     }
 
     @Override
-    public Boolean removeByColumn(SFunction<T, Object> column, Object value) {
-        return removeByColumn(column.getFieldNameLine(), value);
+    public Boolean removeByColumn(SFunction<T, Object> column, Object value,DeleteOptions options) {
+        return removeByColumn(column.getFieldNameLine(), value,options);
     }
 
     @Override
-    public Boolean removeByColumn(String column, Object value) {
+    public Boolean removeByColumn(String column, Object value,DeleteOptions options) {
         Bson filter = new Document(column, ObjectIdUtil.getObjectIdValue(value));
-        return baseMapper.remove(filter, clazz) >= 1;
+        return baseMapper.remove(filter, clazz,options) >= 1;
     }
 
     @Override
-    public Boolean removeBatchByIds(Collection<? extends Serializable> idList) {
-        return baseMapper.remove(BsonUtil.getIdsCondition(idList), clazz) >= 1;
+    public Boolean removeBatchByIds(Collection<? extends Serializable> idList,DeleteOptions options) {
+        return baseMapper.remove(BsonUtil.getIdsCondition(idList), clazz,options) >= 1;
     }
 
     @Override

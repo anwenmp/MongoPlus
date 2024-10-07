@@ -28,14 +28,32 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      * @date 2024/5/4 下午1:20
      */
-    <T> boolean save(T entity);
+    default <T> boolean save(T entity){
+        return save(entity,null);
+    }
+
+    /**
+     * 添加单个
+     * @author anwen
+     * @date 2024/5/4 下午1:20
+     */
+    <T> boolean save(T entity,InsertManyOptions options);
 
     /**
      * 添加多个
      * @author anwen
      * @date 2024/5/4 下午1:20
      */
-    <T> Boolean saveBatch(Collection<T> entityList);
+    default <T> Boolean saveBatch(Collection<T> entityList){
+        return saveBatch(entityList,null);
+    }
+
+    /**
+     * 添加多个
+     * @author anwen
+     * @date 2024/5/4 下午1:20
+     */
+    <T> Boolean saveBatch(Collection<T> entityList,InsertManyOptions options);
 
     /**
      * 批量操作
@@ -45,14 +63,35 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      * @date 2024/5/4 下午1:22
      */
-    Integer bulkWrite(List<WriteModel<Document>> writeModelList,Class<?> clazz);
+    default Integer bulkWrite(List<WriteModel<Document>> writeModelList,Class<?> clazz){
+        return bulkWrite(writeModelList,clazz,null);
+    }
+
+    /**
+     * 批量操作
+     * @param writeModelList writeModelList
+     * @param clazz class
+     * @return {@link Integer}
+     * @author anwen
+     * @date 2024/5/4 下午1:22
+     */
+    Integer bulkWrite(List<WriteModel<Document>> writeModelList,Class<?> clazz,BulkWriteOptions options);
 
     /**
      * 根据queryWrapper修改entity
      * @author anwen
      * @date 2024/5/4 下午1:23
      */
-    <T> Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper);
+    default <T> Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper){
+        return update(entity,queryChainWrapper,null);
+    }
+
+    /**
+     * 根据queryWrapper修改entity
+     * @author anwen
+     * @date 2024/5/4 下午1:23
+     */
+    <T> Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
     /**
      * 是否存在
@@ -80,7 +119,16 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz);
+    default Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz){
+        return update(updateChainWrapper, clazz,null);
+    }
+
+    /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,UpdateOptions options);
 
     /**
      * 删除，直接根据UpdateWrapper
@@ -90,7 +138,19 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz);
+    default Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz){
+        return remove(updateChainWrapper, clazz,null);
+    }
+
+    /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @param clazz class
+     * @return {@link Boolean}
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options);
 
     /**
      * 根据条件删除
@@ -100,7 +160,19 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Long remove(Bson filter,Class<?> clazz);
+    default Long remove(Bson filter,Class<?> clazz){
+        return remove(filter, clazz,null);
+    }
+
+    /**
+     * 根据条件删除
+     * @param filter 条件
+     * @param clazz class
+     * @return {@link Long}
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Long remove(Bson filter,Class<?> clazz,DeleteOptions options);
 
     /**
      * 根据条件查询总数

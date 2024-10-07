@@ -42,28 +42,28 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public <T> boolean save(T entity) {
+    public <T> boolean save(T entity,InsertManyOptions options) {
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
-        return save(namespace.left, namespace.right, entity);
+        return save(namespace.left, namespace.right, entity,options);
     }
 
     @Override
-    public <T> Boolean saveBatch(Collection<T> entityList) {
+    public <T> Boolean saveBatch(Collection<T> entityList,InsertManyOptions options) {
         Class<?> clazz = entityList.iterator().next().getClass();
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return saveBatch(namespace.left, namespace.right, entityList);
+        return saveBatch(namespace.left, namespace.right, entityList,options);
     }
 
     @Override
-    public Integer bulkWrite(List<WriteModel<Document>> writeModelList, Class<?> clazz) {
+    public Integer bulkWrite(List<WriteModel<Document>> writeModelList, Class<?> clazz,BulkWriteOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return bulkWrite(namespace.left, namespace.right, writeModelList);
+        return bulkWrite(namespace.left, namespace.right, writeModelList,options);
     }
 
     @Override
-    public <T> Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper) {
+    public <T> Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
-        return update(namespace.left, namespace.right, entity, queryChainWrapper);
+        return update(namespace.left, namespace.right, entity, queryChainWrapper,options);
     }
 
     /**
@@ -201,21 +201,21 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz) {
+    public Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,UpdateOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return update(namespace.left, namespace.right, updateChainWrapper);
+        return update(namespace.left, namespace.right, updateChainWrapper,options);
     }
 
     @Override
-    public Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz) {
+    public Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return remove(namespace.left, namespace.right, updateChainWrapper);
+        return remove(namespace.left, namespace.right, updateChainWrapper,options);
     }
 
     @Override
-    public Long remove(Bson filter, Class<?> clazz) {
+    public Long remove(Bson filter, Class<?> clazz,DeleteOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return remove(namespace.left, namespace.right, filter);
+        return remove(namespace.left, namespace.right, filter,options);
     }
 
     @Override

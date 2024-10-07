@@ -51,21 +51,36 @@ public interface SuperMapper {
      * @author anwen
      * @date 2024/5/4 下午1:20
      */
-    <T> boolean save(String database, String collectionName, T entity);
+    default <T> boolean save(String database, String collectionName, T entity){
+        return save(database,collectionName,entity,null);
+    }
+
+    /**
+     * 添加单个
+     * @author anwen
+     * @date 2024/5/4 下午1:20
+     */
+    <T> boolean save(String database, String collectionName, T entity,InsertManyOptions options);
 
     /**
      * 添加多个
      * @author anwen
      * @date 2024/5/4 下午1:20
      */
-    <T> Boolean saveBatch(String database,String collectionName,Collection<T> entityList);
+    default <T> Boolean saveBatch(String database,String collectionName,Collection<T> entityList){
+        return saveBatch(database,collectionName,entityList,null);
+    }
+
+    <T> Boolean saveBatch(String database,String collectionName,Collection<T> entityList,InsertManyOptions options);
 
     /**
      * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
      * @author anwen
      * @date 2024/5/4 下午1:21
      */
-    Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic);
+    default Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic){
+        return update(database,collectionName,queryBasic,updateBasic,null);
+    }
 
     /**
      * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
@@ -81,14 +96,34 @@ public interface SuperMapper {
      * @author anwen
      * @date 2024/5/4 下午1:22
      */
-    Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList);
+    default Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList){
+        return bulkWrite(database,collectionName,writeModelList,null);
+    }
+
+    /**
+     * 批量操作
+     * @param writeModelList writeModelList
+     * @return {@link Integer}
+     * @author anwen
+     * @date 2024/5/4 下午1:22
+     */
+    Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList,BulkWriteOptions options);
 
     /**
      * 根据queryWrapper修改entity
      * @author anwen
      * @date 2024/5/4 下午1:23
      */
-    <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper);
+    default <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
+        return update(database,collectionName,entity,queryChainWrapper,null);
+    }
+
+    /**
+     * 根据queryWrapper修改entity
+     * @author anwen
+     * @date 2024/5/4 下午1:23
+     */
+    <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
     /**
      * 是否存在
@@ -114,7 +149,16 @@ public interface SuperMapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper);
+    default Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
+        return update(database,collectionName,updateChainWrapper,new UpdateOptions());
+    }
+
+    /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,UpdateOptions options);
 
     /**
      * 删除，直接根据UpdateWrapper
@@ -123,7 +167,18 @@ public interface SuperMapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper);
+    default Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
+        return remove(database,collectionName,updateChainWrapper,null);
+    }
+
+    /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @return {@link Boolean}
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options);
 
     /**
      * 根据条件删除
@@ -132,7 +187,18 @@ public interface SuperMapper {
      * @author anwen
      * @date 2024/5/4 下午1:32
      */
-    Long remove(String database,String collectionName,Bson filter);
+    default Long remove(String database,String collectionName,Bson filter){
+        return remove(database,collectionName,filter,null);
+    }
+
+    /**
+     * 根据条件删除
+     * @param filter 条件
+     * @return {@link Long}
+     * @author anwen
+     * @date 2024/5/4 下午1:32
+     */
+    Long remove(String database,String collectionName,Bson filter,DeleteOptions options);
 
     /**
      * 根据条件查询总数

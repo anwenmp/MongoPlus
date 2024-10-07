@@ -76,42 +76,25 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     }
 
     @Override
-    public <T> boolean save(String database, String collectionName, T entity) {
-        try {
-            Document document = new Document();
-            mongoConverter.writeBySave(entity, document);
-            // TODO 选项
-            InsertManyResult insertManyResult = factory.getExecute().executeSave(Collections.singletonList(document),
-                    null,
-                    mongoPlusClient.getCollection(database, collectionName));
-            mongoConverter.reSetIdValue(entity, document);
-            return insertManyResult.wasAcknowledged();
-        } catch (Exception e) {
-            log.error("save fail , error info : {}", e.getMessage(), e);
-            throw e;
-        }
+    public <T> boolean save(String database, String collectionName, T entity,InsertManyOptions options) {
+        Document document = new Document();
+        mongoConverter.writeBySave(entity, document);
+        InsertManyResult insertManyResult = factory.getExecute().executeSave(Collections.singletonList(document),
+                options,
+                mongoPlusClient.getCollection(database, collectionName));
+        mongoConverter.reSetIdValue(entity, document);
+        return insertManyResult.wasAcknowledged();
     }
 
     @Override
-    public <T> Boolean saveBatch(String database, String collectionName, Collection<T> entityList) {
-        try {
-            Assert.notEmpty(entityList, "entityList can not be empty");
-            List<Document> documentList = new ArrayList<>(entityList.size());
-            mongoConverter.writeBySaveBatch(entityList, documentList);
-            MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
-            // TODO 选项
-            InsertManyResult insertManyResult = factory.getExecute().executeSave(documentList,null, collection);
-            mongoConverter.batchReSetIdValue(entityList, documentList);
-            return insertManyResult.getInsertedIds().size() == entityList.size();
-        } catch (Exception e) {
-            log.error("saveBatch fail , error info : {}", e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public Long update(String database, String collectionName, Bson queryBasic, Bson updateBasic) {
-        return update(database, collectionName, queryBasic, updateBasic,null);
+    public <T> Boolean saveBatch(String database, String collectionName, Collection<T> entityList,InsertManyOptions options) {
+        Assert.notEmpty(entityList, "entityList can not be empty");
+        List<Document> documentList = new ArrayList<>(entityList.size());
+        mongoConverter.writeBySaveBatch(entityList, documentList);
+        MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
+        InsertManyResult insertManyResult = factory.getExecute().executeSave(documentList,options, collection);
+        mongoConverter.batchReSetIdValue(entityList, documentList);
+        return insertManyResult.getInsertedIds().size() == entityList.size();
     }
 
     @Override
@@ -125,20 +108,19 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     }
 
     @Override
-    public Integer bulkWrite(String database, String collectionName, List<WriteModel<Document>> writeModelList) {
+    public Integer bulkWrite(String database, String collectionName, List<WriteModel<Document>> writeModelList,BulkWriteOptions options) {
         Assert.notEmpty(writeModelList, "writeModelList can not be empty");
-        // TODO 选项
-        BulkWriteResult bulkWriteResult = factory.getExecute().executeBulkWrite(writeModelList, null,
+        BulkWriteResult bulkWriteResult = factory.getExecute().executeBulkWrite(writeModelList, options,
                 mongoPlusClient.getCollection(database, collectionName));
         return bulkWriteResult.getModifiedCount() + bulkWriteResult.getInsertedCount();
     }
 
     @Override
     public <T> Boolean update(String database, String collectionName, T entity,
-                              QueryChainWrapper<T, ?> queryChainWrapper) {
+                              QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> updatePair =
                 ConditionUtil.getUpdateCondition(queryChainWrapper.getCompareList(), entity, mongoConverter);
-        return update(database, collectionName, updatePair.getLeft(), updatePair.getRight()) > 0;
+        return update(database, collectionName, updatePair.getLeft(), updatePair.getRight(),options) > 0;
     }
 
     @Override
@@ -155,22 +137,21 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     }
 
     @Override
-    public Boolean update(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper) {
+    public Boolean update(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> pair = updateChainWrapper.buildUpdateCondition();
         BasicDBObject targetBasicDBObject = new BasicDBObject();
         mongoConverter.write(pair.getRight(), targetBasicDBObject);
-        return update(database, collectionName, pair.getLeft(), targetBasicDBObject) >= 1;
+        return update(database, collectionName, pair.getLeft(), targetBasicDBObject,options) >= 1;
     }
 
     @Override
-    public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper) {
-        return remove(database, collectionName, condition().queryCondition(updateChainWrapper.getCompareList())) >= 1;
+    public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options) {
+        return remove(database, collectionName, condition().queryCondition(updateChainWrapper.getCompareList()),options) >= 1;
     }
 
     @Override
-    public Long remove(String database, String collectionName, Bson filter) {
-        // TODO 选项
-        return factory.getExecute().executeRemove(filter,null, mongoPlusClient.getCollection(database, collectionName))
+    public Long remove(String database, String collectionName, Bson filter,DeleteOptions options) {
+        return factory.getExecute().executeRemove(filter,options, mongoPlusClient.getCollection(database, collectionName))
                 .getDeletedCount();
     }
 
