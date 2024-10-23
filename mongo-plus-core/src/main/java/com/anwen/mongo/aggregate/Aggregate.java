@@ -715,7 +715,83 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/11 下午7:05
      */
-    <T,R> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField, final String as);
+    <T> Children lookup(final String from,final String localField,final String foreignField,final SFunction<T,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    Children lookup(final Class<?> from,final String localField,final String foreignField,final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T> Children lookup(final Class<?> from,final String localField,final String foreignField,final SFunction<T,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,R> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
+                          final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,R,A> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
+                          final SFunction<A,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,R> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
+                          final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,R,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
+                          final SFunction<A,?> as);
 
     /**
      * $lookup阶段
@@ -739,7 +815,83 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/11 下午7:05
      */
+    <T,A> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,
+                        final SFunction<A,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,
+                        final SFunction<A,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
     <T> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,A> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,
+                        final SFunction<A,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param localField 当前集合用于关联的字段
+     * @param foreignField 指定目标集合用于关联的字段
+     * @param as 输出结果中保存关联值的字段名
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/6/11 下午7:05
+     */
+    <T,A> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,
+                        final SFunction<A,?> as);
 
     /**
      * $lookup阶段
@@ -757,6 +909,45 @@ public interface Aggregate<Children> extends Project<Children> {
     /**
      * $lookup阶段
      * @param from 目标集合名称
+     * @param letList 在管道字段阶段使用的变量
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    <TExpression,T> Children lookup(final String from, final List<Variable<TExpression>> letList,
+                                  final Aggregate<?> aggregate, final SFunction<T,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param letList 在管道字段阶段使用的变量
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    <TExpression> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
+                                  final Aggregate<?> aggregate, final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param letList 在管道字段阶段使用的变量
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    <TExpression,T> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
+                                  final Aggregate<?> aggregate, final SFunction<T,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
      * @param aggregate 在连接集合上运行的管道
      * @param as 输出结果中保存关联值的字段名
      * @return Children
@@ -764,6 +955,39 @@ public interface Aggregate<Children> extends Project<Children> {
      * @date 2023/8/12 21:07
      */
     Children lookup(final String from, final Aggregate<?> aggregate, final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    <T> Children lookup(final String from, final Aggregate<?> aggregate, final SFunction<T,?> as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    Children lookup(final Class<?> from, final Aggregate<?> aggregate, final String as);
+
+    /**
+     * $lookup阶段
+     * @param from 目标集合名称
+     * @param aggregate 在连接集合上运行的管道
+     * @param as 输出结果中保存关联值的字段名
+     * @return Children
+     * @author JiaChaoYang
+     * @date 2023/8/12 21:07
+     */
+    <T> Children lookup(final Class<?> from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
     /**
      * $lookup阶段,如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson

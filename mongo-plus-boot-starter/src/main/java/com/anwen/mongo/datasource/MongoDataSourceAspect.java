@@ -28,6 +28,7 @@ import static com.anwen.mongo.annotation.SpelAnnotationHandler.PARAMETER_NAME_DI
  **/
 @Aspect
 @Order(0)
+
 public class MongoDataSourceAspect {
 
     @Around("@within(com.anwen.mongo.annotation.datasource.MongoDs) || @annotation(com.anwen.mongo.annotation.datasource.MongoDs)")

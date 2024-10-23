@@ -5,6 +5,8 @@ import com.anwen.mongo.mapping.TypeInformation;
 import com.anwen.mongo.support.SFunction;
 import org.bson.Document;
 
+import java.util.concurrent.ConcurrentSkipListMap;
+
 /**
  * 自动填充元对象
  * @author JiaChaoYang
@@ -22,7 +24,7 @@ public class AutoFillMetaObject {
      * 自动填充最终的值
      * @date 2024/6/4 下午9:43
      */
-    private final MongoPlusDocument autoFillDocument;
+    private final ConcurrentSkipListMap<String,Object> autoFillDocument;
 
     /**
      * 原始对象信息
@@ -32,15 +34,15 @@ public class AutoFillMetaObject {
 
     public AutoFillMetaObject() {
         this.document = new MongoPlusDocument();
-        this.autoFillDocument = new MongoPlusDocument();
+        this.autoFillDocument = new ConcurrentSkipListMap<>();
     }
 
     public AutoFillMetaObject(MongoPlusDocument document) {
         this.document = document;
-        this.autoFillDocument = new MongoPlusDocument();
+        this.autoFillDocument = new ConcurrentSkipListMap<>();
     }
 
-    public AutoFillMetaObject(MongoPlusDocument document,MongoPlusDocument autoFillDocument) {
+    public AutoFillMetaObject(MongoPlusDocument document,ConcurrentSkipListMap<String,Object> autoFillDocument) {
         this.document = document;
         this.autoFillDocument = autoFillDocument;
     }
@@ -51,7 +53,7 @@ public class AutoFillMetaObject {
      * @author anwen
      * @date 2024/5/1 下午10:14
      */
-    public MongoPlusDocument getAllFillField() {
+    public ConcurrentSkipListMap<String,Object> getAllFillField() {
         return autoFillDocument;
     }
 
@@ -94,7 +96,7 @@ public class AutoFillMetaObject {
      */
     public <T,R> void fillValue(SFunction<T,R> column,Object value){
         if (metaObjectExist(column)) {
-            autoFillDocument.put(column, value);
+            autoFillDocument.put(column.getFieldNameLine(), value);
         }
     }
 
@@ -106,7 +108,7 @@ public class AutoFillMetaObject {
      * @date 2024/7/29 上午12:19
      */
     public <T,R> void forceFillValue(SFunction<T,R> column,Object value){
-        autoFillDocument.put(column, value);
+        autoFillDocument.put(column.getFieldNameLine(), value);
     }
 
     /**
@@ -163,7 +165,7 @@ public class AutoFillMetaObject {
      * @date 2024/5/1 下午10:15
      */
     public <T,R> Object getMetaObjectValue(SFunction<T,R> column){
-        return autoFillDocument.get(column);
+        return autoFillDocument.get(column.getFieldNameLine());
     }
 
     /**

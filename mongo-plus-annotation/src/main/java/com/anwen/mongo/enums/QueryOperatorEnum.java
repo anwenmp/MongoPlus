@@ -7,6 +7,8 @@ package com.anwen.mongo.enums;
 */
 public enum QueryOperatorEnum {
 
+    COMBINE("combine"),
+
     MOD("mod"),
 
     LT("lt"),
@@ -73,6 +75,10 @@ public enum QueryOperatorEnum {
 
     public String getValue() {
         return value;
+    }
+
+    public String getOperatorValue(){
+        return "$"+value;
     }
 
     QueryOperatorEnum(String value) {

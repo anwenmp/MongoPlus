@@ -206,6 +206,16 @@ public interface Interceptor {
     }
 
     /**
+     * 不接受任何参数的统计
+     * @param collection 集合
+     * @author anwen
+     * @date 2024/10/21 13:38
+     */
+    default void executeEstimatedDocumentCount(MongoCollection<Document> collection){
+
+    }
+
+    /**
      * 批量操作拦截方法
      *
      * @author JiaChaoYang

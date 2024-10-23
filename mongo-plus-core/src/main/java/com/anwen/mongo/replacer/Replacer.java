@@ -5,7 +5,7 @@ import com.anwen.mongo.support.BoolFunction;
 import java.lang.reflect.Method;
 
 /**
- * 替换器接
+ * 替换器接口
  *
  * @author loser
  * @date 2024/4/30

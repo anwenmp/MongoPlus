@@ -1,9 +1,12 @@
 package com.anwen.mongo.conditions.interfaces;
 
 import com.anwen.mongo.bson.MongoPlusDocument;
+import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.AggregateEnum;
 import com.anwen.mongo.enums.CommonOperators;
 import com.anwen.mongo.support.SFunction;
+import com.mongodb.lang.Nullable;
+import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -11,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.enums.CommonOperators.*;
 
 /**
  * 条件构造
@@ -25,12 +30,25 @@ public class ConditionOperators {
      * @date 2024/8/23 11:11
      */
     public static Bson cond(Object ifValue, Object thenValue, Object elseValue) {
-        return new Document("$cond",
+        return new Document(COND.getOperator(),
                 new Document() {{
                     put("if", ifValue);
                     put("then", thenValue);
                     put("else", elseValue);
                 }});
+    }
+
+    /**
+     * $cond操作符，数组写法
+     * @author anwen
+     * @date 2024/8/23 11:11
+     */
+    public static Bson condArray(Object ifValue, Object thenValue, Object elseValue) {
+        return new Document(COND.getOperator(), new ArrayList<Object>(){{
+            add(ifValue);
+            add(thenValue);
+            add(elseValue);
+        }});
     }
 
     /**
@@ -41,6 +59,34 @@ public class ConditionOperators {
     public static Bson cond(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
     }
+
+    /**
+     * $cond操作符，数组写法
+     * @author anwen
+     * @date 2024/8/23 11:11
+     */
+    public static Bson condArray(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
+        return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
+    }
+
+    /**
+     * $cond操作符
+     * @author anwen
+     * @date 2024/8/23 11:11
+     */
+    public static Bson cond(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
+        return cond(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
+    }
+
+    /**
+     * $cond操作符，数组写法
+     * @author anwen
+     * @date 2024/8/23 11:11
+     */
+    public static Bson condArray(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
+        return condArray(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
+    }
+
 
     /**
      * $multiply操作符
@@ -75,7 +121,7 @@ public class ConditionOperators {
      * @date 2024/8/23 11:13
      */
     public static Bson multiplyLambda(Collection<SFunction<?,?>> values) {
-        return new Document("$multiply", values.stream().map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
+        return new Document(MULTIPLY.getOperator(), values.stream().map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
     }
     
     /**
@@ -138,7 +184,7 @@ public class ConditionOperators {
      * @date 2024/8/23 11:27
      */
     public static Bson dateToString(String format,String date,String timezone,Object onNull){
-        return new Document("$dateToString",new MongoPlusDocument(){{
+        return new Document(DATE_TO_STRING.getOperator(),new MongoPlusDocument(){{
             putIsNotNull("date",date);
             putIsNotNull("format",format);
             putIsNotNull("timezone",timezone);
@@ -339,5 +385,311 @@ public class ConditionOperators {
         return new Document(CommonOperators.ABS.getOperator(),value);
     }
 
+    /**
+     * $toDate操作符
+     * @param expression 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:02
+     */
+    public static <TExpression> Bson toDate(TExpression expression){
+        return new Document(TO_DATE.getOperator(),expression);
+    }
+
+    /**
+     * $toDate操作符
+     * @param field 引用的字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:02
+     */
+    public static Bson toDate(SFunction<?,?> field){
+        return new Document(TO_DATE.getOperator(),field.getFieldNameLineOption());
+    }
+    
+    /**
+     * $dateFromString操作符
+     * @param dateString 要转换为日期对象的日期/时间字符串
+     * @param format 可选。dateString 的日期格式规范
+     * @param timezone 可选。用于设置日期格式的时区
+     * @param onError 可选。如果 $dateFromString 在解析给定的 dateString 时遇到错误，它会输出所提供的onError表达式的结果值
+     * @param onNull 可选。如果为 $dateFromString 提供的 dateString 为 null 或缺失，则会输出所提供的onNull 表达式的结果值
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:06
+     */
+    public static Bson dateFromString(
+            Object dateString, Object format, Object timezone, Object onError, Object onNull){
+        MongoPlusDocument dateFromString = new MongoPlusDocument();
+        dateFromString.putIsNotNull("dateString",dateString);
+        dateFromString.putIsNotNull("format",format);
+        dateFromString.putIsNotNull("timezone",timezone);
+        dateFromString.putIsNotNull("onError",onError);
+        dateFromString.putIsNotNull("onNull",onNull);
+        return new Document(DATE_FROM_STRING.getOperator(),dateFromString);
+    }
+
+    /**
+     * $dateFromString操作符
+     * @param dateString 要转换为日期对象的日期/时间字符串
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:06
+     */
+    public static Bson dateFromString(Object dateString){
+        return dateFromString(dateString,null,null,null,null);
+    }
+
+    /**
+     * $dateFromString操作符
+     * @param field 文档字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:06
+     */
+    public static Bson dateFromString(SFunction<?,?> field){
+        return dateFromString(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $dateFromString操作符
+     * @param dateString 要转换为日期对象的日期/时间字符串 文档字段
+     * @param timezone 可选。用于设置日期格式的时区
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:06
+     */
+    public static Bson dateFromString(SFunction<?,?> dateString,Object timezone){
+        return dateFromString(dateString.getFieldNameLineOption());
+    }
+
+    /**
+     * $dateFromString操作符
+     * @param dateString 要转换为日期对象的日期/时间字符串 文档字段
+     * @param timezone 可选。用于设置日期格式的时区
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/15 12:06
+     */
+    public static Bson dateFromString(SFunction<?,?> dateString,SFunction<?,?> timezone){
+        return dateFromString(dateString,timezone.getFieldNameLineOption());
+    }
+
+    /**
+     * $toBool操作符
+     * @param expression 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <TExpression> Bson toBool(TExpression expression){
+        return new Document(TO_BOOL.getOperator(),expression);
+    }
+
+    /**
+     * $toBool操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toBool(SFunction<T,Object> field){
+        return toBool(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toDecimal操作符
+     * @param expression 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:54
+     */
+    public static <TExpression> Bson toDecimal(TExpression expression){
+        return new Document(TO_DECIMAL.getOperator(),expression);
+    }
+
+    /**
+     * $toDecimal操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toDecimal(SFunction<T,Object> field){
+        return toDecimal(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toDouble操作符
+     * @param expression 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:54
+     */
+    public static <TExpression> Bson toDouble(TExpression expression){
+        return new Document(TO_DOUBLE.getOperator(),expression);
+    }
+
+    /**
+     * $toHashedIndexKey操作符
+     * @param key string to hash
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:57
+     */
+    public static <T> Bson toHashedIndexKey(String key){
+        return new Document(TO_HASHED_INDEX_KEY.getOperator(),key);
+    }
+
+    /**
+     * $toHashedIndexKey操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toHashedIndexKey(SFunction<T,Object> field){
+        return toHashedIndexKey(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toInt操作符
+     * @param expression 表达式
+     * @return {@link Bson}
+     * @author anwen
+     * @date 2024/10/21 17:00
+     */
+    public static <TExpression> Bson toInt(TExpression expression){
+        return new Document(TO_INT.getOperator(),expression);
+    }
+
+    /**
+     * $toInt操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toInt(SFunction<T,Object> field){
+        return toInt(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toLong操作符
+     * @param expression 表达式
+     * @return {@link Bson}
+     * @author anwen
+     * @date 2024/10/21 17:00
+     */
+    public static <TExpression> Bson toLong(TExpression expression){
+        return new Document(TO_LONG.getOperator(),expression);
+    }
+
+    /**
+     * $toLong操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toLong(SFunction<T,Object> field){
+        return toLong(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toObjectId操作符
+     * @param expression 表达式
+     * @return {@link Bson}
+     * @author anwen
+     * @date 2024/10/21 17:00
+     */
+    public static <TExpression> Bson toObjectId(TExpression expression){
+        return new Document(TO_OBJECT_ID.getOperator(),expression);
+    }
+
+    /**
+     * $toObjectId操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toObjectId(SFunction<T,Object> field){
+        return toObjectId(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $toString操作符
+     * @param expression 表达式
+     * @return {@link Bson}
+     * @author anwen
+     * @date 2024/10/21 17:00
+     */
+    public static <TExpression> Bson toString(TExpression expression){
+        return new Document(TO_STRING.getOperator(),expression);
+    }
+
+    /**
+     * $toString操作符
+     * @param field 字段
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 16:42
+     */
+    public static <T> Bson toString(SFunction<T,Object> field){
+        return toString(field.getFieldNameLineOption());
+    }
+
+    /**
+     * $substrBytes操作符
+     * @param field 字段
+     * @param index 指示子字符串的点
+     * @param count 字节数
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 17:08
+     */
+    public static <T> Bson substrBytes(SFunction<T,?> field,Number index,Number count){
+        return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
+    }
+
+    /**
+     * $substrBytes操作符
+     * @param expression 表达式
+     * @param index 指示子字符串的点
+     * @param count 字节数
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 17:08
+     */
+    public static <TExpression> Bson substrBytes(TExpression expression,Number index,Number count){
+        return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
+    }
+
+    /**
+     * $substrBytes操作符
+     * @param expression 表达式
+     * @param index 指示子字符串的点
+     * @param count 字节数
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 17:08
+     */
+    public static <TExpression> Bson substrBytes(TExpression expression,Object index,Object count){
+        return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
+    }
+
+    /**
+     * $substrBytes操作符
+     * @param field 字段
+     * @param index 指示子字符串的点
+     * @param count 字节数
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/10/21 17:08
+     */
+    public static <T> Bson substrBytes(SFunction<T,?> field,Object index,Object count){
+        return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
+    }
 
 }

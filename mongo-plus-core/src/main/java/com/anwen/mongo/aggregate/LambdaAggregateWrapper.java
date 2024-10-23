@@ -441,8 +441,40 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
+    public <T> Children lookup(String from, String localField, String foreignField, SFunction<T, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
+    public Children lookup(Class<?> from, String localField, String foreignField, String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),localField,foreignField,as);
+    }
+
+    @Override
+    public <T> Children lookup(Class<?> from, String localField, String foreignField, SFunction<T, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
     public <T, R> Children lookup(String from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, String as) {
         return lookup(from, localField.getFieldNameLine(),foreignField.getFieldNameLine(),as);
+    }
+
+    @Override
+    public <T, R, A> Children lookup(String from, SFunction<T, ?> localField, SFunction<R, ?> foreignField,
+                                     SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
+    public <T, R> Children lookup(Class<?> from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),localField,foreignField,as);
+    }
+
+    @Override
+    public <T, R, A> Children lookup(Class<?> from, SFunction<T, ?> localField, SFunction<R, ?> foreignField,
+                                     SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
     }
 
     @Override
@@ -451,19 +483,83 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
+    public <T, A> Children lookup(String from, SFunction<T, ?> localField, String foreignField, SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
+    public <T> Children lookup(Class<?> from, SFunction<T, ?> localField, String foreignField, String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),localField,foreignField,as);
+    }
+
+    @Override
+    public <T, A> Children lookup(Class<?> from, SFunction<T, ?> localField, String foreignField, SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
     public <T> Children lookup(String from, String localField, SFunction<T, ?> foreignField, String as) {
         return lookup(from, localField,foreignField.getFieldNameLine(),as);
     }
 
     @Override
+    public <T, A> Children lookup(String from, String localField, SFunction<T, ?> foreignField, SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
+    public <T> Children lookup(Class<?> from, String localField, SFunction<T, ?> foreignField, String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),localField,foreignField,as);
+    }
+
+    @Override
+    public <T, A> Children lookup(Class<?> from, String localField, SFunction<T, ?> foreignField, SFunction<A, ?> as) {
+        return lookup(from,localField,foreignField,as.getFieldNameLine());
+    }
+
+    @Override
     @SuppressWarnings("rawtypes")
-    public <TExpression> Children lookup(String from, List<Variable<TExpression>> letList, Aggregate<?> aggregate, String as) {
+    public <TExpression> Children lookup(String from, List<Variable<TExpression>> letList, Aggregate<?> aggregate,
+                                         String as) {
         return custom(Aggregates.lookup(from,(List) letList,aggregate.getAggregateConditionList(),as));
+    }
+
+    @Override
+    public <TExpression, T> Children lookup(String from, List<Variable<TExpression>> letList, Aggregate<?> aggregate,
+                                            SFunction<T, ?> as) {
+        return lookup(from,letList,aggregate,as.getFieldNameLine());
+    }
+
+    @Override
+    public <TExpression> Children lookup(Class<?> from, List<Variable<TExpression>> letList, Aggregate<?> aggregate,
+                                         String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),letList,aggregate,as);
+    }
+
+    @Override
+    public <TExpression, T> Children lookup(Class<?> from, List<Variable<TExpression>> letList, Aggregate<?> aggregate,
+                                            SFunction<T, ?> as) {
+        return lookup(from,letList,aggregate,as.getFieldNameLine());
     }
 
     @Override
     public Children lookup(String from, Aggregate<?> aggregate, String as) {
         return custom(Aggregates.lookup(from,aggregate.getAggregateConditionList(),as));
+    }
+
+    @Override
+    public <T> Children lookup(String from, Aggregate<?> aggregate, SFunction<T, ?> as) {
+        return lookup(from,aggregate,as.getFieldNameLine());
+    }
+
+    @Override
+    public Children lookup(Class<?> from, Aggregate<?> aggregate, String as) {
+        return lookup(AnnotationOperate.getCollectionName(from),aggregate,as);
+    }
+
+    @Override
+    public <T> Children lookup(Class<?> from, Aggregate<?> aggregate, SFunction<T, ?> as) {
+        return lookup(from,aggregate,as.getFieldNameLine());
     }
 
     @Override

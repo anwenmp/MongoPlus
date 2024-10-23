@@ -1,5 +1,7 @@
 package com.anwen.mongo.conditions.interfaces;
 
+import com.anwen.mongo.bson.MongoPlusBasicDBObject;
+import com.anwen.mongo.bson.MongoPlusDocument;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.TypeEnum;
@@ -1286,9 +1288,118 @@ public interface Compare<T,Children> extends Serializable {
      */
     Children bitsAnySet(String fieldName, long bitmask);
 
+    /**
+     * 合并
+     * <p>combine中的条件，将会存在同一个对象中，常用于or,and等逻辑操作符中</p>
+     * <p>如构建or条件：{@code or(wrapper -> wrapper.eq(User::getUserName,"张三").like(User::getUserName,"1"))}</p>
+     * <p>该操作将会构建语句为：{@code {or:[{userName:{"eq":"张三"}},{userName:{"like":"1"}}]}}</p>
+     * <p>如使用{@link #combine}构建：{@code or(wrapper ->
+     *     wrapper.custom(customWrapper ->
+     *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
+     * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
+     * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param function 需要合并的链式查询函数
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 14:21
+     */
+    Children combine(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
+
+    /**
+     * 合并
+     * <p>combine中的条件，将会存在同一个对象中，常用于or,and等逻辑操作符中</p>
+     * <p>如构建or条件：{@code or(wrapper -> wrapper.eq(User::getUserName,"张三").like(User::getUserName,"1"))}</p>
+     * <p>该操作将会构建语句为：{@code {or:[{userName:{"eq":"张三"}},{userName:{"like":"1"}}]}}</p>
+     * <p>如使用{@link #combine}构建：{@code or(wrapper ->
+     *     wrapper.custom(customWrapper ->
+     *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
+     * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
+     * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @param function 需要合并的链式查询函数
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 14:21
+     */
+    Children combine(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
+
+    /**
+     * 合并
+     * <p>combine中的条件，将会存在同一个对象中，常用于or,and等逻辑操作符中</p>
+     * <p>如构建or条件：{@code or(wrapper -> wrapper.eq(User::getUserName,"张三").like(User::getUserName,"1"))}</p>
+     * <p>该操作将会构建语句为：{@code {or:[{userName:{"eq":"张三"}},{userName:{"like":"1"}}]}}</p>
+     * <p>如使用{@link #combine}构建：{@code or(wrapper ->
+     *     wrapper.custom(customWrapper ->
+     *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
+     * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
+     * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @param queryChainWrapper 链式查询
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 14:21
+     */
+    Children combine(QueryChainWrapper<?,?> queryChainWrapper);
+
+    /**
+     * 合并
+     * <p>combine中的条件，将会存在同一个对象中，常用于or,and等逻辑操作符中</p>
+     * <p>如构建or条件：{@code or(wrapper -> wrapper.eq(User::getUserName,"张三").like(User::getUserName,"1"))}</p>
+     * <p>该操作将会构建语句为：{@code {or:[{userName:{"eq":"张三"}},{userName:{"like":"1"}}]}}</p>
+     * <p>如使用{@link #combine}构建：{@code or(wrapper ->
+     *     wrapper.custom(customWrapper ->
+     *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
+     * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
+     * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param queryChainWrapper 链式查询
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 14:21
+     */
+    Children combine(boolean condition,QueryChainWrapper<?,?> queryChainWrapper);
+
+    /**
+     * 自定义语句
+     * @param basicDBObject bson对象
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 11:31
+     */
     Children custom(BasicDBObject basicDBObject);
 
+    /**
+     * 自定义语句
+     * @param bson bson对象
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 11:31
+     */
     Children custom(Bson bson);
 
+    /**
+     * 自定义语句
+     * @param mongoPlusBasicDBObject bson对象
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 11:31
+     */
+    Children custom(MongoPlusBasicDBObject mongoPlusBasicDBObject);
+
+    /**
+     * 自定义语句
+     * @param function bson对象
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 11:31
+     */
+    Children custom(SFunction<MongoPlusBasicDBObject,MongoPlusBasicDBObject> function);
+
+    /**
+     * 自定义语句
+     * @param basicDBObjectList bson对象
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/10/21 11:31
+     */
     Children custom(List<BasicDBObject> basicDBObjectList);
 }

@@ -134,7 +134,9 @@ public class MongoCommandBuildUtils {
         String collection = bsonDocument.getString("createIndexes").getValue();
         document.put("createIndexes",collection);
         document.put("indexes",bsonDocument.getArray("indexes").getValues());
-        document.put("writeConcern",bsonDocument.getDocument("writeConcern"));
+        if (bsonDocument.containsKey("writeConcern")) {
+            document.put("writeConcern", bsonDocument.getDocument("writeConcern"));
+        }
         return "db."+db+".runCommand("+document.toJson()+")";
     }
 

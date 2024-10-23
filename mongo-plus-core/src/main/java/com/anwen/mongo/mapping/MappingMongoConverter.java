@@ -90,7 +90,8 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                         obj = typeHandler.setParameter(fieldInformation.getName(),fieldInformation.getValue());
                     }
                     String fieldName = fieldInformation.getName();
-                    if (collectionField == null && PropertyCache.camelToUnderline){
+                    if ((collectionField == null || StringUtils.isBlank(collectionField.value()))
+                            && PropertyCache.camelToUnderline){
                         fieldName = StringUtils.camelToUnderline(fieldName);
                     }
                     if (fieldInformation.isAnnotation(FieldEncrypt.class)){
@@ -187,7 +188,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * 集合类型的处理
      * @param obj 源对象
      * @param sink 集合
-     * @return {@link Collection<?>}
+     * @return {@link Collection}
      * @author anwen
      * @date 2024/5/1 下午11:46
      */

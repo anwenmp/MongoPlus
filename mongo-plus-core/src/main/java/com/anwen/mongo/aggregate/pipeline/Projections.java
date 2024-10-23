@@ -222,7 +222,7 @@ public class Projections {
      * @since mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
      */
     public static Bson elemMatch(final String fieldName, final QueryChainWrapper<?, ?> queryChainWrapper) {
-        return elemMatch(fieldName, condition().queryCondition(queryChainWrapper.getCompareList()));
+        return elemMatch(fieldName, condition().queryCondition(queryChainWrapper).getCondition());
     }
 
     /**

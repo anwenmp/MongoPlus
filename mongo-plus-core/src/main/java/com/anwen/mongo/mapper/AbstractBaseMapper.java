@@ -131,8 +131,9 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public boolean isExist(String database, String collectionName, QueryChainWrapper<?, ?> queryChainWrapper) {
-        BasicDBObject basicDBObject = condition().queryCondition(queryChainWrapper.getCompareList());
-        return factory.getExecute().executeCount(basicDBObject, null,
+        return factory.getExecute().executeCount(
+                condition().queryCondition(queryChainWrapper).getCondition(),
+                null,
                 mongoPlusClient.getCollection(database, collectionName)) >= 1;
     }
 
@@ -146,7 +147,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
 
     @Override
     public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options) {
-        return remove(database, collectionName, condition().queryCondition(updateChainWrapper.getCompareList()),options) >= 1;
+        return remove(database, collectionName, condition().queryCondition(updateChainWrapper).getCondition(),options) >= 1;
     }
 
     @Override
@@ -163,8 +164,8 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
             line = execute.estimatedDocumentCount(collection);
         } else {
-            line = execute.executeCount(condition().queryCondition(
-                            queryChainWrapper.getCompareList()),
+            line = execute.executeCount(
+                    condition().queryCondition(queryChainWrapper).getCondition(),
                     null,
                     collection
             );

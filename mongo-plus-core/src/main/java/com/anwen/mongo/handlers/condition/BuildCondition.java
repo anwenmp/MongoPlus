@@ -9,22 +9,26 @@ import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.interfaces.condition.Order;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.domain.MongoPlusException;
-import com.anwen.mongo.enums.CurrentDateType;
-import com.anwen.mongo.enums.QueryOperatorEnum;
-import com.anwen.mongo.enums.SpecialConditionEnum;
-import com.anwen.mongo.enums.TypeEnum;
+import com.anwen.mongo.enums.*;
 import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.model.BuildUpdate;
 import com.anwen.mongo.model.MutablePair;
+import com.anwen.mongo.support.SFunction;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
+import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.enums.QueryOperatorEnum.*;
 
 
 /**
@@ -61,7 +65,12 @@ public class BuildCondition extends AbstractCondition {
         QueryOperatorEnum query = QueryOperatorEnum.getQueryOperator(compareCondition.getCondition());
         switch (Objects.requireNonNull(query)) {
             case EQ:
-                mongoPlusBasicDBObject.put(Filters.eq(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(
+                        new Document(
+                                compareCondition.getColumn(),
+                                new Document(EQ.getOperatorValue(), compareCondition.getValue())
+                        )
+                );
                 break;
             case NE:
                 mongoPlusBasicDBObject.put(Filters.ne(compareCondition.getColumn(), compareCondition.getValue()));
@@ -80,8 +89,11 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case REGEX:
             case LIKE:
-                mongoPlusBasicDBObject.put(Filters.regex(compareCondition.getColumn(),
-                        (String) compareCondition.getValue(), "i"));
+                Document likeDocument = new Document(compareCondition.getColumn(),
+                        new Document(REGEX.getOperatorValue(), compareCondition.getValue().toString())
+                                .append(CommonOperators.OPTIONS.getOperator(), "i")
+                );
+                mongoPlusBasicDBObject.put(likeDocument);
                 break;
             case IN:
                 mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(),
@@ -92,58 +104,13 @@ public class BuildCondition extends AbstractCondition {
                         (Collection<?>) compareCondition.getValue()));
                 break;
             case AND:
-                List<Bson> andBsonList = new ArrayList<>();
-                QueryChainWrapper<?, ?> andWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
-                List<CompareCondition> andCompareList = andWrapper.getCompareList();
-                // 找出重复的CompareCondition
-                List<CompareCondition> andDuplicatedConditions = andCompareList.stream()
-                        .collect(Collectors.groupingBy(CompareCondition::getColumn))
-                        .values().stream()
-                        .filter(list -> list.size() > 1)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-                // 从原始List中删除这些重复的CompareCondition
-                andCompareList.removeAll(andDuplicatedConditions);
-                andCompareList.forEach(orCompareCondition -> andBsonList.add(queryCondition(orCompareCondition)));
-                andBsonList.addAll(andWrapper.getBasicDBObjectList());
-                andBsonList.add(queryCondition(andDuplicatedConditions));
-                mongoPlusBasicDBObject.put(Filters.and(andBsonList));
+                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::and);
                 break;
             case OR:
-                List<Bson> orBsonList = new ArrayList<>();
-                QueryChainWrapper<?, ?> orWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
-                List<CompareCondition> orCompareList = orWrapper.getCompareList();
-                // 找出重复的CompareCondition
-                List<CompareCondition> orDuplicatedConditions = orCompareList.stream()
-                        .collect(Collectors.groupingBy(CompareCondition::getColumn))
-                        .values().stream()
-                        .filter(list -> list.size() > 1)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-                // 从原始List中删除这些重复的CompareCondition
-                orCompareList.removeAll(orDuplicatedConditions);
-                orCompareList.forEach(orCompareCondition -> orBsonList.add(queryCondition(orCompareCondition)));
-                orBsonList.addAll(orWrapper.getBasicDBObjectList());
-                orBsonList.add(queryCondition(orDuplicatedConditions));
-                mongoPlusBasicDBObject.put(Filters.or(orBsonList));
+                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::or);
                 break;
             case NOR:
-                List<Bson> norBsonList = new ArrayList<>();
-                QueryChainWrapper<?, ?> norWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
-                List<CompareCondition> norCompareList = norWrapper.getCompareList();
-                // 找出重复的CompareCondition
-                List<CompareCondition> norDuplicatedConditions = norCompareList.stream()
-                        .collect(Collectors.groupingBy(CompareCondition::getColumn))
-                        .values().stream()
-                        .filter(list -> list.size() > 1)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-                // 从原始List中删除这些重复的CompareCondition
-                norCompareList.removeAll(norDuplicatedConditions);
-                norCompareList.forEach(orCompareCondition -> norBsonList.add(queryCondition(orCompareCondition)));
-                norBsonList.addAll(norWrapper.getBasicDBObjectList());
-                norBsonList.add(queryCondition(norDuplicatedConditions));
-                mongoPlusBasicDBObject.put(Filters.nor(norBsonList));
+                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::nor);
                 break;
             case TYPE:
                 Object typeValue = compareCondition.getValue();
@@ -181,7 +148,7 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case ELEM_MATCH:
                 QueryChainWrapper<?, ?> elemMatchWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
-                BasicDBObject elemMatchBasicDBObject = queryCondition(elemMatchWrapper.getCompareList());
+                BasicDBObject elemMatchBasicDBObject = queryCondition(elemMatchWrapper).getCondition();
                 Bson elemMatchBson = Filters.elemMatch(compareCondition.getColumn(), elemMatchBasicDBObject);
                 if (CollUtil.isNotEmpty(elemMatchWrapper.getBasicDBObjectList())) {
                     elemMatchWrapper.getBasicDBObjectList().forEach(bson ->
@@ -203,7 +170,7 @@ public class BuildCondition extends AbstractCondition {
                 Bson textBson;
                 Object value = compareCondition.getValue();
                 TextSearchOptions textSearchOptions = compareCondition.getExtraValue(TextSearchOptions.class);
-                if (textSearchOptions != null){
+                if (textSearchOptions != null) {
                     textBson = Filters.text(value.toString(), textSearchOptions.to());
                 } else {
                     textBson = Filters.text(value.toString());
@@ -310,7 +277,7 @@ public class BuildCondition extends AbstractCondition {
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
         if (currentCompareCondition.getExtraValue(Boolean.class)) {
             QueryChainWrapper<?, ?> wrapper = currentCompareCondition.getValue(QueryChainWrapper.class);
-            BasicDBObject queriedCondition = queryCondition(wrapper.getCompareList());
+            BasicDBObject queriedCondition = queryCondition(wrapper).getCondition();
             if (CollUtil.isNotEmpty(wrapper.getBasicDBObjectList())) {
                 wrapper.getBasicDBObjectList().forEach(basicDBObject -> queriedCondition.putAll(
                         basicDBObject.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())
@@ -346,4 +313,21 @@ public class BuildCondition extends AbstractCondition {
                 sortCond
         );
     }
+
+    public void logic(QueryChainWrapper<?, ?> queryChainWrapper, MongoPlusBasicDBObject basicDBObject, Function<List<Bson>, Bson> function) {
+        List<Bson> bsonList = new ArrayList<>();
+        queryChainWrapper.getCompareList().forEach(compareCondition -> {
+            if (Objects.equals(COMBINE.getValue(), compareCondition.getCondition())) {
+                bsonList.add(queryCondition(
+                        ((QueryChainWrapper<?, ?>) compareCondition.getValue())
+                                .getCompareList()
+                ));
+            } else {
+                bsonList.add(queryCondition(compareCondition));
+            }
+        });
+        bsonList.addAll(queryChainWrapper.getBasicDBObjectList());
+        basicDBObject.put(function.apply(bsonList));
+    }
+
 }

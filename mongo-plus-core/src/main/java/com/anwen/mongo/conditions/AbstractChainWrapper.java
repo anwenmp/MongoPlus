@@ -1,5 +1,7 @@
 package com.anwen.mongo.conditions;
 
+import com.anwen.mongo.bson.MongoPlusBasicDBObject;
+import com.anwen.mongo.bson.MongoPlusDocument;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.conditions.interfaces.Compare;
 import com.anwen.mongo.conditions.interfaces.Projection;
@@ -734,6 +736,26 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
+    public Children combine(boolean condition, QueryChainWrapper<?, ?> queryChainWrapper) {
+        return condition ? combine(queryChainWrapper) : typedThis;
+    }
+
+    @Override
+    public Children combine(QueryChainWrapper<?, ?> queryChainWrapper) {
+        return getBaseCondition(queryChainWrapper);
+    }
+
+    @Override
+    public Children combine(SFunction<QueryChainWrapper<T, ?>, QueryChainWrapper<T, ?>> function) {
+        return combine(function.apply(new QueryWrapper<>()));
+    }
+
+    @Override
+    public Children combine(boolean condition, SFunction<QueryChainWrapper<T, ?>, QueryChainWrapper<T, ?>> function) {
+        return condition ? combine(function) : typedThis;
+    }
+
+    @Override
     public Children custom(BasicDBObject basicDBObject) {
         this.basicDBObjectList.add(basicDBObject);
         return typedThis;
@@ -742,6 +764,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     @Override
     public Children custom(Bson bson) {
         this.basicDBObjectList.add(BasicDBObject.parse(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toJson()));
+        return typedThis;
+    }
+
+    @Override
+    public Children custom(SFunction<MongoPlusBasicDBObject, MongoPlusBasicDBObject> function) {
+        return custom(function.apply(new MongoPlusBasicDBObject()));
+    }
+
+    @Override
+    public Children custom(MongoPlusBasicDBObject mongoPlusBasicDBObject) {
+        this.basicDBObjectList.add(mongoPlusBasicDBObject);
         return typedThis;
     }
 

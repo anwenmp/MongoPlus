@@ -46,6 +46,12 @@ public enum ExecuteMethodEnum {
     COUNT("executeCount"),
 
     /**
+     * 不接受任何参数的统计方法
+     * @date 2024/10/21 13:39
+     */
+    ESTIMATED_DOCUMENT_COUNT("estimatedDocumentCount"),
+
+    /**
      * 批量执行方法
      * @date 2024/6/27 下午3:02
      */

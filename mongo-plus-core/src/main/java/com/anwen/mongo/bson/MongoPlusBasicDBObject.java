@@ -25,6 +25,28 @@ public class MongoPlusBasicDBObject extends BasicDBObject {
         super.get(key.getFieldNameLine());
     }
 
+    public <T,R> void putIsNotNull(String key, Object value){
+        if (value != null) {
+            super.put(key, value);
+        }
+    }
+
+    public <T,V> void put(SFunction<T,?> key, SFunction<V,?> value){
+        super.put(key.getFieldNameLine(),value.getFieldNameLine());
+    }
+
+    public <T,V> void putOption(SFunction<T,?> key, SFunction<V,?> value){
+        super.put(key.getFieldNameLine(),value.getFieldNameLineOption());
+    }
+
+    public <T,R> boolean containsKey(SFunction<T,R> key){
+        return super.containsKey(key.getFieldNameLine());
+    }
+
+    public <T,R> Object remove(SFunction<T,R> key){
+        return super.remove(key.getFieldNameLine());
+    }
+
     public void put(String key,BasicDBObject value){
         if (containsKey(key)){
             super.put(key,new BasicDBObject((BasicDBObject) get(key)){{

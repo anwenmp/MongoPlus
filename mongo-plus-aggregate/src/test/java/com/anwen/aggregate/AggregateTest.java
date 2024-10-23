@@ -72,7 +72,7 @@ public class AggregateTest {
             //以下聚合操作fuel_type向嵌入文档和一级文档添加一个新字段specs
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.addFields("specs.fuel_type", "unleaded");
-            List<Map<String, Object>> aggregatedList = execute("addFields",aggregateWrapper);
+            List<Map<String, Object>> aggregatedList = execute("addFields", aggregateWrapper);
             boolean exist = JSON.toJSONString(aggregatedList).contains("fuel_type");
             Assertions.assertTrue(exist);
         } finally {
@@ -93,7 +93,7 @@ public class AggregateTest {
             //以下聚合操作fuel_type向嵌入文档和一级文档添加一个新字段specs
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.set("specs.fuel_type", "unleaded");
-            List<Map<String, Object>> aggregatedList = execute("set",aggregateWrapper);
+            List<Map<String, Object>> aggregatedList = execute("set", aggregateWrapper);
             boolean exist = JSON.toJSONString(aggregatedList).contains("fuel_type");
             Assertions.assertTrue(exist);
             aggregatedList.forEach(System.out::println);
@@ -117,7 +117,7 @@ public class AggregateTest {
                             new BasicDBObject("$concat", Arrays.asList("$first_name", " ", "$last_name")))
             );
             aggregateWrapper.bucket("$your_born", Arrays.asList(1840, 1850, 1860, 1870, 1880), bucketOptions);
-            List<Map<String, Object>> aggregatedList = execute("bucket",aggregateWrapper);
+            List<Map<String, Object>> aggregatedList = execute("bucket", aggregateWrapper);
             aggregatedList.forEach(System.out::println);
         } finally {
             removeCollection("bucket");
@@ -133,7 +133,7 @@ public class AggregateTest {
             //在以下操作中，根据 price 字段中的值将输入文档分为四个存储桶
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.bucketAuto("$price", 4);
-            List<Map<String, Object>> aggregateList = execute("bucketAuto",aggregateWrapper);
+            List<Map<String, Object>> aggregateList = execute("bucketAuto", aggregateWrapper);
             Assertions.assertEquals(4, aggregateList.size());
         } finally {
             removeCollection("bucketAuto");
@@ -151,7 +151,7 @@ public class AggregateTest {
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.match(new QueryWrapper<>().gt("score", 80));
             aggregateWrapper.count("passing_scores");
-            List<Map<String, Object>> aggregateList = execute("count",aggregateWrapper);
+            List<Map<String, Object>> aggregateList = execute("count", aggregateWrapper);
             Assertions.assertEquals(1, aggregateList.size());
             Assertions.assertEquals(4, aggregateList.get(0).get("passing_scores"));
         } finally {
@@ -176,8 +176,9 @@ public class AggregateTest {
             aggregateWrapperCount.match(
                     new QueryWrapper<>()
                             .or(orWrapper ->
-                                    orWrapper.between("score", 70, 90, true)
-                                            .gte("views", 1000)
+                                    orWrapper.combine(combine ->
+                                            combine.between("score", 70, 90, true)
+                                    ).gte("views", 1000)
                             )
             );
             aggregateWrapperCount.group(null, Accumulators.sum("count", 1));
@@ -362,8 +363,8 @@ public class AggregateTest {
             );
             List<Document> aggregateList = execute("employees", aggregateWrapper, Document.class);
             Assertions.assertTrue(
-                    aggregateList.get(aggregateList.size()-1)
-                            .getList("reportingHierarchy",Document.class).stream()
+                    aggregateList.get(aggregateList.size() - 1)
+                            .getList("reportingHierarchy", Document.class).stream()
                             .map(document -> document.getInteger("_id")).anyMatch(id -> id == 4));
             //跨多个集合
             //与 $lookup 一样，$graphLookup 可以访问同一数据库中的另一个集合。
@@ -456,19 +457,19 @@ public class AggregateTest {
     }
 
     @Test
-    public void unionWith(){
+    public void unionWith() {
         try {
             //从年度数据集合联合创建销售报告
             //以下示例使用 $unionWith 阶段合并数据，并从多个集合中返回结果。在这些示例中，每个集合都包含一年的销售数据。
             //填充样本数据
             Boolean sales_2017 = baseMapper.saveBatch("sales_2017", getDocumentArray("unionWith1.json"));
-            log.info("sales_2017:{}",sales_2017);
+            log.info("sales_2017:{}", sales_2017);
             Boolean sales_2018 = baseMapper.saveBatch("sales_2018", getDocumentArray("unionWith2.json"));
-            log.info("sales_2018:{}",sales_2018);
+            log.info("sales_2018:{}", sales_2018);
             Boolean sales_2019 = baseMapper.saveBatch("sales_2019", getDocumentArray("unionWith3.json"));
-            log.info("sales_2019:{}",sales_2019);
+            log.info("sales_2019:{}", sales_2019);
             Boolean sales_2020 = baseMapper.saveBatch("sales_2020", getDocumentArray("unionWith4.json"));
-            log.info("sales_2020:{}",sales_2020);
+            log.info("sales_2020:{}", sales_2020);
 
             //报告 1：按年份、商店和商品列出的所有销售额
             //以下聚合创建了一份年度销售报告，其中按季度和门店列出了所有销售额。该管道使用 $unionWith 来合并所有四个集合的文档
@@ -479,13 +480,13 @@ public class AggregateTest {
             //
             //按$sort （年份）、 _id和store排序的item阶段。
             AggregateWrapper aggregateWrapperOne = new AggregateWrapper();
-            aggregateWrapperOne.set(BaseModelID::getId,"2017");
-            aggregateWrapperOne.unionWith("sales_2018",new AggregateWrapper().set(BaseModelID::getId,"2018"));
-            aggregateWrapperOne.unionWith("sales_2019",new AggregateWrapper().set(BaseModelID::getId,"2019"));
-            aggregateWrapperOne.unionWith("sales_2020",new AggregateWrapper().set(BaseModelID::getId,"2020"));
-            aggregateWrapperOne.sortAsc("_id","store","item");
-            List<Map<String,Object>> aggregateListOne = execute("sales_2017",aggregateWrapperOne);
-            Assertions.assertEquals(35,aggregateListOne.size());
+            aggregateWrapperOne.set(BaseModelID::getId, "2017");
+            aggregateWrapperOne.unionWith("sales_2018", new AggregateWrapper().set(BaseModelID::getId, "2018"));
+            aggregateWrapperOne.unionWith("sales_2019", new AggregateWrapper().set(BaseModelID::getId, "2019"));
+            aggregateWrapperOne.unionWith("sales_2020", new AggregateWrapper().set(BaseModelID::getId, "2020"));
+            aggregateWrapperOne.sortAsc("_id", "store", "item");
+            List<Map<String, Object>> aggregateListOne = execute("sales_2017", aggregateWrapperOne);
+            Assertions.assertEquals(35, aggregateListOne.size());
 
             //报告 2：按商品分类的合计销售额
             //以下聚合创建了一份销售报告，其中列出了每个商品的销售数量。该管道使用 $unionWith 来合并所有四年的文档
@@ -495,11 +496,11 @@ public class AggregateTest {
             aggregateWrapperTwo.unionWith("sales_2020");
             aggregateWrapperTwo.group(
                     "$item",
-                    Accumulators.sum("total","$quantity")
+                    Accumulators.sum("total", "$quantity")
             );
             aggregateWrapperTwo.sortDesc("total");
-            List<Map<String,Object>> aggregateListTwo = execute("sales_2017",aggregateWrapperTwo);
-            Assertions.assertEquals(5,aggregateListTwo.size());
+            List<Map<String, Object>> aggregateListTwo = execute("sales_2017", aggregateWrapperTwo);
+            Assertions.assertEquals(5, aggregateListTwo.size());
         } finally {
             removeCollection("sales_2017");
             removeCollection("sales_2018");
@@ -509,25 +510,25 @@ public class AggregateTest {
     }
 
     @Test
-    public void unwind(){
+    public void unwind() {
         try {
             //展开数组
             //在 mongosh 中创建名为 inventory 的示例集合，其中包含以下文档
             Boolean unwind1 = baseMapper.save("unwind1", getDocument("unwind1.json"));
-            log.info("unwind1:{}",unwind1);
+            log.info("unwind1:{}", unwind1);
             //以下聚合使用 $unwind 阶段为 sizes 数组中的每个元素输出一个文档
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.unwind("$sizes");
-            List<Map<String,Object>> aggregateList = execute("unwind1",aggregateWrapper);
-            Assertions.assertEquals(3,aggregateList.size());
+            List<Map<String, Object>> aggregateList = execute("unwind1", aggregateWrapper);
+            Assertions.assertEquals(3, aggregateList.size());
 
             //以下 $unwind 操作使用 preserveNullAndEmptyArrays 选项来纳入 sizes 字段为 null、缺失或空数组的文档。
             Boolean unwind2 = baseMapper.saveBatch("unwind2", getDocumentArray("unwind2.json"));
-            log.info("unwind2:{}",unwind2);
+            log.info("unwind2:{}", unwind2);
             AggregateWrapper aggregateWrapperArray = new AggregateWrapper();
-            aggregateWrapperArray.unwind("$sizes",new UnwindOption().preserveNullAndEmptyArrays(true));
-            List<Map<String,Object>> aggregateArrayList = execute("unwind2",aggregateWrapperArray);
-            Assertions.assertEquals(7,aggregateArrayList.size());
+            aggregateWrapperArray.unwind("$sizes", new UnwindOption().preserveNullAndEmptyArrays(true));
+            List<Map<String, Object>> aggregateArrayList = execute("unwind2", aggregateWrapperArray);
+            Assertions.assertEquals(7, aggregateArrayList.size());
         } finally {
             removeCollection("unwind1");
             removeCollection("unwind2");
@@ -538,17 +539,17 @@ public class AggregateTest {
     public void out() {
         try {
             Boolean out = baseMapper.saveBatch("out_save", getDocumentArray("out.json"));
-            log.info("out:{}",out);
+            log.info("out:{}", out);
             //输出到其他数据库
             //$out可以输出到与运行聚合的数据库不同的数据库中的集合。
 
             //以下聚合操作对 out_save 集合中的数据进行透视，从而按作者对书名分组，然后将结果写入 mongo-plus-out 数据库中的 out_save 集合
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
-            aggregateWrapper.group("$author",Accumulators.push("books","$title"));
-            aggregateWrapper.out("mongo-plus-out","out_save");
-            execute("out_save",aggregateWrapper);
-            List<Document> documentList = baseMapper.list("mongo-plus-out","out_save",Document.class);
-            Assertions.assertEquals(2,documentList.size());
+            aggregateWrapper.group("$author", Accumulators.push("books", "$title"));
+            aggregateWrapper.out("mongo-plus-out", "out_save");
+            execute("out_save", aggregateWrapper);
+            List<Document> documentList = baseMapper.list("mongo-plus-out", "out_save", Document.class);
+            Assertions.assertEquals(2, documentList.size());
         } finally {
             removeCollection("out_save");
             removeDatabase("mongo-plus-out");
@@ -556,32 +557,32 @@ public class AggregateTest {
     }
 
     @Test
-    public void merge(){
+    public void merge() {
         try {
             //按需物化视图：初始创建
             //如果输出集合不存在，则 $merge 会创建该集合。
             //例如，数据库中的 merge 集合填充有员工工资和部门历史
             Boolean merge = baseMapper.saveBatch("merge_save", getDocumentArray("merge.json"));
-            log.info("merge:{}",merge);
+            log.info("merge:{}", merge);
             //您可以使用 $group 和 $merge 阶段从当前位于 salaries 集合中的数据初始创建名为 budgets 的集合（在 mongo-plus-merge 数据库中）
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.group(
-                    new MongoPlusDocument(){{
-                        put("fiscal_year","$fiscal_year");
-                        put("dept","$dept");
+                    new MongoPlusDocument() {{
+                        put("fiscal_year", "$fiscal_year");
+                        put("dept", "$dept");
                     }},
-                    Accumulators.sum("salaries","$salary")
+                    Accumulators.sum("salaries", "$salary")
             );
             aggregateWrapper.merge(
-                    new MongoNamespace("mongo-plus-merge","merge_save"),
+                    new MongoNamespace("mongo-plus-merge", "merge_save"),
                     new MergeOptions()
                             .uniqueIdentifier(FunctionUtil.getFieldName(BaseModelID::getId))
                             .whenMatched(MergeOptions.WhenMatched.REPLACE)
                             .whenNotMatched(MergeOptions.WhenNotMatched.INSERT)
             );
-            execute("merge_save",aggregateWrapper);
-            List<Document> documentList = baseMapper.list("mongo-plus-merge","merge_save",Document.class);
-            Assertions.assertEquals(6,documentList.size());
+            execute("merge_save", aggregateWrapper);
+            List<Document> documentList = baseMapper.list("mongo-plus-merge", "merge_save", Document.class);
+            Assertions.assertEquals(6, documentList.size());
         } finally {
             removeCollection("merge_save");
             removeDatabase("mongo-plus-merge");
@@ -589,10 +590,10 @@ public class AggregateTest {
     }
 
     @Test
-    public void replaceRoot(){
+    public void replaceRoot() {
         try {
-            Boolean rootPlaceRoot = baseMapper.saveBatch("replaceRoot_save",getDocumentArray("replaceRoot.json"));
-            log.info("rootPlaceRoot:{}",rootPlaceRoot);
+            Boolean rootPlaceRoot = baseMapper.saveBatch("replaceRoot_save", getDocumentArray("replaceRoot.json"));
+            log.info("rootPlaceRoot:{}", rootPlaceRoot);
             //以下操作使用 $replaceRoot 阶段将每个输入文档替换为 $mergeObjects 操作的结果。$mergeObjects 表达式将指定的默认文档与 pets 文档合并
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
         /*aggregateWrapper.replaceRoot(ConditionOperators.mergeObjects(
@@ -605,58 +606,58 @@ public class AggregateTest {
         ));*/
             aggregateWrapper.replaceRoot(
                     ConditionOperators.mergeObjects(
-                            new MongoPlusDocument(){{
-                                put("dogs",0);
-                                put("cats",0);
-                                put("birds",0);
-                                put("fish",0);
+                            new MongoPlusDocument() {{
+                                put("dogs", 0);
+                                put("cats", 0);
+                                put("birds", 0);
+                                put("fish", 0);
                             }},
                             "$pets"
                     )
             );
             List<Map<String, Object>> aggregateList = execute("replaceRoot_save", aggregateWrapper);
-            Assertions.assertEquals(3,aggregateList.size());
+            Assertions.assertEquals(3, aggregateList.size());
         } finally {
             removeCollection("replaceRoot_save");
         }
     }
 
     @Test
-    public void replaceWith(){
+    public void replaceWith() {
         //以下操作使用 $replaceWith 阶段将每个输入文档替换为 $mergeObjects 操作的结果。$mergeObjects 表达式将指定的默认文档与 pets 文档合并
         try {
             Boolean replaceWith = baseMapper.saveBatch("replaceWith_save", getDocumentArray("replaceWith.json"));
-            log.info("replaceWith:{}",replaceWith);
+            log.info("replaceWith:{}", replaceWith);
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.replaceWith(
                     ConditionOperators.mergeObjects(
-                            new MongoPlusDocument(){{
-                                put("dogs",0);
-                                put("cats",0);
-                                put("birds",0);
-                                put("fish",0);
+                            new MongoPlusDocument() {{
+                                put("dogs", 0);
+                                put("cats", 0);
+                                put("birds", 0);
+                                put("fish", 0);
                             }},
                             "$pets"
                     )
             );
             List<Map<String, Object>> aggregateList = execute("replaceWith_save", aggregateWrapper);
-            Assertions.assertEquals(3,aggregateList.size());
+            Assertions.assertEquals(3, aggregateList.size());
         } finally {
             removeCollection("replaceWith_save");
         }
     }
 
     @Test
-    public void sample(){
+    public void sample() {
         // sample没什么好演示的
         new AggregateWrapper().sample(3);
     }
 
     @Test
-    public void unset(){
+    public void unset() {
         try {
             Boolean unset = baseMapper.saveBatch("unset_save", getDocumentArray("unset.json"));
-            log.info("unset:{}",unset);
+            log.info("unset:{}", unset);
             // 以下示例将删除顶级字段 copies
             AggregateWrapper aggregateWrapper = new AggregateWrapper();
             aggregateWrapper.unset("copies");
@@ -680,7 +681,8 @@ public class AggregateTest {
     }
 
     private List<Map<String, Object>> execute(String collectionName, Aggregate<?> aggregate) {
-        return baseMapper.aggregateList(collectionName, aggregate, new TypeReference<Map<String, Object>>() {});
+        return baseMapper.aggregateList(collectionName, aggregate, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     private <T> List<T> execute(String collectionName, Aggregate<?> aggregate, Class<T> clazz) {
