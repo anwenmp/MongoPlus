@@ -10,7 +10,6 @@ import com.anwen.mongo.support.SFunction;
 import com.mongodb.BasicDBObject;
 import org.bson.conversions.Bson;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -39,14 +38,6 @@ public interface Compare<T,Children> extends Serializable {
      * @date 2024/8/24 16:06
      */
     BaseConditionResult buildCondition(Condition condition);
-
-    /**
-     * 拷贝
-     * @return {@link Children}
-     * @author anwen
-     * @date 2024/9/6 10:57
-     */
-    Children deepCopy() throws IOException, ClassNotFoundException;
 
     /**
      * 等于

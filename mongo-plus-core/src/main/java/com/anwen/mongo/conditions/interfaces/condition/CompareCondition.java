@@ -1,5 +1,6 @@
 package com.anwen.mongo.conditions.interfaces.condition;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +10,9 @@ import java.util.Objects;
  * @author JiaChaoYang
  * @since 2023/2/14 14:13
 */
-public class CompareCondition {
+public class CompareCondition implements Serializable {
+
+    private static final long serialVersionUID = 682242054799754195L;
 
     /**
      * 条件
