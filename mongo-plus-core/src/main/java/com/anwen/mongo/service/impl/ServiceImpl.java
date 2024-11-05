@@ -43,8 +43,9 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class ServiceImpl<T> implements IService<T> {
 
-    private BaseMapper baseMapper;
+    protected BaseMapper baseMapper;
 
+    @Override
     public BaseMapper getBaseMapper() {
         return baseMapper;
     }

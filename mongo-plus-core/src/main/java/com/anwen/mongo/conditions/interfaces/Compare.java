@@ -1,7 +1,6 @@
 package com.anwen.mongo.conditions.interfaces;
 
 import com.anwen.mongo.bson.MongoPlusBasicDBObject;
-import com.anwen.mongo.bson.MongoPlusDocument;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.TypeEnum;

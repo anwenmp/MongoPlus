@@ -263,6 +263,12 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     }
 
     @Override
+    public <R> R aggregateOne(String database, String collectionName, Aggregate<?> aggregate, Class<R> rClazz) {
+        return aggregateOne(database, collectionName, aggregate, new TypeReference<R>(rClazz) {
+        });
+    }
+
+    @Override
     public <R> List<R> aggregateList(String database, String collectionName, Aggregate<?> aggregate,
                                      TypeReference<R> typeReference) {
         List<Bson> aggregateConditionList = aggregate.getAggregateConditionList();
@@ -277,6 +283,23 @@ public abstract class AbstractBaseMapper implements BaseMapper {
             return new ArrayList<>();
         }
         return mongoConverter.read(aggregateIterable, typeReference);
+    }
+
+    @Override
+    public <R> R aggregateOne(String database, String collectionName, Aggregate<?> aggregate,
+                              TypeReference<R> typeReference) {
+        List<Bson> aggregateConditionList = aggregate.getAggregateConditionList();
+        AggregateIterable<Document> aggregateIterable = factory.getExecute().executeAggregate(
+                aggregateConditionList,
+                Document.class,
+                mongoPlusClient.getCollection(database, collectionName)
+        );
+        AggregateUtil.aggregateOptions(aggregateIterable, aggregate.getAggregateOptions());
+        if (aggregate.isSkip()) {
+            aggregateIterable.toCollection();
+            return null;
+        }
+        return mongoConverter.readDocument(aggregateIterable, typeReference);
     }
 
     @Override

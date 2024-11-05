@@ -5,8 +5,6 @@ import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.enums.AggregateEnum;
 import com.anwen.mongo.enums.CommonOperators;
 import com.anwen.mongo.support.SFunction;
-import com.mongodb.lang.Nullable;
-import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 

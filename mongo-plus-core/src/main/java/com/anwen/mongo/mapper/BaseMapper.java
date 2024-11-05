@@ -260,11 +260,23 @@ public interface BaseMapper extends Mapper {
      * 管道查询
      * @param aggregate 管道构建
      * @param clazz class
+     * @param rClazz 返回值类型
      * @return {@link List<T>}
      * @author anwen
      * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> aggregateList(Aggregate<?> aggregate, Class<T> clazz, Class<R> rClazz);
+
+    /**
+     * 管道查询，返回单个
+     * @param aggregate 管道构建
+     * @param clazz class
+     * @param rClazz 返回值类型
+     * @return {@link java.util.List<R>}
+     * @author anwen
+     * @date 2024/10/30 14:29
+     */
+    <T,R> R aggregateOne(Aggregate<?> aggregate, Class<T> clazz, Class<R> rClazz);
 
     /**
      * 管道查询
@@ -279,6 +291,18 @@ public interface BaseMapper extends Mapper {
     }
 
     /**
+     * 管道查询，返回单个
+     * @param aggregate 管道构建
+     * @param clazz class
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/5/4 下午1:24
+     */
+    default <T> T aggregateOne(Aggregate<?> aggregate, Class<T> clazz){
+        return aggregateOne(aggregate, clazz, clazz);
+    }
+
+    /**
      * 管道查询
      * @param aggregate 管道构建
      * @param clazz class
@@ -287,6 +311,16 @@ public interface BaseMapper extends Mapper {
      * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> aggregateList(Aggregate<?> aggregate, Class<T> clazz, TypeReference<R> typeReference);
+
+    /**
+     * 管道查询，返回单个
+     * @param aggregate 管道构建
+     * @param clazz class
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/5/4 下午1:24
+     */
+    <T,R> R aggregateOne(Aggregate<?> aggregate, Class<T> clazz, TypeReference<R> typeReference);
 
     /**
      * 根据条件查询单个

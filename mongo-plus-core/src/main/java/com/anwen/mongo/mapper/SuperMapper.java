@@ -263,6 +263,15 @@ public interface SuperMapper {
     <R> List<R> aggregateList(String database,String collectionName,Aggregate<?> aggregate, Class<R> rClazz);
 
     /**
+     * 管道查询，返回单个
+     * @param aggregate 管道构建
+     * @return {@link List<R>}
+     * @author anwen
+     * @date 2024/5/4 下午1:24
+     */
+    <R> R aggregateOne(String database,String collectionName,Aggregate<?> aggregate, Class<R> rClazz);
+
+    /**
      * 管道查询
      * @param aggregate 管道构建
      * @return {@link List<R>}
@@ -270,6 +279,15 @@ public interface SuperMapper {
      * @date 2024/5/4 下午1:24
      */
     <R> List<R> aggregateList(String database,String collectionName,Aggregate<?> aggregate, TypeReference<R> typeReference);
+
+    /**
+     * 管道查询，返回单个
+     * @param aggregate 管道构建
+     * @return {@link List<R>}
+     * @author anwen
+     * @date 2024/5/4 下午1:24
+     */
+    <R> R aggregateOne(String database,String collectionName,Aggregate<?> aggregate, TypeReference<R> typeReference);
 
     /**
      * 根据条件查询单个

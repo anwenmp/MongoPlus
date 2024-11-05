@@ -6,6 +6,7 @@ import com.anwen.mongo.conditions.query.LambdaQueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.update.LambdaUpdateChainWrapper;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
+import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapping.TypeReference;
 import com.anwen.mongo.model.PageParam;
 import com.anwen.mongo.model.PageResult;
@@ -25,6 +26,8 @@ import java.util.List;
  * @since 2023-02-09 13:25
  **/
 public interface IService<T> {
+
+    BaseMapper getBaseMapper();
 
     /**
      * 添加

@@ -28,4 +28,14 @@ public class LambdaAggregateChainWrapper<T> extends LambdaAggregateWrapper<Lambd
     public <R> List<R> list(Class<R> rClazz) {
         return baseMapper.aggregateList(this,clazz,rClazz);
     }
+
+    @Override
+    public T one() {
+        return one(clazz);
+    }
+
+    @Override
+    public <R> R one(Class<R> rClazz) {
+        return baseMapper.aggregateOne(this,clazz,rClazz);
+    }
 }

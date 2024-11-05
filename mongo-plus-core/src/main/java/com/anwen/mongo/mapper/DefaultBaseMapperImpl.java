@@ -106,9 +106,21 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
+    public <T, R> R aggregateOne(Aggregate<?> aggregate, Class<T> clazz, Class<R> rClazz) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return aggregateOne(namespace.left, namespace.right, aggregate, rClazz);
+    }
+
+    @Override
     public <T, R> List<R> aggregateList(Aggregate<?> aggregate, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return aggregateList(namespace.left, namespace.right, aggregate, typeReference);
+    }
+
+    @Override
+    public <T, R> R aggregateOne(Aggregate<?> aggregate, Class<T> clazz, TypeReference<R> typeReference) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return aggregateOne(namespace.left, namespace.right, aggregate, typeReference);
     }
 
     @Override

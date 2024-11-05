@@ -559,6 +559,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      * @date 2024/6/11 下午5:35
      */
+    @SuppressWarnings("unchecked")
     <T> Children sortDesc(final SFunction<T, ?>... field);
 
     /**

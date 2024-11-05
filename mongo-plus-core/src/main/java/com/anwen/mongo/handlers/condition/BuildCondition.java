@@ -13,7 +13,6 @@ import com.anwen.mongo.enums.*;
 import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.model.BuildUpdate;
 import com.anwen.mongo.model.MutablePair;
-import com.anwen.mongo.support.SFunction;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
@@ -23,8 +22,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
