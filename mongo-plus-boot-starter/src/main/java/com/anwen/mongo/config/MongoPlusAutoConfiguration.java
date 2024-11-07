@@ -3,7 +3,10 @@ package com.anwen.mongo.config;
 import com.anwen.mongo.annotation.collection.CollectionName;
 import com.anwen.mongo.annotation.collection.TimeSeries;
 import com.anwen.mongo.aware.Aware;
+import com.anwen.mongo.cache.codec.MongoPlusCodecCache;
 import com.anwen.mongo.cache.global.*;
+import com.anwen.mongo.codecs.MongoPlusCodec;
+import com.anwen.mongo.domain.InitMongoPlusException;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
 import com.anwen.mongo.handlers.IdGenerateHandler;
@@ -35,6 +38,7 @@ import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.AutoUtil;
 import com.anwen.mongo.toolkit.CollUtil;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScanner;
 import org.springframework.context.ApplicationContext;
@@ -93,17 +97,30 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         setIdGenerator();
         setTenantHandler();
         setDynamicCollectionHandler();
-        setAware(applicationContext);
+        setAware();
         collectionNameConvert();
         autoCreateTimeSeries();
         autoCreateIndexes();
         setIdGenerateHandler();
+        setMongoPlusCodec();
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void afterPropertiesSet() {
         Collection<IService> values = applicationContext.getBeansOfType(IService.class).values();
-        values.forEach(s -> setExecute((ServiceImpl<?>) s, s.getGenericityClass()));
+        values.forEach(s -> {
+            ServiceImpl serviceImpl;
+            if (s instanceof ServiceImpl){
+                serviceImpl = (ServiceImpl<?>) s;
+            } else {
+                serviceImpl = (ServiceImpl) AopProxyUtils.getSingletonTarget(s);
+            }
+            if (serviceImpl == null){
+                throw new InitMongoPlusException("Unable to obtain an instance of 'ServiceImpl'");
+            }
+            setExecute(serviceImpl);
+        });
         setLogicFiled(values.stream().map(IService::getGenericityClass).toArray(Class[]::new));
     }
 
@@ -112,7 +129,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      *
      * @author loser
      */
-    public void setAware(ApplicationContext applicationContext) {
+    public void setAware() {
 
         Configuration builder = Configuration.builder();
         builder.aware(new LogicNamespaceAware());
@@ -132,8 +149,8 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         Configuration.builder().logic(this.mongoLogicDelProperty).setLogicFiled(collectionClasses);
     }
 
-    private void setExecute(ServiceImpl<?> serviceImpl, Class<?> clazz) {
-        serviceImpl.setClazz(clazz);
+    private void setExecute(ServiceImpl<?> serviceImpl) {
+        serviceImpl.setClazz(serviceImpl.getGenericityClass());
         serviceImpl.setBaseMapper(baseMapper);
     }
 
@@ -361,6 +378,15 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             idGenerateHandler = applicationContext.getBean(IdGenerateHandler.class);
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
+    }
+
+    /**
+     * 设置编解码器
+     * @author anwen
+     * @date 2024/11/7 17:10
+     */
+    public void setMongoPlusCodec(){
+        applicationContext.getBeansOfType(MongoPlusCodec.class).values().forEach(MongoPlusCodecCache::addCodec);
     }
 
 }

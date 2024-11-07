@@ -2,7 +2,9 @@ package com.anwen.mongo.config;
 
 import com.anwen.mongo.annotation.collection.CollectionName;
 import com.anwen.mongo.annotation.collection.TimeSeries;
+import com.anwen.mongo.cache.codec.MongoPlusCodecCache;
 import com.anwen.mongo.cache.global.*;
+import com.anwen.mongo.codecs.MongoPlusCodec;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
 import com.anwen.mongo.handlers.IdGenerateHandler;
@@ -91,26 +93,30 @@ public class MongoPlusAutoConfiguration {
     }
 
     public void init(AppContext context){
-        //拿到转换器
+        // 拿到转换器
         setConversion(context);
-        //拿到自动填充处理器
+        // 拿到自动填充处理器
         setMetaObjectHandler(context);
-        //拿到监听器
+        // 拿到监听器
         setListener(context);
-        //拿到拦截器
+        // 拿到拦截器
         setInterceptor(context);
-        //拿到替换器
+        // 拿到替换器
         setReplacer(context);
-        //拿到属性映射器
+        // 拿到属性映射器
         setMapping(context);
-        //拿到自定义id生成
+        // 拿到自定义id生成
         setIdGenerator(context);
-        //初始化集合名称转换器
+        // 初始化集合名称转换器
         collectionNameConvert();
-        //自动创建时间序列
+        // 自动创建时间序列
         autoCreateTimeSeries(context);
-        //自动创建索引
+        // 自动创建索引
         autoCreateIndexes(context);
+        // 设置id生成器
+        setIdGenerateHandler(context);
+        // 设置编解码器
+        setMongoPlusCodec(context);
     }
 
     /**
@@ -336,6 +342,15 @@ public class MongoPlusAutoConfiguration {
             idGenerateHandler = context.getBean(IdGenerateHandler.class);
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
+    }
+
+    /**
+     * 设置编解码器
+     * @author anwen
+     * @date 2024/11/7 17:15
+     */
+    public void setMongoPlusCodec(AppContext context){
+        context.getBeansOfType(MongoPlusCodec.class).forEach(MongoPlusCodecCache::addCodec);
     }
 
 }

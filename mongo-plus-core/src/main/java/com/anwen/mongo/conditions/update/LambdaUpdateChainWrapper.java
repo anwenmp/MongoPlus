@@ -1,6 +1,8 @@
 package com.anwen.mongo.conditions.update;
 
 import com.anwen.mongo.mapper.BaseMapper;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.model.UpdateOptions;
 
 public class LambdaUpdateChainWrapper<T> extends UpdateChainWrapper<T,LambdaUpdateChainWrapper<T>> implements ChainUpdate {
 
@@ -14,13 +16,13 @@ public class LambdaUpdateChainWrapper<T> extends UpdateChainWrapper<T,LambdaUpda
     }
 
     @Override
-    public boolean update(){
-        return baseMapper.update(this,clazz);
+    public boolean update(UpdateOptions options){
+        return baseMapper.update(this,clazz,options);
     }
 
     @Override
-    public boolean remove() {
-        return baseMapper.remove(this,clazz);
+    public boolean remove(DeleteOptions options) {
+        return baseMapper.remove(this,clazz,options);
     }
 
 }

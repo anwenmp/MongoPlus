@@ -64,9 +64,9 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection){
-        return new ArrayList<Document>(){{
-            sourceObjCollection.forEach(sourceObj -> add(write(sourceObj)));
-        }};
+        List<Document> documentList = new ArrayList<>();
+        sourceObjCollection.forEach(sourceObj -> documentList.add(write(sourceObj)));
+        return documentList;
     }
 
     /**
@@ -88,13 +88,13 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBySaveBatch(Collection<?> sourceObjCollection){
-        return new ArrayList<Document>(){{
-            sourceObjCollection.forEach(sourceObj -> {
-                Document document = new Document();
-                writeBySave(sourceObj,document);
-                add(document);
-            });
-        }};
+        List<Document> documentList = new ArrayList<>();
+        sourceObjCollection.forEach(sourceObj -> {
+            Document document = new Document();
+            writeBySave(sourceObj,document);
+            documentList.add(document);
+        });
+        return documentList;
     }
 
     void writeByUpdate(Object sourceObj, Document document);
@@ -145,9 +145,9 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      * @date 2024/5/28 下午8:37
      */
     default <T> List<T> read(MongoIterable<Document> findIterable, Class<T> clazz) {
-        return new ArrayList<T>(){{
-            findIterable.forEach(document -> add(convertDocument(document,clazz)));
-        }};
+        List<T> resultList = new ArrayList<>();
+        findIterable.forEach(document -> resultList.add(convertDocument(document,clazz)));
+        return resultList;
     }
 
     /**
@@ -156,9 +156,9 @@ public interface MongoConverter extends MongoWriter,EntityRead {
      * @date 2024/5/28 下午8:37
      */
     default <T> List<T> read(MongoIterable<Document> findIterable, TypeReference<T> typeReference){
-        return new ArrayList<T>(){{
-            findIterable.forEach(document -> add(read(document, typeReference)));
-        }};
+        List<T> resultList = new ArrayList<>();
+        findIterable.forEach(document -> resultList.add(read(document, typeReference)));
+        return resultList;
     }
 
     /**

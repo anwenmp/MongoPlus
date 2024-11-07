@@ -1,7 +1,7 @@
 package com.anwen.mongo.toolkit;
 
+import com.anwen.mongo.cache.codec.MongoPlusCodecCache;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
-import com.anwen.mongo.cache.global.PropertyCache;
 import com.anwen.mongo.listener.BaseListener;
 import com.anwen.mongo.model.BaseProperty;
 import com.mongodb.ConnectionString;
@@ -9,6 +9,8 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.connection.SslSettings;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -80,8 +82,13 @@ public class MongoUtil {
             builder.applyToSslSettings(ssl -> ssl.applySettings(sslSettings));
         }
         builder.applyConnectionString(new ConnectionString(new UrlJoint(baseProperty).jointMongoUrl()));
-        if (PropertyCache.log){
-            builder.commandListenerList(Collections.singletonList(new BaseListener()));
+        builder.commandListenerList(Collections.singletonList(new BaseListener()));
+        if (!MongoPlusCodecCache.isEmpty()){
+            CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
+                    CodecRegistries.fromCodecs(MongoPlusCodecCache.getAllCodec()),
+                    MongoClientSettings.getDefaultCodecRegistry()
+            );
+            builder.codecRegistry(codecRegistry);
         }
         return MongoClients.create(builder.build());
     }
