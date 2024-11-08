@@ -253,7 +253,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeRight(SFunction<T, Object> column, Object value) {
-        return like(column,value+"&");
+        return like(column,value+"$");
     }
 
     @Override
