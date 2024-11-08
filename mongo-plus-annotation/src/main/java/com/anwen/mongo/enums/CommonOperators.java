@@ -39,6 +39,8 @@ public enum CommonOperators {
 
     SUBSTR_BYTES("$substrBytes"),
 
+    IF_NULL("$ifNull"),
+
     ;
 
     private final String operator;

@@ -11,6 +11,7 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.anwen.mongo.enums.CommonOperators.*;
@@ -688,6 +689,28 @@ public class ConditionOperators {
      */
     public static <T> Bson substrBytes(SFunction<T,?> field,Object index,Object count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
+    }
+
+    /**
+     * $ifNull操作符
+     * @param inputExpressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/11/8 10:56
+     */
+    public static Bson ifNull(List<?> inputExpressions){
+        return new Document(IF_NULL.getOperator(),inputExpressions);
+    }
+
+    /**
+     * $ifNull操作符
+     * @param inputExpressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     * @date 2024/11/8 10:56
+     */
+    public static Bson ifNull(Object... inputExpressions){
+        return ifNull(Arrays.asList(inputExpressions));
     }
 
 }
