@@ -8,8 +8,8 @@
 
 package com.anwen.compare.entity;
 
-import com.anwen.mongo.annotation.ID;
-import com.anwen.mongo.annotation.collection.CollectionName;
+import com.mongoplus.annotation.ID;
+import com.mongoplus.annotation.collection.CollectionName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

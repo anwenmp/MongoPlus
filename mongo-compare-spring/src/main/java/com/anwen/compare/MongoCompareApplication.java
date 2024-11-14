@@ -1,7 +1,7 @@
 package com.anwen.compare;
 
-import com.anwen.mongo.config.MongoPropertyConfiguration;
-import com.anwen.mongo.config.OverrideMongoConfiguration;
+import com.mongoplus.config.MongoPropertyConfiguration;
+import com.mongoplus.config.OverrideMongoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,0 +1,23 @@
+package com.mongoplus.replacer;
+
+import com.mongoplus.support.BoolFunction;
+
+import java.lang.reflect.Method;
+
+/**
+ * 替换器接口
+ *
+ * @author loser
+ * @date 2024/4/30
+ */
+public interface Replacer {
+
+    default int order() {
+        return Integer.MIN_VALUE;
+    }
+
+    Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable;
+
+    BoolFunction supplier();
+
+}

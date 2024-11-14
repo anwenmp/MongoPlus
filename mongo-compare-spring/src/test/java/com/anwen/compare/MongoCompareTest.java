@@ -2,8 +2,8 @@ package com.anwen.compare;
 
 import com.alibaba.fastjson.JSON;
 import com.anwen.compare.entity.Compare;
-import com.anwen.mongo.mapper.BaseMapper;
-import com.anwen.mongo.toolkit.BsonUtil;
+import com.mongoplus.mapper.BaseMapper;
+import com.mongoplus.toolkit.BsonUtil;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
