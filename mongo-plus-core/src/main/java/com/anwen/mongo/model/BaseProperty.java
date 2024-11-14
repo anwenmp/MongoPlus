@@ -45,6 +45,12 @@ public class BaseProperty {
     private String authenticationDatabase;
 
     /**
+     * 权重，在使用MongoPlus的分片时，可以使用该配置，设置此数据源的权重，越小权重越高
+     * @date 2024/11/14 17:12
+     */
+    private Integer position = Integer.MIN_VALUE;
+
+    /**
      * 指定单个连接池中随时必须存在的最小连接数 默认0
      * @date 2023/2/26 20:52
      **/
@@ -353,6 +359,14 @@ public class BaseProperty {
 
     public void setInvalidHostNameAllowed(boolean invalidHostNameAllowed) {
         this.invalidHostNameAllowed = invalidHostNameAllowed;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 
     public Boolean getTls() {

@@ -15,4 +15,9 @@ public class MongoPlusDsException extends MongoPlusException {
     public MongoPlusDsException(String message) {
         super(message);
     }
+
+    public MongoPlusDsException(String message,Exception e){
+        super(message,e);
+    }
+
 }

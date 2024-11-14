@@ -39,7 +39,9 @@ public class DefaultExecute implements Execute {
     @Override
     public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList, BulkWriteOptions options,
                                             MongoCollection<Document> collection) {
-        return collection.bulkWrite(writeModelList,options);
+        return Optional.ofNullable(options)
+                .map(o -> collection.bulkWrite(writeModelList,o))
+                .orElseGet(() -> collection.bulkWrite(writeModelList));
     }
 
     @Override

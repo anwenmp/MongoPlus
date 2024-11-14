@@ -47,7 +47,9 @@ public class SessionExecute implements Execute {
     public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                             BulkWriteOptions options,
                                             MongoCollection<Document> collection) {
-        return collection.bulkWrite(clientSession,writeModelList,options);
+        return Optional.ofNullable(options)
+                .map(o -> collection.bulkWrite(clientSession,writeModelList,o))
+                .orElseGet(() -> collection.bulkWrite(clientSession,writeModelList));
     }
 
     @Override

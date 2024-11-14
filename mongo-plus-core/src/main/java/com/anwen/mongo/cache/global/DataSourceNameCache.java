@@ -32,6 +32,10 @@ public class DataSourceNameCache {
         return basePropertyMap.get(ds);
     }
 
+    public static Map<String, BaseProperty> getBasePropertyMap(){
+        return basePropertyMap;
+    }
+
     public static void setDataSource(String ds){
         dataSource.set(ds);
     }
