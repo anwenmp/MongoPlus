@@ -43,16 +43,20 @@ public class CollectionManager {
     }
 
     public MongoCollection<Document> getCollection(Class<?> clazz) {
-        return getCollection(AnnotationOperate.getCollectionName(clazz));
+        return getCollection(AnnotationOperate.getCollectionName(clazz),clazz);
     }
 
-    public MongoCollection<Document> getCollection(String collectionName) {
+    public MongoCollection<Document> getCollection(String collectionName){
+        return getCollection(collectionName, UnClassCollection.class);
+    }
+
+    public MongoCollection<Document> getCollection(String collectionName,Class<?> clazz) {
         MongoCollection<Document> mongoCollection;
         // 检查连接是否需要重新创建
         if (!this.collectionMap.containsKey(collectionName)) {
             mongoCollection = new ConnectMongoDB(MongoClientFactory.getInstance().getMongoClient(), database, collectionName).open();
             this.collectionMap.put(collectionName, mongoCollection);
-            CollectionLogicDeleteCache.mapperClassByCollection(mongoCollection.getNamespace().getFullName(), UnClassCollection.class);
+            CollectionLogicDeleteCache.mapperClassByCollection(mongoCollection.getNamespace().getFullName(), clazz);
         } else {
             mongoCollection = this.collectionMap.get(collectionName);
         }
