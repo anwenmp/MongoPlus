@@ -17,6 +17,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import static com.anwen.mongo.toolkit.StringPool.EMPTY;
+
 /**
  * 顶级Mapper接口
  *
@@ -445,6 +447,52 @@ public interface SuperMapper {
      * @date 2024/5/4 下午1:33
      */
     long count(String database,String collectionName);
+
+    /**
+     * 命令查询，支持find和aggregate
+     * @param command 命令
+     * @param clazz 返回值类型
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/11/15 16:01
+     */
+    default <T> List<T> command(String command,Class<T> clazz){
+        return command(command, new TypeReference<T>(clazz) {});
+    }
+
+    /**
+     * 命令查询，支持find和aggregate
+     * @param command 命令
+     * @param typeReference 返回值类型
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/11/15 16:01
+     */
+    default <T> List<T> command(String command,TypeReference<T> typeReference){
+        return command(EMPTY,command,typeReference);
+    }
+
+    /**
+     * 命令查询，支持find和aggregate
+     * @param command 命令
+     * @param clazz 返回值类型
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/11/15 16:01
+     */
+    default <T> List<T> command(String database , String command,Class<T> clazz){
+        return command(database, command, new TypeReference<T>(clazz) {});
+    }
+
+    /**
+     * 命令查询，支持find和aggregate
+     * @param command 命令
+     * @param typeReference 返回值类型
+     * @return {@link List<T>}
+     * @author anwen
+     * @date 2024/11/15 16:01
+     */
+    <T> List<T> command(String database , String command,TypeReference<T> typeReference);
 
     String createIndex(String database,String collectionName,Bson bson);
 

@@ -7,6 +7,7 @@ import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
+import com.anwen.mongo.enums.CommandOperate;
 import com.anwen.mongo.execute.Execute;
 import com.anwen.mongo.execute.ExecutorFactory;
 import com.anwen.mongo.logging.Log;
@@ -19,6 +20,8 @@ import com.anwen.mongo.model.BaseConditionResult;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.PageParam;
 import com.anwen.mongo.model.PageResult;
+import com.anwen.mongo.model.command.ParseCommand;
+import com.anwen.mongo.parser.CommandParse;
 import com.anwen.mongo.toolkit.Filters;
 import com.anwen.mongo.toolkit.*;
 import com.mongodb.BasicDBObject;
@@ -26,6 +29,7 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
 import org.bson.Document;
@@ -503,6 +507,27 @@ public abstract class AbstractBaseMapper implements BaseMapper {
             line = execute.executeCount(null, null, collection);
         }
         return line;
+    }
+
+    @Override
+    public <T> List<T> command(String database, String command, TypeReference<T> typeReference) {
+        Execute execute = factory.getExecute();
+        ParseCommand parseCommand = CommandParse.parserInstance.parse(command);
+        CommandOperate commandOperate = CommandOperate.getCommandOperate(parseCommand.getOperate());
+        MongoCollection<Document> collection = mongoPlusClient.getCollection(database,parseCommand.getCollection());
+        MongoIterable<Document> iterable;
+        if (commandOperate == CommandOperate.FIND){
+            iterable = execute.executeQuery(
+                    parseCommand.getBsonCommand(),
+                    null,
+                    null,
+                    Document.class,
+                    collection
+            );
+        } else {
+            iterable = execute.executeAggregate(parseCommand.getBsonListCommand(),Document.class,collection);
+        }
+        return mongoConverter.read(iterable,typeReference);
     }
 
     @Override
