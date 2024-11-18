@@ -23,6 +23,15 @@ public interface FieldInformation {
     Object getValue();
 
     /**
+     * 获取字段值
+     * @param instance 类的实例
+     * @return {@link java.lang.Object}
+     * @author anwen
+     * @date 2024/11/18 16:17
+     */
+    Object getValue(Object instance);
+
+    /**
      * 获取字段名，受{@link CollectionField}注解的影响
      * @return {@link java.lang.String}
      * @author anwen

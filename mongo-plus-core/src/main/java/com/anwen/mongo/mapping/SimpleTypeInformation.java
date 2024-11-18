@@ -42,10 +42,22 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     private final List<FieldInformation> fieldList = new ArrayList<>();
 
     /**
+     * 实例的所有Field,不包括父类
+     * @date 2024/4/16 下午9:58
+    */
+    private final List<FieldInformation> thisFieldList = new ArrayList<>();
+
+    /**
      * 实例的某个注解的Field
      * @date 2024/4/16 下午9:58
     */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationFieldMap = new HashMap<>();
+
+    /**
+     * 实例的某个注解的Field
+     * @date 2024/4/16 下午9:58
+    */
+    private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationThisFieldMap = new HashMap<>();
 
     private SimpleTypeInformation(T instance,Class<?> clazz) {
         this.instance = instance;
@@ -125,6 +137,17 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     }
 
     @Override
+    public List<FieldInformation> getThisFields() {
+        if (CollUtil.isEmpty(thisFieldList)){
+            Arrays.stream(clazz.getDeclaredFields()).forEach(field -> {
+                field.setAccessible(true);
+                thisFieldList.add(new SimpleFieldInformation<>(instance,field));
+            });
+        }
+        return this.thisFieldList;
+    }
+
+    @Override
     public FieldInformation getField(String fieldName) {
         if (!fieldMap.containsKey(fieldName)) {
             try {
@@ -151,9 +174,27 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     @Override
     public List<FieldInformation> getAnnotationFields(Class<? extends Annotation> annotationClass){
         if (!annotationFieldMap.containsKey(annotationClass)){
-            annotationFieldMap.put(annotationClass,getFields().stream().filter(field -> field.getField().getAnnotation(annotationClass) != null).collect(Collectors.toList()));
+            annotationFieldMap.put(
+                    annotationClass,
+                    getFields()
+                            .stream()
+                            .filter(field -> field.getField().getAnnotation(annotationClass) != null)
+                            .collect(Collectors.toList()));
         }
         return annotationFieldMap.get(annotationClass);
+    }
+
+    @Override
+    public List<FieldInformation> getAnnotationThisFields(Class<? extends Annotation> annotationClass) {
+        if (!annotationThisFieldMap.containsKey(annotationClass)){
+            annotationThisFieldMap.put(
+                    annotationClass,
+                    getThisFields()
+                            .stream()
+                            .filter(field -> field.getField().getAnnotation(annotationClass) != null)
+                            .collect(Collectors.toList()));
+        }
+        return annotationThisFieldMap.get(annotationClass);
     }
 
     @Override
@@ -168,6 +209,15 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     @Override
     public FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass) {
         List<FieldInformation> fieldList = getAnnotationFields(annotationClass);
+        if (CollUtil.isEmpty(fieldList)){
+            return null;
+        }
+        return fieldList.get(0);
+    }
+
+    @Override
+    public FieldInformation getAnnotationThisField(Class<? extends Annotation> annotationClass) {
+        List<FieldInformation> fieldList = getAnnotationThisFields(annotationClass);
         if (CollUtil.isEmpty(fieldList)){
             return null;
         }

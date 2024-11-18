@@ -18,6 +18,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author JiaChaoYang
@@ -46,6 +47,8 @@ public class SimpleFieldInformation<T> implements FieldInformation {
     private Type[] types;
 
     private String camelCaseName;
+
+    Map<Object,Object> instanceValueMap = new ConcurrentHashMap<>();
 
     @Override
     public Field getField() {
@@ -93,6 +96,17 @@ public class SimpleFieldInformation<T> implements FieldInformation {
             }
         }
         return this.value;
+    }
+
+    @Override
+    public Object getValue(Object instance) {
+        return instanceValueMap.computeIfAbsent(instance, k -> {
+            try {
+                return field.get(instance);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
@@ -238,6 +252,7 @@ public class SimpleFieldInformation<T> implements FieldInformation {
     }
 
     @Override
+    @SuppressWarnings("all")
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass){
         return getField().getAnnotation(annotationClass);
     }

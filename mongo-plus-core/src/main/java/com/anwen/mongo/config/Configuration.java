@@ -325,7 +325,7 @@ public class Configuration {
      * @date 2024/3/19 18:39
      */
     public BaseMapper getBaseMapper() {
-        return new DefaultBaseMapperImpl(getMongoPlusClient(), new MappingMongoConverter(getMongoPlusClient()));
+        return new DefaultBaseMapperImpl(getMongoPlusClient(), new MappingMongoConverter());
     }
 
     public BaseMapper getBaseMapper(MongoConverter mongoConverter) {

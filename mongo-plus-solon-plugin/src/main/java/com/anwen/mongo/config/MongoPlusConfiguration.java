@@ -135,8 +135,8 @@ public class MongoPlusConfiguration {
 
     @Bean
     @Condition(onMissingBean = MongoConverter.class)
-    public MongoConverter mongoConverter(MongoPlusClient mongoPlusClient) {
-        return new MappingMongoConverter(mongoPlusClient);
+    public MongoConverter mongoConverter() {
+        return new MappingMongoConverter();
     }
 
     @Bean("mongoTransactionalAspect")
@@ -185,7 +185,6 @@ public class MongoPlusConfiguration {
 
     /**
      * 注册mongoPlus多数据源切面
-     * @param
      * @return {@link MongoDataSourceAspect}
      * @author anwen
      * @date 2024/5/27 下午11:19

@@ -34,7 +34,6 @@ public enum IdTypeEnum {
     /**
      * 生成自增id
      * <p style='color:red'>注：自增id会创建一个counters集合，用来存储当前id，请适当分配权限，新增也会慢那么一点点，着重考虑</p>
-     * @date 2023/8/9 22:39
     */
     AUTO(4)
 

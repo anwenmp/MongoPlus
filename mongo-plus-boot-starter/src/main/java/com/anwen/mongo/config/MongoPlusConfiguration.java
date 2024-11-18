@@ -170,15 +170,14 @@ public class MongoPlusConfiguration {
 
     /**
      * 注册mongo转换器
-     * @param mongoPlusClient MongoPlusClient
      * @return {@link com.anwen.mongo.mapping.MongoConverter}
      * @author anwen
      * @date 2024/5/27 下午11:17
      */
     @Bean
     @ConditionalOnMissingBean(MongoConverter.class)
-    public MongoConverter mongoConverter(MongoPlusClient mongoPlusClient){
-        return new MappingMongoConverter(mongoPlusClient);
+    public MongoConverter mongoConverter(){
+        return new MappingMongoConverter();
     }
 
     /**

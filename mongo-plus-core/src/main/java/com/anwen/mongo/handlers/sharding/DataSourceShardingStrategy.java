@@ -2,8 +2,6 @@ package com.anwen.mongo.handlers.sharding;
 
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 
-import java.util.List;
-
 /**
  * 数据源分片策略
  * @author anwen

@@ -43,15 +43,39 @@ public class MappingMongoConverter extends AbstractMongoConverter {
 
     private final Map<Type, Type> genericTypeCache = new ConcurrentHashMap<>();
 
+    /**
+     * 该构造方法已弃用，MongoPlusClient不再需要传入
+     * @param mongoPlusClient mongoPlusClient
+     * @author anwen
+     * @date 2024/11/18 22:56
+     */
+    @Deprecated
     public MappingMongoConverter(MongoPlusClient mongoPlusClient) {
-        super(mongoPlusClient);
         this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
         ignoreType.add(ObjectId.class);
         ignoreType.add(Binary.class);
     }
 
+    public MappingMongoConverter() {
+        this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
+        ignoreType.add(ObjectId.class);
+        ignoreType.add(Binary.class);
+    }
+
+    /**
+     * 该构造方法已弃用，MongoPlusClient不再需要传入
+     * @param mongoPlusClient mongoPlusClient
+     * @param ignoreType 忽略的类型
+     * @author anwen
+     * @date 2024/11/18 22:56
+     */
+    @Deprecated
     public MappingMongoConverter(MongoPlusClient mongoPlusClient,List<Class<?>> ignoreType){
-        super(mongoPlusClient);
+        this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
+        this.ignoreType = ignoreType;
+    }
+
+    public MappingMongoConverter(List<Class<?>> ignoreType){
         this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
         this.ignoreType = ignoreType;
     }
