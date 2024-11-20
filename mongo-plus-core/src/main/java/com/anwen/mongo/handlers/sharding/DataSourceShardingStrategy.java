@@ -15,7 +15,6 @@ public interface DataSourceShardingStrategy {
      * @param source 方法参数值
      * @return {@link String} 数据源名称，亦可返回带*号的通配符，或完整的正则表达式
      * @author anwen
-     * @date 2024/11/14 15:47
      */
     String sharding(String currentDataSource, ExecuteMethodEnum method, Object[] source);
 

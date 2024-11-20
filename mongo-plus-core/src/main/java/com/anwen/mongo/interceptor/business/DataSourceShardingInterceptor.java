@@ -1,16 +1,22 @@
 package com.anwen.mongo.interceptor.business;
 
 import com.anwen.mongo.cache.global.DataSourceNameCache;
+import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
+import com.anwen.mongo.handlers.sharding.AbstractDataSourceShardingHandler;
 import com.anwen.mongo.handlers.sharding.DataSourceShardingHandler;
 import com.anwen.mongo.handlers.sharding.DataSourceShardingStrategy;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
+import com.anwen.mongo.manager.MongoTransactionalManager;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.MongoNamespace;
+import com.mongodb.TransactionOptions;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
@@ -32,10 +38,8 @@ public class DataSourceShardingInterceptor implements Interceptor {
 
     /**
      * 分片处理器
-     *
-     * @date 2024/11/14 18:02
      */
-    private final DataSourceShardingHandler dataSourceShardingHandler;
+    private final AbstractDataSourceShardingHandler dataSourceShardingHandler;
 
     public DataSourceShardingInterceptor(MongoPlusClient mongoPlusClient) {
         this.mongoPlusClient = mongoPlusClient;
@@ -43,7 +47,7 @@ public class DataSourceShardingInterceptor implements Interceptor {
     }
 
     public DataSourceShardingInterceptor(MongoPlusClient mongoPlusClient,
-                                         DataSourceShardingHandler dataSourceShardingHandler) {
+                                         AbstractDataSourceShardingHandler dataSourceShardingHandler) {
         this.mongoPlusClient = mongoPlusClient;
         this.dataSourceShardingHandler = dataSourceShardingHandler;
     }
@@ -109,6 +113,19 @@ public class DataSourceShardingInterceptor implements Interceptor {
         if (!Objects.equals(dsName, currentDataSourceName)) {
             // 获取新的 MongoCollection
             MongoNamespace namespace = collection.getNamespace();
+            ClientSession currentClientSession = MongoTransactionContext.getClientSessionContext();
+            if (currentClientSession != null) {
+                String currentIdentifier = getClientSessionIdentifierUuid(currentClientSession);
+                MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
+                ClientSession clientSession = dataSourceShardingHandler.handleTransactional(
+                        currentClientSession, mongoClient);
+                String identifier = getClientSessionIdentifierUuid(clientSession);
+                if (!currentIdentifier.equals(identifier)) {
+                    TransactionOptions currentOptions = currentClientSession.getTransactionOptions();
+                    currentClientSession.close();
+                    MongoTransactionalManager.startTransaction(clientSession,currentOptions);
+                }
+            }
             MongoCollection<Document> newCollection = mongoPlusClient.getCollection(
                     dsName, namespace.getDatabaseName(), namespace.getCollectionName()
             );
@@ -117,4 +134,18 @@ public class DataSourceShardingInterceptor implements Interceptor {
             source[source.length - 1] = newCollection;
         }
     }
+
+    /**
+     * 获取ClientSession的标识符
+     * @param clientSession clientSession
+     * @return {@link String}
+     */
+    private String getClientSessionIdentifierUuid(ClientSession clientSession){
+        return clientSession.
+                getServerSession().
+                getIdentifier()
+                .getBinary("id")
+                .asUuid().toString();
+    }
+
 }
