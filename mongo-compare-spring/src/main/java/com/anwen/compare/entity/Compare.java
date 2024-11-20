@@ -1,11 +1,3 @@
-/*
- * Copyright (c) JiaChaoYang 2024-7-13 MongoPlus版权所有
- * 适度编码益脑，沉迷编码伤身，合理安排时间，享受快乐生活。
- * email: j15030047216@163.com
- * phone: 15030047216
- * weChat: JiaChaoYang_
- */
-
 package com.anwen.compare.entity;
 
 import com.anwen.mongo.annotation.ID;
