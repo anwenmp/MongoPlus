@@ -18,6 +18,7 @@
         <module>../mongo-plus-core</module>
         <module>../mongo-plus-boot-starter</module>
         <module>../mongo-plus-solon-plugin</module>
+        <module>../mongo-plus-sharding</module>
     </modules>
 
     <licenses>

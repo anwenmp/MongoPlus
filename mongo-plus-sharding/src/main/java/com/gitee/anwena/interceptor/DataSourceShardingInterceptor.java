@@ -1,4 +1,4 @@
-package com.anwen.mongo.interceptor.business;
+package com.gitee.anwena.interceptor;
 
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.context.MongoTransactionContext;
@@ -7,6 +7,7 @@ import com.anwen.mongo.handlers.sharding.AbstractDataSourceShardingHandler;
 import com.anwen.mongo.handlers.sharding.DataSourceShardingHandler;
 import com.anwen.mongo.handlers.sharding.DataSourceShardingStrategy;
 import com.anwen.mongo.interceptor.Interceptor;
+import com.anwen.mongo.interceptor.business.DataChangeRecorderInnerInterceptor;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
@@ -110,22 +111,33 @@ public class DataSourceShardingInterceptor implements Interceptor {
         if (StringUtils.isBlank(dsName)) {
             log.error("No data source hit, no data source replacement will be performed, dsName value is " + dsName);
         }
+        // 如果命中了新数据源
         if (!Objects.equals(dsName, currentDataSourceName)) {
             // 获取新的 MongoCollection
             MongoNamespace namespace = collection.getNamespace();
+            // 获取当前线程持有的事务
             ClientSession currentClientSession = MongoTransactionContext.getClientSessionContext();
             if (currentClientSession != null) {
+                // 获取事务id
                 String currentIdentifier = getClientSessionIdentifierUuid(currentClientSession);
+                // 获取MongoClient
                 MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
+                // 根据当前线程持有的事务配置，重新拿到新事务
                 ClientSession clientSession = dataSourceShardingHandler.handleTransactional(
                         currentClientSession, mongoClient);
+                // 获取新事务id
                 String identifier = getClientSessionIdentifierUuid(clientSession);
+                // 如果两个数据源id不同则进行数据源替换
                 if (!currentIdentifier.equals(identifier)) {
+                    // 拿到事务选项
                     TransactionOptions currentOptions = currentClientSession.getTransactionOptions();
+                    // 将主数据源事务关闭
                     currentClientSession.close();
+                    // 开启新数据源事务
                     MongoTransactionalManager.startTransaction(clientSession,currentOptions);
                 }
             }
+            // 拿到新数据源的Collection
             MongoCollection<Document> newCollection = mongoPlusClient.getCollection(
                     dsName, namespace.getDatabaseName(), namespace.getCollectionName()
             );

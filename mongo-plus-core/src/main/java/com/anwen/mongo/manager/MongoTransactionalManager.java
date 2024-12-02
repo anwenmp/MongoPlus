@@ -15,6 +15,8 @@ import com.mongodb.*;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -262,6 +264,21 @@ public class MongoTransactionalManager {
      */
     public static void commitTransaction() {
         MongoTransactionStatus status = MongoTransactionContext.getMongoTransactionStatus();
+        commitTransaction(status);
+    }
+
+    public static void commitCurrentAllTransaction(){
+        Collection<MongoTransactionStatus> mongoTransactionStatuses =
+                MongoTransactionContext.getAllMongoTransactionStatus().values();
+        mongoTransactionStatuses.forEach(MongoTransactionalManager::commitTransaction);
+    }
+
+    /**
+     * 事务提交
+     * @param status 事务
+     * @author anwen
+     */
+    public static void commitTransaction(MongoTransactionStatus status){
         if (status == null) {
             log.warn("no session to commit.");
             return;
@@ -274,7 +291,9 @@ public class MongoTransactionalManager {
             }
         }
         if (log.isDebugEnabled()) {
-            log.debug("Mongo transaction committed, Thread:{}, session hashcode:{}", Thread.currentThread().getName(), status.getClientSession().hashCode());
+            log.debug("Mongo transaction committed, Thread:{}, session hashcode:{}",
+                    Thread.currentThread().getName(), status.getClientSession().hashCode()
+            );
         }
     }
 
@@ -286,6 +305,29 @@ public class MongoTransactionalManager {
      */
     public static void rollbackTransaction() {
         MongoTransactionStatus status = MongoTransactionContext.getMongoTransactionStatus();
+        rollbackTransaction(status);
+    }
+
+    /**
+     * 事务回滚
+     *
+     * @author JiaChaoYang
+     * @date 2023/7/30 18:16
+     */
+    public static void rollbackAllTransaction() {
+        Collection<MongoTransactionStatus> mongoTransactionStatuses =
+                MongoTransactionContext.getAllMongoTransactionStatus().values();
+        mongoTransactionStatuses.forEach(MongoTransactionalManager::rollbackTransaction);
+
+    }
+
+    /**
+     * 事务回滚
+     *
+     * @author JiaChaoYang
+     * @date 2023/7/30 18:16
+     */
+    public static void rollbackTransaction(MongoTransactionStatus status) {
         if (status == null) {
             log.warn("no session to rollback.");
             return;
@@ -303,6 +345,17 @@ public class MongoTransactionalManager {
 
     public static void closeSession() {
         MongoTransactionStatus status = MongoTransactionContext.getMongoTransactionStatus();
+        closeSession(status);
+    }
+
+    public static void closeAllSession() {
+        Collection<MongoTransactionStatus> mongoTransactionStatuses =
+                MongoTransactionContext.getAllMongoTransactionStatus().values();
+        mongoTransactionStatuses.forEach(MongoTransactionalManager::closeSession);
+        MongoTransactionContext.clear();
+    }
+
+    public static void closeSession(MongoTransactionStatus status) {
         if (status == null) {
             log.warn("no session to rollback.");
             return;
