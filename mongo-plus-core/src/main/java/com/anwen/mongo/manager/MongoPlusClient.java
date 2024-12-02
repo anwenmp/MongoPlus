@@ -141,6 +141,10 @@ public class MongoPlusClient {
         return getMongoDatabase(database).listCollectionNames().into(new ArrayList<>());
     }
 
+    public List<String> getDataSourceNameList(){
+        return new ArrayList<>(getCollectionManagerMap().keySet());
+    }
+
     public String getCollectionName(Class<?> clazz){
         return AnnotationOperate.getCollectionName(clazz);
     }

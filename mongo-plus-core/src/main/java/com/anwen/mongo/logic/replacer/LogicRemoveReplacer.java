@@ -36,7 +36,7 @@ public class LogicRemoveReplacer implements Replacer {
         if (CollectionLogicDeleteCache.getLogicIgnore()) {
             return method.invoke(target, args);
         }
-        MongoCollection<Document> collection = (MongoCollection<Document>) args[1];
+        MongoCollection<Document> collection = (MongoCollection<Document>) args[args.length-1];
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
         if (Objects.isNull(clazz)) {
             return method.invoke(target, args);
@@ -66,7 +66,8 @@ public class LogicRemoveReplacer implements Replacer {
 
     @Override
     public BoolFunction supplier() {
-        return (proxy, target, method, args) -> CollectionLogicDeleteCache.open && method.getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
+        return (proxy, target, method, args) ->
+                CollectionLogicDeleteCache.open && method.getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
     }
 
 }

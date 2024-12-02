@@ -11,10 +11,10 @@
         <relativePath>../mongo-plus-parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mongo-plus-boot-starter</artifactId>
-    <name>mongo-plus-boot-starter</name>
+    <artifactId>mongo-plus-sharding-boot-starter</artifactId>
+    <name>mongo-plus-sharding-boot-starter</name>
     <packaging>jar</packaging>
-    <description>mongo-plus-boot-starter主程序</description>
+    <description>mongo-plus-sharding-boot-starter</description>
     <url>https://www.mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
@@ -44,7 +44,6 @@
         <url>https://gitee.com/aizuda/mongo-plus</url>
     </scm>
 
-
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -54,6 +53,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.gitee.anwena</groupId>
+            <artifactId>mongo-plus-boot-starter</artifactId>
+            <version>${mongoplus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gitee.anwena</groupId>
+            <artifactId>mongo-plus-sharding</artifactId>
+            <version>${mongoplus.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -62,19 +71,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.gitee.anwena</groupId>
-            <artifactId>mongo-plus-core</artifactId>
-            <version>${mongoplus.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
         </dependency>
     </dependencies>
 

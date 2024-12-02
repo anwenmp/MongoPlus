@@ -1,21 +1,21 @@
-package com.gitee.anwena.interceptor;
+package com.anwen.mongo.interceptor;
 
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.context.MongoTransactionContext;
+import com.anwen.mongo.context.MongoTransactionStatus;
+import com.anwen.mongo.context.ShardingTransactionContext;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
-import com.anwen.mongo.handlers.sharding.AbstractDataSourceShardingHandler;
-import com.anwen.mongo.handlers.sharding.DataSourceShardingHandler;
-import com.anwen.mongo.handlers.sharding.DataSourceShardingStrategy;
-import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.business.DataChangeRecorderInnerInterceptor;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.manager.MongoTransactionalManager;
+import com.anwen.mongo.sharding.AbstractDataSourceShardingHandler;
+import com.anwen.mongo.sharding.DataSourceShardingHandler;
+import com.anwen.mongo.sharding.DataSourceShardingStrategy;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.MongoNamespace;
-import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -118,24 +118,12 @@ public class DataSourceShardingInterceptor implements Interceptor {
             // 获取当前线程持有的事务
             ClientSession currentClientSession = MongoTransactionContext.getClientSessionContext();
             if (currentClientSession != null) {
-                // 获取事务id
-                String currentIdentifier = getClientSessionIdentifierUuid(currentClientSession);
                 // 获取MongoClient
                 MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
                 // 根据当前线程持有的事务配置，重新拿到新事务
                 ClientSession clientSession = dataSourceShardingHandler.handleTransactional(
                         currentClientSession, mongoClient);
-                // 获取新事务id
-                String identifier = getClientSessionIdentifierUuid(clientSession);
-                // 如果两个数据源id不同则进行数据源替换
-                if (!currentIdentifier.equals(identifier)) {
-                    // 拿到事务选项
-                    TransactionOptions currentOptions = currentClientSession.getTransactionOptions();
-                    // 将主数据源事务关闭
-                    currentClientSession.close();
-                    // 开启新数据源事务
-                    MongoTransactionalManager.startTransaction(clientSession,currentOptions);
-                }
+                MongoTransactionalManager.startTransaction(clientSession,clientSession.getTransactionOptions());
             }
             // 拿到新数据源的Collection
             MongoCollection<Document> newCollection = mongoPlusClient.getCollection(
@@ -147,17 +135,11 @@ public class DataSourceShardingInterceptor implements Interceptor {
         }
     }
 
-    /**
-     * 获取ClientSession的标识符
-     * @param clientSession clientSession
-     * @return {@link String}
-     */
-    private String getClientSessionIdentifierUuid(ClientSession clientSession){
-        return clientSession.
-                getServerSession().
-                getIdentifier()
-                .getBinary("id")
-                .asUuid().toString();
+    @Override
+    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result,
+                             MongoCollection<Document> collection) {
+        String currentDataSource = DataSourceNameCache.getDataSource();
+        MongoTransactionStatus status = ShardingTransactionContext.getTransactionStatus(currentDataSource);
+        MongoTransactionContext.setTransactionStatus(status);
     }
-
 }

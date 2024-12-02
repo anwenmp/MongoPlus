@@ -1,4 +1,4 @@
-package com.gitee.anwena.sharding;
+package com.anwen.mongo.sharding;
 
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.enums.ExecuteMethodEnum;

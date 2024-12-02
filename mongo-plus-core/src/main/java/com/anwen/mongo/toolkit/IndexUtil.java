@@ -1,6 +1,5 @@
 package com.anwen.mongo.toolkit;
 
-import com.anwen.mongo.annotation.collection.CollectionField;
 import com.anwen.mongo.annotation.index.*;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.domain.MongoPlusConvertException;
@@ -168,7 +167,6 @@ public class IndexUtil {
             );
         }
         if (StringUtils.isNotBlank(mongoIndex.partialFilterExpression())) {
-            CollectionField collectionField = fieldInformation.getAnnotation(CollectionField.class);
             Document document;
             try {
                 document = Document.parse(mongoIndex.partialFilterExpression(), MapCodecCache.getDefaultCodec());
@@ -181,7 +179,6 @@ public class IndexUtil {
     }
 
     public static IndexOptions getCompoundIndexOptions(TypeInformation typeInformation, MongoCompoundIndex mongoCompoundIndex) {
-        Class<?> clazz = typeInformation.getClazz();
         IndexOptions indexOptions = new IndexOptions();
         if (StringUtils.isNotBlank(mongoCompoundIndex.name())) {
             indexOptions.name(mongoCompoundIndex.name());

@@ -1,4 +1,4 @@
-package com.gitee.anwena.sharding;
+package com.anwen.mongo.sharding;
 
 import com.anwen.mongo.constant.DataSourceConstant;
 import com.anwen.mongo.domain.MongoPlusException;
@@ -98,7 +98,7 @@ public abstract class AbstractDataSourceShardingHandler {
     /**
      * 根据method获取对应的数据源
      * @param method 执行器方法
-     * @return {@link List< String>}
+     * @return {@link List<String>}
      * @author anwen
      */
     public List<String> getHandleShardingStrategy(ExecuteMethodEnum method){
@@ -113,7 +113,7 @@ public abstract class AbstractDataSourceShardingHandler {
      * 处理数据源名称，可以使用*通配符和正则表达式
      * @param pattern 数据源名称
      * @param originalDsNameList 对应的所有数据源名称
-     * @return {@link List< String>}
+     * @return {@link List<String>}
      * @author anwen
      */
     public List<String> handleDsName(String pattern,List<String> originalDsNameList){
@@ -159,7 +159,7 @@ public abstract class AbstractDataSourceShardingHandler {
      * 处理数据源名称，正则匹配
      * @param regex 正则
      * @param originalDsNameList 对应的所有数据源名称
-     * @return {@link List< String>}
+     * @return {@link List<String>}
      * @author anwen
      */
     public List<String> handleDsNameByRegex(String regex,List<String> originalDsNameList){

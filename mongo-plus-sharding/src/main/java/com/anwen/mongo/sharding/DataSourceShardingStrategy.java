@@ -1,4 +1,4 @@
-package com.anwen.mongo.handlers.sharding;
+package com.anwen.mongo.sharding;
 
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 

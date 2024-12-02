@@ -19,6 +19,7 @@
         <module>../mongo-plus-boot-starter</module>
         <module>../mongo-plus-solon-plugin</module>
         <module>../mongo-plus-sharding</module>
+        <module>../mongo-plus-sharding-boot-starter</module>
     </modules>
 
     <licenses>
@@ -64,6 +65,7 @@
         <spring-tx.version>5.3.27</spring-tx.version>
         <bcprov-jdk18on.version>1.78.1</bcprov-jdk18on.version>
         <javadoc.version>3.6.3</javadoc.version>
+        <spring.boot.version>3.3.2</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -132,6 +134,16 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bcprov-jdk18on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${spring.boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

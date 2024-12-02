@@ -5,18 +5,19 @@ import com.anwen.mongo.annotation.transactional.MongoTransactional;
 import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.context.MongoTransactionStatus;
 import com.anwen.mongo.domain.InitMongoPlusException;
+import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.ReadConcernEnum;
 import com.anwen.mongo.enums.ReadPreferenceEnum;
 import com.anwen.mongo.enums.WriteConcernEnum;
 import com.anwen.mongo.factory.MongoClientFactory;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
+import com.anwen.mongo.toolkit.ArrayUtils;
+import com.anwen.mongo.toolkit.ClassTypeUtil;
 import com.mongodb.*;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -80,13 +81,31 @@ public class MongoTransactionalManager {
         startTransaction(session,null);
     }
 
-    public static void startTransaction(ClientSession session,TransactionOptions options) {
-        //获取线程中的session
+    public static MongoTransactionStatus getTransactionStatus(MongoTransactional transactional) {
+        return getTransactionStatus(getTransaction(transactional),null);
+    }
+
+    public static MongoTransactionStatus getTransactionStatus(ClientSession session,TransactionOptions options) {
         if (options == null){
             options = TransactionOptions.builder().build();
         }
         session.startTransaction(options);
-        MongoTransactionStatus status = new MongoTransactionStatus(session);
+        return new MongoTransactionStatus(session);
+    }
+
+    public static void startTransaction(ClientSession session,TransactionOptions options) {
+        MongoTransactionStatus status = getTransactionStatus(session,options);
+        startTransaction(status);
+    }
+
+    public static void startTransaction(MongoTransactionStatus status) {
+        ClientSession session = status.getClientSession();
+        if (session == null) {
+            throw new MongoPlusException("clientSession is null");
+        }
+        if (!session.hasActiveTransaction()){
+            session.startTransaction(session.getTransactionOptions());
+        }
         MongoTransactionContext.setTransactionStatus(status);
         // 每个被切到的方法都引用加一
         MongoTransactionContext.getMongoTransactionStatus().incrementReference();
@@ -267,12 +286,6 @@ public class MongoTransactionalManager {
         commitTransaction(status);
     }
 
-    public static void commitCurrentAllTransaction(){
-        Collection<MongoTransactionStatus> mongoTransactionStatuses =
-                MongoTransactionContext.getAllMongoTransactionStatus().values();
-        mongoTransactionStatuses.forEach(MongoTransactionalManager::commitTransaction);
-    }
-
     /**
      * 事务提交
      * @param status 事务
@@ -314,19 +327,6 @@ public class MongoTransactionalManager {
      * @author JiaChaoYang
      * @date 2023/7/30 18:16
      */
-    public static void rollbackAllTransaction() {
-        Collection<MongoTransactionStatus> mongoTransactionStatuses =
-                MongoTransactionContext.getAllMongoTransactionStatus().values();
-        mongoTransactionStatuses.forEach(MongoTransactionalManager::rollbackTransaction);
-
-    }
-
-    /**
-     * 事务回滚
-     *
-     * @author JiaChaoYang
-     * @date 2023/7/30 18:16
-     */
     public static void rollbackTransaction(MongoTransactionStatus status) {
         if (status == null) {
             log.warn("no session to rollback.");
@@ -348,13 +348,6 @@ public class MongoTransactionalManager {
         closeSession(status);
     }
 
-    public static void closeAllSession() {
-        Collection<MongoTransactionStatus> mongoTransactionStatuses =
-                MongoTransactionContext.getAllMongoTransactionStatus().values();
-        mongoTransactionStatuses.forEach(MongoTransactionalManager::closeSession);
-        MongoTransactionContext.clear();
-    }
-
     public static void closeSession(MongoTransactionStatus status) {
         if (status == null) {
             log.warn("no session to rollback.");
@@ -374,6 +367,33 @@ public class MongoTransactionalManager {
         if (log.isDebugEnabled()) {
             log.debug("Mongo transaction closed, Thread:{}, session hashcode:{}", Thread.currentThread().getName(), status.getClientSession().hashCode());
         }
+    }
+
+    public static void handleTransactionException(MongoTransactional mongoTransactional, Exception e) {
+        Class<? extends Exception> eClass = e.getClass();
+        boolean finished = processRollback(mongoTransactional, eClass, true)
+                || processRollback(mongoTransactional, eClass, false);
+        if (!finished) {
+            MongoTransactionalManager.rollbackTransaction();
+        }
+    }
+
+    public static boolean processRollback(MongoTransactional mongoTransactional, Class<? extends Exception> eClass, boolean isRollback) {
+        Class<? extends Throwable>[] exceptionList = isRollback ? mongoTransactional.rollbackFor() : mongoTransactional.noRollbackFor();
+        if (ArrayUtils.isEmpty(exceptionList)) {
+            return false;
+        }
+        for (Class<? extends Throwable> exceptionType : exceptionList) {
+            if (ClassTypeUtil.isTargetClass(exceptionType, eClass)) {
+                if (isRollback) {
+                    MongoTransactionalManager.rollbackTransaction();
+                } else {
+                    MongoTransactionalManager.commitTransaction();
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }

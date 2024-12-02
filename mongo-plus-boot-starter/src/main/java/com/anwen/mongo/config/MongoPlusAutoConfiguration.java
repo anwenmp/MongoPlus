@@ -27,10 +27,7 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicNamespaceAware;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
-import com.anwen.mongo.property.MongoDBCollectionProperty;
-import com.anwen.mongo.property.MongoDBConfigurationProperty;
-import com.anwen.mongo.property.MongoDBLogProperty;
-import com.anwen.mongo.property.MongoLogicDelProperty;
+import com.anwen.mongo.property.*;
 import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.service.IService;
 import com.anwen.mongo.service.impl.ServiceImpl;
@@ -76,6 +73,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
                                       MongoLogicDelProperty mongoLogicDelProperty,
                                       MongoDBConfigurationProperty mongoDBConfigurationProperty,
                                       BaseMapper baseMapper,
+                                      MongoDBFieldProperty ignore,
                                       ApplicationContext applicationContext, MongoPlusClient mongoPlusClient) {
         this.applicationContext = applicationContext;
         this.mongodbLogProperty = mongodbLogProperty;
