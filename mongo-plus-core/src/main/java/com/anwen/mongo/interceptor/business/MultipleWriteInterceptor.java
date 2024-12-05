@@ -1,16 +1,20 @@
 package com.anwen.mongo.interceptor.business;
 
+import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.domain.MongoPlusDsException;
+import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.MultipleWrite;
 import com.anwen.mongo.execute.instance.DefaultExecute;
 import com.anwen.mongo.handlers.write.MultipleWriteHandler;
 import com.anwen.mongo.interceptor.Interceptor;
+import com.anwen.mongo.logging.Log;
+import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.model.MutablePair;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -22,7 +26,10 @@ import java.util.function.Consumer;
 
 import static com.anwen.mongo.enums.MultipleWrite.*;
 
+@SuppressWarnings("unchecked")
 public class MultipleWriteInterceptor implements Interceptor {
+
+    private final Log log = LogFactory.getLog(MultipleWriteInterceptor.class);
 
     private final ThreadPoolExecutor executor;
 
@@ -62,72 +69,78 @@ public class MultipleWriteInterceptor implements Interceptor {
         this.multipleWriteHandler = multipleWriteHandler;
     }
 
+
     @Override
-    public List<Document> executeSave(List<Document> documentList, MongoCollection<Document> collection) {
-        List<Document> finalDocumentList = Interceptor.super.executeSave(documentList, collection);
+    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
+        if (executeMethodEnum == ExecuteMethodEnum.SAVE) {
+            executeSave((List<Document>) source[0], (InsertManyOptions) source[1], collection);
+        }
+        if (executeMethodEnum == ExecuteMethodEnum.REMOVE) {
+            executeRemove((Bson) source[0], (DeleteOptions) source[1], collection);
+        }
+        if (executeMethodEnum == ExecuteMethodEnum.UPDATE) {
+            executeUpdate((List<MutablePair<Bson, Bson>>) source[0], (UpdateOptions) source[1], collection);
+        }
+        if (executeMethodEnum == ExecuteMethodEnum.BULK_WRITE) {
+            executeBulkWrite((List<WriteModel<Document>>) source[0],(BulkWriteOptions) source[1], collection);
+        }
+    }
+
+    public void executeSave(List<Document> documentList, InsertManyOptions options, MongoCollection<Document> collection) {
         executeMultipleWrite(
                 SAVE,
                 collection,
-                mongoCollection -> execute.executeSave(finalDocumentList, mongoCollection)
+                mongoCollection -> execute.executeSave(documentList,options, mongoCollection)
         );
-        return finalDocumentList;
     }
 
-    @Override
-    public Bson executeRemove(Bson filter, MongoCollection<Document> collection) {
-        Bson finalFilter = Interceptor.super.executeRemove(filter, collection);
+    public void executeRemove(Bson filter, DeleteOptions options, MongoCollection<Document> collection) {
         executeMultipleWrite(
                 REMOVE,
                 collection,
-                mongoCollection -> execute.executeRemove(finalFilter, mongoCollection)
+                mongoCollection -> execute.executeRemove(filter,options, mongoCollection)
         );
-        return finalFilter;
     }
 
-    @Override
-    public List<MutablePair<Bson, Bson>> executeUpdate(List<MutablePair<Bson, Bson>> updatePairList,
+    public void executeUpdate(List<MutablePair<Bson, Bson>> updatePairList,
+                                                       UpdateOptions options,
                                                        MongoCollection<Document> collection) {
-        List<MutablePair<Bson, Bson>> finalUpdatePairList = Interceptor.super.executeUpdate(updatePairList, collection);
         executeMultipleWrite(
                 UPDATE,
                 collection,
-                mongoCollection -> execute.executeUpdate(finalUpdatePairList, mongoCollection)
+                mongoCollection -> execute.executeUpdate(updatePairList,options, mongoCollection)
         );
-        return finalUpdatePairList;
     }
 
-    @Override
-    public List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList,
+    public void executeBulkWrite(List<WriteModel<Document>> writeModelList,
+                                                       BulkWriteOptions options,
                                                        MongoCollection<Document> collection) {
-        List<WriteModel<Document>> finalWriteModelList = Interceptor.super.executeBulkWrite(writeModelList, collection);
         executeMultipleWrite(
                 BULK_WRITE,
                 collection,
-                mongoCollection -> execute.executeBulkWrite(finalWriteModelList, mongoCollection)
+                mongoCollection -> execute.executeBulkWrite(writeModelList,options, mongoCollection)
         );
-        return finalWriteModelList;
     }
 
-    private void executeMultipleWrite(MultipleWrite multipleWrite,MongoCollection<Document> collection,
+    protected void executeMultipleWrite(MultipleWrite multipleWrite,MongoCollection<Document> collection,
                                       Consumer<MongoCollection<Document>> action) {
         MongoNamespace namespace = collection.getNamespace();
         List<String> multipleWriteTargets = multipleWriteHandler.getMultipleWrite(multipleWrite, namespace);
-
         multipleWriteTargets.forEach(dsName -> executor.submit(() -> {
-            MongoCollection<Document> mongoCollection = getMongoCollection(namespace, dsName);
-            action.accept(mongoCollection);
+            if (!dsName.equals(DataSourceNameCache.getDataSource())) {
+                MongoCollection<Document> mongoCollection = getMongoCollection(namespace, dsName);
+                log.info("Executing multiple write operation on data source: " + dsName);
+                action.accept(mongoCollection);
+            }
         }));
     }
 
-    private MongoCollection<Document> getMongoCollection(MongoNamespace namespace, String dsName) {
+    protected MongoCollection<Document> getMongoCollection(MongoNamespace namespace, String dsName) {
         MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
         if (mongoClient == null) {
             throw new MongoPlusDsException("Non-existent data source: " + dsName);
         }
-        return mongoPlusClient.getCollection(
-                namespace.getDatabaseName(),
-                namespace.getCollectionName()
-        );
+        return mongoPlusClient.getCollection(dsName,namespace.getDatabaseName(),namespace.getCollectionName());
     }
 }
 

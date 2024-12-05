@@ -1,6 +1,7 @@
 package com.anwen.mongo.conn;
 
 import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
+import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.factory.MongoClientFactory;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.logic.UnClassCollection;
@@ -50,17 +51,29 @@ public class CollectionManager {
         return getCollection(collectionName, UnClassCollection.class);
     }
 
+    public MongoCollection<Document> getCollection(String dsName,String collectionName){
+        return getCollection(dsName,collectionName, UnClassCollection.class);
+    }
+
     public MongoCollection<Document> getCollection(String collectionName,Class<?> clazz) {
+        return getCollection(DataSourceNameCache.getDataSource(),collectionName,clazz);
+    }
+
+    public MongoCollection<Document> getCollection(String dsName,String collectionName,Class<?> clazz) {
         MongoCollection<Document> mongoCollection;
         // 检查连接是否需要重新创建
         if (!this.collectionMap.containsKey(collectionName)) {
-            mongoCollection = new ConnectMongoDB(MongoClientFactory.getInstance().getMongoClient(), database, collectionName).open();
+            mongoCollection = new ConnectMongoDB(
+                    MongoClientFactory.getInstance().getMongoClient(dsName),
+                    database,
+                    collectionName
+            ).open();
             this.collectionMap.put(collectionName, mongoCollection);
             CollectionLogicDeleteCache.mapperClassByCollection(mongoCollection.getNamespace().getFullName(), clazz);
         } else {
             mongoCollection = this.collectionMap.get(collectionName);
         }
-        return mongoCollection/*.withCodecRegistry(RegisterCodecUtil.getCodecCacheAndDefault())*/;
+        return mongoCollection;
     }
 
 }

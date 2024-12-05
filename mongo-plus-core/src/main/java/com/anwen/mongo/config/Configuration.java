@@ -398,7 +398,7 @@ public class Configuration {
                     continue;
                 }
                 LogicDeleteResult result = new LogicDeleteResult();
-                String column = annotationField.getName();
+                String column = annotationField.getCamelCaseName();
                 result.setColumn(column);
                 result.setLogicDeleteValue(StringUtils.isNotBlank(annotation.delval()) ? annotation.delval() : logicProperty.getLogicDeleteValue());
                 result.setLogicNotDeleteValue(StringUtils.isNotBlank(annotation.value()) ? annotation.value() : logicProperty.getLogicNotDeleteValue());

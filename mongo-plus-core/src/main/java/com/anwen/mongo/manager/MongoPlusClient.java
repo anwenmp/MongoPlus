@@ -52,7 +52,7 @@ public class MongoPlusClient {
     }
 
     public MongoCollection<Document> getCollection(String dataSource,String database,String collectionName){
-        return getCollectionManager(dataSource,database).getCollection(collectionName);
+        return getCollectionManager(dataSource,database).getCollection(dataSource,collectionName);
     }
 
     public MongoCollection<Document> getCollection(String database,Class<?> clazz){
