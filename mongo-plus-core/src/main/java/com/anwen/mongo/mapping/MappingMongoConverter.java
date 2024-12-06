@@ -322,7 +322,14 @@ public class MappingMongoConverter extends AbstractMongoConverter {
             valueList.forEach(value -> convertCollection(collectionType, value, collectionInstance));
             collection.add(collectionInstance);
         } else if (ClassTypeUtil.isTargetClass(Map.class,metaClass)){
-            valueList.forEach(value -> collection.add(convertMap(getGenericTypeClass((ParameterizedType) type, 1),value,createMapInstance(metaClass))));
+            Type mapType;
+            if (type instanceof ParameterizedType){
+                mapType = getGenericTypeClass((ParameterizedType) type, 1);
+            } else {
+                // 如果没有类型，则默认为Object，像Document类，或JSONObject
+                mapType = Object.class;
+            }
+            valueList.forEach(value -> collection.add(convertMap(mapType,value,createMapInstance(metaClass))));
         } else {
             valueList.forEach(value -> collection.add(readInternal((Document) value, metaClass)));
         }
@@ -341,7 +348,14 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         } else if (ClassTypeUtil.isTargetClass(Collection.class,rawClass)){
             document.forEach((k,v) -> map.put(k,convertCollection(getGenericTypeClass((ParameterizedType) type, 0),v,createCollectionInstance(rawClass))));
         } else if (ClassTypeUtil.isTargetClass(Map.class,rawClass)){
-            document.forEach((k,v) -> map.put(k,convertMap(getGenericTypeClass((ParameterizedType) type, 1),v,createMapInstance(rawClass))));
+            Type mapType;
+            if (type instanceof ParameterizedType){
+                mapType = getGenericTypeClass((ParameterizedType) type, 1);
+            } else {
+                // 如果没有类型，则默认为Object，像Document类，或JSONObject
+                mapType = Object.class;
+            }
+            document.forEach((k,v) -> map.put(k,convertMap(mapType,v,createMapInstance(rawClass))));
         } else {
             document.forEach((k,v) -> map.put(k,readInternal((Document) v, rawClass)));
         }
