@@ -246,7 +246,7 @@ public class BsonUtil {
     /**
      * 从Bson值中删除给定的key。
      */
-    static void removeFrom(Bson bson, String key) {
+    public static void removeFrom(Bson bson, String key) {
 
         if (bson instanceof Document) {
 

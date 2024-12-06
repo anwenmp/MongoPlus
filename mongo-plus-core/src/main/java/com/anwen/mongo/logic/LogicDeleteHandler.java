@@ -7,6 +7,7 @@ import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.config.Configuration;
 import com.anwen.mongo.model.LogicDeleteResult;
+import com.anwen.mongo.registry.MongoEntityMappingRegistry;
 import com.anwen.mongo.toolkit.ChainWrappers;
 import com.anwen.mongo.toolkit.Filters;
 import com.mongodb.BasicDBObject;
@@ -148,7 +149,8 @@ public interface LogicDeleteHandler {
         if (Objects.isNull(collection)) {
             return null;
         }
-        Class<?> clazz = CollectionLogicDeleteCache.fullNameMap.get(collection.getNamespace().getFullName());
+        Class<?> clazz = MongoEntityMappingRegistry.getInstance()
+                .getMappingResource(collection.getNamespace().getFullName());
         if (Objects.nonNull(clazz)) {
             if (!CollectionLogicDeleteCache.logicDeleteResultHashMap.containsKey(clazz)) {
                 Configuration.builder().setLogicFiled(CollectionLogicDeleteCache.logicProperty, clazz);

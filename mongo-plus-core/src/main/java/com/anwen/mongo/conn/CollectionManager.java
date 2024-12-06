@@ -1,10 +1,10 @@
 package com.anwen.mongo.conn;
 
-import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.factory.MongoClientFactory;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.logic.UnClassCollection;
+import com.anwen.mongo.registry.MongoEntityMappingRegistry;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
@@ -69,7 +69,8 @@ public class CollectionManager {
                     collectionName
             ).open();
             this.collectionMap.put(collectionName, mongoCollection);
-            CollectionLogicDeleteCache.mapperClassByCollection(mongoCollection.getNamespace().getFullName(), clazz);
+            MongoEntityMappingRegistry.getInstance()
+                    .setMappingRelation(mongoCollection.getNamespace().getFullName(), clazz);
         } else {
             mongoCollection = this.collectionMap.get(collectionName);
         }

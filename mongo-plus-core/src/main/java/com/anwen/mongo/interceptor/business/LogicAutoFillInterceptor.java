@@ -33,7 +33,7 @@ public class LogicAutoFillInterceptor implements Interceptor {
         LogicDeleteResult result = LogicDeleteHandler.mapper().get(clazz);
         if (Objects.nonNull(result)) {
             for (Document document : documentList) {
-                if (!document.containsKey(result.getColumn())) {
+                if (!document.containsKey(result.getColumn()) || document.get(result.getColumn()) == null) {
                     document.put(result.getColumn(), result.getLogicNotDeleteValue());
                 }
             }
@@ -57,7 +57,7 @@ public class LogicAutoFillInterceptor implements Interceptor {
                 Document document = ((InsertOneModel<Document>) documentWriteModel).getDocument();
                 LogicDeleteResult result = LogicDeleteHandler.mapper().get(clazz);
                 if (Objects.nonNull(result)) {
-                    if (!document.containsKey(result.getColumn())) {
+                    if (!document.containsKey(result.getColumn()) || document.get(result.getColumn()) == null) {
                         document.put(result.getColumn(), result.getLogicNotDeleteValue());
                     }
                 }
