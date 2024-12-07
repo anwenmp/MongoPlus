@@ -1,6 +1,6 @@
 package com.anwen.mongo.tenant;
 
-import com.anwen.mongo.cache.global.TenantCache;
+import com.anwen.mongo.manager.TenantManager;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,10 +19,10 @@ public class TenantAspect {
     @Around("@annotation(com.anwen.mongo.annotation.tenant.IgnoreTenant)")
     public Object ignoreTenant(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
-            TenantCache.setIgnoreTenant(true);
+            TenantManager.ignoreTenantCondition();
             return joinPoint.proceed();
         } finally {
-            TenantCache.clear();
+            TenantManager.restoreTenantCondition();
         }
     }
 }

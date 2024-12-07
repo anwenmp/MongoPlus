@@ -2,7 +2,6 @@ package com.anwen.mongo.mapper;
 
 import com.anwen.mongo.aggregate.Aggregate;
 import com.anwen.mongo.cache.global.InterceptorCache;
-import com.anwen.mongo.cache.global.TenantCache;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -14,6 +13,7 @@ import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicDeleteHandler;
 import com.anwen.mongo.manager.MongoPlusClient;
+import com.anwen.mongo.manager.TenantManager;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.TypeReference;
 import com.anwen.mongo.model.BaseConditionResult;
@@ -186,7 +186,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         // 忽略逻辑删除 + 条件为空 + 忽略多租户
         return LogicDeleteHandler.close(collection)
                 && (Objects.isNull(queryChainWrapper) || CollUtil.isEmpty(queryChainWrapper.getCompareList()))
-                && (TenantCache.getIgnoreTenant() != null || InterceptorCache.getTenant() == null);
+                && (TenantManager.getIgnoreTenant() != null || InterceptorCache.getTenant() == null);
 
     }
 

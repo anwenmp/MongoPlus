@@ -2,8 +2,6 @@ package com.anwen.mongo.interceptor.business;
 
 import com.anwen.mongo.aggregate.AggregateWrapper;
 import com.anwen.mongo.cache.codec.MapCodecCache;
-import com.anwen.mongo.cache.global.DataSourceNameCache;
-import com.anwen.mongo.cache.global.TenantCache;
 import com.anwen.mongo.conditions.query.QueryWrapper;
 import com.anwen.mongo.enums.AggregateEnum;
 import com.anwen.mongo.handlers.TenantHandler;
@@ -13,7 +11,6 @@ import com.anwen.mongo.model.QueryParam;
 import com.anwen.mongo.toolkit.BsonUtil;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.BasicDBObject;
-import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.InsertOneModel;
@@ -26,6 +23,8 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.anwen.mongo.manager.TenantManager.isTenantIgnored;
 
 /**
  * 多租户拦截器
@@ -133,20 +132,6 @@ public class TenantInterceptor implements Interceptor {
             }
         }
         return writeModelList;
-    }
-
-    private boolean isTenantIgnored(MongoCollection<Document> collection) {
-        MongoNamespace namespace = collection.getNamespace();
-        String collectionName = namespace.getCollectionName();
-        String databaseName = namespace.getDatabaseName();
-        String dataSource = DataSourceNameCache.getDataSource();
-        Boolean ignoreTenant = TenantCache.getIgnoreTenant();
-
-        return ignoreTenant != null ?
-                ignoreTenant :
-                tenantHandler.ignoreCollection(collectionName) ||
-                        tenantHandler.ignoreDatabase(databaseName) ||
-                        tenantHandler.ignoreDataSource(dataSource);
     }
 
     @SuppressWarnings("unchecked")

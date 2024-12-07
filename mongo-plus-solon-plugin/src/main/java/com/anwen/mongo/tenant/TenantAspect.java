@@ -1,7 +1,7 @@
 package com.anwen.mongo.tenant;
 
 import com.anwen.mongo.annotation.tenant.IgnoreTenant;
-import com.anwen.mongo.cache.global.TenantCache;
+import com.anwen.mongo.manager.TenantManager;
 import org.noear.solon.core.aspect.Interceptor;
 import org.noear.solon.core.aspect.Invocation;
 
@@ -19,12 +19,12 @@ public class TenantAspect implements Interceptor {
     public Object doIntercept(Invocation inv) throws Throwable {
         return Optional.ofNullable(inv.method().getAnnotation(IgnoreTenant.class)).map(mongoDs -> {
             try {
-                TenantCache.setIgnoreTenant(true);
+                TenantManager.ignoreTenantCondition();
                 return inv.invoke();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
-                TenantCache.clear();
+                TenantManager.restoreTenantCondition();
             }
         });
     }
