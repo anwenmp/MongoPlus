@@ -365,6 +365,21 @@ public class ServiceImpl<T> implements IService<T> {
     }
 
     @Override
+    public T one(Aggregate<?> aggregate) {
+        return one(aggregate,clazz);
+    }
+
+    @Override
+    public <R> R one(Aggregate<?> aggregate, Class<R> rClazz) {
+        return (R) baseMapper.aggregateOne(aggregate,clazz);
+    }
+
+    @Override
+    public <R> R one(Aggregate<?> aggregate, TypeReference<R> typeReference) {
+        return baseMapper.aggregateOne(aggregate,clazz,typeReference);
+    }
+
+    @Override
     public List<T> list() {
         return list(clazz);
     }

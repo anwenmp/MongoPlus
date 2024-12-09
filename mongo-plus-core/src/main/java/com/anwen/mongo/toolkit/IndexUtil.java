@@ -156,7 +156,7 @@ public class IndexUtil {
         if (mongoIndex.background()) {
             indexOptions.background(true);
         }
-        if (mongoIndex.expireAfterSeconds() > 0) {
+        if (mongoIndex.expireAfterSeconds() >= 0) {
             indexOptions.expireAfter(mongoIndex.expireAfterSeconds(), TimeUnit.SECONDS);
         }
         if (StringUtils.isNotBlank(mongoIndex.expireAfter())) {

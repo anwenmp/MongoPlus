@@ -26,10 +26,14 @@ import java.util.function.Consumer;
 
 import static com.anwen.mongo.enums.MultipleWrite.*;
 
+/**
+ * 异步多写，并不能保证事务
+ * @author anwen
+ */
 @SuppressWarnings("unchecked")
-public class MultipleWriteInterceptor implements Interceptor {
+public class AsyncMultipleWriteInterceptor implements Interceptor {
 
-    private final Log log = LogFactory.getLog(MultipleWriteInterceptor.class);
+    private final Log log = LogFactory.getLog(AsyncMultipleWriteInterceptor.class);
 
     private final ThreadPoolExecutor executor;
 
@@ -43,7 +47,7 @@ public class MultipleWriteInterceptor implements Interceptor {
         this.execute = execute;
     }
 
-    public MultipleWriteInterceptor(MongoPlusClient mongoPlusClient) {
+    public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient) {
         this.executor = new ThreadPoolExecutor(
                 5, // 核心线程数
                 20, // 最大线程数
@@ -56,14 +60,14 @@ public class MultipleWriteInterceptor implements Interceptor {
         this.multipleWriteHandler = new MultipleWriteHandler(mongoPlusClient) {};
     }
 
-    public MultipleWriteInterceptor(MongoPlusClient mongoPlusClient, ThreadPoolExecutor executor) {
+    public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient, ThreadPoolExecutor executor) {
         this.mongoPlusClient = mongoPlusClient;
         this.executor = executor;
         this.multipleWriteHandler = new MultipleWriteHandler(mongoPlusClient) {};
     }
 
-    public MultipleWriteInterceptor(MongoPlusClient mongoPlusClient, ThreadPoolExecutor executor,
-                                    MultipleWriteHandler multipleWriteHandler) {
+    public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient, ThreadPoolExecutor executor,
+                                         MultipleWriteHandler multipleWriteHandler) {
         this.mongoPlusClient = mongoPlusClient;
         this.executor = executor;
         this.multipleWriteHandler = multipleWriteHandler;

@@ -421,6 +421,35 @@ public interface IService<T> {
     <R> R one(QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
 
     /**
+     * 查询单个
+     * @param aggregate 条件
+     * @return {@link T}
+     * @author anwen
+     * @date 2024/6/23 下午5:12
+     */
+    T one(Aggregate<?> aggregate);
+
+    /**
+     * 查询单个
+     * @param aggregate 条件
+     * @param rClazz 返回值类型
+     * @return {@link R}
+     * @author anwen
+     * @date 2024/6/23 下午5:13
+     */
+    <R> R one(Aggregate<?> aggregate,Class<R> rClazz);
+
+    /**
+     * 查询单个
+     * @param aggregate 条件
+     * @param typeReference 返回值类型
+     * @return {@link R}
+     * @author anwen
+     * @date 2024/6/23 下午5:13
+     */
+    <R> R one(Aggregate<?> aggregate,TypeReference<R> typeReference);
+
+    /**
      * 查询列表
      * @param queryChainWrapper 条件
      * @return {@link java.util.List<T>}

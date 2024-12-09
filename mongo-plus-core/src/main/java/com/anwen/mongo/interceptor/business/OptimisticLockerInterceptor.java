@@ -29,7 +29,7 @@ import static com.anwen.mongo.enums.UpdateConditionEnum.INC;
  */
 public class OptimisticLockerInterceptor implements Interceptor {
 
-    private Log log = LogFactory.getLog(OptimisticLockerInterceptor.class);
+    private final Log log = LogFactory.getLog(OptimisticLockerInterceptor.class);
 
     private final Map<Class<?>,FieldInformation> optimisticLockerExistMap = new ConcurrentHashMap<>();
 
@@ -68,9 +68,10 @@ public class OptimisticLockerInterceptor implements Interceptor {
         }
         String fieldName = fieldInformation.getCamelCaseName();
         Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
-        updatePairList.forEach(updatePair -> {
-            handlerUpdate(fieldName,updatePair.getLeft(),updatePair.getRight());
-        });
+        updatePairList.forEach(updatePair -> handlerUpdate(fieldName,
+                updatePair.getLeft(),
+                updatePair.getRight()
+        ));
         return updatePairList;
     }
 

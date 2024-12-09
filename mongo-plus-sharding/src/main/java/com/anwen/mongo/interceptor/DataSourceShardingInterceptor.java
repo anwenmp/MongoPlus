@@ -5,7 +5,6 @@ import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.context.MongoTransactionStatus;
 import com.anwen.mongo.context.ShardingTransactionContext;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
-import com.anwen.mongo.interceptor.business.DataChangeRecorderInnerInterceptor;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class DataSourceShardingInterceptor implements Interceptor {
 
-    private final Log log = LogFactory.getLog(DataChangeRecorderInnerInterceptor.class);
+    private final Log log = LogFactory.getLog(DataSourceShardingInterceptor.class);
 
     private final MongoPlusClient mongoPlusClient;
 

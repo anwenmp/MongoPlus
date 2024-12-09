@@ -9,13 +9,13 @@ import com.anwen.mongo.domain.InitMongoLogicException;
 import com.anwen.mongo.domain.InitMongoPlusException;
 import com.anwen.mongo.enums.CollectionNameConvertEnum;
 import com.anwen.mongo.factory.MongoClientFactory;
+import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
+import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.interceptor.Interceptor;
-import com.anwen.mongo.interceptor.business.CollectionLogiceInterceptor;
-import com.anwen.mongo.interceptor.business.LogicAutoFillInterceptor;
-import com.anwen.mongo.interceptor.business.TenantInterceptor;
+import com.anwen.mongo.interceptor.business.*;
 import com.anwen.mongo.listener.Listener;
 import com.anwen.mongo.listener.business.BlockAttackInnerListener;
 import com.anwen.mongo.listener.business.LogListener;
@@ -273,7 +273,9 @@ public class Configuration {
         if (StringUtils.isBlank(baseProperty.getDatabase())) {
             throw new InitMongoPlusException("Connection database not configured");
         }
-        return initMongoPlusClient();
+        MongoPlusClient mongoPlusClient = initMongoPlusClient();
+        idGenerateHandler(new AbstractIdGenerateHandler(mongoPlusClient) {});
+        return mongoPlusClient;
     }
 
     public MongoPlusClient initMongoPlusClient() {
@@ -319,17 +321,42 @@ public class Configuration {
     }
 
     /**
-     * 获取BaseMapper
-     *
-     * @author JiaChaoYang
-     * @date 2024/3/19 18:39
+     * 设置id处理器
+     * @author anwen
      */
-    public BaseMapper getBaseMapper() {
-        return new DefaultBaseMapperImpl(getMongoPlusClient(), new MappingMongoConverter());
+    public Configuration idGenerateHandler(IdGenerateHandler idGenerateHandler){
+        HandlerCache.idGenerateHandler = idGenerateHandler;
+        return this;
     }
 
-    public BaseMapper getBaseMapper(MongoConverter mongoConverter) {
-        return new DefaultBaseMapperImpl(getMongoPlusClient(), mongoConverter);
+    /**
+     * 设置数据变动记录
+     * @return {@link com.anwen.mongo.config.Configuration}
+     * @author anwen
+     */
+    public Configuration dataChangeRecorder(DataChangeRecorderInnerInterceptor dataChangeRecorderInnerInterceptor){
+        InterceptorCache.interceptors.add(dataChangeRecorderInnerInterceptor);
+        return this;
+    }
+
+    /**
+     * 设置动态集合
+     * @return {@link Configuration}
+     * @author anwen
+     */
+    public Configuration dynamicCollectionName(DynamicCollectionNameInterceptor dynamicCollectionNameInterceptor){
+        InterceptorCache.interceptors.add(dynamicCollectionNameInterceptor);
+        return this;
+    }
+
+    /**
+     * 设置异步多写
+     * @return {@link com.anwen.mongo.config.Configuration}
+     * @author anwen
+     */
+    public Configuration asyncMultipleWrite(AsyncMultipleWriteInterceptor multipleWriteInterceptor){
+        InterceptorCache.interceptors.add(multipleWriteInterceptor);
+        return this;
     }
 
     /**
@@ -430,6 +457,20 @@ public class Configuration {
     public Configuration aware(Aware aware) {
         AwareHandlerCache.putAware(aware);
         return this;
+    }
+
+    /**
+     * 获取BaseMapper
+     *
+     * @author JiaChaoYang
+     * @date 2024/3/19 18:39
+     */
+    public BaseMapper getBaseMapper() {
+        return new DefaultBaseMapperImpl(getMongoPlusClient(), new MappingMongoConverter());
+    }
+
+    public BaseMapper getBaseMapper(MongoConverter mongoConverter) {
+        return new DefaultBaseMapperImpl(getMongoPlusClient(), mongoConverter);
     }
 
 }

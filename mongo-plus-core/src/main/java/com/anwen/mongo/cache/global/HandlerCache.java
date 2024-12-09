@@ -5,6 +5,7 @@ import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.ReadHandler;
 import com.anwen.mongo.handlers.condition.ConditionHandler;
 import com.anwen.mongo.handlers.condition.EncryptorConditionHandler;
+import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.mapping.handler.DesensitizationHandlerApply;
 import com.anwen.mongo.mapping.handler.FieldEncryptApply;
 

@@ -593,13 +593,26 @@ public abstract class AbstractBaseMapper implements BaseMapper {
         factory.getExecute().doDropIndexes(dropIndexOptions, mongoPlusClient.getCollection(database, collectionName));
     }
 
-    public <T> PageResult<T> getPageResult(FindIterable<Document> documentFindIterable, long totalSize, PageParam pageParams, TypeReference<T> typeReference, MongoConverter mongoConverter) {
-        List<T> pageContentData = mongoConverter.read(documentFindIterable.skip((pageParams.getPageNum() - 1) * pageParams.getPageSize()).limit(pageParams.getPageSize()), typeReference);
+    public <T> PageResult<T> getPageResult(FindIterable<Document> documentFindIterable, long totalSize,
+                                           PageParam pageParams, TypeReference<T> typeReference,
+                                           MongoConverter mongoConverter) {
+        List<T> pageContentData = mongoConverter.read(
+                documentFindIterable
+                        .skip((pageParams.getPageNum() - 1) * pageParams.getPageSize())
+                        .limit(pageParams.getPageSize()),
+                typeReference
+        );
         // 不查询总条数，总条数=当前页的总数
         if (totalSize == -1) {
             totalSize = pageContentData.size();
         }
-        return new PageResult<>(pageParams.getPageNum(), pageParams.getPageSize(), totalSize, ((totalSize + pageParams.getPageSize() - 1) / pageParams.getPageSize()), pageContentData);
+        return new PageResult<>(
+                pageParams.getPageNum(),
+                pageParams.getPageSize(),
+                totalSize,
+                ((totalSize + pageParams.getPageSize() - 1) / pageParams.getPageSize()),
+                pageContentData
+        );
     }
 
 
