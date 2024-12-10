@@ -136,14 +136,14 @@ public abstract class AbstractMongoConverter implements MongoConverter {
                 MongoPlusDocument insertFillAutoField = insertFillAutoFillMetaObject.getDocument();
                 MongoPlusDocument updateFillAutoField = updateFillAutoFillMetaObject.getDocument();
                 if (collectionField.fill() == FieldFill.INSERT) {
-                    insertFillAutoField.put(field.getName(), field.getValue());
+                    insertFillAutoField.put(field.getCamelCaseName(), field.getValue());
                 }
                 if (collectionField.fill() == FieldFill.UPDATE) {
-                    updateFillAutoField.put(field.getName(), field.getValue());
+                    updateFillAutoField.put(field.getCamelCaseName(), field.getValue());
                 }
                 if (collectionField.fill() == FieldFill.INSERT_UPDATE) {
-                    insertFillAutoField.put(field.getName(), field.getValue());
-                    updateFillAutoField.put(field.getName(), field.getValue());
+                    insertFillAutoField.put(field.getCamelCaseName(), field.getValue());
+                    updateFillAutoField.put(field.getCamelCaseName(), field.getValue());
                 }
             }
         });
