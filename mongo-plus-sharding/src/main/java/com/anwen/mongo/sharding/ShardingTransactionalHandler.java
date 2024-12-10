@@ -1,36 +1,31 @@
-package com.anwen.mongo.transactional;
+package com.anwen.mongo.sharding;
 
 import com.anwen.mongo.annotation.transactional.MongoTransactional;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.context.MongoTransactionStatus;
 import com.anwen.mongo.context.ShardingTransactionContext;
+import com.anwen.mongo.handlers.TransactionHandler;
 import com.anwen.mongo.manager.MongoTransactionalManager;
 import com.anwen.mongo.toolkit.ArrayUtils;
 import com.anwen.mongo.toolkit.ClassTypeUtil;
 import com.mongodb.client.ClientSession;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.springframework.core.annotation.Order;
+
+import java.util.function.Supplier;
 
 /**
- * Aop实现分片的事务操作
  * @author anwen
  */
-@Aspect
-@Order(1)
-public class ShardingTransactionalAspect extends MongoTransactionalAspect {
+public class ShardingTransactionalHandler extends TransactionHandler {
 
-    @Around(value = "markMongoTransactional() && @annotation(mongoTransactional)")
     @Override
-    public Object manageTransaction(ProceedingJoinPoint joinPoint, MongoTransactional mongoTransactional) throws Throwable {
+    public Object transaction(Supplier<Object> supplier, MongoTransactional mongoTransactional) {
         ClientSession session = MongoTransactionalManager.getTransaction(mongoTransactional);
-        MongoTransactionStatus status = MongoTransactionalManager.getTransactionStatus(session, session.getTransactionOptions());
+        MongoTransactionStatus status = MongoTransactionalManager.getTransactionStatus(session, null);
         MongoTransactionalManager.startTransaction(status);
         String currentDataSource = DataSourceNameCache.getDataSource();
         ShardingTransactionContext.addResourcesTransactionStatus(currentDataSource,status);
         try {
-            Object result = joinPoint.proceed();
+            Object result = supplier.get();
             ShardingTransactionContext.commitCurrentAllTransaction();
             return result;
         } catch (Exception e) {

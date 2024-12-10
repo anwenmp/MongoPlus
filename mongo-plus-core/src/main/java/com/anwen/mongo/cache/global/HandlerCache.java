@@ -3,9 +3,9 @@ package com.anwen.mongo.cache.global;
 import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.ReadHandler;
+import com.anwen.mongo.handlers.TransactionHandler;
 import com.anwen.mongo.handlers.condition.ConditionHandler;
 import com.anwen.mongo.handlers.condition.EncryptorConditionHandler;
-import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.mapping.handler.DesensitizationHandlerApply;
 import com.anwen.mongo.mapping.handler.FieldEncryptApply;
 
@@ -36,7 +36,15 @@ public class HandlerCache {
      */
     public static IdGenerateHandler idGenerateHandler;
 
+    /**
+     * 条件处理器
+     */
     public static List<ConditionHandler> conditionHandlerList = new ArrayList<>();
+
+    /**
+     * 事务处理器
+     */
+    public static TransactionHandler transactionHandler = new TransactionHandler();
 
     static {
         readHandlerList.add(new FieldEncryptApply());

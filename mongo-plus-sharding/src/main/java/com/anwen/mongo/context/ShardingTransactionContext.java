@@ -19,7 +19,11 @@ public class ShardingTransactionContext {
      * @author anwen
      */
     public static Map<String , MongoTransactionStatus> getAllMongoTransactionStatus() {
-        return Optional.ofNullable(resources.get()).orElseGet(HashMap::new);
+        return Optional.ofNullable(resources.get()).orElseGet(() -> {
+            Map<String,MongoTransactionStatus> map = new HashMap<>();
+            resources.set(map);
+            return map;
+        });
     }
 
     public static void removeResourcesTransactionStatus(String key){

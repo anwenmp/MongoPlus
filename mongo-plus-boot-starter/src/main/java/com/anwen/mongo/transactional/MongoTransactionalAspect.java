@@ -1,14 +1,12 @@
 package com.anwen.mongo.transactional;
 
 import com.anwen.mongo.annotation.transactional.MongoTransactional;
-import com.anwen.mongo.manager.MongoTransactionalManager;
+import com.anwen.mongo.cache.global.HandlerCache;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
-
-import static com.anwen.mongo.manager.MongoTransactionalManager.handleTransactionException;
 
 /**
  * AOP操作，实现声明式事务
@@ -26,17 +24,13 @@ public class MongoTransactionalAspect {
 
     @Around(value = "markMongoTransactional() && @annotation(mongoTransactional)")
     public Object manageTransaction(ProceedingJoinPoint joinPoint, MongoTransactional mongoTransactional) throws Throwable {
-        MongoTransactionalManager.startTransaction(mongoTransactional);
-        try {
-            Object result = joinPoint.proceed();
-            MongoTransactionalManager.commitTransaction();
-            return result;
-        } catch (Exception e) {
-            handleTransactionException(mongoTransactional, e);
-            throw e;
-        } finally {
-            MongoTransactionalManager.closeSession();
-        }
+        return HandlerCache.transactionHandler.transaction(() -> {
+            try {
+                return joinPoint.proceed();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }, mongoTransactional);
     }
 }
 

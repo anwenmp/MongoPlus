@@ -5,13 +5,16 @@ import com.anwen.mongo.context.MongoTransactionContext;
 import com.anwen.mongo.context.MongoTransactionStatus;
 import com.anwen.mongo.context.ShardingTransactionContext;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
+import com.anwen.mongo.execute.instance.DefaultExecute;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.manager.MongoTransactionalManager;
+import com.anwen.mongo.model.BaseProperty;
 import com.anwen.mongo.sharding.AbstractDataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingStrategy;
+import com.anwen.mongo.support.BoolFunction;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.MongoNamespace;
@@ -51,6 +54,8 @@ public class DataSourceShardingInterceptor implements Interceptor {
         this.mongoPlusClient = mongoPlusClient;
         this.dataSourceShardingHandler = dataSourceShardingHandler;
     }
+
+    boolean sessionIsNotNull = false;
 
     /**
      * {@inheritDoc}
@@ -116,13 +121,17 @@ public class DataSourceShardingInterceptor implements Interceptor {
             MongoNamespace namespace = collection.getNamespace();
             // 获取当前线程持有的事务
             ClientSession currentClientSession = MongoTransactionContext.getClientSessionContext();
-            if (currentClientSession != null) {
+            BaseProperty baseProperty = DataSourceNameCache.getBaseProperty(dsName);
+            if (StringUtils.isNotBlank(baseProperty.getReplicaSet()) &&
+                    currentClientSession != null) {
                 // 获取MongoClient
                 MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
                 // 根据当前线程持有的事务配置，重新拿到新事务
                 ClientSession clientSession = dataSourceShardingHandler.handleTransactional(
                         currentClientSession, mongoClient);
                 MongoTransactionalManager.startTransaction(clientSession,clientSession.getTransactionOptions());
+            } else if (currentClientSession != null) {
+                sessionIsNotNull = true;
             }
             // 拿到新数据源的Collection
             MongoCollection<Document> newCollection = mongoPlusClient.getCollection(
@@ -132,6 +141,21 @@ public class DataSourceShardingInterceptor implements Interceptor {
             // 更新源数据
             source[source.length - 1] = newCollection;
         }
+    }
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        if (sessionIsNotNull){
+            sessionIsNotNull = false;
+            DefaultExecute execute = new DefaultExecute();
+            return invocation.getMethod().invoke(execute,invocation.getArgs());
+        }
+        return invocation.invoke();
+    }
+
+    @Override
+    public BoolFunction supplier() {
+        return (proxy, target, method, args) -> true;
     }
 
     @Override
