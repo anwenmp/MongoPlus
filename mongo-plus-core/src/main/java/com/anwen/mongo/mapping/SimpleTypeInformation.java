@@ -124,9 +124,13 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     @Override
     public List<FieldInformation> getFields(){
         if (CollUtil.isEmpty(fieldList)){
+            Class<?> enclosingClass = clazz.getEnclosingClass();
             Arrays.stream(clazz.getDeclaredFields()).forEach(field -> {
                 field.setAccessible(true);
                 if (Modifier.isStatic(field.getModifiers())){
+                    return;
+                }
+                if (field.getType().equals(enclosingClass)){
                     return;
                 }
                 fieldList.add(new SimpleFieldInformation<>(instance,field));

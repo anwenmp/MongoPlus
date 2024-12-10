@@ -15,11 +15,12 @@ import java.util.function.Supplier;
  */
 public class TenantManager {
 
-    private TenantManager() {}
+    private TenantManager() {
+    }
 
     private static final ThreadLocal<Boolean> ignoreTenant = new ThreadLocal<>();
 
-    public static Boolean getIgnoreTenant(){
+    public static Boolean getIgnoreTenant() {
         return ignoreTenant.get();
     }
 
@@ -27,7 +28,7 @@ public class TenantManager {
      * 忽略租户条件
      * @author anwen
      */
-    public static <T> T withoutTenant(Supplier<T> supplier){
+    public static <T> T withoutTenant(Supplier<T> supplier) {
         try {
             ignoreTenantCondition();
             return supplier.get();
@@ -52,7 +53,7 @@ public class TenantManager {
      * 忽略租户条件
      * @author anwen
      */
-    public static void ignoreTenantCondition(){
+    public static void ignoreTenantCondition() {
         ignoreTenant.set(true);
     }
 
@@ -60,7 +61,7 @@ public class TenantManager {
      * 恢复租户条件
      * @author anwen
      */
-    public static void restoreTenantCondition(){
+    public static void restoreTenantCondition() {
         ignoreTenant.remove();
     }
 
@@ -89,10 +90,11 @@ public class TenantManager {
         String dataSource = DataSourceNameCache.getDataSource();
         Boolean ignoreTenant = getIgnoreTenant();
 
-        return ignoreTenant ||
+        return ignoreTenant != null ?
+                ignoreTenant :
                 tenantHandler.ignoreCollection(collectionName) ||
-                tenantHandler.ignoreDatabase(databaseName) ||
-                tenantHandler.ignoreDataSource(dataSource);
+                        tenantHandler.ignoreDatabase(databaseName) ||
+                        tenantHandler.ignoreDataSource(dataSource);
     }
 
 }

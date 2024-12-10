@@ -243,11 +243,24 @@ public class ClassTypeUtil {
         throw new IllegalArgumentException("Type not supported: " + type);
     }
 
-    public static <T> Object getInstanceByClass(Class<T> clazz){
+    public static <T> Object getInstanceByClass(Class<T> clazz) {
         try {
-            return clazz.getDeclaredConstructor().newInstance();
+            // 判断是否是内部类
+            if (clazz.getEnclosingClass() != null && !Modifier.isStatic(clazz.getModifiers())) {
+                // 处理非静态内部类
+                // 获取外部类的实例
+                Constructor<?> enclosingConstructor = clazz.getEnclosingClass().getDeclaredConstructor();
+                Object enclosingInstance = enclosingConstructor.newInstance();
+
+                // 获取内部类的构造器，构造器需要外部类实例作为参数
+                Constructor<?> innerConstructor = clazz.getDeclaredConstructor(clazz.getEnclosingClass());
+                return innerConstructor.newInstance(enclosingInstance);
+            } else {
+                // 处理静态类或普通类
+                return clazz.getDeclaredConstructor().newInstance();
+            }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            log.error("Failed to create " + clazz.getName() +", message: {}", e.getMessage(), e);
+            log.error("Failed to create " + clazz.getName() + ", message: {}", e.getMessage(), e);
             throw new MongoPlusException("Failed to create " + clazz.getName());
         }
     }
