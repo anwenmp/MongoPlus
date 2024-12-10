@@ -15,6 +15,7 @@ import com.anwen.mongo.incrementer.IdentifierGenerator;
 import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.incrementer.id.IdWorker;
 import com.anwen.mongo.interceptor.Interceptor;
+import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.interceptor.business.DynamicCollectionNameInterceptor;
 import com.anwen.mongo.interceptor.business.TenantInterceptor;
 import com.anwen.mongo.listener.Listener;
@@ -205,7 +206,7 @@ public class MongoPlusAutoConfiguration {
         if (CollUtil.isNotEmpty(beansOfType)) {
             beansOfType = beansOfType.stream().sorted(Comparator.comparing(Interceptor::order)).collect(Collectors.toList());
         }
-        InterceptorCache.interceptors = new ArrayList<>(beansOfType);
+        InterceptorChain.addInterceptors(new ArrayList<>(beansOfType));
     }
 
     /**
@@ -272,7 +273,7 @@ public class MongoPlusAutoConfiguration {
             tenantHandler = context.getBean(TenantHandler.class);
         } catch (Exception ignored){}
         if (tenantHandler != null) {
-            InterceptorCache.interceptors.add(new TenantInterceptor(tenantHandler));
+            InterceptorChain.addInterceptor(new TenantInterceptor(tenantHandler));
         }
     }
 
@@ -287,7 +288,7 @@ public class MongoPlusAutoConfiguration {
             collectionNameHandler = context.getBean(CollectionNameHandler.class);
         } catch (Exception ignored){}
         if (collectionNameHandler != null) {
-            InterceptorCache.interceptors.add(new DynamicCollectionNameInterceptor(collectionNameHandler, baseMapper.getMongoPlusClient()));
+            InterceptorChain.addInterceptor(new DynamicCollectionNameInterceptor(collectionNameHandler, baseMapper.getMongoPlusClient()));
         }
     }
 

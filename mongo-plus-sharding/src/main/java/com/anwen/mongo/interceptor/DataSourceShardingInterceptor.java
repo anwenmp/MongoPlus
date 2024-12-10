@@ -11,6 +11,7 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.manager.MongoTransactionalManager;
 import com.anwen.mongo.model.BaseProperty;
+import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.sharding.AbstractDataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingStrategy;
@@ -23,6 +24,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @author anwen
  */
-public class DataSourceShardingInterceptor implements Interceptor {
+public class DataSourceShardingInterceptor implements Interceptor, Replacer {
 
     private final Log log = LogFactory.getLog(DataSourceShardingInterceptor.class);
 
@@ -144,13 +146,13 @@ public class DataSourceShardingInterceptor implements Interceptor {
     }
 
     @Override
-    public Object intercept(Invocation invocation) throws Throwable {
+    public Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable {
         if (sessionIsNotNull){
             sessionIsNotNull = false;
             DefaultExecute execute = new DefaultExecute();
-            return invocation.getMethod().invoke(execute,invocation.getArgs());
+            return method.invoke(execute,args);
         }
-        return invocation.invoke();
+        return method.invoke(target,args);
     }
 
     @Override

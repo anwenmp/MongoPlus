@@ -1,10 +1,10 @@
 package com.anwen.mongo.logic.replacer;
 
-import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.SpecialConditionEnum;
 import com.anwen.mongo.execute.Execute;
 import com.anwen.mongo.logic.LogicDeleteHandler;
+import com.anwen.mongo.manager.LogicManager;
 import com.anwen.mongo.model.LogicDeleteResult;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.replacer.Replacer;
@@ -33,7 +33,7 @@ public class LogicRemoveReplacer implements Replacer {
     @SuppressWarnings("unchecked")
     public Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable {
 
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
+        if (LogicManager.isIgnoreLogic()) {
             return method.invoke(target, args);
         }
         MongoCollection<Document> collection = (MongoCollection<Document>) args[args.length-1];
@@ -67,7 +67,7 @@ public class LogicRemoveReplacer implements Replacer {
     @Override
     public BoolFunction supplier() {
         return (proxy, target, method, args) ->
-                CollectionLogicDeleteCache.open && method.getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
+                LogicManager.open && method.getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
     }
 
 }

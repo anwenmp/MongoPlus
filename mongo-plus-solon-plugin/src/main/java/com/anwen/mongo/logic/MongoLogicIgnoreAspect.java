@@ -1,7 +1,7 @@
 package com.anwen.mongo.logic;
 
 import com.anwen.mongo.annotation.logice.IgnoreLogic;
-import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
+import com.anwen.mongo.manager.LogicManager;
 import org.noear.solon.core.aspect.Interceptor;
 import org.noear.solon.core.aspect.Invocation;
 
@@ -19,12 +19,12 @@ public class MongoLogicIgnoreAspect implements Interceptor {
     public Object doIntercept(Invocation inv) throws Throwable {
         return Optional.ofNullable(inv.method().getAnnotation(IgnoreLogic.class)).map(ignoreLogic -> {
             try {
-                CollectionLogicDeleteCache.setLogicIgnore(true);
+                LogicManager.ignoreLogicCondition();
                 return inv.invoke();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
-                CollectionLogicDeleteCache.clear();
+                LogicManager.restoreLogicCondition();
             }
         });
     }

@@ -89,11 +89,10 @@ public class TenantManager {
         String dataSource = DataSourceNameCache.getDataSource();
         Boolean ignoreTenant = getIgnoreTenant();
 
-        return ignoreTenant != null ?
-                ignoreTenant :
+        return ignoreTenant ||
                 tenantHandler.ignoreCollection(collectionName) ||
-                        tenantHandler.ignoreDatabase(databaseName) ||
-                        tenantHandler.ignoreDataSource(dataSource);
+                tenantHandler.ignoreDatabase(databaseName) ||
+                tenantHandler.ignoreDataSource(dataSource);
     }
 
 }

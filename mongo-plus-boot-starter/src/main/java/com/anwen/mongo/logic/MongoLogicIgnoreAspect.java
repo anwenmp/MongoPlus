@@ -1,7 +1,7 @@
 package com.anwen.mongo.logic;
 
 import com.anwen.mongo.annotation.logice.IgnoreLogic;
-import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
+import com.anwen.mongo.manager.LogicManager;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,10 +25,10 @@ public class MongoLogicIgnoreAspect {
     public Object ignoreLogic(ProceedingJoinPoint joinPoint, IgnoreLogic ignoreLogic) throws Throwable {
 
         try {
-            CollectionLogicDeleteCache.setLogicIgnore(true);
+            LogicManager.ignoreLogicCondition();
             return joinPoint.proceed();
         } finally {
-            CollectionLogicDeleteCache.clear();
+            LogicManager.restoreLogicCondition();
         }
 
     }

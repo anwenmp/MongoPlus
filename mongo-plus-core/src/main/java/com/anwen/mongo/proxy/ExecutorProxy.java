@@ -2,20 +2,16 @@ package com.anwen.mongo.proxy;
 
 import com.anwen.mongo.cache.global.ExecutorProxyCache;
 import com.anwen.mongo.cache.global.ExecutorReplacerCache;
-import com.anwen.mongo.cache.global.InterceptorCache;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.execute.Execute;
-import com.anwen.mongo.interceptor.Interceptor;
-import com.anwen.mongo.interceptor.Invocation;
+import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.strategy.executor.MethodExecutorStrategy;
-import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -41,17 +37,10 @@ public class ExecutorProxy implements InvocationHandler {
         MethodExecutorStrategy executor = ExecutorProxyCache.EXECUTOR_MAP.get(executeMethodEnum);
         MongoCollection<Document> collection = (MongoCollection<Document>) args[args.length - 1];
         if (Objects.nonNull(executor)) {
-            Invocation invocation = new Invocation(proxy,target, method, args);
-            List<Interceptor> interceptors = InterceptorCache.interceptors;
-            if (CollUtil.isNotEmpty(interceptors)){
-                for (Interceptor interceptor : interceptors) {
-                    interceptor.beforeExecute(executeMethodEnum, args, collection);
-                    executor.invoke(interceptor, args);
-                    if (interceptor.supplier().get(proxy,target,method,args)){
-                        return interceptor.intercept(invocation);
-                    }
-                }
-            }
+            InterceptorChain.getInterceptors().forEach(interceptor -> {
+                interceptor.beforeExecute(executeMethodEnum, args, collection);
+                executor.invoke(interceptor, args);
+            });
         }
 
         // 方法替换执行器 执行首个命中执行器
@@ -61,7 +50,7 @@ public class ExecutorProxy implements InvocationHandler {
             }
         }
         Object invoke = method.invoke(target, args);
-        InterceptorCache.interceptors.forEach(interceptor -> interceptor.afterExecute(executeMethodEnum,args,invoke, collection));
+        InterceptorChain.getInterceptors().forEach(interceptor -> interceptor.afterExecute(executeMethodEnum,args,invoke, collection));
         return invoke;
 
     }

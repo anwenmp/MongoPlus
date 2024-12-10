@@ -15,11 +15,13 @@ import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.interceptor.Interceptor;
+import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.interceptor.business.*;
 import com.anwen.mongo.listener.Listener;
 import com.anwen.mongo.listener.business.BlockAttackInnerListener;
 import com.anwen.mongo.listener.business.LogListener;
 import com.anwen.mongo.logic.replacer.LogicRemoveReplacer;
+import com.anwen.mongo.manager.LogicManager;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapper.DefaultBaseMapperImpl;
@@ -227,9 +229,8 @@ public class Configuration {
     @SafeVarargs
     public final Configuration interceptor(Class<? extends Interceptor>... interceptors) {
         for (Class<? extends Interceptor> interceptor : interceptors) {
-            InterceptorCache.interceptors.add((Interceptor) ClassTypeUtil.getInstanceByClass(interceptor));
+            InterceptorChain.addInterceptor((Interceptor) ClassTypeUtil.getInstanceByClass(interceptor));
         }
-        InterceptorCache.sorted();
         return this;
     }
 
@@ -240,7 +241,7 @@ public class Configuration {
      * @date 2024/6/27 下午12:47
      */
     public Configuration tenantHandler(TenantHandler tenantHandler) {
-        InterceptorCache.interceptors.add(new TenantInterceptor(tenantHandler));
+        InterceptorChain.addInterceptor(new TenantInterceptor(tenantHandler));
         return this;
     }
 
@@ -335,7 +336,7 @@ public class Configuration {
      * @author anwen
      */
     public Configuration dataChangeRecorder(DataChangeRecorderInnerInterceptor dataChangeRecorderInnerInterceptor){
-        InterceptorCache.interceptors.add(dataChangeRecorderInnerInterceptor);
+        InterceptorChain.addInterceptor(dataChangeRecorderInnerInterceptor);
         return this;
     }
 
@@ -345,7 +346,7 @@ public class Configuration {
      * @author anwen
      */
     public Configuration dynamicCollectionName(DynamicCollectionNameInterceptor dynamicCollectionNameInterceptor){
-        InterceptorCache.interceptors.add(dynamicCollectionNameInterceptor);
+        InterceptorChain.addInterceptor(dynamicCollectionNameInterceptor);
         return this;
     }
 
@@ -355,7 +356,7 @@ public class Configuration {
      * @author anwen
      */
     public Configuration asyncMultipleWrite(AsyncMultipleWriteInterceptor multipleWriteInterceptor){
-        InterceptorCache.interceptors.add(multipleWriteInterceptor);
+        InterceptorChain.addInterceptor(multipleWriteInterceptor);
         return this;
     }
 
@@ -372,14 +373,13 @@ public class Configuration {
             throw new InitMongoLogicException("Config logic logicProperty not null");
         }
         this.logicProperty = logicProperty;
-        CollectionLogicDeleteCache.open = logicProperty.getOpen();
-        CollectionLogicDeleteCache.logicProperty = logicProperty;
+        LogicManager.open = logicProperty.getOpen();
+        LogicManager.logicProperty = logicProperty;
         if (logicProperty.getOpen()) {
-            InterceptorCache.interceptors.add(new CollectionLogiceInterceptor());
+            InterceptorChain.addInterceptor(new CollectionLogiceInterceptor());
             if (logicProperty.getAutoFill()) {
-                InterceptorCache.interceptors.add(new LogicAutoFillInterceptor());
+                InterceptorChain.addInterceptor(new LogicAutoFillInterceptor());
             }
-            InterceptorCache.sorted();
             ExecutorReplacerCache.replacers.add(new LogicRemoveReplacer());
             ExecutorReplacerCache.sorted();
         }
@@ -410,7 +410,7 @@ public class Configuration {
         if (Objects.isNull(collectionClasses) || Objects.isNull(logicProperty) || !logicProperty.getOpen()) {
             return this;
         }
-        Map<Class<?>, LogicDeleteResult> logicDeleteResultHashMap = CollectionLogicDeleteCache.logicDeleteResultHashMap;
+        Map<Class<?>, LogicDeleteResult> logicDeleteResultHashMap = LogicManager.logicDeleteResultHashMap;
 
         for (Class<?> clazz : collectionClasses) {
             if (logicDeleteResultHashMap.containsKey(clazz)) {

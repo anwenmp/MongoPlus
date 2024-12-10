@@ -3,7 +3,6 @@ package com.anwen.mongo.interceptor;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.QueryParam;
-import com.anwen.mongo.support.BoolFunction;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
@@ -21,14 +20,6 @@ import java.util.List;
  * @author JiaChaoYang
  **/
 public interface Interceptor {
-
-    default Object intercept(Invocation invocation) throws Throwable {
-        return invocation.invoke();
-    }
-
-    default BoolFunction supplier() {
-        return (proxy,target, method, args) -> false;
-    }
 
     /**
      * 拦截器 排序

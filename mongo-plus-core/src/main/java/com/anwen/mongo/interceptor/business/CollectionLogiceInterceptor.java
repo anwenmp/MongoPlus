@@ -1,8 +1,8 @@
 package com.anwen.mongo.interceptor.business;
 
-import com.anwen.mongo.cache.global.CollectionLogicDeleteCache;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.logic.LogicDeleteHandler;
+import com.anwen.mongo.manager.LogicManager;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.QueryParam;
 import com.mongodb.BasicDBObject;
@@ -28,7 +28,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
     @Override
     public Bson executeRemove(Bson filter, MongoCollection<Document> collection) {
 
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
+        if (LogicManager.isIgnoreLogic()) {
             return filter;
         }
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
@@ -42,7 +42,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
     @Override
     public QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond, MongoCollection<Document> collection) {
 
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
+        if (LogicManager.isIgnoreLogic()) {
             return new QueryParam(queryBasic, projectionList, sortCond);
         }
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
@@ -57,7 +57,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
     @Override
     public MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic, CountOptions countOptions, MongoCollection<Document> collection) {
 
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
+        if (LogicManager.isIgnoreLogic()) {
             return new MutablePair<>(queryBasic, countOptions);
         }
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
@@ -73,7 +73,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
     @SuppressWarnings("all")
     public List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
 
-        if (CollectionLogicDeleteCache.getLogicIgnore()) {
+        if (LogicManager.isIgnoreLogic()) {
             return writeModelList;
         }
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
