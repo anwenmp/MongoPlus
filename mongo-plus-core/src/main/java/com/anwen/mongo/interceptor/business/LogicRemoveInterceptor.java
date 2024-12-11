@@ -31,6 +31,11 @@ import java.util.Objects;
 public class LogicRemoveInterceptor implements AdvancedInterceptor {
 
     @Override
+    public int order() {
+        return AdvancedInterceptor.super.order()-1;
+    }
+
+    @Override
     public AdvancedFunction activate() {
         return (invocation) ->
                 LogicManager.open && invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE.getMethod());

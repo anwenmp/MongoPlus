@@ -28,7 +28,7 @@ public class ExecutorFactory {
         ClientSession clientSessionContext = MongoTransactionContext.getClientSessionContext();
         Execute execute = getOriginalExecute();
         Class<? extends Execute> clazz = execute.getClass();
-        // 包装一层高级代理对象，高级拦截器替代替换器，形成拦截器责任链
+        // 包装一层高级代理对象，高级拦截器替代替换器，和普通拦截器形成拦截器责任链
         // 保证高级拦截器在普通拦截器之后执行，可以将普通拦截器认为成一种过滤器
         execute = AdvancedInterceptorChain.wrap(execute);
         // 普通代理类
