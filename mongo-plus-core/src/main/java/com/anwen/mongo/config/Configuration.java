@@ -8,19 +8,21 @@ import com.anwen.mongo.constant.DataSourceConstant;
 import com.anwen.mongo.domain.InitMongoLogicException;
 import com.anwen.mongo.domain.InitMongoPlusException;
 import com.anwen.mongo.enums.CollectionNameConvertEnum;
+import com.anwen.mongo.execute.ExecutorFactory;
 import com.anwen.mongo.factory.MongoClientFactory;
 import com.anwen.mongo.handlers.IdGenerateHandler;
 import com.anwen.mongo.handlers.MetaObjectHandler;
 import com.anwen.mongo.handlers.TenantHandler;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
+import com.anwen.mongo.interceptor.AdvancedInterceptor;
+import com.anwen.mongo.interceptor.AdvancedInterceptorChain;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.interceptor.business.*;
 import com.anwen.mongo.listener.Listener;
 import com.anwen.mongo.listener.business.BlockAttackInnerListener;
 import com.anwen.mongo.listener.business.LogListener;
-import com.anwen.mongo.logic.replacer.LogicRemoveReplacer;
 import com.anwen.mongo.manager.LogicManager;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
@@ -235,6 +237,31 @@ public class Configuration {
     }
 
     /**
+     * 设置高级拦截器
+     * @param interceptors 拦截器类数组
+     * @return {@link com.anwen.mongo.config.Configuration}
+     * @author anwen
+     */
+    @SafeVarargs
+    public final Configuration advancedInterceptor(Class<? extends AdvancedInterceptor>... interceptors){
+        return advancedInterceptor(Arrays.stream(interceptors)
+                .map(clazz ->
+                        (AdvancedInterceptor) ClassTypeUtil.getInstanceByClass(clazz))
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * 设置高级拦截器
+     * @param interceptors 拦截器类集合
+     * @return {@link com.anwen.mongo.config.Configuration}
+     * @author anwen
+     */
+    public final Configuration advancedInterceptor(List<AdvancedInterceptor> interceptors){
+        AdvancedInterceptorChain.addInterceptors(interceptors);
+        return this;
+    }
+
+    /**
      * 设置多租户处理器
      *
      * @author anwen
@@ -380,8 +407,7 @@ public class Configuration {
             if (logicProperty.getAutoFill()) {
                 InterceptorChain.addInterceptor(new LogicAutoFillInterceptor());
             }
-            ExecutorReplacerCache.replacers.add(new LogicRemoveReplacer());
-            ExecutorReplacerCache.sorted();
+            AdvancedInterceptorChain.addInterceptor(new LogicRemoveInterceptor());
         }
         return this;
 
@@ -449,6 +475,15 @@ public class Configuration {
         }
         return this;
 
+    }
+
+    /**
+     * 获取执行器工厂
+     * @return {@link com.anwen.mongo.execute.ExecutorFactory}
+     * @author anwen
+     */
+    public static ExecutorFactory getExecutorFactory(){
+        return new ExecutorFactory();
     }
 
     /**

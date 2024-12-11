@@ -16,6 +16,8 @@ import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.incrementer.IdentifierGenerator;
 import com.anwen.mongo.incrementer.id.AbstractIdGenerateHandler;
 import com.anwen.mongo.incrementer.id.IdWorker;
+import com.anwen.mongo.interceptor.AdvancedInterceptor;
+import com.anwen.mongo.interceptor.AdvancedInterceptorChain;
 import com.anwen.mongo.interceptor.Interceptor;
 import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.interceptor.business.DynamicCollectionNameInterceptor;
@@ -102,6 +104,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         autoCreateIndexes();
         setIdGenerateHandler();
         setMongoPlusCodec();
+        setAdvancedInterceptor();
     }
 
     @Override
@@ -223,9 +226,21 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
     private void setInterceptor() {
         Collection<Interceptor> interceptorCollection = applicationContext.getBeansOfType(Interceptor.class).values();
         if (CollUtil.isNotEmpty(interceptorCollection)) {
-            interceptorCollection = interceptorCollection.stream().sorted(Comparator.comparing(Interceptor::order)).collect(Collectors.toList());
+            InterceptorChain.addInterceptors(new ArrayList<>(interceptorCollection));
+            InterceptorChain.sorted();
         }
-        InterceptorChain.addInterceptors(new ArrayList<>(interceptorCollection));
+    }
+
+    /**
+     * 设置高级拦截器
+     * @author anwen
+     */
+    private void setAdvancedInterceptor(){
+        Collection<AdvancedInterceptor> advancedInterceptors =
+                applicationContext.getBeansOfType(AdvancedInterceptor.class).values();
+        if (CollUtil.isNotEmpty(advancedInterceptors)) {
+            AdvancedInterceptorChain.addInterceptors(new ArrayList<>(advancedInterceptors));
+        }
     }
 
     /**

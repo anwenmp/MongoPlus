@@ -1,5 +1,6 @@
 package com.anwen.mongo.interceptor;
 
+import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
@@ -32,6 +33,11 @@ public final class Invocation {
      */
     private final MongoCollection<Document> collection;
 
+    /**
+     * 执行的方法枚举
+     */
+    private final ExecuteMethodEnum executeMethod;
+
     @SuppressWarnings("unchecked")
     public Invocation(Object proxy,Object target, Method method, Object[] args){
         this.proxy = proxy;
@@ -39,6 +45,7 @@ public final class Invocation {
         this.method = method;
         this.args = args;
         this.collection = (MongoCollection<Document>) args[args.length-1];
+        this.executeMethod = ExecuteMethodEnum.getMethod(method.getName());
     }
 
     public Object getProxy() {
@@ -57,16 +64,30 @@ public final class Invocation {
         return args;
     }
 
+    /**
+     * 获取MongoCollection，MongoCollection一定会是参数的最后一个
+     * @return {@link MongoCollection< Document>}
+     * @author anwen
+     */
     public MongoCollection<Document> getCollection() {
         return collection;
     }
 
     /**
-     * 执行
+     * 获取当前执行器执行的方法枚举
+     * @return {@link com.anwen.mongo.enums.ExecuteMethodEnum}
+     * @author anwen
+     */
+    public ExecuteMethodEnum getExecuteMethod() {
+        return executeMethod;
+    }
+
+    /**
+     * 执行下一个拦截器
      * @return {@link java.lang.Object}
      * @author anwen
      */
-    public Object invoke() throws Throwable {
+    public Object proceed() throws Throwable {
         return method.invoke(target,args);
     }
 

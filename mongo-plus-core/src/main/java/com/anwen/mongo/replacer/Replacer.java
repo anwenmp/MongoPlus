@@ -1,5 +1,6 @@
 package com.anwen.mongo.replacer;
 
+import com.anwen.mongo.interceptor.AdvancedInterceptor;
 import com.anwen.mongo.support.BoolFunction;
 import com.mongodb.client.MongoCollection;
 
@@ -8,10 +9,12 @@ import java.lang.reflect.Method;
 
 /**
  * 替换器接口
- *
+ * <p>因多个替换器，最终只会生效一个，并不能形成责任链</p>
+ * <p>请使用{@link AdvancedInterceptor}类，此类将在之后的版本中删除</p>
  * @author loser
  * @date 2024/4/30
  */
+@Deprecated
 public interface Replacer {
 
     default int order() {

@@ -12,6 +12,7 @@ import org.bson.Document;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 /**
@@ -26,6 +27,21 @@ public class ExecutorProxy implements InvocationHandler {
 
     public ExecutorProxy(Execute target) {
         this.target = target;
+    }
+
+    /**
+     * 包装普通代理对象
+     * @param execute 执行器
+     * @return {@link com.anwen.mongo.execute.Execute}
+     * @author anwen
+     */
+    public static Execute wrap(Execute execute){
+        Class<? extends Execute> clazz = execute.getClass();
+        return (Execute) Proxy.newProxyInstance(
+                clazz.getClassLoader(),
+                clazz.getInterfaces(),
+                new ExecutorProxy(execute)
+        );
     }
 
     @Override

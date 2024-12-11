@@ -11,11 +11,9 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.manager.MongoTransactionalManager;
 import com.anwen.mongo.model.BaseProperty;
-import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.sharding.AbstractDataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingHandler;
 import com.anwen.mongo.sharding.DataSourceShardingStrategy;
-import com.anwen.mongo.support.BoolFunction;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.MongoNamespace;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author anwen
  */
-public class DataSourceShardingInterceptor implements Interceptor, Replacer {
+public class DataSourceShardingInterceptor implements Interceptor, AdvancedInterceptor {
 
     private final Log log = LogFactory.getLog(DataSourceShardingInterceptor.class);
 
@@ -146,18 +144,15 @@ public class DataSourceShardingInterceptor implements Interceptor, Replacer {
     }
 
     @Override
-    public Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable {
+    public Object intercept(Invocation invocation) throws Throwable {
+        Method method = invocation.getMethod();
+        Object[] args = invocation.getArgs();
         if (sessionIsNotNull){
             sessionIsNotNull = false;
             DefaultExecute execute = new DefaultExecute();
             return method.invoke(execute,args);
         }
-        return method.invoke(target,args);
-    }
-
-    @Override
-    public BoolFunction supplier() {
-        return (proxy, target, method, args) -> true;
+        return invocation.proceed();
     }
 
     @Override

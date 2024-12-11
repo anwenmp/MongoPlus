@@ -34,6 +34,8 @@ public class ClassTypeUtil {
 
     private static final Map<Class<?> , Boolean> isAnonymousClassMap = new ConcurrentHashMap<>();
 
+    private static final Map<Class<?>, Boolean> isInnerClass = new ConcurrentHashMap<>();
+
     static {
         isTargetClassMap.put(Map.class, new ConcurrentHashMap<>());
         isTargetClassMap.put(Collection.class, new ConcurrentHashMap<>());
@@ -233,7 +235,7 @@ public class ClassTypeUtil {
         } else if (type instanceof GenericArrayType) {
             Type componentType = ((GenericArrayType) type).getGenericComponentType();
             Class<?> componentClass = getClassFromType(componentType);
-            return java.lang.reflect.Array.newInstance(componentClass, 0).getClass();
+            return Array.newInstance(componentClass, 0).getClass();
         } else if (type instanceof TypeVariable) {
             Type[] bounds = ((TypeVariable<?>) type).getBounds();
             if (bounds.length > 0) {
@@ -245,15 +247,19 @@ public class ClassTypeUtil {
 
     public static <T> Object getInstanceByClass(Class<T> clazz) {
         try {
+            Boolean innerClass = isInnerClass.computeIfAbsent(clazz, k ->
+                    (k.getEnclosingClass()) != null &&
+                    !Modifier.isStatic(k.getModifiers()));
             // 判断是否是内部类
-            if (clazz.getEnclosingClass() != null && !Modifier.isStatic(clazz.getModifiers())) {
+            if (innerClass) {
+                Class<?> enclosingClass = clazz.getEnclosingClass();
                 // 处理非静态内部类
                 // 获取外部类的实例
-                Constructor<?> enclosingConstructor = clazz.getEnclosingClass().getDeclaredConstructor();
+                Constructor<?> enclosingConstructor = enclosingClass.getDeclaredConstructor();
                 Object enclosingInstance = enclosingConstructor.newInstance();
 
                 // 获取内部类的构造器，构造器需要外部类实例作为参数
-                Constructor<?> innerConstructor = clazz.getDeclaredConstructor(clazz.getEnclosingClass());
+                Constructor<?> innerConstructor = clazz.getDeclaredConstructor(enclosingClass);
                 return innerConstructor.newInstance(enclosingInstance);
             } else {
                 // 处理静态类或普通类

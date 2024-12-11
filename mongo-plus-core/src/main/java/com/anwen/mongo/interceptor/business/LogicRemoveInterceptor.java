@@ -1,14 +1,15 @@
-package com.anwen.mongo.logic.replacer;
+package com.anwen.mongo.interceptor.business;
 
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.SpecialConditionEnum;
 import com.anwen.mongo.execute.Execute;
+import com.anwen.mongo.interceptor.AdvancedInterceptor;
+import com.anwen.mongo.interceptor.Invocation;
 import com.anwen.mongo.logic.LogicDeleteHandler;
 import com.anwen.mongo.manager.LogicManager;
 import com.anwen.mongo.model.LogicDeleteResult;
 import com.anwen.mongo.model.MutablePair;
-import com.anwen.mongo.replacer.Replacer;
-import com.anwen.mongo.support.BoolFunction;
+import com.anwen.mongo.support.AdvancedFunction;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
@@ -27,12 +28,20 @@ import java.util.Objects;
  * @author loser
  * @date 2024/4/30
  */
-public class LogicRemoveReplacer implements Replacer {
+public class LogicRemoveInterceptor implements AdvancedInterceptor {
+
+    @Override
+    public AdvancedFunction activate() {
+        return (invocation) ->
+                LogicManager.open && invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
+    }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable {
-
+    public Object intercept(Invocation invocation) throws Throwable {
+        Method method = invocation.getMethod();
+        Object[] args = invocation.getArgs();
+        Object target = invocation.getTarget();
         if (LogicManager.isIgnoreLogic()) {
             return method.invoke(target, args);
         }
@@ -63,11 +72,4 @@ public class LogicRemoveReplacer implements Replacer {
             }
         };
     }
-
-    @Override
-    public BoolFunction supplier() {
-        return (proxy, target, method, args) ->
-                LogicManager.open && method.getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
-    }
-
 }
