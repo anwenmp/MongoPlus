@@ -383,7 +383,7 @@ public class Configuration {
      * @author anwen
      */
     public Configuration asyncMultipleWrite(AsyncMultipleWriteInterceptor multipleWriteInterceptor){
-        InterceptorChain.addInterceptor(multipleWriteInterceptor);
+        AdvancedInterceptorChain.addInterceptor(multipleWriteInterceptor);
         return this;
     }
 

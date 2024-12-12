@@ -6,9 +6,11 @@ import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.MultipleWrite;
 import com.anwen.mongo.execute.instance.DefaultExecute;
 import com.anwen.mongo.handlers.write.MultipleWriteHandler;
-import com.anwen.mongo.interceptor.Interceptor;
+import com.anwen.mongo.interceptor.AdvancedInterceptor;
+import com.anwen.mongo.interceptor.Invocation;
 import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
+import com.anwen.mongo.logic.LogicRemove;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.model.MutablePair;
 import com.mongodb.MongoNamespace;
@@ -31,7 +33,7 @@ import static com.anwen.mongo.enums.MultipleWrite.*;
  * @author anwen
  */
 @SuppressWarnings("unchecked")
-public class AsyncMultipleWriteInterceptor implements Interceptor {
+public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
 
     private final Log log = LogFactory.getLog(AsyncMultipleWriteInterceptor.class);
 
@@ -73,21 +75,24 @@ public class AsyncMultipleWriteInterceptor implements Interceptor {
         this.multipleWriteHandler = multipleWriteHandler;
     }
 
-
     @Override
-    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
-        if (executeMethodEnum == ExecuteMethodEnum.SAVE) {
+    public Object intercept(Invocation invocation) throws Throwable {
+        ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
+        Object[] source = invocation.getArgs();
+        MongoCollection<Document> collection = invocation.getCollection();
+        if (executeMethod == ExecuteMethodEnum.SAVE) {
             executeSave((List<Document>) source[0], (InsertManyOptions) source[1], collection);
         }
-        if (executeMethodEnum == ExecuteMethodEnum.REMOVE) {
-            executeRemove((Bson) source[0], (DeleteOptions) source[1], collection);
+        if (executeMethod == ExecuteMethodEnum.REMOVE) {
+            executeRemove((Bson) source[0], (DeleteOptions) source[1],invocation, collection);
         }
-        if (executeMethodEnum == ExecuteMethodEnum.UPDATE) {
+        if (executeMethod == ExecuteMethodEnum.UPDATE) {
             executeUpdate((List<MutablePair<Bson, Bson>>) source[0], (UpdateOptions) source[1], collection);
         }
-        if (executeMethodEnum == ExecuteMethodEnum.BULK_WRITE) {
+        if (executeMethod == ExecuteMethodEnum.BULK_WRITE) {
             executeBulkWrite((List<WriteModel<Document>>) source[0],(BulkWriteOptions) source[1], collection);
         }
+        return invocation.proceed();
     }
 
     public void executeSave(List<Document> documentList, InsertManyOptions options, MongoCollection<Document> collection) {
@@ -98,11 +103,18 @@ public class AsyncMultipleWriteInterceptor implements Interceptor {
         );
     }
 
-    public void executeRemove(Bson filter, DeleteOptions options, MongoCollection<Document> collection) {
+    public void executeRemove(Bson filter, DeleteOptions options,Invocation invocation,
+                              MongoCollection<Document> collection) {
         executeMultipleWrite(
                 REMOVE,
                 collection,
-                mongoCollection -> execute.executeRemove(filter,options, mongoCollection)
+                mongoCollection -> {
+                    try {
+                        LogicRemove.logic(invocation,mongoCollection);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         );
     }
 
