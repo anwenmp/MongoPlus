@@ -85,7 +85,7 @@
             <!-- solon -->
             <dependency>
                 <groupId>org.noear</groupId>
-                <artifactId>solon-api</artifactId>
+                <artifactId>solon</artifactId>
                 <version>${solon-api.version}</version>
             </dependency>
             <!-- 切面 -->
