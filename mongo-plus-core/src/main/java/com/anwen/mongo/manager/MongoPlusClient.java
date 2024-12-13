@@ -2,6 +2,7 @@ package com.anwen.mongo.manager;
 
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.conn.CollectionManager;
+import com.anwen.mongo.domain.MongoPlusDsException;
 import com.anwen.mongo.factory.MongoClientFactory;
 import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.model.BaseProperty;
@@ -28,6 +29,15 @@ public class MongoPlusClient {
     private BaseProperty baseProperty;
 
     private List<MongoDatabase> mongoDatabase;
+
+    /**
+     * 获取版本号
+     * @return {@link java.lang.String}
+     * @author anwen
+     */
+    public static String getVersion(){
+        return "2.1.6";
+    }
 
     /**
      * 连接管理器
@@ -74,7 +84,8 @@ public class MongoPlusClient {
     public CollectionManager getCollectionManager(String dataSource,String database){
         Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
         if (StringUtils.isBlank(database)){
-            database = managerMap.keySet().stream().findFirst().get();
+            database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
+                    new MongoPlusDsException("database is null"));
         }
         if (null == managerMap || null == managerMap.get(database)){
             CollectionManager collectionManager = new CollectionManager(database);
@@ -98,7 +109,8 @@ public class MongoPlusClient {
         }
         Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(DataSourceNameCache.getDataSource());
         if (StringUtils.isBlank(database)){
-            database = managerMap.keySet().stream().findFirst().get();
+            database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
+                    new MongoPlusDsException("database is null"));
         }
         return database;
     }
@@ -114,7 +126,8 @@ public class MongoPlusClient {
         }
         Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
         if (StringUtils.isBlank(database)){
-            database = managerMap.keySet().stream().findFirst().get();
+            database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
+                    new MongoPlusDsException("database is null"));
         }
         return database;
     }

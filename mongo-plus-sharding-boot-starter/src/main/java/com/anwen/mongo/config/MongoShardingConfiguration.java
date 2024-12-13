@@ -8,7 +8,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-public class ShardingConfiguration implements InitializingBean {
+public class MongoShardingConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {

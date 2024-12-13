@@ -39,12 +39,16 @@ public class MongoDataSourceAspect {
         MongoDs mongoDs = getMongoDsAnnotation(method);
         String mongoDsValue = mongoDs.value();
         if (StringUtils.isNotBlank(mongoDsValue) && mongoDsValue.contains("#")) {
-            StandardEvaluationContext context = new MethodBasedEvaluationContext(joinPoint, method, joinPoint.getArgs(), PARAMETER_NAME_DISCOVERER);
-            mongoDsValue = EXPRESSION_PARSER.parseExpression(mongoDsValue).getValue(context, String.class);
+            StandardEvaluationContext context =
+                    new MethodBasedEvaluationContext(joinPoint, method, joinPoint.getArgs(), PARAMETER_NAME_DISCOVERER);
+            mongoDsValue = EXPRESSION_PARSER
+                    .parseExpression(mongoDsValue.replace("#",""))
+                    .getValue(context, String.class);
         }
 
         if (mongoDs.dsHandler() != Void.class){
-            DataSourceHandler dataSourceHandler = (DataSourceHandler) ClassTypeUtil.getInstanceByClass(mongoDs.dsHandler());
+            DataSourceHandler dataSourceHandler =
+                    (DataSourceHandler) ClassTypeUtil.getInstanceByClass(mongoDs.dsHandler());
             mongoDsValue = dataSourceHandler.getDataSource(mongoDsValue);
         }
 

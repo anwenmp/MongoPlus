@@ -14,65 +14,77 @@ import java.util.stream.Collectors;
 
 /**
  * Class的一些信息和操作
+ *
  * @author JiaChaoYang
  * @date 2024/4/16 下午9:04
-*/
+ */
 public class SimpleTypeInformation<T> implements TypeInformation {
 
     /**
      * 实例
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private T instance;
 
     /**
      * 实例的Class
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private final Class<?> clazz;
 
     private Type[] types;
 
-    private final Map<String,FieldInformation> fieldMap = new HashMap<>();
+    private final Map<String, FieldInformation> fieldMap = new HashMap<>();
 
     /**
      * 实例的所有Field
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private final List<FieldInformation> fieldList = new ArrayList<>();
 
     /**
      * 实例的所有Field,不包括父类
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private final List<FieldInformation> thisFieldList = new ArrayList<>();
 
     /**
+     * 简单类型
+     */
+    private SimpleTypeHolder simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
+
+    /**
      * 实例的某个注解的Field
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationFieldMap = new HashMap<>();
 
     /**
      * 实例的某个注解的Field
+     *
      * @date 2024/4/16 下午9:58
-    */
+     */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationThisFieldMap = new HashMap<>();
 
-    private SimpleTypeInformation(T instance,Class<?> clazz) {
+    private SimpleTypeInformation(T instance, Class<?> clazz) {
         this.instance = instance;
         this.clazz = clazz;
     }
 
-    protected SimpleTypeInformation(T instance,Type[] types) {
+    protected SimpleTypeInformation(T instance, Type[] types) {
         this.instance = instance;
         this.clazz = getInstanceClass(instance);
         this.types = types;
     }
 
-    private static Class<?> getInstanceClass(Object instance){
+    private static Class<?> getInstanceClass(Object instance) {
         Class<?> instanceClass = instance.getClass();
-        if (ClassTypeUtil.isAnonymousClass(instanceClass)){
+        if (ClassTypeUtil.isAnonymousClass(instanceClass)) {
             instanceClass = instanceClass.getSuperclass();
         }
         return instanceClass;
@@ -85,12 +97,12 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     @Override
     public Boolean isMap() {
-        return ClassTypeUtil.isTargetClass(Map.class,clazz);
+        return ClassTypeUtil.isTargetClass(Map.class, clazz);
     }
 
     @Override
     public Boolean isCollection() {
-        return ClassTypeUtil.isTargetClass(Collection.class,clazz);
+        return ClassTypeUtil.isTargetClass(Collection.class, clazz);
     }
 
     @Override
@@ -100,7 +112,7 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     @Override
     public Type[] getType() {
-        if (ArrayUtils.isEmpty(types)){
+        if (ArrayUtils.isEmpty(types)) {
             types = clazz.getTypeParameters();
         }
         return types;
@@ -111,8 +123,8 @@ public class SimpleTypeInformation<T> implements TypeInformation {
         return instance;
     }
 
-    public static <T> TypeInformation of(T instance){
-        return new SimpleTypeInformation<>(instance,getInstanceClass(instance));
+    public static <T> TypeInformation of(T instance) {
+        return new SimpleTypeInformation<>(instance, getInstanceClass(instance));
     }
 
     @Override
@@ -122,18 +134,18 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     }
 
     @Override
-    public List<FieldInformation> getFields(){
-        if (CollUtil.isEmpty(fieldList)){
+    public List<FieldInformation> getFields() {
+        if (CollUtil.isEmpty(fieldList)) {
             Class<?> enclosingClass = clazz.getEnclosingClass();
             Arrays.stream(clazz.getDeclaredFields()).forEach(field -> {
                 field.setAccessible(true);
-                if (Modifier.isStatic(field.getModifiers())){
+                if (Modifier.isStatic(field.getModifiers())) {
                     return;
                 }
-                if (field.getType().equals(enclosingClass)){
+                if (field.getType().equals(enclosingClass)) {
                     return;
                 }
-                fieldList.add(new SimpleFieldInformation<>(instance,field));
+                fieldList.add(new SimpleFieldInformation<>(instance, field));
             });
             getSupperFields(clazz.getSuperclass());
         }
@@ -142,10 +154,10 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     @Override
     public List<FieldInformation> getThisFields() {
-        if (CollUtil.isEmpty(thisFieldList)){
+        if (CollUtil.isEmpty(thisFieldList)) {
             Arrays.stream(clazz.getDeclaredFields()).forEach(field -> {
                 field.setAccessible(true);
-                thisFieldList.add(new SimpleFieldInformation<>(instance,field));
+                thisFieldList.add(new SimpleFieldInformation<>(instance, field));
             });
         }
         return this.thisFieldList;
@@ -176,8 +188,8 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     }
 
     @Override
-    public List<FieldInformation> getAnnotationFields(Class<? extends Annotation> annotationClass){
-        if (!annotationFieldMap.containsKey(annotationClass)){
+    public List<FieldInformation> getAnnotationFields(Class<? extends Annotation> annotationClass) {
+        if (!annotationFieldMap.containsKey(annotationClass)) {
             annotationFieldMap.put(
                     annotationClass,
                     getFields()
@@ -190,7 +202,7 @@ public class SimpleTypeInformation<T> implements TypeInformation {
 
     @Override
     public List<FieldInformation> getAnnotationThisFields(Class<? extends Annotation> annotationClass) {
-        if (!annotationThisFieldMap.containsKey(annotationClass)){
+        if (!annotationThisFieldMap.containsKey(annotationClass)) {
             annotationThisFieldMap.put(
                     annotationClass,
                     getThisFields()
@@ -202,9 +214,9 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     }
 
     @Override
-    public FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass,String nullMessage){
+    public FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass, String nullMessage) {
         List<FieldInformation> fieldList = getAnnotationFields(annotationClass);
-        if (CollUtil.isEmpty(fieldList)){
+        if (CollUtil.isEmpty(fieldList)) {
             throw new MongoPlusFieldException(nullMessage);
         }
         return fieldList.get(0);
@@ -213,7 +225,7 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     @Override
     public FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass) {
         List<FieldInformation> fieldList = getAnnotationFields(annotationClass);
-        if (CollUtil.isEmpty(fieldList)){
+        if (CollUtil.isEmpty(fieldList)) {
             return null;
         }
         return fieldList.get(0);
@@ -222,19 +234,19 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     @Override
     public FieldInformation getAnnotationThisField(Class<? extends Annotation> annotationClass) {
         List<FieldInformation> fieldList = getAnnotationThisFields(annotationClass);
-        if (CollUtil.isEmpty(fieldList)){
+        if (CollUtil.isEmpty(fieldList)) {
             return null;
         }
         return fieldList.get(0);
     }
 
     @Override
-    public Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass,String nullMessage){
-        return getAnnotationField(annotationClass,nullMessage).getValue();
+    public Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass, String nullMessage) {
+        return getAnnotationField(annotationClass, nullMessage).getValue();
     }
 
     @Override
-    public Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass){
+    public Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass) {
         return getAnnotationField(annotationClass).getValue();
     }
 
@@ -242,10 +254,10 @@ public class SimpleTypeInformation<T> implements TypeInformation {
         if (clazz != null && !clazz.equals(Object.class)){
             Arrays.asList(clazz.getDeclaredFields()).forEach(field -> {
                 field.setAccessible(true);
-                if (Modifier.isStatic(field.getModifiers())){
+                if (Modifier.isStatic(field.getModifiers())) {
                     return;
                 }
-                fieldList.add(new SimpleFieldInformation<>(instance,field));
+                fieldList.add(new SimpleFieldInformation<>(instance, field));
             });
             getSupperFields(clazz.getSuperclass());
         }

@@ -303,7 +303,7 @@ public class BackupManager {
     public void writeCollectionInfo(MongoNamespace namespace,BufferedWriter writer) throws IOException {
         Document collectionDocument = new Document();
         collectionDocument.put("origin","MongoPlus");
-        collectionDocument.put("version","v2.1.6");
+        collectionDocument.put("version","v"+MongoPlusClient.getVersion());
         collectionDocument.put("homepage","https://www.mongoplus.com/");
         collectionDocument.put("data_source",this.dataSourceName);
         collectionDocument.put("database",namespace.getDatabaseName());

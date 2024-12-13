@@ -1,5 +1,6 @@
 package com.anwen.mongo.config;
 
+import com.anwen.mongo.annotation.SpelAnnotationHandler;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.cache.global.MongoPlusClientCache;
 import com.anwen.mongo.cache.global.SimpleCache;
@@ -7,6 +8,7 @@ import com.anwen.mongo.conn.CollectionManager;
 import com.anwen.mongo.constant.DataSourceConstant;
 import com.anwen.mongo.datasource.MongoDataSourceAspect;
 import com.anwen.mongo.factory.MongoClientFactory;
+import com.anwen.mongo.handlers.collection.AnnotationOperate;
 import com.anwen.mongo.logic.MongoLogicIgnoreAspect;
 import com.anwen.mongo.manager.DataSourceManager;
 import com.anwen.mongo.manager.MongoPlusClient;
@@ -26,6 +28,7 @@ import com.mongodb.TransactionOptions;
 import com.mongodb.client.MongoClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
@@ -149,7 +152,7 @@ public class MongoPlusConfiguration {
                         "                     __/ |                        \n" +
                         "                    |___/                         ");
             }
-            System.out.println(":: MongoPlus ::                        (v2.1.6)");
+            System.out.println(":: MongoPlus ::                        (v" + MongoPlusClient.getVersion()+")");
         }
         return mongoPlusClient;
     }
@@ -260,6 +263,14 @@ public class MongoPlusConfiguration {
     public DataSourceManager dataSourceManager(MongoPlusClient mongoPlusClient,
                                                MongoClientFactory mongoClientFactory){
         return new DataSourceManager(mongoPlusClient,mongoClientFactory);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SpelAnnotationHandler spelAnnotationHandler(ApplicationContext applicationContext){
+        SpelAnnotationHandler annotationHandler = new SpelAnnotationHandler(applicationContext);
+        AnnotationOperate.setAnnotationHandler(annotationHandler);
+        return annotationHandler;
     }
 
 }

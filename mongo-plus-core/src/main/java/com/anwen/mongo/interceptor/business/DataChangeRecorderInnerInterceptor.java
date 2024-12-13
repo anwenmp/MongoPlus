@@ -3,6 +3,7 @@ package com.anwen.mongo.interceptor.business;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.constant.DataSourceConstant;
+import com.anwen.mongo.domain.MongoPlusDsException;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.SpecialConditionEnum;
@@ -12,6 +13,7 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.model.OperationResult;
+import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoCollection;
@@ -109,7 +111,8 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     private static final ThreadLocal<OperationResult> operationResultThreadLocal = ThreadLocal.withInitial(() -> null);
 
     @Override
-    public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, MongoCollection<Document> collection) {
+    public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source,
+                              MongoCollection<Document> collection) {
         if (shouldIgnoreCollection(collection)) {
             return;
         }
@@ -133,7 +136,8 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     }
 
     @Override
-    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result, MongoCollection<Document> collection) {
+    public void afterExecute(ExecuteMethodEnum executeMethodEnum, Object[] source, Object result,
+                             MongoCollection<Document> collection) {
         if (shouldIgnoreCollection(collection) || !isRelevantMethod(executeMethodEnum)) {
             return;
         }
@@ -148,6 +152,10 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     }
 
     private boolean shouldIgnoreCollection(MongoCollection<Document> collection) {
+        if (enableSaveDatabase && CollUtil.isEmpty(ignoredColumnList)) {
+            throw new MongoPlusException("At least the Collection of stored data change records needs to be ignored, " +
+                    "otherwise it will cause infinite recursion");
+        }
         return ignoredColumnList.contains(collection.getNamespace().getCollectionName());
     }
 

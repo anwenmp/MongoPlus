@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    com.anwen.mongo.config.ShardingConfiguration
+    com.anwen.mongo.config.MongoShardingConfiguration

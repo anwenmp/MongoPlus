@@ -32,6 +32,12 @@ public class AnnotationOperate implements AnnotationHandler {
         AnnotationOperate.collectionNameConvertEnum = collectionNameConvertEnum;
     }
 
+    /**
+     * 获取集合名称
+     * @param clazz entity
+     * @return {@link java.lang.String}
+     * @author anwen
+     */
     public static String getCollectionName(Class<?> clazz){
         String collectionName = getCollectionInfo(clazz.getAnnotation(CollectionName.class),CollectionName::value);
         if (StringUtils.isBlank(collectionName)){
@@ -40,6 +46,13 @@ public class AnnotationOperate implements AnnotationHandler {
         return collectionName;
     }
 
+    /**
+     * 获取集合详情
+     * @param collectionName 集合注解
+     * @param func 属性
+     * @return {@link R}
+     * @author anwen
+     */
     public static <R> R getCollectionInfo(CollectionName collectionName, Function<? super CollectionName,? extends R> func){
         if (collectionName == null){
             return null;
@@ -47,6 +60,12 @@ public class AnnotationOperate implements AnnotationHandler {
         return ANNOTATION_HANDLER_INSTANCE.getProperty(collectionName,func);
     }
 
+    /**
+     * 获取database
+     * @param clazz entity
+     * @return {@link java.lang.String}
+     * @author anwen
+     */
     public static String getDatabase(Class<?> clazz){
         return getCollectionInfo(clazz.getAnnotation(CollectionName.class),CollectionName::database);
     }

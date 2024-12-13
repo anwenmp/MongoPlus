@@ -50,16 +50,15 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
     }
 
     public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient) {
-        this.executor = new ThreadPoolExecutor(
-                5, // 核心线程数
-                20, // 最大线程数
-                60L, // 空闲线程存活时间
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100),
-                new ThreadPoolExecutor.CallerRunsPolicy()
-        );
+        this.executor = defaultExecutor();
         this.mongoPlusClient = mongoPlusClient;
         this.multipleWriteHandler = new MultipleWriteHandler(mongoPlusClient) {};
+    }
+
+    public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient,MultipleWriteHandler multipleWriteHandler) {
+        this.executor = defaultExecutor();
+        this.mongoPlusClient = mongoPlusClient;
+        this.multipleWriteHandler = multipleWriteHandler;
     }
 
     public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient, ThreadPoolExecutor executor) {
@@ -73,6 +72,17 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         this.mongoPlusClient = mongoPlusClient;
         this.executor = executor;
         this.multipleWriteHandler = multipleWriteHandler;
+    }
+
+    final ThreadPoolExecutor defaultExecutor(){
+        return new ThreadPoolExecutor(
+                5, // 核心线程数
+                20, // 最大线程数
+                60L, // 空闲线程存活时间
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(100),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
 
     @Override
@@ -95,7 +105,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         return invocation.proceed();
     }
 
-    public void executeSave(List<Document> documentList, InsertManyOptions options, MongoCollection<Document> collection) {
+    void executeSave(List<Document> documentList, InsertManyOptions options, MongoCollection<Document> collection) {
         executeMultipleWrite(
                 SAVE,
                 collection,
@@ -103,7 +113,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         );
     }
 
-    public void executeRemove(Bson filter, DeleteOptions options,Invocation invocation,
+    void executeRemove(Bson filter, DeleteOptions options,Invocation invocation,
                               MongoCollection<Document> collection) {
         executeMultipleWrite(
                 REMOVE,
@@ -118,7 +128,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         );
     }
 
-    public void executeUpdate(List<MutablePair<Bson, Bson>> updatePairList,
+    void executeUpdate(List<MutablePair<Bson, Bson>> updatePairList,
                                                        UpdateOptions options,
                                                        MongoCollection<Document> collection) {
         executeMultipleWrite(
@@ -128,7 +138,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         );
     }
 
-    public void executeBulkWrite(List<WriteModel<Document>> writeModelList,
+    void executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                                        BulkWriteOptions options,
                                                        MongoCollection<Document> collection) {
         executeMultipleWrite(
@@ -138,7 +148,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         );
     }
 
-    protected void executeMultipleWrite(MultipleWrite multipleWrite,MongoCollection<Document> collection,
+    void executeMultipleWrite(MultipleWrite multipleWrite,MongoCollection<Document> collection,
                                       Consumer<MongoCollection<Document>> action) {
         MongoNamespace namespace = collection.getNamespace();
         List<String> multipleWriteTargets = multipleWriteHandler.getMultipleWrite(multipleWrite, namespace);
@@ -151,7 +161,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         }));
     }
 
-    protected MongoCollection<Document> getMongoCollection(MongoNamespace namespace, String dsName) {
+    MongoCollection<Document> getMongoCollection(MongoNamespace namespace, String dsName) {
         MongoClient mongoClient = mongoPlusClient.getMongoClient(dsName);
         if (mongoClient == null) {
             throw new MongoPlusDsException("Non-existent data source: " + dsName);
