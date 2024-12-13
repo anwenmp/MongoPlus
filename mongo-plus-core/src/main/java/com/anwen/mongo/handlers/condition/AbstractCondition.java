@@ -1,5 +1,6 @@
 package com.anwen.mongo.handlers.condition;
 
+import com.anwen.mongo.annotation.comm.EnumValue;
 import com.anwen.mongo.bson.MongoPlusBasicDBObject;
 import com.anwen.mongo.cache.global.HandlerCache;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
@@ -10,10 +11,12 @@ import com.anwen.mongo.model.MutablePair;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.mongodb.BasicDBObject;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -27,11 +30,19 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCondition implements Condition,UpdateCondition {
 
+    /**
+     * 用于缓存每个枚举类型的字段与EnumValue注解的映射
+     */
+    final Map<Class<?>, Field> enumValueCache = new ConcurrentHashMap<>();
+
     @Override
     public BasicDBObject queryCondition(List<CompareCondition> compareConditionList) {
         MongoPlusBasicDBObject mongoPlusBasicDBObject = new MongoPlusBasicDBObject();
         if (CollUtil.isNotEmpty(compareConditionList)) {
-            compareConditionList.forEach(compareCondition -> queryCondition(compareCondition,mongoPlusBasicDBObject));
+            compareConditionList.forEach(compareCondition -> {
+                checkCompareCondition(compareCondition);
+                queryCondition(compareCondition,mongoPlusBasicDBObject);
+            });
         }
         return mongoPlusBasicDBObject;
     }
@@ -107,6 +118,47 @@ public abstract class AbstractCondition implements Condition,UpdateCondition {
             HandlerCache.conditionHandlerList.forEach(conditionHandler -> conditionHandler.afterUpdateCondition(compareCondition,updateBasicDBObject));
         });
         return updateBasicDBObject;
+    }
+
+    protected void checkCompareCondition(CompareCondition compareCondition) {
+        Object value = compareCondition.getValue();
+        Class<?> clazz = value.getClass();
+
+        if (clazz.isEnum()) {
+            // 从缓存中获取枚举值与字段的映射
+            Field field = enumValueCache.computeIfAbsent(clazz, this::initFieldCache);
+            if (field != null) {
+                // 如果找到了字段，直接从该字段中获取值
+                try {
+                    compareCondition.setValue(field.get(value));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                // 如果没有找到，使用枚举的名字
+                compareCondition.setValue(((Enum<?>) value).name());
+            }
+        }
+    }
+
+    /**
+     * 创建枚举类型的字段与EnumValue注解的映射
+     * @param clazz 枚举类
+     * @author anwen
+     */
+    protected Field initFieldCache(Class<?> clazz) {
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            EnumValue enumValue = field.getAnnotation(EnumValue.class);
+            if (enumValue != null) {
+                // 如果找到了，但是不以该字段存储，则返回null
+                if (!enumValue.valueStore()) {
+                    return null;
+                }
+                return field;
+            }
+        }
+        return null;
     }
 
     /**

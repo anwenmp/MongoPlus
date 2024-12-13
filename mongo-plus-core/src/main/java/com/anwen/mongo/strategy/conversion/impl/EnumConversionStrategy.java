@@ -1,6 +1,7 @@
 package com.anwen.mongo.strategy.conversion.impl;
 
 import com.anwen.mongo.annotation.comm.EnumValue;
+import com.anwen.mongo.mapping.FieldInformation;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.SimpleFieldInformation;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
@@ -51,7 +52,7 @@ public class EnumConversionStrategy<T> implements ConversionStrategy<Enum> {
     private Map<Object, Enum> initializeEnumCache(Class<? extends Enum> enumType) {
         // 获取标注了 @EnumValue 的字段
         Field[] fields = enumType.getDeclaredFields();
-        SimpleFieldInformation<EnumValue> fieldInformation = null;
+        FieldInformation fieldInformation = null;
         for (Field field : fields) {
             EnumValue enumValue = field.getAnnotation(EnumValue.class);
             if (enumValue != null){

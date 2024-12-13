@@ -3,7 +3,6 @@ package com.anwen.mongo.interceptor.business;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.constant.DataSourceConstant;
-import com.anwen.mongo.domain.MongoPlusDsException;
 import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.SpecialConditionEnum;
