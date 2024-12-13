@@ -32,6 +32,7 @@ import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.property.*;
 import com.anwen.mongo.replacer.Replacer;
+import com.anwen.mongo.repository.IRepository;
 import com.anwen.mongo.service.IService;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
@@ -112,9 +113,11 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
     public void afterPropertiesSet() {
         Collection<IService> values = applicationContext.getBeansOfType(IService.class).values();
         values.forEach(s -> {
-            ServiceImpl serviceImpl;
+            ServiceImpl serviceImpl = null;
             if (s instanceof ServiceImpl){
                 serviceImpl = (ServiceImpl<?>) s;
+            } else if (s instanceof IRepository) {
+
             } else {
                 serviceImpl = (ServiceImpl) AopProxyUtils.getSingletonTarget(s);
             }

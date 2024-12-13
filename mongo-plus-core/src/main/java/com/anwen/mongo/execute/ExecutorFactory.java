@@ -25,7 +25,6 @@ public class ExecutorFactory {
      * @author anwen
      */
     public Execute getExecute(){
-        ClientSession clientSessionContext = MongoTransactionContext.getClientSessionContext();
         Execute execute = getOriginalExecute();
         Class<? extends Execute> clazz = execute.getClass();
         // 包装一层高级代理对象，高级拦截器替代替换器，和普通拦截器形成拦截器责任链
@@ -42,8 +41,36 @@ public class ExecutorFactory {
      */
     public Execute getOriginalExecute() {
         return Optional.ofNullable(MongoTransactionContext.getClientSessionContext())
-                .map(clientSession -> (Execute) new SessionExecute(clientSession))
-                .orElseGet(DefaultExecute::new);
+                .map(this::getSessionExecute)
+                .orElseGet(this::getDefaultExecute);
+    }
+
+    /**
+     * 获取一个普通的执行器
+     * @return {@link com.anwen.mongo.execute.Execute}
+     * @author anwen
+     */
+    public Execute getDefaultExecute() {
+        return new DefaultExecute();
+    }
+
+    /**
+     * 获取一个事务执行器
+     * @return {@link com.anwen.mongo.execute.Execute}
+     * @author anwen
+     */
+    public Execute getSessionExecute(){
+        return getSessionExecute(MongoTransactionContext.getClientSessionContext());
+    }
+
+    /**
+     * 获取一个事务执行器
+     * @param clientSession clientSession
+     * @return {@link com.anwen.mongo.execute.Execute}
+     * @author anwen
+     */
+    public Execute getSessionExecute(ClientSession clientSession){
+        return new SessionExecute(clientSession);
     }
 
 }

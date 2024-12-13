@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import static com.anwen.mongo.enums.MultipleWrite.*;
 
 /**
- * 异步多写，并不能保证事务
+ * 异步多写，并不能保证事务，通常用于数据备份
  * @author anwen
  */
 @SuppressWarnings("unchecked")
