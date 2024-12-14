@@ -21,13 +21,19 @@ public class UpdateRetryResult {
     private final Integer currentRetryNum;
 
     /**
+     * 参数
+     */
+    private final Object[] args;
+
+    /**
      * 重试策略
      */
     private final Retry retry;
 
-    public UpdateRetryResult(Object result, Integer currentRetryNum, Retry retry) {
+    public UpdateRetryResult(Object result, Integer currentRetryNum, Object[] args, Retry retry) {
         this.result = result;
         this.currentRetryNum = currentRetryNum;
+        this.args = args;
         this.retry = retry;
     }
 
@@ -41,6 +47,10 @@ public class UpdateRetryResult {
 
     public Retry getRetry() {
         return retry;
+    }
+
+    public Object[] getArgs() {
+        return args;
     }
 
     /**
@@ -89,6 +99,7 @@ public class UpdateRetryResult {
         return "UpdateRetryResult{" +
                 "result=" + result +
                 ", currentRetryNum=" + currentRetryNum +
+                ", args.length=" + args.length +
                 ", retry=" + retry +
                 '}';
     }

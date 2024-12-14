@@ -33,6 +33,10 @@ public class AdvancedProxy implements InvocationHandler {
         if (function.get(invocation)) {
             return advancedInterceptor.intercept(invocation);
         }
-        return method.invoke(target,args);
+        try {
+            return method.invoke(target,args);
+        } catch (Throwable e) {
+            throw e.getCause();
+        }
     }
 }

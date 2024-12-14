@@ -2,6 +2,7 @@ package com.anwen.mongo.interceptor.business;
 
 import com.anwen.mongo.annotation.collection.Version;
 import com.anwen.mongo.domain.MongoPlusException;
+import com.anwen.mongo.domain.OptimisticLockerException;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.UpdateConditionEnum;
 import com.anwen.mongo.execute.ExecutorFactory;
@@ -53,6 +54,11 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     private RuntimeException versionIsNullException;
 
     /**
+     * 更新失败需要抛出的异常
+     */
+    private RuntimeException updateFailException;
+
+    /**
      * 自增数，默认为1
      */
     private Integer autoInc = 1;
@@ -80,6 +86,15 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     }
 
     /**
+     * 更新失败需要抛出的异常
+     * @param updateFailException 异常
+     * @author anwen
+     */
+    public void setUpdateFailException(RuntimeException updateFailException) {
+        this.updateFailException = updateFailException;
+    }
+
+    /**
      * 开启重试
      * @author anwen
      */
@@ -88,28 +103,47 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Object intercept(Invocation invocation) throws Throwable {
+        ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
+        if (!hitLock(invocation.getExecuteMethod())) {
+            return invocation.proceed();
+        }
+        Object result = executor(invocation,false);
+        if (retry != null) {
+            boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
+            if (isUpdate) {
+                result = beforeRetry(result,invocation);
+            }
+        }
+        if (updateFailException != null &&
+                getModifiedCount(result) <= 0) {
+            throw updateFailException;
+        }
+        return result;
+    }
+
+    public Object executor(Invocation invocation, boolean autoVersion) throws Throwable {
+        handler(invocation,autoVersion);
+        return invocation.proceed();
+    }
+
+    /**
+     * 乐观锁参数处理
+     * @param invocation invocation
+     * @author anwen
+     */
+    @SuppressWarnings("unchecked")
+    void handler(Invocation invocation,boolean autoVersion) {
         MongoCollection<Document> collection = invocation.getCollection();
         Object[] args = invocation.getArgs();
         ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
         if (executeMethod == SAVE){
-            executeSave((List<Document>) args[0],collection);
+            handleSave((List<Document>) args[0],collection);
         } else if (executeMethod == UPDATE) {
-            executeUpdate((List<MutablePair<Bson,Bson>>)args[0],collection);
+            handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,collection);
         } else if (executeMethod == BULK_WRITE) {
-            executeBulkWrite((List<WriteModel<Document>>)args[0],collection);
-        } else {
-            return invocation.proceed();
+            handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,collection);
         }
-        Object result = invocation.proceed();
-        if (retry != null) {
-            boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
-            if (isUpdate) {
-                return beforeRetry(result,invocation);
-            }
-        }
-        return result;
     }
 
     /**
@@ -121,7 +155,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      */
     Object beforeRetry(Object result, Invocation invocation) throws Throwable {
         if (retry.getHitRetry() != null) {
-            retry.getHitRetry().accept(new UpdateRetryResult(result, 0, retry));
+            retry.getHitRetry().accept(new UpdateRetryResult(result, 0, invocation.getArgs(), retry));
         }
         Invocation finalInvocation;
         if (retry.getProcessIntercept()) {
@@ -160,30 +194,38 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         int retryCount = 1;
         while (retryCount <= retry.getMaxRetryNum()) {
             long line = getModifiedCount(result);
+            UpdateRetryResult updateRetryResult =
+                    new UpdateRetryResult(result, retryCount, invocation.getArgs(), retry);
             if (line >= 1) {
                 if (retry.getOnSuccess() != null) {
-                    retry.getOnSuccess().accept(new UpdateRetryResult(result, retryCount, retry));
+                    retry.getOnSuccess().accept(updateRetryResult);
                 }
                 return result;
+            } else {
+                if (retry.getOnFailure() != null) {
+                    retry.getOnFailure().accept(updateRetryResult);
+                }
             }
             retryCount++;
-            lock.lock();
-            try {
-                // 等待动态时间   
-                // 转换为纳秒
-                long remainingTimeNanos = retry.getRetryInterval() * 1_000_000L;
-                awaitCondition(condition, remainingTimeNanos);
-            } finally {
-                // 确保锁释放
-                lock.unlock();
+            if (retryCount > 1) {
+                lock.lock();
+                try {
+                    // 等待动态时间
+                    // 转换为纳秒
+                    long remainingTimeNanos = retry.getRetryInterval() * 1_000_000L;
+                    awaitCondition(condition, remainingTimeNanos);
+                } finally {
+                    // 确保锁释放
+                    lock.unlock();
+                }
             }
-            if (retry.getOnFailure() != null) {
-                retry.getOnFailure().accept(new UpdateRetryResult(result, retryCount, retry));
-            }
-            result = intercept(invocation);
+            result = executor(invocation,true);
         }
         if (retry.getFallback() != null) {
-            return retry.getFallback().apply(new UpdateRetryResult(result, retryCount, retry));
+            return retry.getFallback().apply(
+                    new UpdateRetryResult(result, retryCount,invocation.getArgs(), retry),
+                    invocation
+            );
         }
         return result;
     }
@@ -203,7 +245,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         } catch (InterruptedException e) {
             // 恢复中断状态
             Thread.currentThread().interrupt();
-            throw new MongoPlusException("Retry interrupted", e);
+            throw new OptimisticLockerException("Retry interrupted", e);
         }
     }
 
@@ -221,11 +263,27 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             BulkWriteResult bulkWriteResult = (BulkWriteResult) result;
             return bulkWriteResult.getModifiedCount();
         } else {
-            throw new IllegalArgumentException("Unsupported result type: " + result.getClass());
+            throw new OptimisticLockerException("Unsupported result type: " + result.getClass());
         }
     }
 
-    public void executeSave(List<Document> documentList, MongoCollection<Document> collection) {
+    /**
+     * 命中乐观锁
+     * @param executeMethod 执行方法
+     * @return {@link boolean}
+     * @author anwen
+     */
+    boolean hitLock(ExecuteMethodEnum executeMethod) {
+        return executeMethod == SAVE || executeMethod == UPDATE || executeMethod == BULK_WRITE;
+    }
+
+    /**
+     * save处理
+     * @param documentList save参数
+     * @param collection 集合
+     * @author anwen
+     */
+    void handleSave(List<Document> documentList, MongoCollection<Document> collection) {
         FieldInformation fieldInformation = getVersionFieldInformation(collection);
         if (fieldInformation == null){
             return;
@@ -236,8 +294,15 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 .forEach(document -> document.put(fieldName,0));
     }
 
-    public void executeUpdate(List<MutablePair<Bson,Bson>> updatePairList,
-                                                      MongoCollection<Document> collection){
+    /**
+     * update处理
+     * @param updatePairList update参数
+     * @param collection 集合
+     * @author anwen
+     */
+    void handleUpdate(List<MutablePair<Bson,Bson>> updatePairList,
+                      boolean autoVersion,
+                      MongoCollection<Document> collection){
         FieldInformation fieldInformation = getVersionFieldInformation(collection);
         if (fieldInformation == null) {
             return;
@@ -246,12 +311,20 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
         updatePairList.forEach(updatePair -> handlerUpdate(fieldName,
                 updatePair.getLeft(),
-                updatePair.getRight()
+                updatePair.getRight(),
+                autoVersion
         ));
     }
 
-    public void executeBulkWrite(List<WriteModel<Document>> writeModelList,
-                                                       MongoCollection<Document> collection) {
+    /**
+     * bulkWrite处理
+     * @param writeModelList bulkWrite参数
+     * @param collection 集合
+     * @author anwen
+     */
+    void handleBulkWrite(List<WriteModel<Document>> writeModelList,
+                         boolean autoVersion,
+                         MongoCollection<Document> collection) {
         FieldInformation fieldInformation = getVersionFieldInformation(collection);
         if (fieldInformation == null){
             return;
@@ -266,29 +339,47 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
                 Bson filterBson = updateManyModel.getFilter();
                 Bson updateBson = updateManyModel.getUpdate();
-                handlerUpdate(fieldName,filterBson,updateBson);
+                handlerUpdate(fieldName,filterBson,updateBson,autoVersion);
             }
         });
     }
 
+    /**
+     * save参数处理
+     * @param fieldName 字段名
+     * @param document document
+     * @author anwen
+     */
     void handlerSave(String fieldName, Document document){
         if (!document.containsKey(fieldName) || document.get(fieldName) == null) {
             document.put(fieldName, 0);
         }
     }
 
-    void handlerUpdate(String fieldName,Bson filterBson,Bson updateBson) {
+    /**
+     * update参数处理
+     * @param fieldName 字段名
+     * @param filterBson 条件
+     * @param updateBson 更新值
+     * @author anwen
+     */
+    void handlerUpdate(String fieldName,Bson filterBson,Bson updateBson,boolean autoVersion) {
         Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
         Document document = BsonUtil.asDocument(updateBson);
         Document setDocument = document.get(UpdateConditionEnum.SET.getCondition(), Document.class);
-        Object versionValue = setDocument.get(fieldName);
-        if (versionValue == null){
-            log.debug("There is an optimistic lock field, but the original value " +
-                    "of the optimistic lock has not been obtained,fieldName: "+fieldName);
-            if (versionIsNullException != null) {
-                throw versionIsNullException;
+        Integer versionValue = setDocument.getInteger(fieldName);
+        if (versionValue == null) {
+            if (!autoVersion) {
+                log.debug("There is an optimistic lock field, but the original value " +
+                        "of the optimistic lock has not been obtained,fieldName: " + fieldName);
+                if (versionIsNullException != null) {
+                    throw versionIsNullException;
+                }
+                return;
             }
-            return;
+            Document filterDocument = BsonUtil.asDocument(filterBson);
+            Integer originalVersionValue = filterDocument.getInteger(fieldName);
+            versionValue = originalVersionValue+ retry.getAutoVersionNum();
         }
         BsonUtil.addToMap(filterBson,fieldName,versionValue);
         BsonUtil.removeFrom(setDocument,fieldName);

@@ -65,7 +65,12 @@ public class ExecutorProxy implements InvocationHandler {
                 return replacer.invoke(proxy, target, method, args);
             }
         }
-        Object invoke = method.invoke(target, args);
+        Object invoke;
+        try {
+            invoke = method.invoke(target, args);
+        } catch (Throwable e) {
+            throw e.getCause();
+        }
         InterceptorChain.getInterceptors().forEach(interceptor -> interceptor.afterExecute(executeMethodEnum,args,invoke, collection));
         return invoke;
 

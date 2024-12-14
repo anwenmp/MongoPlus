@@ -1,7 +1,9 @@
 package com.anwen.mongo.model;
 
+import com.anwen.mongo.interceptor.Invocation;
+
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * 重试策略
@@ -27,6 +29,11 @@ public class Retry {
     private Boolean processIntercept;
 
     /**
+     * 每次重试增加version值，默认每次加1
+     */
+    private Integer autoVersionNum;
+
+    /**
      * 开启异步重试，默认false
      * <p>开启异步后，会立即返回当前更新失败的响应，并且异步的重试，不受事务控制。可以通过回调配置查看最终结果</p>
      */
@@ -50,20 +57,22 @@ public class Retry {
     /**
      * 达到最大重试次数失败后的备用逻辑
      */
-    private Function<UpdateRetryResult, Object> fallback;
+    private BiFunction<UpdateRetryResult, Invocation, Object> fallback;
 
     Retry(final Integer maxRetryNum,
           final Long retryInterval,
           final Boolean processIntercept,
           final Boolean asyncRetry,
+          final Integer autoVersionNum,
           final Consumer<UpdateRetryResult> hitRetry,
           final Consumer<UpdateRetryResult> onSuccess,
           final Consumer<UpdateRetryResult> onFailure,
-          final Function<UpdateRetryResult, Object> fallback) {
+          final BiFunction<UpdateRetryResult, Invocation, Object> fallback) {
         this.maxRetryNum = maxRetryNum;
         this.retryInterval = retryInterval;
         this.processIntercept = processIntercept;
         this.asyncRetry = asyncRetry;
+        this.autoVersionNum = autoVersionNum;
         this.hitRetry = hitRetry;
         this.onSuccess = onSuccess;
         this.onFailure = onFailure;
@@ -92,6 +101,11 @@ public class Retry {
         private Boolean processIntercept = true;
 
         /**
+         * 每次重试增加version值，默认每次加1
+         */
+        private Integer autoVersionNum = 1;
+
+        /**
          * 开启异步重试，默认false
          */
         private Boolean asyncRetry = false;
@@ -114,7 +128,7 @@ public class Retry {
         /**
          * 达到最大重试次数失败后的备用逻辑
          */
-        private Function<UpdateRetryResult, Object> fallback;
+        private BiFunction<UpdateRetryResult, Invocation, Object> fallback;
 
         RetryBuilder() {
         }
@@ -161,6 +175,16 @@ public class Retry {
         }
 
         /**
+         * 每次重试增加version值，默认每次加1
+         *
+         * @author anwen
+         */
+        public RetryBuilder autoVersionNum(final Integer autoVersionNum) {
+            this.autoVersionNum = autoVersionNum;
+            return this;
+        }
+
+        /**
          * 命中重试回调
          *
          * @author anwen
@@ -195,13 +219,13 @@ public class Retry {
          *
          * @author anwen
          */
-        public RetryBuilder fallback(final Function<UpdateRetryResult, Object> fallback) {
+        public RetryBuilder fallback(final BiFunction<UpdateRetryResult, Invocation, Object> fallback) {
             this.fallback = fallback;
             return this;
         }
 
         public Retry build() {
-            return new Retry(this.maxRetryNum, this.retryInterval, this.processIntercept, this.asyncRetry, this.hitRetry, this.onSuccess, this.onFailure, this.fallback);
+            return new Retry(this.maxRetryNum, this.retryInterval, this.processIntercept, this.asyncRetry, this.autoVersionNum, this.hitRetry, this.onSuccess, this.onFailure, this.fallback);
         }
 
         public String toString() {
@@ -236,6 +260,10 @@ public class Retry {
         return this.processIntercept;
     }
 
+    public Integer getAutoVersionNum() {
+        return this.autoVersionNum;
+    }
+
     public Boolean getAsyncRetry() {
         return this.asyncRetry;
     }
@@ -252,7 +280,7 @@ public class Retry {
         return this.onFailure;
     }
 
-    public Function<UpdateRetryResult, Object> getFallback() {
+    public BiFunction<UpdateRetryResult, Invocation, Object> getFallback() {
         return this.fallback;
     }
 
@@ -266,6 +294,10 @@ public class Retry {
 
     public void setProcessIntercept(final Boolean processIntercept) {
         this.processIntercept = processIntercept;
+    }
+
+    public void setAutoVersionNum(final Integer autoVersionNum) {
+        this.autoVersionNum = autoVersionNum;
     }
 
     public void setAsyncRetry(final Boolean asyncRetry) {
@@ -284,7 +316,7 @@ public class Retry {
         this.onFailure = onFailure;
     }
 
-    public void setFallback(final Function<UpdateRetryResult, Object> fallback) {
+    public void setFallback(final BiFunction<UpdateRetryResult, Invocation, Object> fallback) {
         this.fallback = fallback;
     }
 
@@ -335,6 +367,16 @@ public class Retry {
                         return false;
                     }
                 } else if (!this$asyncRetry.equals(other$asyncRetry)) {
+                    return false;
+                }
+
+                Object this$autoVersionNum = this.getAutoVersionNum();
+                Object other$autoVersionNum = other.getAutoVersionNum();
+                if (this$autoVersionNum == null) {
+                    if (other$autoVersionNum != null) {
+                        return false;
+                    }
+                } else if (!this$autoVersionNum.equals(other$autoVersionNum)) {
                     return false;
                 }
 
@@ -392,6 +434,8 @@ public class Retry {
         result = result * 59 + ($processIntercept == null ? 43 : $processIntercept.hashCode());
         Object $asyncRetry = this.getAsyncRetry();
         result = result * 59 + ($asyncRetry == null ? 43 : $asyncRetry.hashCode());
+        Object $autoVersionNum = this.getAutoVersionNum();
+        result = result * 59 + ($autoVersionNum == null ? 43 : $autoVersionNum.hashCode());
         Object $hitRetry = this.getHitRetry();
         result = result * 59 + ($hitRetry == null ? 43 : $hitRetry.hashCode());
         Object $onSuccess = this.getOnSuccess();
@@ -404,7 +448,7 @@ public class Retry {
     }
 
     public String toString() {
-        return "Retry(maxRetryNum=" + this.getMaxRetryNum() + ", retryInterval=" + this.getRetryInterval() + ", processIntercept=" + this.getProcessIntercept() + ", asyncRetry=" + this.getAsyncRetry() + ", hitRetry=" + this.getHitRetry() + ", onSuccess=" + this.getOnSuccess() + ", onFailure=" + this.getOnFailure() + ", fallback=" + this.getFallback() + ")";
+        return "Retry(maxRetryNum=" + this.getMaxRetryNum() + ", retryInterval=" + this.getRetryInterval() + ", processIntercept=" + this.getProcessIntercept() + ", asyncRetry=" + this.getAsyncRetry() + ", autoVersionNum=" + this.getAutoVersionNum() + ", hitRetry=" + this.getHitRetry() + ", onSuccess=" + this.getOnSuccess() + ", onFailure=" + this.getOnFailure() + ", fallback=" + this.getFallback() + ")";
     }
 
 }
