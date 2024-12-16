@@ -161,7 +161,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (retry.getProcessIntercept()) {
             finalInvocation = new Invocation(
                     invocation.getProxy(),
-                    factory.getDefaultExecute(),
+                    factory.getOriginalExecute(),
                     invocation.getMethod(),
                     invocation.getArgs()
             );
@@ -308,8 +308,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             return;
         }
         String fieldName = fieldInformation.getCamelCaseName();
-        Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
-        updatePairList.forEach(updatePair -> handlerUpdate(fieldName,
+        updatePairList.forEach(updatePair -> updateParamHandler(fieldName,
                 updatePair.getLeft(),
                 updatePair.getRight(),
                 autoVersion
@@ -333,13 +332,13 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         writeModelList.forEach(writeModel -> {
             if (writeModel instanceof InsertOneModel) {
                 InsertOneModel<Document> insertOneModel = (InsertOneModel<Document>) writeModel;
-                handlerSave(fieldName,insertOneModel.getDocument());
+                saveParamHandler(fieldName,insertOneModel.getDocument());
             }
             if (writeModel instanceof UpdateManyModel){
                 UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
                 Bson filterBson = updateManyModel.getFilter();
                 Bson updateBson = updateManyModel.getUpdate();
-                handlerUpdate(fieldName,filterBson,updateBson,autoVersion);
+                updateParamHandler(fieldName,filterBson,updateBson,autoVersion);
             }
         });
     }
@@ -350,7 +349,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      * @param document document
      * @author anwen
      */
-    void handlerSave(String fieldName, Document document){
+    void saveParamHandler(String fieldName, Document document){
         if (!document.containsKey(fieldName) || document.get(fieldName) == null) {
             document.put(fieldName, 0);
         }
@@ -363,7 +362,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      * @param updateBson 更新值
      * @author anwen
      */
-    void handlerUpdate(String fieldName,Bson filterBson,Bson updateBson,boolean autoVersion) {
+    void updateParamHandler(String fieldName, Bson filterBson, Bson updateBson, boolean autoVersion) {
         Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
         Document document = BsonUtil.asDocument(updateBson);
         Document setDocument = document.get(UpdateConditionEnum.SET.getCondition(), Document.class);

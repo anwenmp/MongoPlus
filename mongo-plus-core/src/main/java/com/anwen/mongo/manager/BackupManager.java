@@ -32,6 +32,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+/**
+ * 备份管理器
+ * @author anwen
+ */
 public class BackupManager {
 
     private final Log log = LogFactory.getLog(BackupManager.class);

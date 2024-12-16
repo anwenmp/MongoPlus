@@ -5,6 +5,7 @@ import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.update.UpdateChainWrapper;
 import com.anwen.mongo.execute.Execute;
+import com.anwen.mongo.index.BaseIndex;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.TypeReference;
@@ -25,7 +26,7 @@ import static com.anwen.mongo.toolkit.StringPool.EMPTY;
  * @author anwen
  * @date 2024/6/26 下午2:03
  */
-public interface SuperMapper {
+public interface SuperMapper extends BaseIndex {
 
     /**
      * 获取MongoPlusClient
@@ -494,26 +495,4 @@ public interface SuperMapper {
      */
     <T> List<T> command(String database , String command,TypeReference<T> typeReference);
 
-    String createIndex(String database,String collectionName,Bson bson);
-
-    String createIndex(String database,String collectionName,Bson bson, IndexOptions indexOptions);
-
-    List<String> createIndexes(String database,String collectionName,List<IndexModel> indexes);
-
-    List<String> createIndexes(String database,String collectionName,List<IndexModel> indexes, CreateIndexOptions createIndexOptions);
-
-    List<Document> listIndexes(String database,String collectionName);
-
-    void dropIndex(String database,String collectionName,String indexName);
-
-    void dropIndex(String database,String collectionName,String indexName, DropIndexOptions dropIndexOptions);
-
-    void dropIndex(String database,String collectionName,Bson keys);
-
-    void dropIndex(String database,String collectionName,Bson keys,DropIndexOptions dropIndexOptions);
-
-    void dropIndexes(String database,String collectionName);
-
-    void dropIndexes(String database,String collectionName,DropIndexOptions dropIndexOptions);
-    
 }

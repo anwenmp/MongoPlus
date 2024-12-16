@@ -7,7 +7,7 @@ import com.anwen.mongo.conditions.update.UpdateChainWrapper;
 import com.anwen.mongo.mapping.MongoConverter;
 import com.anwen.mongo.mapping.TypeReference;
 import com.anwen.mongo.model.PageResult;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -397,48 +397,4 @@ public interface Mapper extends SuperMapper {
         return count(EMPTY,collectionName);
     }
 
-    default String createIndex(String collectionName,Bson bson){
-        return createIndex(EMPTY,collectionName,bson);
-    }
-
-    default String createIndex(String collectionName,Bson bson, IndexOptions indexOptions){
-        return createIndex(EMPTY,collectionName,bson,indexOptions);
-    }
-
-    default List<String> createIndexes(String collectionName,List<IndexModel> indexes){
-        return createIndexes(EMPTY,collectionName,indexes);
-    }
-
-    default List<String> createIndexes(String collectionName,List<IndexModel> indexes, CreateIndexOptions createIndexOptions){
-        return createIndexes(EMPTY,collectionName,indexes,createIndexOptions);
-    }
-
-    default List<Document> listIndexes(String collectionName){
-        return listIndexes(EMPTY,collectionName);
-    }
-
-    default void dropIndex(String collectionName,String indexName){
-        dropIndex(EMPTY,collectionName,indexName);
-    }
-
-    default void dropIndex(String collectionName,String indexName, DropIndexOptions dropIndexOptions){
-        dropIndex(EMPTY,collectionName,indexName,dropIndexOptions);
-    }
-
-    default void dropIndex(String collectionName,Bson keys){
-        dropIndex(EMPTY,collectionName,keys);
-    }
-
-    default void dropIndex(String collectionName,Bson keys,DropIndexOptions dropIndexOptions){
-        dropIndex(EMPTY,collectionName,keys,dropIndexOptions);
-    }
-
-    default void dropIndexes(String collectionName){
-        dropIndex(EMPTY,collectionName);
-    }
-
-    default void dropIndexes(String collectionName,DropIndexOptions dropIndexOptions){
-        dropIndexes(EMPTY,collectionName,dropIndexOptions);
-    }
-    
 }

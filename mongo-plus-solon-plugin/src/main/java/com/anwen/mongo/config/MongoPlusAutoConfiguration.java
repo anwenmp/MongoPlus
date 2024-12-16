@@ -32,7 +32,8 @@ import com.anwen.mongo.property.MongoDBConfigurationProperty;
 import com.anwen.mongo.property.MongoDBLogProperty;
 import com.anwen.mongo.property.MongoLogicDelProperty;
 import com.anwen.mongo.replacer.Replacer;
-import com.anwen.mongo.service.IService;
+import com.anwen.mongo.repository.IRepository;
+import com.anwen.mongo.repository.impl.RepositoryImpl;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
@@ -85,11 +86,13 @@ public class MongoPlusAutoConfiguration {
         this.mongoPlusClient = mongoPlusClient;
         this.mongoDBConfigurationProperty = mongoDBConfigurationProperty;
         AppContext context = Solon.context();
-        context.subBeansOfType(IService.class, bean -> {
+        context.subBeansOfType(IRepository.class, bean -> {
             if (bean instanceof ServiceImpl){
-                ServiceImpl<?> service = (ServiceImpl<?>) bean;
-                setExecute(service,bean.getGenericityClass());
-                setLogicFiled(service.getGenericityClass());
+                RepositoryImpl<?> repository = (RepositoryImpl<?>) bean;
+                Class<?> genericityClass = bean.getGenericityClass();
+                repository.setClazz(genericityClass);
+                repository.setBaseMapper(baseMapper);
+                setLogicFiled(genericityClass);
             }
         });
         init(context);
@@ -135,21 +138,10 @@ public class MongoPlusAutoConfiguration {
     }
 
     /**
-     * 从Bean中拿到Document的处理器
-     * @author JiaChaoYang
-     * @date 2023/11/23 12:56
-    */
-    private void setExecute(ServiceImpl<?> serviceImpl, Class<?> clazz) {
-        serviceImpl.setClazz(clazz);
-        serviceImpl.setBaseMapper(baseMapper);
-    }
-
-    /**
      * 从Bean中拿到转换器
      * @author JiaChaoYang
      * @date 2023/10/19 12:49
      */
-    @SuppressWarnings("unchecked")
     private void setConversion(AppContext context){
         context.getBeansOfType(ConversionStrategy.class).forEach(conversionStrategy -> {
             try {
@@ -325,9 +317,7 @@ public class MongoPlusAutoConfiguration {
     public void autoCreateTimeSeries(AppContext context){
         if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
             AutoUtil.autoCreateTimeSeries(new HashSet<Class<?>>(){{
-                context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) -> {
-                    add(bw.clz());
-                });
+                context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) -> add(bw.clz()));
             }}, mongoPlusClient);
         }
     }
@@ -340,9 +330,7 @@ public class MongoPlusAutoConfiguration {
     public void autoCreateIndexes(AppContext context){
         if (mongoDBConfigurationProperty.getAutoCreateIndex()) {
             AutoUtil.autoCreateIndexes(new HashSet<Class<?>>(){{
-                context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) -> {
-                    add(bw.clz());
-                });
+                context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) -> add(bw.clz()));
             }}, mongoPlusClient);
         }
     }

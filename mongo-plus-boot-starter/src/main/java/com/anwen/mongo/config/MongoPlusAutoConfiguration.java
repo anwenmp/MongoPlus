@@ -33,7 +33,7 @@ import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.property.*;
 import com.anwen.mongo.replacer.Replacer;
 import com.anwen.mongo.repository.IRepository;
-import com.anwen.mongo.service.IService;
+import com.anwen.mongo.repository.impl.RepositoryImpl;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
@@ -111,22 +111,21 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
     @Override
     @SuppressWarnings("rawtypes")
     public void afterPropertiesSet() {
-        Collection<IService> values = applicationContext.getBeansOfType(IService.class).values();
+        Collection<IRepository> values = applicationContext.getBeansOfType(IRepository.class).values();
         values.forEach(s -> {
-            ServiceImpl serviceImpl = null;
+            RepositoryImpl<?> repository;
             if (s instanceof ServiceImpl){
-                serviceImpl = (ServiceImpl<?>) s;
-            } else if (s instanceof IRepository) {
-
+                repository = (RepositoryImpl<?>) s;
             } else {
-                serviceImpl = (ServiceImpl) AopProxyUtils.getSingletonTarget(s);
+                repository = (RepositoryImpl<?>) AopProxyUtils.getSingletonTarget(s);
             }
-            if (serviceImpl == null){
-                throw new InitMongoPlusException("Unable to obtain an instance of 'ServiceImpl'");
+            if (repository == null){
+                throw new InitMongoPlusException("Unable to obtain an instance of 'RepositoryImpl'");
             }
-            setExecute(serviceImpl);
+            repository.setClazz(repository.getGenericityClass());
+            repository.setBaseMapper(baseMapper);
         });
-        setLogicFiled(values.stream().map(IService::getGenericityClass).toArray(Class[]::new));
+        setLogicFiled(values.stream().map(IRepository::getGenericityClass).toArray(Class[]::new));
     }
 
     /**
@@ -153,12 +152,6 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
     private void setLogicFiled(Class<?>... collectionClasses) {
         Configuration.builder().logic(this.mongoLogicDelProperty).setLogicFiled(collectionClasses);
     }
-
-    private void setExecute(ServiceImpl<?> serviceImpl) {
-        serviceImpl.setClazz(serviceImpl.getGenericityClass());
-        serviceImpl.setBaseMapper(baseMapper);
-    }
-
 
     /**
      * 从Bean中拿到转换器

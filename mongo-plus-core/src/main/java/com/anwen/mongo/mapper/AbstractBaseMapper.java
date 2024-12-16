@@ -8,6 +8,7 @@ import com.anwen.mongo.conditions.update.UpdateChainWrapper;
 import com.anwen.mongo.enums.CommandOperate;
 import com.anwen.mongo.execute.Execute;
 import com.anwen.mongo.execute.ExecutorFactory;
+import com.anwen.mongo.index.impl.DefaultBaseIndexImpl;
 import com.anwen.mongo.interceptor.InterceptorChain;
 import com.anwen.mongo.interceptor.business.TenantInterceptor;
 import com.anwen.mongo.logging.Log;
@@ -49,7 +50,7 @@ import static com.anwen.mongo.handlers.condition.BuildCondition.condition;
  * @author anwen
  * @date 2024/6/26 下午2:01
  */
-public abstract class AbstractBaseMapper implements BaseMapper {
+public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements BaseMapper {
 
     private final Log log = LogFactory.getLog(AbstractBaseMapper.class);
 
@@ -60,6 +61,7 @@ public abstract class AbstractBaseMapper implements BaseMapper {
     private final ExecutorFactory factory;
 
     public AbstractBaseMapper(MongoPlusClient mongoPlusClient, MongoConverter mongoConverter, ExecutorFactory factory) {
+        super(mongoPlusClient,factory);
         this.mongoPlusClient = mongoPlusClient;
         this.mongoConverter = mongoConverter;
         this.factory = factory;
@@ -530,69 +532,6 @@ public abstract class AbstractBaseMapper implements BaseMapper {
             iterable = execute.executeAggregate(parseCommand.getBsonListCommand(),Document.class,collection);
         }
         return mongoConverter.read(iterable,typeReference);
-    }
-
-    @Override
-    public String createIndex(String database, String collectionName, Bson bson) {
-        return factory.getExecute().doCreateIndex(bson, mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public String createIndex(String database, String collectionName, Bson bson, IndexOptions indexOptions) {
-        return factory.getExecute().doCreateIndex(
-                bson,
-                indexOptions, mongoPlusClient.getCollection(database, collectionName)
-        );
-    }
-
-    @Override
-    public List<String> createIndexes(String database, String collectionName, List<IndexModel> indexes) {
-        return factory.getExecute().doCreateIndexes(indexes, mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public List<String> createIndexes(String database, String collectionName, List<IndexModel> indexes,
-                                      CreateIndexOptions createIndexOptions) {
-        return factory.getExecute().doCreateIndexes(indexes, createIndexOptions,
-                mongoPlusClient.getCollection(database, collectionName)
-        );
-    }
-
-    @Override
-    public List<Document> listIndexes(String database, String collectionName) {
-        return factory.getExecute().doListIndexes(mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndex(String database, String collectionName, String indexName) {
-        factory.getExecute().doDropIndex(indexName, mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndex(String database, String collectionName, String indexName,
-                          DropIndexOptions dropIndexOptions) {
-        factory.getExecute().doDropIndex(indexName, dropIndexOptions,
-                mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndex(String database, String collectionName, Bson keys) {
-        factory.getExecute().doDropIndex(keys, mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndex(String database, String collectionName, Bson keys, DropIndexOptions dropIndexOptions) {
-        factory.getExecute().doDropIndex(keys, dropIndexOptions, mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndexes(String database, String collectionName) {
-        factory.getExecute().doDropIndexes(mongoPlusClient.getCollection(database, collectionName));
-    }
-
-    @Override
-    public void dropIndexes(String database, String collectionName, DropIndexOptions dropIndexOptions) {
-        factory.getExecute().doDropIndexes(dropIndexOptions, mongoPlusClient.getCollection(database, collectionName));
     }
 
     public <T> PageResult<T> getPageResult(FindIterable<Document> documentFindIterable, long totalSize,

@@ -624,26 +624,4 @@ public interface BaseMapper extends Mapper {
      */
     long count(Class<?> clazz);
 
-    String createIndex(Bson bson,Class<?> clazz);
-
-    String createIndex(Bson bson, IndexOptions indexOptions, Class<?> clazz);
-
-    List<String> createIndexes(List<IndexModel> indexes,Class<?> clazz);
-
-    List<String> createIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions,Class<?> clazz);
-
-    List<Document> listIndexes(Class<?> clazz);
-
-    void dropIndex(String indexName,Class<?> clazz);
-
-    void dropIndex(String indexName,DropIndexOptions dropIndexOptions,Class<?> clazz);
-
-    void dropIndex(Bson keys,Class<?> clazz);
-
-    void dropIndex(Bson keys,DropIndexOptions dropIndexOptions,Class<?> clazz);
-
-    void dropIndexes(Class<?> clazz);
-
-    void dropIndexes(DropIndexOptions dropIndexOptions,Class<?> clazz);
-
 }

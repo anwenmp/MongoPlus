@@ -1,8 +1,6 @@
 package com.anwen.mongo.mapper;
 
 import com.anwen.mongo.aggregate.Aggregate;
-import com.anwen.mongo.aware.MongoAwareUtils;
-import com.anwen.mongo.aware.impl.NamespaceAware;
 import com.anwen.mongo.conditions.interfaces.condition.CompareCondition;
 import com.anwen.mongo.conditions.query.QueryChainWrapper;
 import com.anwen.mongo.conditions.query.QueryWrapper;
@@ -280,90 +278,6 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     public <T, R> List<R> getByColumn(String column, Object value, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return getByColumn(namespace.left, namespace.right, column, value, typeReference);
-    }
-
-    @Override
-    public String createIndex(Bson bson, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return createIndex(namespace.left, namespace.right, bson);
-    }
-
-    @Override
-    public String createIndex(Bson bson, IndexOptions indexOptions, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return createIndex(namespace.left, namespace.right, bson, indexOptions);
-    }
-
-    @Override
-    public List<String> createIndexes(List<IndexModel> indexes, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return createIndexes(namespace.left, namespace.right, indexes);
-    }
-
-    @Override
-    public List<String> createIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return createIndexes(namespace.left, namespace.right, indexes, createIndexOptions);
-    }
-
-    @Override
-    public List<Document> listIndexes(Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        return listIndexes(namespace.left, namespace.right);
-    }
-
-    @Override
-    public void dropIndex(String indexName, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndex(namespace.left, namespace.right, indexName);
-    }
-
-    @Override
-    public void dropIndex(String indexName, DropIndexOptions dropIndexOptions, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndex(namespace.left, namespace.right, indexName, dropIndexOptions);
-    }
-
-    @Override
-    public void dropIndex(Bson keys, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndex(namespace.left, namespace.right, keys);
-    }
-
-    @Override
-    public void dropIndex(Bson keys, DropIndexOptions dropIndexOptions, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndex(namespace.left, namespace.right, keys, dropIndexOptions);
-    }
-
-    @Override
-    public void dropIndexes(Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndexes(namespace.left, namespace.right);
-    }
-
-    @Override
-    public void dropIndexes(DropIndexOptions dropIndexOptions, Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropIndexes(namespace.left, namespace.right, dropIndexOptions);
-    }
-
-    protected MutablePair<String, String> getNamespace(Class<?> clazz) {
-
-        String database = mongoPlusClient.getDatabase(clazz);
-        String collectionName = mongoPlusClient.getCollectionName(clazz);
-
-        // 发布感知事件
-        NamespaceAware.Namespace namespace = NamespaceAware.NamespaceBuild.builder()
-                .dataBase(database).collectionName(collectionName).entityClass(clazz)
-                .build();
-        List<NamespaceAware> handlers = MongoAwareUtils.listHandlers(NamespaceAware.class);
-        for (NamespaceAware aware : handlers) {
-            aware.nameSpaceAware(namespace);
-        }
-
-        return new MutablePair<>(database, collectionName);
-
     }
 
 }
