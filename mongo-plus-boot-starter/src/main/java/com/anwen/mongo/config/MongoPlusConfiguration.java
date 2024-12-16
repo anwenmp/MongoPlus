@@ -72,7 +72,7 @@ public class MongoPlusConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public MongoClientFactory mongoClientFactory(){
+    public MongoClientFactory mongoClientFactory() {
         MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance(
                 getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty)
         );
@@ -265,6 +265,11 @@ public class MongoPlusConfiguration {
         return new DataSourceManager(mongoPlusClient,mongoClientFactory);
     }
 
+    /**
+     * spel朱姐处理
+     * @return {@link com.anwen.mongo.annotation.SpelAnnotationHandler}
+     * @author anwen
+     */
     @Bean
     @ConditionalOnMissingBean
     public SpelAnnotationHandler spelAnnotationHandler(ApplicationContext applicationContext){

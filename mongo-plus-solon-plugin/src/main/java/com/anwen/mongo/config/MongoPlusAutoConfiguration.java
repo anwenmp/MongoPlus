@@ -27,12 +27,12 @@ import com.anwen.mongo.logging.Log;
 import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
+import com.anwen.mongo.mapper.MongoMapper;
 import com.anwen.mongo.property.MongoDBCollectionProperty;
 import com.anwen.mongo.property.MongoDBConfigurationProperty;
 import com.anwen.mongo.property.MongoDBLogProperty;
 import com.anwen.mongo.property.MongoLogicDelProperty;
 import com.anwen.mongo.replacer.Replacer;
-import com.anwen.mongo.repository.IRepository;
 import com.anwen.mongo.repository.impl.RepositoryImpl;
 import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
@@ -86,12 +86,12 @@ public class MongoPlusAutoConfiguration {
         this.mongoPlusClient = mongoPlusClient;
         this.mongoDBConfigurationProperty = mongoDBConfigurationProperty;
         AppContext context = Solon.context();
-        context.subBeansOfType(IRepository.class, bean -> {
+        context.subBeansOfType(MongoMapper.class, bean -> {
             if (bean instanceof ServiceImpl){
-                RepositoryImpl<?> repository = (RepositoryImpl<?>) bean;
+                RepositoryImpl<?> mongoMapper = (RepositoryImpl<?>) bean;
                 Class<?> genericityClass = bean.getGenericityClass();
-                repository.setClazz(genericityClass);
-                repository.setBaseMapper(baseMapper);
+                mongoMapper.setClazz(genericityClass);
+                mongoMapper.setBaseMapper(baseMapper);
                 setLogicFiled(genericityClass);
             }
         });

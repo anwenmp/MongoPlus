@@ -5,7 +5,6 @@ import com.anwen.mongo.domain.MongoPlusException;
 import com.anwen.mongo.domain.OptimisticLockerException;
 import com.anwen.mongo.enums.ExecuteMethodEnum;
 import com.anwen.mongo.enums.UpdateConditionEnum;
-import com.anwen.mongo.execute.ExecutorFactory;
 import com.anwen.mongo.interceptor.AdvancedInterceptor;
 import com.anwen.mongo.interceptor.Invocation;
 import com.anwen.mongo.logging.Log;
@@ -45,8 +44,6 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     private final Log log = LogFactory.getLog(OptimisticLockerInterceptor.class);
 
     private final Map<Class<?>,FieldInformation> optimisticLockerExistMap = new ConcurrentHashMap<>();
-
-    private final ExecutorFactory factory = new ExecutorFactory();
 
     /**
      * 字段值为空时需要抛出的异常
@@ -161,7 +158,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (retry.getProcessIntercept()) {
             finalInvocation = new Invocation(
                     invocation.getProxy(),
-                    factory.getOriginalExecute(),
+                    invocation.getExecutorFactory().getOriginalExecute(),
                     invocation.getMethod(),
                     invocation.getArgs()
             );

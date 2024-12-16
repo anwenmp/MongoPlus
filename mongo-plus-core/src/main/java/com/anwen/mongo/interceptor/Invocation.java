@@ -1,6 +1,7 @@
 package com.anwen.mongo.interceptor;
 
 import com.anwen.mongo.enums.ExecuteMethodEnum;
+import com.anwen.mongo.execute.ExecutorFactory;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
@@ -38,6 +39,11 @@ public final class Invocation {
      */
     private final ExecuteMethodEnum executeMethod;
 
+    /**
+     * 执行器工厂
+     */
+    private final ExecutorFactory executorFactory;
+
     @SuppressWarnings("unchecked")
     public Invocation(Object proxy,Object target, Method method, Object[] args){
         this.proxy = proxy;
@@ -46,6 +52,7 @@ public final class Invocation {
         this.args = args;
         this.collection = (MongoCollection<Document>) args[args.length-1];
         this.executeMethod = ExecuteMethodEnum.getMethod(method.getName());
+        this.executorFactory = new ExecutorFactory();
     }
 
     public Object getProxy() {
@@ -65,8 +72,17 @@ public final class Invocation {
     }
 
     /**
+     * 获取执行器工厂
+     * @return {@link com.anwen.mongo.execute.ExecutorFactory}
+     * @author anwen
+     */
+    public ExecutorFactory getExecutorFactory() {
+        return executorFactory;
+    }
+
+    /**
      * 获取MongoCollection，MongoCollection一定会是参数的最后一个
-     * @return {@link MongoCollection< Document>}
+     * @return {@link MongoCollection<Document>}
      * @author anwen
      */
     public MongoCollection<Document> getCollection() {
@@ -89,6 +105,15 @@ public final class Invocation {
      */
     public Object proceed() throws Throwable {
         return method.invoke(target,args);
+    }
+
+    /**
+     * 终止拦截器责任链，从当前拦截器直接执行目标方法
+     * @return {@link java.lang.Object}
+     * @author anwen
+     */
+    public Object discontinue() throws Throwable {
+        return method.invoke(getExecutorFactory().getOriginalExecute(),args);
     }
 
 }

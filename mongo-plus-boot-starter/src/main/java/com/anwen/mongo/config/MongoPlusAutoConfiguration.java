@@ -6,7 +6,6 @@ import com.anwen.mongo.aware.Aware;
 import com.anwen.mongo.cache.codec.MongoPlusCodecCache;
 import com.anwen.mongo.cache.global.*;
 import com.anwen.mongo.codecs.MongoPlusCodec;
-import com.anwen.mongo.domain.InitMongoPlusException;
 import com.anwen.mongo.domain.MongoPlusConvertException;
 import com.anwen.mongo.handlers.CollectionNameHandler;
 import com.anwen.mongo.handlers.IdGenerateHandler;
@@ -30,11 +29,10 @@ import com.anwen.mongo.logging.LogFactory;
 import com.anwen.mongo.logic.LogicNamespaceAware;
 import com.anwen.mongo.manager.MongoPlusClient;
 import com.anwen.mongo.mapper.BaseMapper;
+import com.anwen.mongo.mapper.MongoMapper;
+import com.anwen.mongo.mapper.MongoMapperImpl;
 import com.anwen.mongo.property.*;
 import com.anwen.mongo.replacer.Replacer;
-import com.anwen.mongo.repository.IRepository;
-import com.anwen.mongo.repository.impl.RepositoryImpl;
-import com.anwen.mongo.service.impl.ServiceImpl;
 import com.anwen.mongo.strategy.conversion.ConversionStrategy;
 import com.anwen.mongo.strategy.mapping.MappingStrategy;
 import com.anwen.mongo.toolkit.AutoUtil;
@@ -111,21 +109,21 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
     @Override
     @SuppressWarnings("rawtypes")
     public void afterPropertiesSet() {
-        Collection<IRepository> values = applicationContext.getBeansOfType(IRepository.class).values();
+        Collection<MongoMapper> values = applicationContext.getBeansOfType(MongoMapper.class).values();
         values.forEach(s -> {
-            RepositoryImpl<?> repository;
-            if (s instanceof ServiceImpl){
-                repository = (RepositoryImpl<?>) s;
+            MongoMapperImpl<?> mongoMapper;
+            if (s instanceof MongoMapperImpl){
+                mongoMapper = (MongoMapperImpl<?>) s;
             } else {
-                repository = (RepositoryImpl<?>) AopProxyUtils.getSingletonTarget(s);
+                mongoMapper = (MongoMapperImpl<?>) AopProxyUtils.getSingletonTarget(s);
             }
-            if (repository == null){
-                throw new InitMongoPlusException("Unable to obtain an instance of 'RepositoryImpl'");
+            if (mongoMapper == null){
+                return;
             }
-            repository.setClazz(repository.getGenericityClass());
-            repository.setBaseMapper(baseMapper);
+            mongoMapper.setClazz(mongoMapper.getGenericityClass());
+            mongoMapper.setBaseMapper(baseMapper);
         });
-        setLogicFiled(values.stream().map(IRepository::getGenericityClass).toArray(Class[]::new));
+        setLogicFiled(values.stream().map(MongoMapper::getGenericityClass).toArray(Class[]::new));
     }
 
     /**
