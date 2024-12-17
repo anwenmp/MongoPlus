@@ -105,16 +105,16 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (!hitLock(invocation.getExecuteMethod())) {
             return invocation.proceed();
         }
+        boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
         Object result = executor(invocation,false);
-        if (retry != null) {
-            boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
-            if (isUpdate) {
+        if (isUpdate) {
+            if (retry != null) {
                 result = beforeRetry(result,invocation);
             }
-        }
-        if (updateFailException != null &&
-                getModifiedCount(result) <= 0) {
-            throw updateFailException;
+            if (updateFailException != null &&
+                    getModifiedCount(result) <= 0) {
+                throw updateFailException;
+            }
         }
         return result;
     }
