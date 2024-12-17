@@ -18,6 +18,8 @@ public class MongoMapperFactoryBean<T> implements FactoryBean<T>, BeanFactoryAwa
 
     private Class<T> mapperInterface;
 
+    private Object instance;
+
     public Class<T> getMapperInterface() {
         return mapperInterface;
     }
@@ -35,6 +37,9 @@ public class MongoMapperFactoryBean<T> implements FactoryBean<T>, BeanFactoryAwa
     @Override
     @SuppressWarnings("unchecked")
     public T getObject() {
+        if(instance != null){
+            return (T) instance;
+        }
         return (T) Proxy.newProxyInstance(
                 mapperInterface.getClassLoader(),
                 new Class<?>[] {mapperInterface},
@@ -50,6 +55,9 @@ public class MongoMapperFactoryBean<T> implements FactoryBean<T>, BeanFactoryAwa
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.baseMapper = beanFactory.getBean(BaseMapper.class);
+        try {
+            this.instance = beanFactory.getBean(mapperInterface);
+        } catch (Exception ignored) {}
     }
 
 }
