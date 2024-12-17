@@ -7,8 +7,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 
-import java.lang.reflect.Proxy;
-
 /**
  * @author anwen
  */
@@ -40,11 +38,7 @@ public class MongoMapperFactoryBean<T> implements FactoryBean<T>, BeanFactoryAwa
         if(instance != null){
             return (T) instance;
         }
-        return (T) Proxy.newProxyInstance(
-                mapperInterface.getClassLoader(),
-                new Class<?>[] {mapperInterface},
-                new MapperProxy<>(baseMapper,mapperInterface)
-        );
+        return (T) MapperProxy.wrap(baseMapper,mapperInterface);
     }
 
     @Override

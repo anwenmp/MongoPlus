@@ -4,10 +4,7 @@ import com.anwen.mongo.mapper.BaseMapper;
 import com.anwen.mongo.mapper.MongoMapper;
 import com.anwen.mongo.mapper.MongoMapperImpl;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 /**
  * @author anwen
@@ -21,6 +18,14 @@ public class MapperProxy<T> implements InvocationHandler {
         mongoMapper.setBaseMapper(baseMapper);
         mongoMapper.setClazz(getGenericClass(mapperInterface));
         this.target = mongoMapper;
+    }
+
+    public static Object wrap(BaseMapper baseMapper,Class<?> mapperInterface){
+        return Proxy.newProxyInstance(
+                mapperInterface.getClassLoader(),
+                new Class[]{ mapperInterface },
+                new MapperProxy<>(baseMapper,mapperInterface)
+        );
     }
 
     @Override
