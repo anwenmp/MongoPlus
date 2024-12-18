@@ -64,28 +64,25 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         //拿到类中的@ID字段
         FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class);
         if (idFieldInformation != null) {
+            //如果没有设置
             Object idValue = idFieldInformation.getValue();
-            Object finalIdValue = idValue;
-            if (idValue == null){
-                finalIdValue = HandlerCache.idGenerateHandler.generateId(idFieldInformation.getId().type(), typeInformation);
+            if (idValue != null) {
+                if (ObjectId.isValid(String.valueOf(idValue)) && !idValue.getClass().equals(ObjectId.class)) {
+                    document.put(SqlOperationConstant._ID, new ObjectId(String.valueOf(idValue)));
+                }
+            } else {
+                idValue = HandlerCache.idGenerateHandler.generateId(idFieldInformation.getId().type(), typeInformation);
             }
-            // 判断下是否为null，一般不会出现这种情况，为防止自定义id生成器生成的id为null的情况
-            if (finalIdValue == null) {
-                throw new MongoPlusWriteException("The _id cannot be empty, please check the IdGenerateHandler or manually assign it");
-            }
-            // 如果不是ObjectId
-            String idStr;
-            if (PropertyCache.objectIdConvertType &&
-                    !(finalIdValue instanceof ObjectId) &&
-                    ObjectId.isValid((idStr = finalIdValue.toString()))){
-                finalIdValue = new ObjectId(idStr);
-            } else if (!finalIdValue.getClass().equals(idFieldInformation.getTypeClass())){
-                finalIdValue = convertValue(finalIdValue, idFieldInformation.getTypeClass());
-            }
-            document.put(SqlOperationConstant._ID, finalIdValue);
-            // 需要判断下是否将该ID注解原字段入库
-            if (idFieldInformation.getId().saveField()) {
-                document.put(idFieldInformation.getName(), finalIdValue);
+            if (idValue != null) {
+                idValue = idValue instanceof ObjectId ? idValue : convertValue(idValue, idFieldInformation.getTypeClass());
+                if (PropertyCache.objectIdConvertType && idValue instanceof ObjectId) {
+                    idValue = convertValue(idValue,idFieldInformation.getTypeClass());
+                }
+                document.put(SqlOperationConstant._ID, idValue);
+                //为自行设置id，需要在这里判断一下重入，自行设置checkTableField方法会进行处理
+                if (idFieldInformation.getId().saveField()) {
+                    document.put(idFieldInformation.getName(), idValue);
+                }
             }
         }
         //如果存在元对象处理器，且插入或更新字段不为空，则获取自动填充字段

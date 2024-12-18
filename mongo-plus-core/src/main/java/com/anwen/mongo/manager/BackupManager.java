@@ -1,5 +1,8 @@
 package com.anwen.mongo.manager;
 
+import com.mongodb.MongoNamespace;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.anwen.mongo.cache.codec.MapCodecCache;
 import com.anwen.mongo.cache.global.DataSourceNameCache;
 import com.anwen.mongo.domain.MongoPlusException;
@@ -13,9 +16,6 @@ import com.anwen.mongo.toolkit.Assert;
 import com.anwen.mongo.toolkit.CollUtil;
 import com.anwen.mongo.toolkit.StringUtils;
 import com.anwen.mongo.toolkit.ZipUtil;
-import com.mongodb.MongoNamespace;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.Document;
@@ -25,10 +25,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
@@ -130,17 +127,21 @@ public class BackupManager {
      * 导出备份
      * @author anwen
      */
-    public void export(){
+    public Map<String,String> export(){
         Assert.hasLength(path,"'path' is null");
         Assert.isTrue(CollUtil.isNotEmpty(collectionNames),"'collectionNames' is null");
+        HashMap<String, String> resultMap = new HashMap<>();
         this.collectionNames.forEach(collectionName -> {
             MongoCollection<Document> collection = mongoPlusClient.getCollection(
                     this.dataSourceName,
                     DataSourceNameCache.getDatabase(this.dataSourceName),
                     collectionName
             );
-            backupCollectionToJSON(collection);
+            String path = backupCollectionToJSON(collection);
+            resultMap.put(collectionName,path);
+            log.info(collectionName+" -> "+path);
         });
+        return resultMap;
     }
 
     /**
@@ -200,7 +201,7 @@ public class BackupManager {
         return collectionName+"-"+System.currentTimeMillis()+".json";
     }
 
-    void backupCollectionToJSON(MongoCollection<Document> collection) {
+    String backupCollectionToJSON(MongoCollection<Document> collection) {
         MongoNamespace namespace = collection.getNamespace();
         String collectionName = namespace.getCollectionName();
         long totalDocuments = collection.estimatedDocumentCount();
@@ -208,7 +209,7 @@ public class BackupManager {
 
         if (totalDocuments <= 0) {
             log.error("Collection is empty");
-            return;
+            return null;
         }
 
         int count = 0, skip = 0, num = 0;
@@ -279,6 +280,7 @@ public class BackupManager {
         // 删除临时文件
         deleteFiles(filePath);
         log.info("Temporary files deleted.");
+        return zipFilePath;
     }
 
 

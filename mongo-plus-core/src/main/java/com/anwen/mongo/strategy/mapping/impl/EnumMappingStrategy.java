@@ -18,12 +18,12 @@ public class EnumMappingStrategy implements MappingStrategy<Enum> {
     public Object mapping(Enum fieldValue) throws IllegalAccessException {
         FieldInformation fieldInformation = getFieldInformation(fieldValue);
         if (fieldInformation == null) {
-            return fieldValue;
+            return fieldValue.name();
         }
         EnumValue enumValue = fieldInformation.getAnnotation(EnumValue.class);
         if (enumValue.valueStore()){
             return fieldInformation.getValue(fieldValue);
         }
-        return fieldValue;
+        return fieldValue.name();
     }
 }

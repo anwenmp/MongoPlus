@@ -39,7 +39,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
 
     private final ThreadPoolExecutor executor;
 
-    protected final MultipleWriteHandler multipleWriteHandler;
+    protected MultipleWriteHandler multipleWriteHandler;
 
     private final MongoPlusClient mongoPlusClient;
 
@@ -47,6 +47,10 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
 
     public void setExecute(DefaultExecute execute) {
         this.execute = execute;
+    }
+
+    public void setMultipleWriteHandler(MultipleWriteHandler multipleWriteHandler) {
+        this.multipleWriteHandler = multipleWriteHandler;
     }
 
     public AsyncMultipleWriteInterceptor(MongoPlusClient mongoPlusClient) {
