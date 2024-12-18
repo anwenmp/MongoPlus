@@ -51,7 +51,7 @@ public class BackupManager {
     /**
      * 需要备份的集合名称
      */
-    private List<String> collectionNames;
+    private final List<String> collectionNames;
 
     /**
      * 数据源名称，默认当前数据源
@@ -92,7 +92,7 @@ public class BackupManager {
      * 创建一个BackupManager实例，不包含collectionNames
      */
     public BackupManager(String path,MongoPlusClient mongoPlusClient){
-        this(path,null,mongoPlusClient);
+        this(path,new ArrayList<>(),mongoPlusClient);
     }
 
     /**
@@ -101,7 +101,7 @@ public class BackupManager {
      * @author anwen
      */
     public BackupManager(MongoPlusClient mongoPlusClient){
-        this(null,null,mongoPlusClient);
+        this(null,new ArrayList<>(),mongoPlusClient);
     }
 
     /**
@@ -110,9 +110,18 @@ public class BackupManager {
      * @author anwen
      */
     public void setCollectionNames(List<Class<?>> collectionNames){
-        this.collectionNames = collectionNames.stream()
+        this.collectionNames.addAll(collectionNames.stream()
                 .map(AnnotationOperate::getCollectionName)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * 设置集合名称
+     * @param collectionNames 集合名称
+     * @author anwen
+     */
+    public void setCollectionNamesStr(List<String> collectionNames) {
+        this.collectionNames.addAll(collectionNames);
     }
 
     /**
