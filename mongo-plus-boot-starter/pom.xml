@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.gitee.anwena</groupId>
+        <groupId>com.mongoplus</groupId>
         <artifactId>mongo-plus-parent</artifactId>
         <version>2.1.6.1</version>
         <relativePath>../mongo-plus-parent/pom.xml</relativePath>
@@ -64,7 +64,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.gitee.anwena</groupId>
+            <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
             <version>${mongoplus.version}</version>
         </dependency>

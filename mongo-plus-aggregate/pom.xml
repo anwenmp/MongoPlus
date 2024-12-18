@@ -22,7 +22,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.gitee.anwena</groupId>
+            <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
             <version>2.1.6.1</version>
         </dependency>
