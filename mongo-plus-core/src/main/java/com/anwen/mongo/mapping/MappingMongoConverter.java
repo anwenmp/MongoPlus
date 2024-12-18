@@ -57,6 +57,16 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     }
 
     public MappingMongoConverter() {
+        this(true);
+    }
+
+    /**
+     * 通过此构造方法可将值传递为false，以取消使用ThreadLocal，提高效率，但不会保证多线程的自动填充
+     * @param concurrency 是否并发
+     * @author anwen
+     */
+    public MappingMongoConverter(boolean concurrency) {
+        super(concurrency);
         this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
         ignoreType.add(ObjectId.class);
         ignoreType.add(Binary.class);
