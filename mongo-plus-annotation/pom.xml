@@ -65,10 +65,21 @@
             </activation>
             <build>
                 <plugins>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
+                        <version>${maven-release.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -81,7 +92,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${maven-source.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -113,7 +124,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${maven-gpg.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
