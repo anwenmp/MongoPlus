@@ -1,11 +1,11 @@
 package com.mongoplus.cache.global;
 
-import com.mongoplus.handlers.IdGenerateHandler;
-import com.mongoplus.handlers.MetaObjectHandler;
-import com.mongoplus.handlers.ReadHandler;
-import com.mongoplus.handlers.TransactionHandler;
+import com.mongoplus.handlers.*;
 import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.handlers.condition.EncryptorConditionHandler;
+import com.mongoplus.handlers.field.DBRefFieldHandler;
+import com.mongoplus.handlers.field.EncryptFieldHandler;
+import com.mongoplus.handlers.field.TypeHandlerFieldHandler;
 import com.mongoplus.mapping.handler.DesensitizationHandlerApply;
 import com.mongoplus.mapping.handler.FieldEncryptApply;
 
@@ -46,9 +46,23 @@ public class HandlerCache {
      */
     public static TransactionHandler transactionHandler = new TransactionHandler();
 
+    /**
+     * 字段处理器
+     */
+    public static List<FieldHandler> fieldHandlers = new ArrayList<>();
+
     static {
         readHandlerList.add(new FieldEncryptApply());
         readHandlerList.add(new DesensitizationHandlerApply());
         conditionHandlerList.add(new EncryptorConditionHandler());
+        // 初始化字段处理器
+        initFieldHandler();
     }
+
+    static void initFieldHandler() {
+        fieldHandlers.add(new TypeHandlerFieldHandler());
+        fieldHandlers.add(new EncryptFieldHandler());
+        fieldHandlers.add(new DBRefFieldHandler());
+    }
+
 }

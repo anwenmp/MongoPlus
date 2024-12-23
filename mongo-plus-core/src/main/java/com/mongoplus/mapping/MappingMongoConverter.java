@@ -1,12 +1,12 @@
 package com.mongoplus.mapping;
 
 import com.mongoplus.annotation.collection.CollectionField;
-import com.mongoplus.annotation.comm.FieldEncrypt;
 import com.mongoplus.cache.global.ConversionCache;
+import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.cache.global.SimpleCache;
 import com.mongoplus.domain.MongoPlusWriteException;
-import com.mongoplus.handlers.TypeHandler;
+import com.mongoplus.handlers.FieldHandler;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.manager.MongoPlusClient;
@@ -14,7 +14,6 @@ import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.BsonUtil;
 import com.mongoplus.toolkit.ClassTypeUtil;
-import com.mongoplus.toolkit.EncryptorUtil;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -112,24 +111,21 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param bson BSON 对象
      * @param filterId 是否过滤掉 ID 字段
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private void processFields(List<FieldInformation> fields, Bson bson, boolean filterId) {
         fields.stream()
                 .filter(fieldInformation -> !fieldInformation.isSkipCheckField() && (!filterId || !fieldInformation.isId()))
                 .forEach(fieldInformation -> {
                     CollectionField collectionField = fieldInformation.getCollectionField();
                     Object obj = null;
-                    if (collectionField != null && ClassTypeUtil.isTargetClass(TypeHandler.class,collectionField.typeHandler())) {
-                        TypeHandler typeHandler = (TypeHandler)ClassTypeUtil.getInstanceByClass(collectionField.typeHandler());
-                        obj = typeHandler.setParameter(fieldInformation.getName(),fieldInformation.getValue());
-                    }
                     String fieldName = fieldInformation.getName();
                     if ((collectionField == null || StringUtils.isBlank(collectionField.value()))
                             && PropertyCache.camelToUnderline){
                         fieldName = StringUtils.camelToUnderline(fieldName);
                     }
-                    if (fieldInformation.isAnnotation(FieldEncrypt.class)){
-                        obj = EncryptorUtil.encrypt(fieldInformation.getAnnotation(FieldEncrypt.class),fieldInformation.getValue());
+                    for (FieldHandler fieldHandler : HandlerCache.fieldHandlers) {
+                        if (fieldHandler.activate().apply(fieldInformation)) {
+                            obj = fieldHandler.handler(fieldInformation);
+                        }
                     }
                     if (ignoreType.contains(fieldInformation.getTypeClass())){
                         obj = fieldInformation.getValue();

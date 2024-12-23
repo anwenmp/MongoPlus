@@ -67,7 +67,7 @@ public class ClassPathMongoMapperScanner extends ClassPathBeanDefinitionScanner 
             } catch (ClassNotFoundException ignore) {
             }
             definition.setBeanClass(factoryBean);
-            definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
+//            definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
             if (scopedProxy) {
                 return;
             }
