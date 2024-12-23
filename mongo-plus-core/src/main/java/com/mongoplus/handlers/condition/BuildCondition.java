@@ -93,8 +93,9 @@ public class BuildCondition extends AbstractCondition {
                 mongoPlusBasicDBObject.put(likeDocument);
                 break;
             case IN:
+                Collection<?> inCollection = (Collection<?>) compareCondition.getValue();
                 mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(),
-                        (Collection<?>) compareCondition.getValue()));
+                        ));
                 break;
             case NIN:
                 mongoPlusBasicDBObject.put(Filters.nin(compareCondition.getColumn(),
