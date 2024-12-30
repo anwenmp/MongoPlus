@@ -17,5 +17,12 @@ public @interface DBRef {
      * @author anwen
      */
     String db() default "";
+
+    /**
+     * 是否自动转换ObjectId
+     * @return {@link boolean}
+     * @author anwen
+     */
+    boolean autoConvertObjectId() default true;
     
 }

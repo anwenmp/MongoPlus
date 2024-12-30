@@ -38,7 +38,7 @@ public class SpelAnnotationHandler implements AnnotationHandler {
             String value = (String) apply;
             if (needsSpelParsing(value)) {
                 value = value.replace("#","");
-                apply = (R) parseSpelExpression(value);
+                apply = (R) parseSpelExpression(value,obj);
             }
         }
         return apply;
@@ -60,9 +60,9 @@ public class SpelAnnotationHandler implements AnnotationHandler {
      * @return {@link java.lang.String}
      * @author anwen
      */
-    private String parseSpelExpression(String expression) {
+    private String parseSpelExpression(String expression,Object rootObject) {
         // 创建并缓存StandardEvaluationContext
-        StandardEvaluationContext context = new StandardEvaluationContext();
+        StandardEvaluationContext context = new StandardEvaluationContext(rootObject);
         context.setBeanResolver(new BeanFactoryResolver(applicationContext));
 
         // 解析表达式并返回结果

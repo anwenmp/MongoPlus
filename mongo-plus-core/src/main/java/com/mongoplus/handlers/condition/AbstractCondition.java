@@ -121,21 +121,34 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
 
     protected void checkCompareCondition(CompareCondition compareCondition) {
         Object value = compareCondition.getValue();
+        if (value == null) return;
+        Object targetValue = value;
         Class<?> clazz = value.getClass();
         if (ClassTypeUtil.isTargetClass(Collection.class, clazz)) {
-            Collection<?> collection = (Collection<?>) value;
-            if (CollUtil.isEmpty(collection)) {
-                return;
-            }
-            Object collectionValue = collection.stream().filter(Objects::nonNull).findFirst().orElse(null);
-            if (collectionValue != null && collectionValue.getClass().isEnum()) {
-                compareCondition.setValue(collection.stream()
-                        .map(o -> handleValue(collectionValue.getClass(), o))
-                        .collect(Collectors.toList()));
-            }
+            targetValue = handleCollectionValue((Collection<?>) value);
         } else if (clazz.isEnum()) {
-            compareCondition.setValue(handleValue(clazz, value));
+            targetValue = handleValue(clazz, value);
         }
+        compareCondition.setValue(targetValue);
+    }
+
+    protected Object handleCollectionValue(Collection<?> collection) {
+        if (CollUtil.isEmpty(collection)) {
+            return collection;
+        }
+
+        // 获取集合中第一个非空值并检查是否为枚举类型
+        Object collectionValue = collection.stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+        if (collectionValue != null && collectionValue.getClass().isEnum()) {
+            return collection.stream()
+                    .map(o -> handleValue(collectionValue.getClass(), o))
+                    .collect(Collectors.toList());
+        }
+        return collection;
     }
 
     protected Object handleValue(Class<?> clazz, Object value) {

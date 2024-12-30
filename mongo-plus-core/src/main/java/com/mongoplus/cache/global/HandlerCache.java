@@ -3,11 +3,11 @@ package com.mongoplus.cache.global;
 import com.mongoplus.handlers.*;
 import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.handlers.condition.EncryptorConditionHandler;
-import com.mongoplus.handlers.field.DBRefFieldHandler;
+import com.mongoplus.handlers.field.DBRefHandler;
 import com.mongoplus.handlers.field.EncryptFieldHandler;
 import com.mongoplus.handlers.field.TypeHandlerFieldHandler;
-import com.mongoplus.mapping.handler.DesensitizationHandlerApply;
-import com.mongoplus.mapping.handler.FieldEncryptApply;
+import com.mongoplus.handlers.read.DesensitizationHandlerApply;
+import com.mongoplus.handlers.read.FieldEncryptApply;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +54,7 @@ public class HandlerCache {
     static {
         readHandlerList.add(new FieldEncryptApply());
         readHandlerList.add(new DesensitizationHandlerApply());
+        readHandlerList.add(new DBRefHandler());
         conditionHandlerList.add(new EncryptorConditionHandler());
         // 初始化字段处理器
         initFieldHandler();
@@ -62,7 +63,7 @@ public class HandlerCache {
     static void initFieldHandler() {
         fieldHandlers.add(new TypeHandlerFieldHandler());
         fieldHandlers.add(new EncryptFieldHandler());
-        fieldHandlers.add(new DBRefFieldHandler());
+        fieldHandlers.add(new DBRefHandler());
     }
 
 }

@@ -239,9 +239,16 @@ public abstract class AbstractMongoConverter implements MongoConverter {
                 resultObj = typeHandler.getResult(obj);
             }
             if (CollUtil.isNotEmpty(HandlerCache.readHandlerList)) {
-                List<ReadHandler> readHandlerList = HandlerCache.readHandlerList.stream().sorted(Comparator.comparingInt(ReadHandler::order)).collect(Collectors.toList());
+                List<ReadHandler> readHandlerList = HandlerCache.readHandlerList.stream()
+                        .sorted(Comparator.comparingInt(ReadHandler::order))
+                        .collect(Collectors.toList());
                 for (ReadHandler readHandler : readHandlerList) {
-                    obj = readHandler.read(fieldInformation, obj);
+                    if (readHandler.activate().apply(fieldInformation)) {
+                        obj = readHandler.read(fieldInformation, obj,this);
+                    }
+                    if (readHandler.discontinue().apply(obj)) {
+                        return;
+                    }
                 }
             }
             if (resultObj == null) {
