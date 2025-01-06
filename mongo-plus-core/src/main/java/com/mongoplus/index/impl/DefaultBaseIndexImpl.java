@@ -1,14 +1,14 @@
 package com.mongoplus.index.impl;
 
+import com.mongodb.client.model.CreateIndexOptions;
+import com.mongodb.client.model.DropIndexOptions;
+import com.mongodb.client.model.IndexModel;
+import com.mongodb.client.model.IndexOptions;
 import com.mongoplus.aware.MongoAwareUtils;
 import com.mongoplus.aware.impl.NamespaceAware;
 import com.mongoplus.execute.ExecutorFactory;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.model.MutablePair;
-import com.mongodb.client.model.CreateIndexOptions;
-import com.mongodb.client.model.DropIndexOptions;
-import com.mongodb.client.model.IndexModel;
-import com.mongodb.client.model.IndexOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 

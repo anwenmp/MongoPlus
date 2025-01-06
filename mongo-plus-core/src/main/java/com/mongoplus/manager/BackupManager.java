@@ -1,5 +1,8 @@
 package com.mongoplus.manager;
 
+import com.mongodb.MongoNamespace;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.domain.MongoPlusException;
@@ -13,9 +16,6 @@ import com.mongoplus.toolkit.Assert;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.StringUtils;
 import com.mongoplus.toolkit.ZipUtil;
-import com.mongodb.MongoNamespace;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.Document;

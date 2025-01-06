@@ -1,8 +1,11 @@
 package com.mongoplus.aggregate;
 
 import com.alibaba.fastjson.JSON;
-import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.aggregate.AggregateWrapper;
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoNamespace;
+import com.mongodb.client.model.BucketOptions;
+import com.mongodb.client.model.GraphLookupOptions;
+import com.mongodb.client.model.MergeOptions;
 import com.mongoplus.aggregate.pipeline.Accumulators;
 import com.mongoplus.aggregate.pipeline.Facet;
 import com.mongoplus.aggregate.pipeline.UnwindOption;
@@ -17,11 +20,6 @@ import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.BaseModelID;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.toolkit.FunctionUtil;
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoNamespace;
-import com.mongodb.client.model.BucketOptions;
-import com.mongodb.client.model.GraphLookupOptions;
-import com.mongodb.client.model.MergeOptions;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.bson.Document;

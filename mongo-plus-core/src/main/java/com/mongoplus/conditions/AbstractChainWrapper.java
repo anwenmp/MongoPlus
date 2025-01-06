@@ -1,5 +1,6 @@
 package com.mongoplus.conditions;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.conditions.interfaces.Compare;
@@ -14,7 +15,6 @@ import com.mongoplus.enums.ProjectionEnum;
 import com.mongoplus.enums.TypeEnum;
 import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.ObjectIdUtil;
-import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 

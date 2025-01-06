@@ -1,5 +1,6 @@
 package com.mongoplus.handlers.condition;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
@@ -15,7 +16,6 @@ import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.Filters;
-import com.mongodb.BasicDBObject;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.Document;

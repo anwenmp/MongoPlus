@@ -1,7 +1,7 @@
 package com.mongoplus.model;
 
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongodb.BasicDBObject;
+import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 
 /**
  * @author anwen

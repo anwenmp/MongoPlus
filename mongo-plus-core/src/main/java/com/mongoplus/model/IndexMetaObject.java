@@ -1,8 +1,8 @@
 package com.mongoplus.model;
 
+import com.mongodb.client.model.IndexModel;
 import com.mongoplus.enums.IndexType;
 import com.mongoplus.mapping.TypeInformation;
-import com.mongodb.client.model.IndexModel;
 
 import java.util.List;
 import java.util.Objects;

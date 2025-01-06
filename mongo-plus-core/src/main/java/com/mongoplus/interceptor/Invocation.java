@@ -1,8 +1,8 @@
 package com.mongoplus.interceptor;
 
+import com.mongodb.client.MongoCollection;
 import com.mongoplus.enums.ExecuteMethodEnum;
 import com.mongoplus.execute.ExecutorFactory;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import java.lang.reflect.Method;

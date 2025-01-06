@@ -1,11 +1,11 @@
 package com.mongoplus.manager;
 
+import com.mongodb.client.MongoClient;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.toolkit.MongoUtil;
-import com.mongodb.client.MongoClient;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

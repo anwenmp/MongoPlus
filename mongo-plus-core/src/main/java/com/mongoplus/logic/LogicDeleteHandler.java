@@ -1,5 +1,7 @@
 package com.mongoplus.logic;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -10,8 +12,6 @@ import com.mongoplus.model.LogicDeleteResult;
 import com.mongoplus.registry.MongoEntityMappingRegistry;
 import com.mongoplus.toolkit.ChainWrappers;
 import com.mongoplus.toolkit.Filters;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;

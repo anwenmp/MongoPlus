@@ -2,7 +2,6 @@ package com.mongoplus.mapping;
 
 import com.mongoplus.annotation.ID;
 import com.mongoplus.annotation.collection.CollectionField;
-import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.MappingCache;
@@ -12,9 +11,10 @@ import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.enums.FieldFill;
 import com.mongoplus.handlers.ReadHandler;
 import com.mongoplus.handlers.TypeHandler;
+import com.mongoplus.handlers.auto.AutoFillHandler;
+import com.mongoplus.handlers.auto.DefaultAutoFillHandler;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
-import com.mongoplus.model.AutoFillMetaObject;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.BsonUtil;
@@ -41,42 +41,18 @@ public abstract class AbstractMongoConverter implements MongoConverter {
 
     private final Log log = LogFactory.getLog(AbstractMongoConverter.class);
 
-    private final boolean concurrency;
-
-    private final Object insertFillAutoFillMetaObject;
-
-    private final Object updateFillAutoFillMetaObject;
+    private final AutoFillHandler autoFillHandler;
 
     public AbstractMongoConverter() {
-        this(true);
+        this.autoFillHandler = new DefaultAutoFillHandler();
     }
 
+    @Deprecated
     public AbstractMongoConverter(boolean concurrency) {
-        this.concurrency = concurrency;
-        if (concurrency) {
-            insertFillAutoFillMetaObject = ThreadLocal.withInitial(AutoFillMetaObject::new);
-            updateFillAutoFillMetaObject = ThreadLocal.withInitial(AutoFillMetaObject::new);
-        } else {
-            insertFillAutoFillMetaObject = new AutoFillMetaObject();
-            updateFillAutoFillMetaObject = new AutoFillMetaObject();
-        }
+        this();
     }
 
     public final Map<Class<?>, Boolean> classEnumTypeMap = new ConcurrentHashMap<>();
-
-    @SuppressWarnings("unchecked")
-    protected AutoFillMetaObject getInsertFillAutoFillMetaObject() {
-        return concurrency ?
-                ((ThreadLocal<AutoFillMetaObject>) insertFillAutoFillMetaObject).get() :
-                (AutoFillMetaObject) insertFillAutoFillMetaObject;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected AutoFillMetaObject getUpdateFillAutoFillMetaObject() {
-        return concurrency ?
-                ((ThreadLocal<AutoFillMetaObject>) updateFillAutoFillMetaObject).get() :
-                (AutoFillMetaObject) updateFillAutoFillMetaObject;
-    }
 
     @Override
     public void writeBySave(Object sourceObj, Document document) {
@@ -87,11 +63,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         }
         //封装class信息
         TypeInformation typeInformation = TypeInformation.of(sourceObj);
-        //如果存在元对象处理器，且插入或更新字段为空，则获取自动填充字段
-        if (HandlerCache.metaObjectHandler != null && getInsertFillAutoFillMetaObject().isEmpty()) {
-            //获取所有自动填充数据
-            getFillInsertAndUpdateField(typeInformation, getInsertFillAutoFillMetaObject(), getUpdateFillAutoFillMetaObject());
-        }
         //拿到类中的@ID字段
         FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class);
         if (idFieldInformation != null) {
@@ -126,15 +97,10 @@ public abstract class AbstractMongoConverter implements MongoConverter {
                 document.put(idFieldInformation.getName(), idValue);
             }
         }
-        //如果存在元对象处理器，且插入或更新字段不为空，则获取自动填充字段
-        if (HandlerCache.metaObjectHandler != null && !getInsertFillAutoFillMetaObject().isEmpty()) {
-            getInsertFillAutoFillMetaObject().setTargetObject(typeInformation);
-            HandlerCache.metaObjectHandler.insertFill(getInsertFillAutoFillMetaObject());
-        }
         //映射到Document
         write(sourceObj, document);
         //添加自动填充字段
-        getInsertFillAutoFillMetaObject().getAllFillFieldAndClear(document);
+        autoFillHandler.handle(document,typeInformation,FieldFill.INSERT);
     }
 
     @Override
@@ -146,47 +112,15 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         }
         //封装class信息
         TypeInformation typeInformation = TypeInformation.of(sourceObj);
-        //如果存在元对象处理器，且插入或更新字段为空，则获取自动填充字段
-        if (HandlerCache.metaObjectHandler != null && getUpdateFillAutoFillMetaObject().isEmpty()) {
-            //获取所有自动填充数据
-            getFillInsertAndUpdateField(typeInformation, getInsertFillAutoFillMetaObject(), getUpdateFillAutoFillMetaObject());
-        }
         //拿到类中的@ID字段
         FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class, "@ID field not found");
         if (idFieldInformation.getValue() != null) {
             document.put(SqlOperationConstant._ID, idFieldInformation.getValue());
         }
-        //如果存在元对象处理器，且插入或更新字段不为空，则获取自动填充字段
-        if (HandlerCache.metaObjectHandler != null && !getUpdateFillAutoFillMetaObject().isEmpty()) {
-            getUpdateFillAutoFillMetaObject().setTargetObject(typeInformation);
-            HandlerCache.metaObjectHandler.updateFill(getUpdateFillAutoFillMetaObject());
-        }
         //映射到Document
         write(sourceObj, document);
         //添加自动填充字段
-        getUpdateFillAutoFillMetaObject().getAllFillFieldAndClear(document);
-    }
-
-    public void getFillInsertAndUpdateField(TypeInformation typeInformation,
-                                            AutoFillMetaObject insertFillAutoFillMetaObject,
-                                            AutoFillMetaObject updateFillAutoFillMetaObject) {
-        typeInformation.getFields().forEach(field -> {
-            CollectionField collectionField = field.getCollectionField();
-            if (collectionField != null && collectionField.fill() != FieldFill.DEFAULT) {
-                MongoPlusDocument insertFillAutoField = insertFillAutoFillMetaObject.getDocument();
-                MongoPlusDocument updateFillAutoField = updateFillAutoFillMetaObject.getDocument();
-                if (collectionField.fill() == FieldFill.INSERT) {
-                    insertFillAutoField.put(field.getCamelCaseName(), field.getValue());
-                }
-                if (collectionField.fill() == FieldFill.UPDATE) {
-                    updateFillAutoField.put(field.getCamelCaseName(), field.getValue());
-                }
-                if (collectionField.fill() == FieldFill.INSERT_UPDATE) {
-                    insertFillAutoField.put(field.getCamelCaseName(), field.getValue());
-                    updateFillAutoField.put(field.getCamelCaseName(), field.getValue());
-                }
-            }
-        });
+        autoFillHandler.handle(document,typeInformation,FieldFill.UPDATE);
     }
 
     @Override

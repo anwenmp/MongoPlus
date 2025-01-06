@@ -1,8 +1,8 @@
 package com.mongoplus.handlers.condition;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.model.BuildUpdate;
-import com.mongodb.BasicDBObject;
 
 import java.util.List;
 

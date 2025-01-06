@@ -1,5 +1,6 @@
 package com.mongoplus.mapper;
 
+import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -11,7 +12,6 @@ import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.model.PageResult;
-import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 

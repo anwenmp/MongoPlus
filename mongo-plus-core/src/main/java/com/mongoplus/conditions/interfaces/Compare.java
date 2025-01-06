@@ -1,5 +1,6 @@
 package com.mongoplus.conditions.interfaces;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -7,7 +8,6 @@ import com.mongoplus.enums.TypeEnum;
 import com.mongoplus.handlers.condition.Condition;
 import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.support.SFunction;
-import com.mongodb.BasicDBObject;
 import org.bson.conversions.Bson;
 
 import java.io.Serializable;

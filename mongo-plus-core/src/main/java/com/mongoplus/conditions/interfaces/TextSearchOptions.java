@@ -1,7 +1,7 @@
 package com.mongoplus.conditions.interfaces;
 
-import com.mongoplus.toolkit.StringUtils;
 import com.mongodb.lang.Nullable;
+import com.mongoplus.toolkit.StringUtils;
 
 /**
  * 文本检索选项

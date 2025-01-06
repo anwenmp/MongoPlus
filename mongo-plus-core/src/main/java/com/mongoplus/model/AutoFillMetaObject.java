@@ -42,6 +42,12 @@ public class AutoFillMetaObject {
         this.autoFillDocument = new ConcurrentSkipListMap<>();
     }
 
+    public AutoFillMetaObject(MongoPlusDocument document,TypeInformation typeInformation) {
+        this.document = document;
+        this.autoFillDocument = new ConcurrentSkipListMap<>();
+        this.targetObject = typeInformation;
+    }
+
     public AutoFillMetaObject(MongoPlusDocument document,ConcurrentSkipListMap<String,Object> autoFillDocument) {
         this.document = document;
         this.autoFillDocument = autoFillDocument;

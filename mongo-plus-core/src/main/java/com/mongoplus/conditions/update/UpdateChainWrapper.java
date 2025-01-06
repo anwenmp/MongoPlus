@@ -1,5 +1,6 @@
 package com.mongoplus.conditions.update;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.Update;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
@@ -13,7 +14,6 @@ import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.ClassTypeUtil;
-import com.mongodb.BasicDBObject;
 
 import java.util.Arrays;
 import java.util.Collection;

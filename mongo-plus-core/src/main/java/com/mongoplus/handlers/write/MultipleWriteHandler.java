@@ -1,10 +1,10 @@
 package com.mongoplus.handlers.write;
 
+import com.mongodb.MongoNamespace;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.enums.MultipleWrite;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.toolkit.CollUtil;
-import com.mongodb.MongoNamespace;
 
 import java.util.List;
 import java.util.Map;

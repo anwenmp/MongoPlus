@@ -1,9 +1,9 @@
 package com.mongoplus.aggregate.pipeline;
 
-import com.mongoplus.conditions.interfaces.condition.Order;
-import com.mongoplus.support.SFunction;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.TextSearchOptions;
+import com.mongoplus.conditions.interfaces.condition.Order;
+import com.mongoplus.support.SFunction;
 import org.bson.BsonDocument;
 import org.bson.BsonInt32;
 import org.bson.BsonString;

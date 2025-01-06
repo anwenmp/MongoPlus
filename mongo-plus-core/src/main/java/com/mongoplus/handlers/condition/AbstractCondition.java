@@ -1,5 +1,6 @@
 package com.mongoplus.handlers.condition;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.annotation.comm.EnumValue;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.global.HandlerCache;
@@ -10,7 +11,6 @@ import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.CollUtil;
-import com.mongodb.BasicDBObject;
 
 import java.lang.reflect.Field;
 import java.util.*;

@@ -1,11 +1,11 @@
 package com.mongoplus.toolkit;
 
-import com.mongoplus.enums.SpecialConditionEnum;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.TextSearchOptions;
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.Point;
 import com.mongodb.lang.Nullable;
+import com.mongoplus.enums.SpecialConditionEnum;
 import org.bson.*;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
@@ -13,8 +13,8 @@ import org.bson.conversions.Bson;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.mongoplus.toolkit.BuildersHelper.encodeValue;
 import static com.mongodb.assertions.Assertions.notNull;
+import static com.mongoplus.toolkit.BuildersHelper.encodeValue;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 

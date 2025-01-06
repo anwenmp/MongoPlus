@@ -1,5 +1,6 @@
 package com.mongoplus.proxy;
 
+import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.global.ExecutorProxyCache;
 import com.mongoplus.cache.global.ExecutorReplacerCache;
 import com.mongoplus.enums.ExecuteMethodEnum;
@@ -7,7 +8,6 @@ import com.mongoplus.execute.Execute;
 import com.mongoplus.interceptor.InterceptorChain;
 import com.mongoplus.replacer.Replacer;
 import com.mongoplus.strategy.executor.MethodExecutorStrategy;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import java.lang.reflect.InvocationHandler;

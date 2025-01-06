@@ -53,6 +53,10 @@ public class DBRefHandler implements FieldHandler, ReadHandler {
 
     @Override
     public Object handler(FieldInformation fieldInformation) {
+        Object fieldValue = fieldInformation.getValue();
+        if (fieldValue == null) {
+            return null;
+        }
         Class<?> typeClass = fieldInformation.getTypeClass();
         DBRef dbRefAnnotation = fieldInformation.getAnnotation(DBRef.class);
         TypeInformation typeInformation = TypeInformation.of(typeClass);
@@ -66,7 +70,7 @@ public class DBRefHandler implements FieldHandler, ReadHandler {
         if (annotationField == null) {
             throw new MongoPlusFieldException("@ID is null");
         }
-        Object value = annotationField.getValue(fieldInformation.getValue());
+        Object value = annotationField.getValue(fieldValue);
         String valueStr;
         if ((dbRefAnnotation.autoConvertObjectId() || PropertyCache.autoConvertObjectId)
                 && ObjectId.isValid((valueStr = value.toString()))) {

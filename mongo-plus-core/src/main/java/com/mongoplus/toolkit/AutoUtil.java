@@ -1,5 +1,11 @@
 package com.mongoplus.toolkit;
 
+import com.mongodb.MongoCommandException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.TimeSeriesOptions;
 import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.handlers.collection.AnnotationOperate;
@@ -8,12 +14,6 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.IndexMetaObject;
-import com.mongodb.MongoCommandException;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.CreateCollectionOptions;
-import com.mongodb.client.model.TimeSeriesOptions;
 import org.bson.Document;
 
 import java.util.Collection;

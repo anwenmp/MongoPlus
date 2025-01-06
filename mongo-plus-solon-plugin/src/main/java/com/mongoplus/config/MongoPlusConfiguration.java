@@ -1,5 +1,6 @@
 package com.mongoplus.config;
 
+import com.mongodb.client.MongoClient;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.cache.global.SimpleCache;
@@ -19,7 +20,6 @@ import com.mongoplus.property.*;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.transactional.MongoTransactionalAspect;
-import com.mongodb.client.MongoClient;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Condition;
 import org.noear.solon.annotation.Configuration;

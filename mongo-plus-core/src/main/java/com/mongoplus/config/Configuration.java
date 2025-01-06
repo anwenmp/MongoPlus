@@ -1,5 +1,7 @@
 package com.mongoplus.config;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import com.mongoplus.annotation.collection.CollectionLogic;
 import com.mongoplus.aware.Aware;
 import com.mongoplus.cache.global.*;
@@ -40,8 +42,6 @@ import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.MongoUtil;
 import com.mongoplus.toolkit.StringUtils;
 import com.mongoplus.toolkit.UrlJoint;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

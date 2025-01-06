@@ -1,5 +1,6 @@
 package com.mongoplus.config;
 
+import com.mongodb.client.MongoClient;
 import com.mongoplus.annotation.mapper.Mongo;
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.datasource.MongoDataSourceAspect;
@@ -13,7 +14,6 @@ import com.mongoplus.scanner.meta.MetadataReader;
 import com.mongoplus.scanner.meta.MetadataReaderFactory;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.transactional.MongoTransactionalAspect;
-import com.mongodb.client.MongoClient;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanInjector;

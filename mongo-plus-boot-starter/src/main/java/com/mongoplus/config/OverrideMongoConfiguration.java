@@ -1,8 +1,8 @@
 package com.mongoplus.config;
 
-import com.mongoplus.property.MongoSpringProperty;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
+import com.mongoplus.property.MongoSpringProperty;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoClientSettingsBuilderCustomizer;

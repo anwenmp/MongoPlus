@@ -1,8 +1,8 @@
 package com.mongoplus.replacer;
 
+import com.mongodb.client.MongoCollection;
 import com.mongoplus.interceptor.AdvancedInterceptor;
 import com.mongoplus.support.BoolFunction;
-import com.mongodb.client.MongoCollection;
 
 import javax.swing.text.Document;
 import java.lang.reflect.Method;

@@ -1,5 +1,7 @@
 package com.mongoplus.toolkit;
 
+import com.mongodb.client.model.IndexModel;
+import com.mongodb.client.model.IndexOptions;
 import com.mongoplus.annotation.index.*;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.domain.MongoPlusConvertException;
@@ -8,8 +10,6 @@ import com.mongoplus.enums.IndexType;
 import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.IndexMetaObject;
-import com.mongodb.client.model.IndexModel;
-import com.mongodb.client.model.IndexOptions;
 import org.bson.Document;
 
 import java.util.ArrayList;

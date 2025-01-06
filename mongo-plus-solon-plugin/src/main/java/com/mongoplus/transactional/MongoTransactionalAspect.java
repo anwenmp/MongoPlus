@@ -1,5 +1,6 @@
 package com.mongoplus.transactional;
 
+import com.mongodb.client.MongoClient;
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.logging.Log;
@@ -7,7 +8,6 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.manager.MongoTransactionalManager;
 import com.mongoplus.toolkit.ArrayUtils;
 import com.mongoplus.toolkit.ClassTypeUtil;
-import com.mongodb.client.MongoClient;
 import org.noear.solon.core.aspect.Interceptor;
 import org.noear.solon.core.aspect.Invocation;
 

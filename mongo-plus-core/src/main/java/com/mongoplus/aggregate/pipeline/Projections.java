@@ -1,7 +1,5 @@
 package com.mongoplus.aggregate.pipeline;
 
-import com.mongoplus.conditions.query.QueryChainWrapper;
-import com.mongoplus.support.SFunction;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.TextSearchOptions;
@@ -9,6 +7,8 @@ import com.mongodb.client.model.search.SearchCollector;
 import com.mongodb.client.model.search.SearchCount;
 import com.mongodb.client.model.search.SearchOperator;
 import com.mongodb.client.model.search.SearchOptions;
+import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.support.SFunction;
 import org.bson.*;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.mongoplus.handlers.condition.BuildCondition.condition;
 import static com.mongodb.assertions.Assertions.notNull;
+import static com.mongoplus.handlers.condition.BuildCondition.condition;
 import static java.util.Arrays.asList;
 
 /**
