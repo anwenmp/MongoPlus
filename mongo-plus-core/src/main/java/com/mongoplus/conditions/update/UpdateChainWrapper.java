@@ -1,6 +1,7 @@
 package com.mongoplus.conditions.update;
 
 import com.mongodb.BasicDBObject;
+import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.Update;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
@@ -14,10 +15,9 @@ import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.ClassTypeUtil;
+import org.bson.conversions.Bson;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -28,12 +28,19 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * @author JiaChaoYang
  * @date 2023/6/24/024 12:45
 */
-public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children>> extends AbstractChainWrapper<T, Children> implements Update<T,Children> {
+public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children>>
+        extends AbstractChainWrapper<T, Children> implements Update<T,Children> {
 
     @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
 
     private final List<CompareCondition> updateCompareList = new CopyOnWriteArrayList<>();
+
+    private final List<Bson> updateBson = new CopyOnWriteArrayList<>();
+
+    public List<Bson> getUpdateBson() {
+        return updateBson;
+    }
 
     public List<CompareCondition> getUpdateCompareList() {
         return updateCompareList;
@@ -111,6 +118,19 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     @Override
+    public Children push(boolean condition, SFunction<T, Object> column, Object value, boolean each) {
+        return condition ? push(column,value,each) : typedThis;
+    }
+
+    @Override
+    public Children push(SFunction<T, Object> column, Object value, boolean each) {
+        if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
+            throw new MongoPlusException("$each requires data of Collection type");
+        }
+        return each ? push(column, Collections.singletonList(value)) : push(column,value);
+    }
+
+    @Override
     public Children push(boolean condition, String column, Object value) {
         return condition ? push(column,value) : typedThis;
     }
@@ -121,16 +141,36 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     @Override
+    public Children push(boolean condition, String column, Object value, boolean each) {
+        return condition ? push(column,value,each) : typedThis;
+    }
+
+    @Override
+    public Children push(String column, Object value, boolean each) {
+        if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
+            throw new MongoPlusException("$each requires data of Collection type");
+        }
+        return each ? push(column, Collections.singletonList(value)) : push(column,value);
+    }
+
+    @Override
     public Children push(boolean condition, SFunction<T, Object> column, Object... value) {
         return condition ? push(column,value) : typedThis;
     }
 
     @Override
     public Children push(SFunction<T, Object> column, Object... value) {
-        for (Object o : value) {
-            getBaseUpdateCompare(column,o);
-        }
-        return typedThis;
+        return push(column,new PushOptions(),value);
+    }
+
+    @Override
+    public Children push(boolean condition, SFunction<T, Object> column, PushOptions options, Object... value) {
+        return condition ? push(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children push(SFunction<T, Object> column, PushOptions options, Object... value) {
+        return getBaseUpdateCompare(column, Arrays.stream(value).collect(Collectors.toList()),options);
     }
 
     @Override
@@ -140,10 +180,17 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(String column, Object... value) {
-        for (Object o : value) {
-            getBaseUpdateCompare(column,o);
-        }
-        return typedThis;
+        return push(column,new PushOptions(),value);
+    }
+
+    @Override
+    public Children push(boolean condition, String column, PushOptions options, Object... value) {
+        return condition ? push(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children push(String column, PushOptions options, Object... value) {
+        return getBaseUpdateCompare(column,options,Arrays.stream(value).collect(Collectors.toList()));
     }
 
     @Override
@@ -153,10 +200,17 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(SFunction<T, Object> column, List<?> value) {
-        for (Object o : value) {
-            getBaseUpdateCompare(column,o);
-        }
-        return typedThis;
+        return push(column,value,new PushOptions());
+    }
+
+    @Override
+    public Children push(boolean condition, SFunction<T, Object> column, List<?> value, PushOptions options) {
+        return condition ? push(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children push(SFunction<T, Object> column, List<?> value, PushOptions options) {
+        return getBaseUpdateCompare(column,value,options);
     }
 
     @Override
@@ -166,10 +220,17 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(String column, List<?> value) {
-        for (Object o : value) {
-            getBaseUpdateCompare(column,o);
-        }
-        return typedThis;
+        return push(column,value,new PushOptions());
+    }
+
+    @Override
+    public Children push(boolean condition, String column, List<?> value, PushOptions options) {
+        return condition ? push(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children push(String column, List<?> value, PushOptions options) {
+        return getBaseUpdateCompare(column,value,options);
     }
 
     @Override
@@ -368,6 +429,16 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     @Override
+    public Children addToSet(boolean condition, SFunction<T, Object> column, List<?> value) {
+        return condition ? addToSet(column,value) : typedThis;
+    }
+
+    @Override
+    public Children addToSet(SFunction<T, Object> column, List<?> value) {
+        return addToSet(column,value,true);
+    }
+
+    @Override
     public Children addToSet(boolean condition, String column, Object value, boolean each) {
         return condition ? addToSet(column,value,each) : typedThis;
     }
@@ -378,6 +449,16 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
             throw new MongoPlusException("$each requires data of Collection type");
         }
         return getBaseUpdateCompare(column,value,each);
+    }
+
+    @Override
+    public Children addToSet(boolean condition, String column, List<?> value) {
+        return condition ? addToSet(column,value) : typedThis;
+    }
+
+    @Override
+    public Children addToSet(String column, List<?> value) {
+        return addToSet(column,value,true);
     }
 
     @Override
@@ -490,6 +571,12 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     @Override
     public final Children pullAll(MutablePair<String, Collection<?>>... pullAllPair) {
         Arrays.stream(pullAllPair).forEach(pair -> pullAll(pair.getLeft(),pair.getValue()));
+        return typedThis;
+    }
+
+    @Override
+    public Children updateCustom(Bson bson) {
+        updateBson.add(bson);
         return typedThis;
     }
 

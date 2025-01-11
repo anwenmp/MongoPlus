@@ -1,7 +1,9 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
+import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
+import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.AbstractChainWrapper;
@@ -14,6 +16,7 @@ import com.mongoplus.enums.*;
 import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
+import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.Filters;
 import org.bson.BsonDocument;
@@ -22,10 +25,14 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mongoplus.enums.QueryOperatorEnum.*;
+import static com.mongoplus.enums.QueryOperatorEnum.EQ;
+import static com.mongoplus.enums.QueryOperatorEnum.REGEX;
+import static com.mongoplus.enums.SpecialConditionEnum.*;
 
 
 /**
@@ -215,15 +222,14 @@ public class BuildCondition extends AbstractCondition {
     public BasicDBObject buildPushCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
         CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        List<Object> valueList = compareConditionList.stream()
-                .filter(condition ->
-                        Objects.equals(condition.getColumn(), currentCompareCondition.getColumn()))
-                .map(CompareCondition::getValue)
-                .collect(Collectors.toList());
-        updateBasicDBObject.put(
-                currentCompareCondition.getColumn(),
-                new BasicDBObject(SpecialConditionEnum.EACH.getCondition(), valueList)
-        );
+        Object value = currentCompareCondition.getValue();
+        if (ClassTypeUtil.isTargetClass(Collection.class,value.getClass())) {
+            Bson pushOptions = buildPushOptions(currentCompareCondition.getValue(List.class),
+                    currentCompareCondition.getExtraValue(PushOptions.class));
+            updateBasicDBObject.put(currentCompareCondition.getColumn(),pushOptions);
+        } else {
+            put(updateBasicDBObject,currentCompareCondition);
+        }
         return updateBasicDBObject;
     }
 
@@ -325,6 +331,29 @@ public class BuildCondition extends AbstractCondition {
         });
         bsonList.addAll(queryChainWrapper.getBasicDBObjectList());
         basicDBObject.put(function.apply(bsonList));
+    }
+
+    protected Bson buildPushOptions(List<?> value,PushOptions options) {
+        MongoPlusDocument document = new MongoPlusDocument();
+        document.put(SpecialConditionEnum.EACH.getCondition(),value);
+        document.putIsNotNull(POSITION.getCondition(),options.getPosition());
+        document.putIsNotNull(SLICE.getCondition(),options.getSlice());
+        document.putIsNotNull(SORT.getCondition(), options.getSort());
+        document.putIsNotNull(SORT.getCondition(),options.getSortDocument());
+        return document;
+    }
+
+    protected void put(BasicDBObject basicDBObject,CompareCondition compareCondition) {
+        basicDBObject.put(compareCondition.getColumn(),compareCondition.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> void simpleUpdateLogic(List<Bson> bsonList, CompareCondition compareCondition, BiFunction<String,T,Bson> function) {
+        bsonList.add(function.apply(compareCondition.getColumn(), (T) compareCondition.getValue()));
+    }
+
+    public void simpleUpdateLogic(List<Bson> bsonList, CompareCondition compareCondition, Function<String,Bson> function) {
+        bsonList.add(function.apply(compareCondition.getColumn()));
     }
 
 }

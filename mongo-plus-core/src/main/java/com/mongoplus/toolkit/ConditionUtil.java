@@ -19,7 +19,8 @@ public class ConditionUtil {
      * @author anwen
      * @date 2024/5/4 下午1:16
      */
-    public static MutablePair<BasicDBObject,BasicDBObject> getUpdateCondition(List<CompareCondition> compareConditionList, Object sourceObj, MongoConverter mongoConverter){
+    public static MutablePair<BasicDBObject,BasicDBObject> getUpdateCondition(
+            List<CompareCondition> compareConditionList, Object sourceObj, MongoConverter mongoConverter){
         BasicDBObject queryBasic = condition().queryCondition(compareConditionList);
         Document document = mongoConverter.writeByUpdate(sourceObj);
         document.remove(SqlOperationConstant._ID);
@@ -31,7 +32,7 @@ public class ConditionUtil {
      * 将实体构建为Id条件
      * @param sourceObj 实体
      * @param mongoConverter 转换器
-     * @return {@link MutablePair< BasicDBObject, BasicDBObject>}
+     * @return {@link MutablePair}
      * @author anwen
      * @date 2024/5/4 下午1:15
      */

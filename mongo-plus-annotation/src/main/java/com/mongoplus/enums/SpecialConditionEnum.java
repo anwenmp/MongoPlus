@@ -17,6 +17,12 @@ public enum SpecialConditionEnum {
 
     EACH("$each"),
 
+    POSITION("$position"),
+
+    SLICE("$slice"),
+
+    SORT("$sort"),
+
     TYPE("$type"),
 
     IN("$in"),

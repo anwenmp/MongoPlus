@@ -1,16 +1,21 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.Updates;
 import com.mongoplus.annotation.comm.EnumValue;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
+import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.enums.UpdateConditionEnum;
 import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
+import com.mongoplus.toolkit.BsonUtil;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.CollUtil;
+import org.bson.BsonDocument;
+import org.bson.conversions.Bson;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -67,7 +72,12 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
                 updateBasicDBObject.append(conditionEnum.getCondition(), updateValue(conditionEnum, compareConditionList));
             }
         });
-
+        if (CollUtil.isNotEmpty(updateChainWrapper.getUpdateBson())) {
+            updateChainWrapper.getUpdateBson().forEach(updateBson ->
+                    updateBasicDBObject.putAll(updateBson.toBsonDocument(
+                            BsonDocument.class,
+                            MapCodecCache.getDefaultCodecRegistry())));
+        }
         return new MutablePair<>(updateChainWrapper.buildCondition().getCondition(), updateBasicDBObject);
     }
 

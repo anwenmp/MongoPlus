@@ -5,6 +5,7 @@ import com.mongoplus.enums.CurrentDateType;
 import com.mongoplus.enums.PopType;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.support.SFunction;
+import org.bson.conversions.Bson;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -126,6 +127,27 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 上午10:49
      */
+    Children push(boolean condition,SFunction<T,Object> column,Object value,boolean each);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(SFunction<T,Object> column,Object value,boolean each);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
     Children push(boolean condition,String column,Object value);
 
     /**
@@ -137,6 +159,27 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 上午10:49
      */
     Children push(String column,Object value);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(boolean condition,String column,Object value,boolean each);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(String column,Object value,boolean each);
 
     /**
      * 将指定值push到数组中
@@ -168,6 +211,27 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 上午10:49
      */
+    Children push(boolean condition,SFunction<T,Object> column,PushOptions options,Object ... value);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(SFunction<T,Object> column,PushOptions options,Object ... value);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
     Children push(boolean condition,String column,Object ... value);
 
     /**
@@ -179,6 +243,27 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 上午10:49
      */
     Children push(String column,Object ... value);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(boolean condition,String column,PushOptions options,Object ... value);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(String column,PushOptions options,Object ... value);
 
     /**
      * 将指定值push到数组中
@@ -210,6 +295,27 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 上午10:49
      */
+    Children push(boolean condition, SFunction<T,Object> column, List<?> value,PushOptions options);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(SFunction<T,Object> column, List<?> value,PushOptions options);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
     Children push(boolean condition, String column, List<?> value);
 
     /**
@@ -221,6 +327,27 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 上午10:49
      */
     Children push(String column, List<?> value);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(boolean condition, String column, List<?> value,PushOptions options);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(String column, List<?> value,PushOptions options);
 
     /**
      * 对指定值原子性的递增
@@ -613,7 +740,28 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 下午3:13
      */
-        Children addToSet(SFunction<T,Object> column,Object value,boolean each);
+    Children addToSet(SFunction<T,Object> column,Object value,boolean each);
+
+    /**
+     * 将值添加到数组中,默认使用each
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 下午3:13
+     */
+    Children addToSet(boolean condition,SFunction<T,Object> column,List<?> value);
+
+    /**
+     * 将值添加到数组中，默认使用each
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 下午3:13
+     */
+    Children addToSet(SFunction<T,Object> column,List<?> value);
 
     /**
      * 将值添加到数组中
@@ -637,6 +785,27 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 下午3:13
      */
     Children addToSet(String column,Object value,boolean each);
+
+    /**
+     * 将值添加到数组中,默认使用each
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 下午3:13
+     */
+    Children addToSet(boolean condition,String column,List<?> value);
+
+    /**
+     * 将值添加到数组中,默认使用each
+     * @param column 字段
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 下午3:13
+     */
+    Children addToSet(String column,List<?> value);
 
     /**
      * 删除数组中第一个或最后一个元素
@@ -866,5 +1035,13 @@ public interface Update<T , Children> extends Serializable {
      */
     @SuppressWarnings("unchecked")
     Children pullAll(MutablePair<String, Collection<?>>... pullAllPair);
+
+    /**
+     * 自定义修改
+     * @param bson bson
+     * @return {@link Children}
+     * @author anwen
+     */
+    Children updateCustom(Bson bson);
 
 }

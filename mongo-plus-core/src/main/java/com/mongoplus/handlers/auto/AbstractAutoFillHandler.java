@@ -88,10 +88,6 @@ public abstract class AbstractAutoFillHandler implements AutoFillHandler {
      */
     protected abstract void fillHandle(AutoFill autoFill, AutoFillMetaObject autoFillMetaObject);
 
-    protected void executeFill() {
-
-    }
-
     /**
      * 提取判断，扩展性延伸
      *

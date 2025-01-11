@@ -74,7 +74,8 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     }
 
     /**
-     * 设置字段值为空时，需要抛出的异常
+     * 设置字段值为空时，需要抛出的异常。
+     * 作用于整个集合，对目标集合进行`修改`时，如果目标集合存在锁字段(集合所对应的实体类)，则修改必须传值
      * @param versionIsNullException 异常
      * @author anwen
      */

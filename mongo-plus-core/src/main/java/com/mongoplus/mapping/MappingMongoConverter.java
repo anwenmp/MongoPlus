@@ -186,11 +186,11 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     @Override
     public Bson writeMapInternal(Map<?,?> obj,Bson bson) {
         //循环map
-        obj.forEach((k,v)->{
+        obj.forEach((k,v) -> {
             //如果key是简单类型
             if (simpleTypeHolder.isSimpleType(k.getClass())){
                 String key = String.valueOf(k);
-                if (PropertyCache.camelToUnderline){
+                if (PropertyCache.camelToUnderline && !key.startsWith("$")){
                     key = StringUtils.camelToUnderline(key);
                 }
                 writeProperties(bson,key,v);
