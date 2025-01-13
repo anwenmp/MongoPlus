@@ -63,20 +63,25 @@ public class ClassPathMongoMapperScanner extends ClassPathBeanDefinitionScanner 
                 definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName);
             }
             try {
-                definition.getPropertyValues().add("mapperInterface", Class.forName(beanClassName));
+                Class<?> beanClass = Class.forName(beanClassName);
+                definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClass);
+                definition.getPropertyValues().add("mapperInterface", beanClass);
             } catch (ClassNotFoundException ignore) {
             }
+
             definition.setBeanClass(factoryBean);
-//            definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
             if (scopedProxy) {
                 return;
             }
             if (!definition.isSingleton()) {
-                BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-                if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
-                    registry.removeBeanDefinition(proxyHolder.getBeanName());
+                BeanDefinitionHolder proxyHolder;
+                if (registry != null) {
+                    proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
+                    if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
+                        registry.removeBeanDefinition(proxyHolder.getBeanName());
+                    }
+                    registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
                 }
-                registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
             }
         });
     }
