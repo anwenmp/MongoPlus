@@ -19,7 +19,6 @@ public class LocalDateTimeCodec implements MongoPlusCodec<LocalDateTime> {
 
     @Override
     public void encode(BsonWriter writer, LocalDateTime value, EncoderContext encoderContext) {
-        System.out.println("走了编码器");
         writer.writeDateTime(
                 value.atZone(ZoneId.systemDefault())
                         .toInstant()
