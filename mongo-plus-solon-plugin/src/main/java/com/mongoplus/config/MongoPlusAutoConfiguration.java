@@ -3,7 +3,10 @@ package com.mongoplus.config;
 import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.cache.codec.MongoPlusCodecCache;
-import com.mongoplus.cache.global.*;
+import com.mongoplus.cache.global.ConversionCache;
+import com.mongoplus.cache.global.HandlerCache;
+import com.mongoplus.cache.global.ListenerCache;
+import com.mongoplus.cache.global.MappingCache;
 import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.handlers.CollectionNameHandler;
@@ -33,7 +36,6 @@ import com.mongoplus.property.MongoDBCollectionProperty;
 import com.mongoplus.property.MongoDBConfigurationProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.property.MongoLogicDelProperty;
-import com.mongoplus.replacer.Replacer;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.AutoUtil;
@@ -43,7 +45,10 @@ import org.noear.solon.core.AppContext;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -106,8 +111,6 @@ public class MongoPlusAutoConfiguration {
         setListener(context);
         // 拿到拦截器
         setInterceptor(context);
-        // 拿到替换器
-        setReplacer(context);
         // 拿到属性映射器
         setMapping(context);
         // 拿到自定义id生成
@@ -214,19 +217,6 @@ public class MongoPlusAutoConfiguration {
         if (CollUtil.isNotEmpty(advancedInterceptors)) {
             AdvancedInterceptorChain.addInterceptors(advancedInterceptors);
         }
-    }
-
-    /**
-     * 从bean 容器中获取替换器
-     *
-     * @author loser
-     */
-    private void setReplacer(AppContext context) {
-        Collection<Replacer> replacers = context.getBeansOfType(Replacer.class);
-        if (CollUtil.isNotEmpty(replacers)) {
-            replacers = replacers.stream().sorted(Comparator.comparing(Replacer::order)).collect(Collectors.toList());
-        }
-        ExecutorReplacerCache.replacers = new ArrayList<>(replacers);
     }
 
     /**

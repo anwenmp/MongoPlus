@@ -77,13 +77,27 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     private final Class<?> typeClass;
 
-    private final T instance;
+    private T instance;
 
     public SimpleFieldInformation(T instance, Field field) {
         this.instance = instance;
         field.setAccessible(true);
         this.field = field;
         this.typeClass = field.getType();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void setInstance(Object instance) {
+        this.instance = (T) instance;
+    }
+
+    @Override
+    public void clear() {
+        this.value = null;
+        this.instanceValueMap.clear();
+        this.get = null;
+        this.set = null;
     }
 
     @Override
@@ -170,8 +184,8 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     @Override
     public boolean isCollection(){
-        return typeClass.isArray() //
-                || Iterable.class.equals(typeClass) //
+        return typeClass.isArray()
+                || Iterable.class.equals(typeClass)
                 || ClassTypeUtil.isTargetClass(Collection.class,typeClass);
     }
 
@@ -229,6 +243,11 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     @Override
     public void setValue(Object value) {
+        setValue(instance,value);
+    }
+
+    @Override
+    public void setValue(Object instance, Object value) {
         try {
             field.set(instance, value);
         } catch (IllegalAccessException e) {
@@ -242,13 +261,12 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     @Override
     public CollectionField getCollectionField() {
-        if (FieldCache.getCollectionField(field) == null){
-            CollectionField collectionField = field.getAnnotation(CollectionField.class);
-            if (collectionField != null) {
-                FieldCache.setCollectionFieldMapCache(field,collectionField);
-            }
+        CollectionField collectionField;
+        if ((collectionField = FieldCache.getCollectionField(field)) == null){
+            collectionField = field.getAnnotation(CollectionField.class);
+            FieldCache.setCollectionFieldMapCache(field,collectionField);
         }
-        return FieldCache.getCollectionField(field);
+        return collectionField;
     }
 
     @Override

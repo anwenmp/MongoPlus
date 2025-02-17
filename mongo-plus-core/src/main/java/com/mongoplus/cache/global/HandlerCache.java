@@ -10,7 +10,10 @@ import com.mongoplus.handlers.read.DesensitizationHandlerApply;
 import com.mongoplus.handlers.read.FieldEncryptApply;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author anwen
@@ -28,7 +31,7 @@ public class HandlerCache {
      * 读取处理器，可多个
      * @date 2023/11/23 12:54
     */
-    public static List<ReadHandler> readHandlerList = new ArrayList<>();
+    private static List<ReadHandler> readHandlerList = new ArrayList<>();
 
     /**
      * id生成处理器
@@ -58,6 +61,33 @@ public class HandlerCache {
         conditionHandlerList.add(new EncryptorConditionHandler());
         // 初始化字段处理器
         initFieldHandler();
+    }
+
+    /**
+     * 获取所有读取处理器
+     * @author anwen
+     */
+    public static List<ReadHandler> getReadHandler() {
+        return readHandlerList;
+    }
+
+    /**
+     * 设置读取处理器
+     * @author anwen
+     */
+    public static void setReadHandler(ReadHandler readHandler){
+        setReadHandler(Collections.singletonList(readHandler));
+    }
+
+    /**
+     * 设置读取处理器
+     * @author anwen
+     */
+    public static void setReadHandler(List<ReadHandler> readHandlers) {
+        readHandlerList.addAll(readHandlers);
+        readHandlerList = readHandlerList.stream()
+                .sorted(Comparator.comparingInt(ReadHandler::order))
+                .collect(Collectors.toList());
     }
 
     static void initFieldHandler() {

@@ -29,6 +29,7 @@ public @interface CollectionField {
      * @author JiaChaoYang
      * @date 2023/8/20 2:49
     */
+    @Deprecated
     boolean convertCollect() default false;
 
     /**
@@ -51,5 +52,12 @@ public @interface CollectionField {
      * @date 2024/5/29 下午10:24
      */
     Class<?> typeHandler() default Void.class;
+
+    /**
+     * 忽略null属性，默认为true
+     * @return {@link boolean}
+     * @author anwen
+     */
+    boolean ignoreNull() default true;
 
 }

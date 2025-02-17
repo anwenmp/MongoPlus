@@ -93,6 +93,10 @@ public interface LogicDeleteHandler {
 
     }
 
+    static LogicDeleteResult getLogicDeletedResult(Class<?> clazz) {
+        return mapper().get(clazz);
+    }
+
 
     /**
      * 给 wrapper 对象添加逻辑未删除对象

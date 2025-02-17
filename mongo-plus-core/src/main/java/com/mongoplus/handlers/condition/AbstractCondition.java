@@ -1,7 +1,6 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.model.Updates;
 import com.mongoplus.annotation.comm.EnumValue;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
@@ -11,11 +10,9 @@ import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.enums.UpdateConditionEnum;
 import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
-import com.mongoplus.toolkit.BsonUtil;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.CollUtil;
 import org.bson.BsonDocument;
-import org.bson.conversions.Bson;
 
 import java.lang.reflect.Field;
 import java.util.*;

@@ -1,8 +1,8 @@
 package com.mongoplus.conditions.update;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.AbstractChainWrapper;
+import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.interfaces.Update;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -17,7 +17,10 @@ import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -46,9 +49,16 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
         return updateCompareList;
     }
 
+    @Override
+    public synchronized void clear() {
+        super.clear();
+        updateCompareList.clear();
+        updateBson.clear();
+    }
+
     /**
      * 构建修改条件
-     * @return {@link com.mongoplus.model.MutablePair<com.mongodb.BasicDBObject,com.mongodb.BasicDBObject>}
+     * @return {@link com.mongoplus.model.MutablePair}
      * @author anwen
      * @date 2024/8/24 16:24
      */
@@ -59,7 +69,7 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     /**
      * 构建修改条件
      * @param condition 条件构造器
-     * @return {@link com.mongoplus.model.MutablePair<com.mongodb.BasicDBObject,com.mongodb.BasicDBObject>}
+     * @return {@link com.mongoplus.model.MutablePair}
      * @author anwen
      * @date 2024/8/24 16:24
      */

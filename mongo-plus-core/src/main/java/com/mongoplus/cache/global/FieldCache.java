@@ -4,6 +4,7 @@ import com.mongoplus.annotation.collection.CollectionField;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +17,7 @@ public class FieldCache {
 
     private static final Map<Field, Type> genericTypeMapCache = new ConcurrentHashMap<>();
 
-    private static final Map<Field, CollectionField> collectionFieldMapCache = new ConcurrentHashMap<>();
+    private static final Map<Field, CollectionField> collectionFieldMapCache = new HashMap<>();
 
     public static Type getGenericType(Field field) {
         return genericTypeMapCache.getOrDefault(field,null);

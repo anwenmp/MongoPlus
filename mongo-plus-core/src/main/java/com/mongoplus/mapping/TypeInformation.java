@@ -1,5 +1,6 @@
 package com.mongoplus.mapping;
 
+import com.mongoplus.cache.global.InformationCache;
 import com.mongoplus.domain.MongoPlusFieldException;
 import com.mongoplus.toolkit.ClassTypeUtil;
 
@@ -24,6 +25,24 @@ public interface TypeInformation {
      */
     static TypeInformation of(Class<?> clazz) {
         return of(ClassTypeUtil.getInstanceByClass(clazz));
+    }
+
+    /**
+     * 根据Class构建一个TypeInformation，并进行缓存，但是他们的实例是不一样的
+     * @param clazz 类
+     * @return {@link TypeInformation}
+     * @author anwen
+     */
+    static TypeInformation ofCache(Class<?> clazz) {
+        TypeInformation typeInformation = InformationCache.get(clazz);
+        if (typeInformation == null) {
+            typeInformation = of(clazz);
+            InformationCache.add(typeInformation);
+        }
+        Object instance = ClassTypeUtil.getInstanceByClass(clazz);
+        typeInformation.setInstance(instance);
+        typeInformation.getFields().forEach(fi -> fi.clearAndSetInstance(instance));
+        return typeInformation;
     }
 
     /**

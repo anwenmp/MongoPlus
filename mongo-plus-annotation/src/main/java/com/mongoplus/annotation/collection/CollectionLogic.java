@@ -1,5 +1,7 @@
 package com.mongoplus.annotation.collection;
 
+import com.mongoplus.annotation.logice.IgnoreLogic;
+
 import java.lang.annotation.*;
 
 /**
@@ -15,7 +17,9 @@ public @interface CollectionLogic {
 
     /**
      * 开启全局配置 并忽略该文档（任意补充在某一个字段上，建议跟@ID 相同）
+     * <p>如需指定某个集合忽略逻辑删除，改为在实体类上标注{@link IgnoreLogic}注解</p>
      */
+    @Deprecated
     boolean close() default false;
 
     /**

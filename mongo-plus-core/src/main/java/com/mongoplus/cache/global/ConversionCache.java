@@ -24,6 +24,8 @@ public class ConversionCache {
 
     private static final Map<Class<?>, ConversionStrategy<?>> conversionStrategieMap = new HashMap<>();
 
+    public static EnumConversionStrategy<?> enumConversion = new EnumConversionStrategy<>();
+
     static {
         conversionStrategieMap.put(Integer.class,new IntegerConversionStrategy());
         conversionStrategieMap.put(Long.class, new LongConversionStrategy());
@@ -39,7 +41,7 @@ public class ConversionCache {
         conversionStrategieMap.put(Object.class,new DefaultConversionStrategy());
         conversionStrategieMap.put(BigDecimal.class,new BigDecimalConversionStrategy());
         conversionStrategieMap.put(BigInteger.class,new BigIntegerConversionStrategy());
-        conversionStrategieMap.put(Enum.class,new EnumConversionStrategy<>());
+        conversionStrategieMap.put(Enum.class,enumConversion);
         conversionStrategieMap.put(Document.class,new DocumentConversionStrategy());
         conversionStrategieMap.put(byte[].class,new ByteArrayConversionStrategy());
         conversionStrategieMap.put(Byte.class,new ByteConversionStrategy());
@@ -57,6 +59,9 @@ public class ConversionCache {
     }
 
     public static void putConversionStrategy(Class<?> clazz,ConversionStrategy<?> conversionStrategy){
+        if (clazz.equals(Enum.class)) {
+            enumConversion = (EnumConversionStrategy<?>) conversionStrategy;
+        }
         conversionStrategieMap.put(clazz,conversionStrategy);
     }
 

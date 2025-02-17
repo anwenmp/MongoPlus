@@ -3,6 +3,7 @@ package com.mongoplus.config;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongoplus.annotation.collection.CollectionLogic;
+import com.mongoplus.annotation.logice.IgnoreLogic;
 import com.mongoplus.aware.Aware;
 import com.mongoplus.cache.global.*;
 import com.mongoplus.conn.CollectionManager;
@@ -36,7 +37,6 @@ import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.model.LogicDeleteResult;
 import com.mongoplus.model.LogicProperty;
-import com.mongoplus.replacer.Replacer;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.MongoUtil;
@@ -273,22 +273,6 @@ public class Configuration {
     }
 
     /**
-     * 设置 替换器
-     *
-     * @param replacers 替换器
-     * @return 配置对象
-     * @author loser
-     */
-    @SafeVarargs
-    public final Configuration replacer(Class<? extends Replacer>... replacers) {
-        for (Class<? extends Replacer> replacer : replacers) {
-            ExecutorReplacerCache.replacers.add((Replacer) ClassTypeUtil.getInstanceByClass(replacer));
-        }
-        ExecutorReplacerCache.sorted();
-        return this;
-    }
-
-    /**
      * 获取MongoPlusClient
      *
      * @author JiaChaoYang
@@ -443,6 +427,11 @@ public class Configuration {
                 continue;
             }
             TypeInformation typeInformation = TypeInformation.of(clazz);
+            FieldInformation ignoreLogicAnnotation = typeInformation.getAnnotationField(IgnoreLogic.class);
+            // 如果存在忽略逻辑删除注解
+            if (Objects.nonNull(ignoreLogicAnnotation)) {
+                continue;
+            }
             FieldInformation annotationField = typeInformation.getAnnotationField(CollectionLogic.class);
             // 优先使用每个对象自定义规则
             if (Objects.nonNull(annotationField)) {

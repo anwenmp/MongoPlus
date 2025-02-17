@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mongoplus.enums.QueryOperatorEnum.EQ;
 import static com.mongoplus.manager.TenantManager.isTenantIgnored;
 
 /**
@@ -47,7 +48,7 @@ public class TenantInterceptor implements Interceptor {
 
     @Override
     public List<Document> executeSave(List<Document> documentList, MongoCollection<Document> collection) {
-        if (isTenantIgnored(collection) || tenantHandler.ignoreInsert(new ArrayList<>(documentList.get(0).keySet()),
+        if (isTenantIgnored(collection, tenantHandler) || tenantHandler.ignoreInsert(new ArrayList<>(documentList.get(0).keySet()),
                 tenantHandler.getTenantIdColumn())) {
             return documentList;
         }
@@ -65,7 +66,7 @@ public class TenantInterceptor implements Interceptor {
     @Override
     public List<MutablePair<Bson, Bson>> executeUpdate(List<MutablePair<Bson, Bson>> updatePairList,
                                                        MongoCollection<Document> collection) {
-        if (!isTenantIgnored(collection)) {
+        if (!isTenantIgnored(collection, tenantHandler)) {
             updatePairList.forEach(pair -> pair.setLeft(appendTenantFilter(pair.getLeft(), collection)));
         }
         return updatePairList;
@@ -79,23 +80,30 @@ public class TenantInterceptor implements Interceptor {
 
     @Override
     public List<Bson> executeAggregates(List<Bson> aggregateConditionList, MongoCollection<Document> collection) {
-        if (!isTenantIgnored(collection)) {
-            Bson matchBson = new AggregateWrapper().match(new QueryWrapper<>().eq(tenantHandler.getTenantIdColumn(),
-                    tenantHandler.getTenantId())).getAggregateConditionList().get(0);
+        if (!isTenantIgnored(collection, tenantHandler)) {
             boolean hasMatch = aggregateConditionList.stream()
-                    .anyMatch(bson -> bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry())
+                    .anyMatch(bson -> BsonUtil.asBsonDocument(bson)
                             .containsKey(AggregateEnum.MATCH.getValue()));
 
             if (hasMatch) {
-                aggregateConditionList.forEach(bson -> {
-                    BsonDocument bsonDocument = bson.toBsonDocument(BsonDocument.class,
-                            MapCodecCache.getDefaultCodecRegistry());
-                    if (bsonDocument.containsKey(AggregateEnum.MATCH.getValue())) {
-                        BsonDocument matchBsonDocument = bsonDocument.get(AggregateEnum.MATCH.getValue()).asDocument();
-                        matchBsonDocument.putIfAbsent(tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
-                    }
-                });
+                aggregateConditionList = aggregateConditionList.stream()
+                        .map(bson -> {
+                            BsonDocument bsonDocument = bson.toBsonDocument(BsonDocument.class,
+                                    MapCodecCache.getDefaultCodecRegistry());
+                            if (bsonDocument.containsKey(AggregateEnum.MATCH.getValue())) {
+                                BsonDocument matchBsonDocument = bsonDocument.get(AggregateEnum.MATCH.getValue())
+                                        .asDocument();
+                                matchBsonDocument.putIfAbsent(
+                                        tenantHandler.getTenantIdColumn(),
+                                        new BsonDocument(EQ.getOperatorValue(), tenantHandler.getTenantId())
+                                );
+                                return bsonDocument;
+                            }
+                            return bson;
+                        }).collect(Collectors.toList());
             } else {
+                Bson matchBson = new AggregateWrapper().match(new QueryWrapper<>().eq(tenantHandler.getTenantIdColumn(),
+                        tenantHandler.getTenantId())).getAggregateConditionList().get(0);
                 aggregateConditionList.add(0, matchBson);
             }
         }
@@ -111,7 +119,7 @@ public class TenantInterceptor implements Interceptor {
     @Override
     public List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                                        MongoCollection<Document> collection) {
-        if (!isTenantIgnored(collection) && CollUtil.isNotEmpty(writeModelList)) {
+        if (!isTenantIgnored(collection, tenantHandler) && CollUtil.isNotEmpty(writeModelList)) {
             List<Document> insertDocumentList = writeModelList.stream()
                     .filter(writeModel -> writeModel instanceof InsertOneModel)
                     .map(writeModel -> ((InsertOneModel<Document>) writeModel).getDocument())
@@ -136,11 +144,11 @@ public class TenantInterceptor implements Interceptor {
 
     @SuppressWarnings("unchecked")
     private <T extends Bson> T appendTenantFilter(T filter, MongoCollection<Document> collection) {
-        if (filter == null){
+        if (filter == null) {
             filter = (T) new Document();
         }
-        if (!isTenantIgnored(collection)) {
-            BsonDocument filterDoc = filter.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
+        if (!isTenantIgnored(collection, tenantHandler)) {
+            BsonDocument filterDoc = BsonUtil.asBsonDocument(filter);
             if (!filterDoc.containsKey(tenantHandler.getTenantIdColumn())) {
                 BsonUtil.addToMap(filter, tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
             }

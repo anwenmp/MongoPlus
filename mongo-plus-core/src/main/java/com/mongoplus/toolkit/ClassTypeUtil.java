@@ -30,30 +30,16 @@ public class ClassTypeUtil {
 
     private static final Map<Class<?>,Set<Class<?>>> cacheClass = new ConcurrentHashMap<>();
 
-    private static final Map<Class<?>, ConcurrentHashMap<Class<?>, Boolean>> isTargetClassMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, HashMap<Class<?>, Boolean>> isTargetClassMap = new HashMap<>();
 
     private static final Map<Class<?> , Boolean> isAnonymousClassMap = new ConcurrentHashMap<>();
 
     private static final Map<Class<?>, Boolean> isInnerClass = new ConcurrentHashMap<>();
 
     static {
-        isTargetClassMap.put(Map.class, new ConcurrentHashMap<>());
-        isTargetClassMap.put(Collection.class, new ConcurrentHashMap<>());
-        isTargetClassMap.put(Enum.class, new ConcurrentHashMap<>());
-    }
-
-    private ClassTypeUtil() {
-    }
-
-    public static ClassTypeUtil getInstance() {
-        if (instance == null) {
-            synchronized (ClassTypeUtil.class) {
-                if (instance == null) {
-                    instance = new ClassTypeUtil();
-                }
-            }
-        }
-        return instance;
+        isTargetClassMap.put(Map.class, new HashMap<>());
+        isTargetClassMap.put(Collection.class, new HashMap<>());
+        isTargetClassMap.put(Enum.class, new HashMap<>());
     }
 
     /**
@@ -147,7 +133,11 @@ public class ClassTypeUtil {
      * @date 2023/8/30 22:05
     */
     public static <T> Object getIdByEntity(T entity,boolean exception){
-        Optional<Field> fieldOptional = getFields(ClassTypeUtil.getClass(entity)).stream().peek(field -> field.setAccessible(true)).filter(field -> field.getAnnotation(ID.class) != null).findFirst();
+        Optional<Field> fieldOptional = getFields(ClassTypeUtil.getClass(entity))
+                .stream()
+                .peek(field -> field.setAccessible(true))
+                .filter(field -> field.getAnnotation(ID.class) != null)
+                .findFirst();
         if (!fieldOptional.isPresent()){
             if (exception){
                 return null;
@@ -273,10 +263,20 @@ public class ClassTypeUtil {
 
     public static Boolean isTargetClass(Class<?> targetClazz, Class<?> sourceClazz) {
         // 获取或初始化目标类的缓存映射
-        ConcurrentHashMap<Class<?>, Boolean> classBooleanMap = isTargetClassMap.computeIfAbsent(targetClazz, k -> new ConcurrentHashMap<>());
-
+//        HashMap<Class<?>, Boolean> classBooleanMap = isTargetClassMap.computeIfAbsent(targetClazz, k -> new HashMap<>());
+        HashMap<Class<?>, Boolean> classBooleanHashMap = isTargetClassMap.get(targetClazz);
+        if (classBooleanHashMap == null) {
+            classBooleanHashMap = new HashMap<>();
+            isTargetClassMap.put(targetClazz,classBooleanHashMap);
+        }
+        Boolean sourceBoolean = classBooleanHashMap.get(sourceClazz);
+        if (sourceBoolean == null) {
+            sourceBoolean = targetClazz.isAssignableFrom(sourceClazz);
+            classBooleanHashMap.put(sourceClazz,sourceBoolean);
+        }
+        return sourceBoolean;
         // 获取或计算源类是否是目标类的子类
-        return classBooleanMap.computeIfAbsent(sourceClazz, targetClazz::isAssignableFrom);
+//        return classBooleanMap.computeIfAbsent(sourceClazz, targetClazz::isAssignableFrom);
     }
 
     public static Boolean isAnonymousClass(Class<?> clazz){

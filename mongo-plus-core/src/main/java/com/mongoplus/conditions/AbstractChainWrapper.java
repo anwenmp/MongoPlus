@@ -31,7 +31,8 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * @author JiaChaoYang
  * @date 2023/6/24/024 0:49
  */
-public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>> implements Compare<T,Children> {
+public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>>
+        implements Compare<T,Children> {
 
     @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
@@ -78,6 +79,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public List<BasicDBObject> getBasicDBObjectList() {
         return basicDBObjectList;
+    }
+
+    /**
+     * 清空所有构建的条件
+     * @author anwen
+     */
+    public synchronized void clear() {
+        compareList.clear();
+        orderList.clear();
+        projectionList.clear();
+        basicDBObjectList.clear();
     }
 
     @Override

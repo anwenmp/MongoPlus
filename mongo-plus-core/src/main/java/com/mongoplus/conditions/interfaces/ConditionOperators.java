@@ -713,4 +713,71 @@ public class ConditionOperators {
         return ifNull(Arrays.asList(inputExpressions));
     }
 
+
+    /**
+     * 不作为累加器的$sum
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    @SuppressWarnings("unchecked")
+    public static <TExpression> Bson sum(TExpression... expressions){
+        return new Document(SUM.getOperator(),Arrays.asList(expressions));
+    }
+
+    /**
+     * 不作为累加器的$sum
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Bson sum(SFunction<T,?>... expressions){
+        return new Document(SUM.getOperator(),
+                Arrays.stream(expressions).map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
+    }
+
+    /**
+     * 不作为累加器的$sum
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    public static Bson sum(List<?> expressions){
+        return new Document(SUM.getOperator(),expressions);
+    }
+
+    /**
+     * $add操作符
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    @SuppressWarnings("unchecked")
+    public static <TExpression> Bson add(TExpression... expressions){
+        return new Document(ADD.getOperator(),Arrays.asList(expressions));
+    }
+
+    /**
+     * $add操作符
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Bson add(SFunction<T,?>... expressions){
+        return new Document(ADD.getOperator(),
+                Arrays.stream(expressions).map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
+    }
+
+    /**
+     * $add操作符
+     * @param expressions 表达式
+     * @return {@link org.bson.conversions.Bson}
+     * @author anwen
+     */
+    public static Bson add(List<?> expressions){
+        return new Document(ADD.getOperator(),expressions);
+    }
+
 }

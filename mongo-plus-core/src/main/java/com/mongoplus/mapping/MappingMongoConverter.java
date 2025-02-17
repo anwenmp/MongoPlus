@@ -126,6 +126,21 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                 });
     }
 
+    /**
+     * 属性写入Bson中，并校验`CollectionField`注解的`ignoreNull`属性
+     * @param bson bson
+     * @param key key
+     * @param sourceObj 源对象
+     * @param collectionField 可选的 CollectionField 注解
+     * @author anwen
+     * @date 2024/5/1 下午11:45
+     */
+    private void writeProperties(Bson bson, String key, Object sourceObj, CollectionField collectionField) {
+        if (shouldIgnoreNull(sourceObj, collectionField)) {
+            return;
+        }
+        BsonUtil.addToMap(bson, key, writeProperties(sourceObj));
+    }
 
     /**
      * 属性写入Bson中
@@ -135,11 +150,26 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @author anwen
      * @date 2024/5/1 下午11:45
      */
-    private void writeProperties(Bson bson,String key,Object sourceObj){
-        if (PropertyCache.ignoringNull && sourceObj == null){
+    private void writeProperties(Bson bson, String key, Object sourceObj) {
+        if (shouldIgnoreNull(sourceObj, null)) {
             return;
         }
         BsonUtil.addToMap(bson, key, writeProperties(sourceObj));
+    }
+
+    /**
+     * 校验是否应该跳过该属性（基于null值和ignoreNull属性）
+     * @param sourceObj 源对象
+     * @param collectionField 可选的 CollectionField 注解
+     * @return 是否应该跳过该属性
+     */
+    private boolean shouldIgnoreNull(Object sourceObj, CollectionField collectionField) {
+        boolean ignoreNull = PropertyCache.ignoringNull && sourceObj == null;
+        if (ignoreNull) {
+            return true;
+        }
+        // 如果 collectionField 不为 null，且有 ignoreNull 属性，则基于该属性做判断
+        return collectionField != null && collectionField.ignoreNull() && sourceObj == null;
     }
 
     /**
@@ -266,12 +296,17 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     }
 
     private Type extractGenericType(TypeReference<?> typeReference, int index) {
-        return genericTypeCache.computeIfAbsent(typeReference.getType(), type -> {
-            if (type instanceof ParameterizedType) {
-                return getGenericTypeClass((ParameterizedType) type, index);
+        Type referenceType = typeReference.getType();
+        Type type = genericTypeCache.get(referenceType);
+        if (type == null) {
+            if (referenceType instanceof ParameterizedType) {
+                type = getGenericTypeClass((ParameterizedType) referenceType, index);
+            } else {
+                type = Object.class;
             }
-            return Object.class;
-        });
+            genericTypeCache.put(referenceType,type);
+        }
+        return type;
     }
 
     /**

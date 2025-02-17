@@ -2,11 +2,9 @@ package com.mongoplus.proxy;
 
 import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.global.ExecutorProxyCache;
-import com.mongoplus.cache.global.ExecutorReplacerCache;
 import com.mongoplus.enums.ExecuteMethodEnum;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.interceptor.InterceptorChain;
-import com.mongoplus.replacer.Replacer;
 import com.mongoplus.strategy.executor.MethodExecutorStrategy;
 import org.bson.Document;
 
@@ -59,12 +57,6 @@ public class ExecutorProxy implements InvocationHandler {
             });
         }
 
-        // 方法替换执行器 执行首个命中执行器
-        for (Replacer replacer : ExecutorReplacerCache.replacers) {
-            if (replacer.supplier().get(proxy, target, method, args)) {
-                return replacer.invoke(proxy, target, method, args);
-            }
-        }
         Object invoke;
         try {
             invoke = method.invoke(target, args);

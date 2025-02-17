@@ -25,11 +25,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 抽象地映射处理器
@@ -51,8 +48,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
     public AbstractMongoConverter(boolean concurrency) {
         this();
     }
-
-    public final Map<Class<?>, Boolean> classEnumTypeMap = new ConcurrentHashMap<>();
 
     @Override
     public void writeBySave(Object sourceObj, Document document) {
@@ -154,7 +149,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             });
         }
         // 拿到class封装类
-        TypeInformation typeInformation = TypeInformation.of(clazz);
+        TypeInformation typeInformation = TypeInformation.ofCache(clazz);
 
         // 循环所有字段
         typeInformation.getFields().forEach(fieldInformation -> {
@@ -172,10 +167,8 @@ public abstract class AbstractMongoConverter implements MongoConverter {
                 TypeHandler typeHandler = (TypeHandler) ClassTypeUtil.getInstanceByClass(collectionField.typeHandler());
                 resultObj = typeHandler.getResult(obj);
             }
-            if (CollUtil.isNotEmpty(HandlerCache.readHandlerList)) {
-                List<ReadHandler> readHandlerList = HandlerCache.readHandlerList.stream()
-                        .sorted(Comparator.comparingInt(ReadHandler::order))
-                        .collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(HandlerCache.getReadHandler())) {
+                List<ReadHandler> readHandlerList = HandlerCache.getReadHandler();
                 for (ReadHandler readHandler : readHandlerList) {
                     if (readHandler.activate().apply(fieldInformation)) {
                         obj = readHandler.read(fieldInformation, obj,this);
@@ -265,15 +258,24 @@ public abstract class AbstractMongoConverter implements MongoConverter {
 
     @Override
     public ConversionStrategy<?> getConversionStrategy(Class<?> target) {
-        // 使用 computeIfAbsent 来减少重复计算
-        Boolean isEnumType = classEnumTypeMap.computeIfAbsent(target, key -> ClassTypeUtil.isTargetClass(Enum.class, key));
-
-        if (isEnumType) {
+/*        if (target.isEnum()) {
             target = Enum.class;
         }
 
         // 获取并返回转换策略
-        return ConversionCache.getConversionStrategy(target);
+        return ConversionCache.getConversionStrategy(target);*/
+
+        // 先根据类型去获取
+        ConversionStrategy<?> conversionStrategy = ConversionCache.getConversionStrategy(target);
+        // 判断有没有获取到
+        if (conversionStrategy == null) {
+            // 如果没有找到再判断枚举类，这样的话几十种类型都能省略掉这个判断
+            if (target.isEnum()) {
+                // 假装这个是全局的缓存变量
+                conversionStrategy = ConversionCache.enumConversion;
+            }
+        }
+        return conversionStrategy;
     }
 
     @SuppressWarnings("unchecked")

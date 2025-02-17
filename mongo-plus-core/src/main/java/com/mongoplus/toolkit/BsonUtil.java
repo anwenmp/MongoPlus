@@ -88,6 +88,10 @@ public class BsonUtil {
         return new Document(map);
     }
 
+    public static BsonDocument asBsonDocument(Bson bson) {
+        return bson.toBsonDocument(BsonDocument.class,MapCodecCache.getDefaultCodecRegistry());
+    }
+
     /**
      * 将Bson对象作为可变文档返回，该文档包含Bson的所有条目。
      */

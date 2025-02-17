@@ -41,6 +41,14 @@ public enum CommonOperators {
 
     IF_NULL("$ifNull"),
 
+    SUM("$sum"),
+
+    ADD("$add"),
+
+    CONCAT_ARRAYS("$concatArrays"),
+
+    CONCAT("$concat"),
+
     ;
 
     private final String operator;

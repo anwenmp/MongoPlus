@@ -1,12 +1,12 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.AbstractChainWrapper;
+import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.interfaces.TextSearchOptions;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.interfaces.condition.Order;
@@ -27,11 +27,10 @@ import org.bson.conversions.Bson;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.mongoplus.enums.QueryOperatorEnum.*;
 import static com.mongoplus.enums.QueryOperatorEnum.EQ;
 import static com.mongoplus.enums.QueryOperatorEnum.REGEX;
+import static com.mongoplus.enums.QueryOperatorEnum.*;
 import static com.mongoplus.enums.SpecialConditionEnum.*;
 
 

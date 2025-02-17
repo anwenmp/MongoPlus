@@ -15,6 +15,21 @@ import java.lang.reflect.Type;
 public interface FieldInformation {
 
     /**
+     * 清空一些无关实例的缓存
+     * @author anwen
+     */
+    void clear();
+
+    /**
+     * 清空一些无关实例的缓存，并设置实例
+     * @author anwen
+     */
+    default void clearAndSetInstance(Object instance) {
+        clear();
+        setInstance(instance);
+    }
+
+    /**
      * 获取字段值
      * @return {@link Object}
      * @author anwen
@@ -30,6 +45,12 @@ public interface FieldInformation {
      * @date 2024/11/18 16:17
      */
     Object getValue(Object instance);
+
+    /**
+     * 设置实例
+     * @author anwen
+     */
+    void setInstance(Object instance);
 
     /**
      * 获取字段名，受{@link CollectionField}注解的影响
@@ -73,7 +94,7 @@ public interface FieldInformation {
 
     /**
      * 获取字段Type的Class
-     * @return {@link java.lang.Class<?>}
+     * @return {@link java.lang.Class}
      * @author anwen
      * @date 2024/7/29 上午12:02
      */
@@ -97,7 +118,7 @@ public interface FieldInformation {
 
     /**
      * 如果是Map，则获取Map的Value类型
-     * @return {@link java.lang.Class<?>}
+     * @return {@link java.lang.Class}
      * @author anwen
      * @date 2024/7/29 上午12:03
      */
@@ -105,7 +126,7 @@ public interface FieldInformation {
 
     /**
      * 如果是集合，则获取集合的泛型
-     * @return {@link java.lang.Class<?>}
+     * @return {@link java.lang.Class}
      * @author anwen
      * @date 2024/7/29 上午12:03
      */
@@ -182,6 +203,14 @@ public interface FieldInformation {
      * @date 2024/7/29 上午12:05
      */
     void setValue(Object value);
+
+    /**
+     * 设置值
+     * @param instance 示例
+     * @param value 值
+     * @author anwen
+     */
+    void setValue(Object instance , Object value);
 
     /**
      * 获取字段的{@link CollectionField} 注解
