@@ -175,12 +175,22 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(boolean condition, SFunction<T, Object> column, PushOptions options, Object... value) {
-        return condition ? push(column,value,options) : typedThis;
+        return condition ? push(column,Arrays.stream(value).collect(Collectors.toList()),options) : typedThis;
+    }
+
+    @Override
+    public Children push(boolean condition, SFunction<T, Object> column, PushOptions options, Collection<?> value) {
+        return condition ? push(column,options,value) : typedThis;
     }
 
     @Override
     public Children push(SFunction<T, Object> column, PushOptions options, Object... value) {
-        return getBaseUpdateCompare(column, Arrays.stream(value).collect(Collectors.toList()),options);
+        return push(column,options,Arrays.stream(value).collect(Collectors.toList()));
+    }
+
+    @Override
+    public Children push(SFunction<T, Object> column, PushOptions options, Collection<?> value) {
+        return getBaseUpdateCompare(column, value,options);
     }
 
     @Override
@@ -200,16 +210,26 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(String column, PushOptions options, Object... value) {
-        return getBaseUpdateCompare(column,options,Arrays.stream(value).collect(Collectors.toList()));
+        return push(column,options,Arrays.stream(value).collect(Collectors.toList()));
     }
 
     @Override
-    public Children push(boolean condition, SFunction<T, Object> column, List<?> value) {
+    public Children push(boolean condition, String column, PushOptions options, Collection<?> value) {
+        return condition ? push(column,options,value) : typedThis;
+    }
+
+    @Override
+    public Children push(String column, PushOptions options, Collection<?> value) {
+        return getBaseUpdateCompare(column,value,options);
+    }
+
+    @Override
+    public Children push(boolean condition, SFunction<T, Object> column, Collection<?> value) {
         return condition ? push(column,value) : typedThis;
     }
 
     @Override
-    public Children push(SFunction<T, Object> column, List<?> value) {
+    public Children push(SFunction<T, Object> column, Collection<?> value) {
         return push(column,value,new PushOptions());
     }
 

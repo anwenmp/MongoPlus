@@ -114,6 +114,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             }
             if (updateFailException != null &&
                     getModifiedCount(result) <= 0) {
+                updateFailException.fillInStackTrace();
                 throw updateFailException;
             }
         }
@@ -364,12 +365,13 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
         Document document = BsonUtil.asDocument(updateBson);
         Document setDocument = document.get(UpdateConditionEnum.SET.getCondition(), Document.class);
-        Integer versionValue = setDocument.getInteger(fieldName);
-        if (versionValue == null) {
+        Integer versionValue;
+        if (setDocument == null || (versionValue = setDocument.getInteger(fieldName)) == null) {
             if (!autoVersion) {
                 log.debug("There is an optimistic lock field, but the original value " +
                         "of the optimistic lock has not been obtained,fieldName: " + fieldName);
                 if (versionIsNullException != null) {
+                    versionIsNullException.fillInStackTrace();
                     throw versionIsNullException;
                 }
                 return;

@@ -6,6 +6,7 @@ import com.mongoplus.enums.ExecuteMethodEnum;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.interceptor.InterceptorChain;
 import com.mongoplus.strategy.executor.MethodExecutorStrategy;
+import com.mongoplus.toolkit.ExceptionUtil;
 import org.bson.Document;
 
 import java.lang.reflect.InvocationHandler;
@@ -61,7 +62,7 @@ public class ExecutorProxy implements InvocationHandler {
         try {
             invoke = method.invoke(target, args);
         } catch (Throwable e) {
-            throw e.getCause();
+            throw ExceptionUtil.unwrapThrowable(e);
         }
         InterceptorChain.getInterceptors().forEach(interceptor -> interceptor.afterExecute(executeMethodEnum,args,invoke, collection));
         return invoke;

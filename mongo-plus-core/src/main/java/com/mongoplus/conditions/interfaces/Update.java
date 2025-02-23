@@ -215,6 +215,17 @@ public interface Update<T , Children> extends Serializable {
 
     /**
      * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(boolean condition,SFunction<T,Object> column,PushOptions options,Collection<?> value);
+
+    /**
+     * 将指定值push到数组中
      * @param column 列名
      * @param value 值
      * @return {@link Children}
@@ -222,6 +233,16 @@ public interface Update<T , Children> extends Serializable {
      * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,PushOptions options,Object ... value);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(SFunction<T,Object> column,PushOptions options,Collection<?> value);
 
     /**
      * 将指定值push到数组中
@@ -274,7 +295,7 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 上午10:49
      */
-    Children push(boolean condition, SFunction<T,Object> column, List<?> value);
+    Children push(boolean condition,String column,PushOptions options,Collection<?> value);
 
     /**
      * 将指定值push到数组中
@@ -284,7 +305,28 @@ public interface Update<T , Children> extends Serializable {
      * @author anwen
      * @date 2024/8/2 上午10:49
      */
-    Children push(SFunction<T,Object> column, List<?> value);
+    Children push(String column,PushOptions options,Collection<?> value);
+
+    /**
+     * 将指定值push到数组中
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(boolean condition, SFunction<T,Object> column, Collection<?> value);
+
+    /**
+     * 将指定值push到数组中
+     * @param column 列名
+     * @param value 值
+     * @return {@link Children}
+     * @author anwen
+     * @date 2024/8/2 上午10:49
+     */
+    Children push(SFunction<T,Object> column, Collection<?> value);
 
     /**
      * 将指定值push到数组中

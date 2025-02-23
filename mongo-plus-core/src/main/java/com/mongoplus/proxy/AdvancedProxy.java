@@ -5,6 +5,7 @@ import com.mongoplus.interceptor.Invocation;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.support.AdvancedFunction;
+import com.mongoplus.toolkit.ExceptionUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -36,7 +37,7 @@ public class AdvancedProxy implements InvocationHandler {
         try {
             return method.invoke(target,args);
         } catch (Throwable e) {
-            throw e.getCause();
+            throw ExceptionUtil.unwrapThrowable(e);
         }
     }
 }
