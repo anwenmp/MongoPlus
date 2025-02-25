@@ -59,6 +59,7 @@ public class HandlerCache {
         readHandlerList.add(new DesensitizationHandlerApply());
         readHandlerList.add(new DBRefHandler());
         conditionHandlerList.add(new EncryptorConditionHandler());
+        conditionHandlerList.add(new DBRefHandler());
         // 初始化字段处理器
         initFieldHandler();
     }

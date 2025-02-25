@@ -73,6 +73,7 @@ public class ConditionOperators {
      * @author anwen
      * @date 2024/8/23 11:11
      */
+    @Deprecated
     public static Bson cond(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
         return cond(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
     }
@@ -82,6 +83,7 @@ public class ConditionOperators {
      * @author anwen
      * @date 2024/8/23 11:11
      */
+    @Deprecated
     public static Bson condArray(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
         return condArray(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
     }

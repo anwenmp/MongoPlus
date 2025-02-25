@@ -65,7 +65,10 @@ public class BuildCondition extends AbstractCondition {
                                         MongoPlusBasicDBObject mongoPlusBasicDBObject) {
         HandlerCache.conditionHandlerList.forEach(conditionHandler ->
                 conditionHandler.beforeQueryCondition(compareCondition, mongoPlusBasicDBObject));
-        QueryOperatorEnum query = QueryOperatorEnum.getQueryOperator(compareCondition.getCondition());
+        QueryOperatorEnum query = null;
+        if (compareCondition != null) {
+            query = QueryOperatorEnum.getQueryOperator(compareCondition.getCondition());
+        }
         switch (Objects.requireNonNull(query)) {
             case EQ:
                 mongoPlusBasicDBObject.put(

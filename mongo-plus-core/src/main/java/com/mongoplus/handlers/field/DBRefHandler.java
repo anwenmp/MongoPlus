@@ -1,5 +1,6 @@
 package com.mongoplus.handlers.field;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoIterable;
 import com.mongoplus.annotation.ID;
@@ -7,17 +8,21 @@ import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.DBRef;
 import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.cache.global.PropertyCache;
+import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.domain.MongoPlusFieldException;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.execute.ExecutorFactory;
 import com.mongoplus.handlers.FieldHandler;
 import com.mongoplus.handlers.ReadHandler;
 import com.mongoplus.handlers.collection.AnnotationOperate;
+import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.MongoConverter;
+import com.mongoplus.mapping.SimpleFieldInformation;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.toolkit.Filters;
+import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -32,7 +37,7 @@ import java.util.function.Function;
  *
  * @author anwen
  */
-public class DBRefHandler implements FieldHandler, ReadHandler {
+public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler {
 
     protected Map<Field, Boolean> dbRefFieldCache = new ConcurrentHashMap<>();
 
@@ -60,23 +65,12 @@ public class DBRefHandler implements FieldHandler, ReadHandler {
         Class<?> typeClass = fieldInformation.getTypeClass();
         DBRef dbRefAnnotation = fieldInformation.getAnnotation(DBRef.class);
         TypeInformation typeInformation = TypeInformation.of(typeClass);
-        FieldInformation dbRefFieldInformation = typeInformation.getAnnotationField(CollectionName.class);
-        String collectionName = AnnotationOperate.getCollectionName(typeClass);
-        String database = AnnotationOperate.getDatabase(typeClass);
-        if (database == null) {
-            database = dbRefAnnotation.db();
-        }
         FieldInformation annotationField = typeInformation.getAnnotationField(ID.class);
         if (annotationField == null) {
             throw new MongoPlusFieldException("@ID is null");
         }
         Object value = annotationField.getValue(fieldValue);
-        String valueStr;
-        if ((dbRefAnnotation.autoConvertObjectId() || PropertyCache.autoConvertObjectId)
-                && ObjectId.isValid((valueStr = value.toString()))) {
-            value = new ObjectId(valueStr);
-        }
-        return new com.mongodb.DBRef(database, collectionName, value);
+        return getDBRef(typeClass,dbRefAnnotation,value);
     }
 
     @Override
@@ -97,6 +91,46 @@ public class DBRefHandler implements FieldHandler, ReadHandler {
                 collection
         );
         return mongoConverter.readDocument(iterable, typeClass);
+    }
+
+    @Override
+    public void beforeQueryCondition(CompareCondition compareCondition, BasicDBObject basicDBObject) {
+        Field originalField = compareCondition.getOriginalField();
+        if (originalField != null) {
+            FieldInformation fieldInformation = new SimpleFieldInformation<>(null, originalField);
+            Boolean existDBRef = dbRefFieldCache
+                    .computeIfAbsent(originalField,field -> fieldInformation.isAnnotation(DBRef.class));
+            if (!existDBRef){
+                return;
+            }
+            com.mongodb.DBRef dbRef = getDBRef(
+                    originalField.getType(),
+                    fieldInformation.getAnnotation(DBRef.class),
+                    compareCondition.getValue()
+            );
+            basicDBObject.put(compareCondition.getColumn(),dbRef);
+        }
+    }
+
+    public com.mongodb.DBRef getDBRef(Class<?> typeClass,DBRef dbRefAnnotation,Object value) {
+        TypeInformation typeInformation = TypeInformation.of(typeClass);
+        FieldInformation dbRefFieldInformation = typeInformation.getAnnotationField(CollectionName.class);
+        String collectionName = AnnotationOperate.getCollectionName(typeClass);
+        String database = AnnotationOperate.getDatabase(typeClass);
+        if (database == null) {
+            database = dbRefAnnotation.db();
+        }
+        database = StringUtils.isBlank(database) ? null : database;
+        FieldInformation annotationField = typeInformation.getAnnotationField(ID.class);
+        if (annotationField == null) {
+            throw new MongoPlusFieldException("@ID is null");
+        }
+        String valueStr;
+        if ((dbRefAnnotation.autoConvertObjectId() || PropertyCache.autoConvertObjectId)
+                && ObjectId.isValid((valueStr = value.toString()))) {
+            value = new ObjectId(valueStr);
+        }
+        return new com.mongodb.DBRef(database, collectionName, value);
     }
 
 }
