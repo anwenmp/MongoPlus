@@ -35,13 +35,15 @@ import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.mapper.MongoMapper;
 import com.mongoplus.mapper.MongoMapperImpl;
 import com.mongoplus.property.*;
+import com.mongoplus.scanner.MongoEntityScanner;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.AutoUtil;
 import com.mongoplus.toolkit.CollUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.domain.EntityScanner;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
+import org.springframework.boot.autoconfigure.domain.EntityScanPackages;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.ParameterizedType;
@@ -333,12 +335,8 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      */
     public void autoCreateTimeSeries() {
         if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
-            Set<Class<?>> collectionClassSet;
-            try {
-                collectionClassSet = new EntityScanner(applicationContext).scan(TimeSeries.class);
-            } catch (ClassNotFoundException e) {
-                collectionClassSet = Collections.emptySet();
-            }
+            MongoEntityScanner mongoEntityScanner = new MongoEntityScanner(getPackages());
+            Set<Class<?>> collectionClassSet = mongoEntityScanner.scan(TimeSeries.class);
             AutoUtil.autoCreateTimeSeries(collectionClassSet, mongoPlusClient);
         }
     }
@@ -351,14 +349,23 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      */
     public void autoCreateIndexes() {
         if (mongoDBConfigurationProperty.getAutoCreateIndex()) {
-            Set<Class<?>> collectionClassSet;
-            try {
-                collectionClassSet = new EntityScanner(applicationContext).scan(CollectionName.class);
-            } catch (ClassNotFoundException e) {
-                collectionClassSet = Collections.emptySet();
-            }
+            MongoEntityScanner mongoEntityScanner = new MongoEntityScanner(getPackages());
+            Set<Class<?>> collectionClassSet = mongoEntityScanner.scan(CollectionName.class);
             AutoUtil.autoCreateIndexes(collectionClassSet, mongoPlusClient);
         }
+    }
+
+    public List<String> getPackages() {
+        List<String> packages = new LinkedList<>();
+        if (CollUtil.isNotEmpty(mongoDBConfigurationProperty.getAutoScanPackages())) {
+            packages.addAll(mongoDBConfigurationProperty.getAutoScanPackages());
+        }
+        List<String> packagesContext = EntityScanPackages.get(this.applicationContext).getPackageNames();
+        if (packagesContext.isEmpty() && AutoConfigurationPackages.has(this.applicationContext)) {
+            packagesContext = AutoConfigurationPackages.get(this.applicationContext);
+        }
+        packages.addAll(packagesContext);
+        return packages;
     }
 
     /**

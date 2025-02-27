@@ -3,6 +3,8 @@ package com.mongoplus.property;
 import com.mongoplus.cache.global.PropertyCache;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 /**
  * configuration属性配置
  *
@@ -52,6 +54,19 @@ public class MongoDBConfigurationProperty {
      * @date 2024/8/27 15:41
      */
     private Boolean autoCreateTimeSeries = false;
+
+    /**
+     * 自动创建相关操作所需配置的包路径,避免多模块下扫描不到
+     */
+    private List<String> autoScanPackages;
+
+    public List<String> getAutoScanPackages() {
+        return autoScanPackages;
+    }
+
+    public void setAutoScanPackages(List<String> autoScanPackages) {
+        this.autoScanPackages = autoScanPackages;
+    }
 
     public Boolean getAutoCreateTimeSeries() {
         return autoCreateTimeSeries;
