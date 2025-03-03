@@ -5,6 +5,7 @@ import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.cache.global.SimpleCache;
+import com.mongoplus.conditions.update.Holder;
 import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.handlers.FieldHandler;
 import com.mongoplus.logging.Log;
@@ -121,7 +122,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                     if (obj != null) {
                         BsonUtil.addToMap(bson, fieldName, obj);
                     } else {
-                        writeProperties(bson, fieldName, fieldInformation.getValue());
+                        writeProperties(bson, fieldName, fieldInformation.getValue(),collectionField);
                     }
                 });
     }
@@ -154,7 +155,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         if (shouldIgnoreNull(sourceObj, null)) {
             return;
         }
-        BsonUtil.addToMap(bson, key, writeProperties(sourceObj));
+        BsonUtil.addToMap(bson, key, writeProperties(Holder.isNull(sourceObj)));
     }
 
     /**
@@ -164,12 +165,11 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @return 是否应该跳过该属性
      */
     private boolean shouldIgnoreNull(Object sourceObj, CollectionField collectionField) {
-        boolean ignoreNull = PropertyCache.ignoringNull && sourceObj == null;
-        if (ignoreNull) {
-            return true;
-        }
         // 如果 collectionField 不为 null，且有 ignoreNull 属性，则基于该属性做判断
-        return collectionField != null && collectionField.ignoreNull() && sourceObj == null;
+        if (collectionField != null && !collectionField.ignoreNull() && sourceObj == null) {
+            return false;
+        }
+        return PropertyCache.ignoringNull && sourceObj == null;
     }
 
     /**

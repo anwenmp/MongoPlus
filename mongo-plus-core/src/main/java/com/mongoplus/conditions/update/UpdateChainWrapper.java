@@ -78,6 +78,26 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     @Override
+    public Children setNull(boolean condition, SFunction<T, Object> column) {
+        return condition ? setNull(column) : typedThis;
+    }
+
+    @Override
+    public Children setNull(SFunction<T, Object> column) {
+        return set(column, Null.class);
+    }
+
+    @Override
+    public Children setNull(boolean condition, String column) {
+        return condition ? setNull(column) : typedThis;
+    }
+
+    @Override
+    public Children setNull(String column) {
+        return set(column,Null.class);
+    }
+
+    @Override
     public Children set(boolean condition, SFunction<T, Object> column, Object value) {
         return condition ? set(column,value) : typedThis;
     }

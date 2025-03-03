@@ -14,6 +14,40 @@ import java.util.List;
 public interface Update<T , Children> extends Serializable {
 
     /**
+     * 将字段值设置为null
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @return {@link Children}
+     * @author anwen
+     */
+    Children setNull(boolean condition, SFunction<T,Object> column);
+
+    /**
+     * 将字段值设置为null
+     * @param column 列名
+     * @return {@link Children}
+     * @author anwen
+     */
+    Children setNull(SFunction<T,Object> column);
+
+    /**
+     * 将字段值设置为null
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名
+     * @return {@link Children}
+     * @author anwen
+     */
+    Children setNull(boolean condition, String column);
+
+    /**
+     * 将字段值设置为null
+     * @param column 列名
+     * @return {@link Children}
+     * @author anwen
+     */
+    Children setNull(String column);
+
+    /**
      * 设置值
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
      * @param column 列名
