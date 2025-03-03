@@ -96,7 +96,7 @@ public class BaseProperty {
      * 指定与MongoDB实例的所有通信都应使用TLS/SSL。被tls选项取代 默认false
      * @date 2023/2/26 21:11
      **/
-    private Boolean ssl = false;
+    private Boolean ssl;
 
     /**
      * 秘钥存储库，绝对路径

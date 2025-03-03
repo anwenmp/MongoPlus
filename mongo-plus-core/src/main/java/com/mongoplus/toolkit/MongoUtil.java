@@ -39,7 +39,7 @@ public class MongoUtil {
      */
     public static MongoClient getMongo(String dsName, BaseProperty baseProperty){
         SslSettings sslSettings = null;
-        if (baseProperty.getSsl()){
+        if (baseProperty.getSsl() != null && baseProperty.getSsl()){
             try {
                 // 加载客户端密钥库
                 KeyStore clientKeyStore = KeyStore.getInstance("JKS");

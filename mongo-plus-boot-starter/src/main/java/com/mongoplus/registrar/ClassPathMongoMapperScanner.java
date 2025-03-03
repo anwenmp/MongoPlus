@@ -75,13 +75,11 @@ public class ClassPathMongoMapperScanner extends ClassPathBeanDefinitionScanner 
             }
             if (!definition.isSingleton()) {
                 BeanDefinitionHolder proxyHolder;
-                if (registry != null) {
-                    proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-                    if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
-                        registry.removeBeanDefinition(proxyHolder.getBeanName());
-                    }
-                    registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
+                proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
+                if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
+                    registry.removeBeanDefinition(proxyHolder.getBeanName());
                 }
+                registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
             }
         });
     }
