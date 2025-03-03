@@ -48,7 +48,7 @@ MyBatisPlus does not need to write too many SQL statements like MyBatis, and Mon
 [![Security Status](https://www.murphysec.com/platform3/v31/badge/1775074551634931712.svg)](https://www.murphysec.com/console/report/1775074551597182976/1775074551634931712)
 
 ### Document
-Document address: https://www.mongoplus.com/
+Document address: https://mongoplus.com/
 
 ### Contact us
 #### If you have any questions or ideas when using MongoPlus, please contact me

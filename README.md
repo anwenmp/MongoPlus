@@ -48,7 +48,7 @@ MyBatisPlus就是可以不用像MyBatis一样写过多的sql语句，Mongo-Plus�
 [![Security Status](https://www.murphysec.com/platform3/v31/badge/1810204695353073664.svg)](https://www.murphysec.com/console/report/1810204585500057600/1810204695353073664)
 
 ### 文档
-文档地址： https://www.mongoplus.com/
+文档地址： https://mongoplus.com/
 
 ### 联系我们
 #### 在使用MongoPlus的过程中，有任何问题和想法或者加入群聊请联系我

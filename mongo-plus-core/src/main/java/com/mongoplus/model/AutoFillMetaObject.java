@@ -164,25 +164,25 @@ public class AutoFillMetaObject {
     }
 
     /**
-     * 获取自动填充字段现有得值
+     * 获取自动填充字段现有的值
      * @param column 列名
      * @return {@link Object}
      * @author anwen
      * @date 2024/5/1 下午10:15
      */
     public <T,R> Object getMetaObjectValue(SFunction<T,R> column){
-        return autoFillDocument.get(column.getFieldNameLine());
+        return document.get(column.getFieldNameLine());
     }
 
     /**
-     * 获取自动填充字段现有得值
+     * 获取自动填充字段现有的值
      * @param column 列名
      * @return {@link Object}
      * @author anwen
      * @date 2024/5/1 下午10:15
      */
     public Object getMetaObjectValue(String column){
-        return autoFillDocument.get(column);
+        return document.get(column);
     }
 
     /**

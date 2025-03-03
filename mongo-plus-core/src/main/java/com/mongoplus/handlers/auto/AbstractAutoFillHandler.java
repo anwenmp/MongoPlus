@@ -169,7 +169,11 @@ public abstract class AbstractAutoFillHandler implements AutoFillHandler {
             return new MongoPlusDocument(){{
                 getFieldInformationList()
                         .forEach(fieldInformation ->
-                                put(fieldInformation.getCamelCaseName(),fieldInformation.getValue()));
+                                put(
+                                        fieldInformation.getCamelCaseName(),
+                                        fieldInformation.getValue(typeInformation.getInstance())
+                                )
+                        );
             }};
         }
 
