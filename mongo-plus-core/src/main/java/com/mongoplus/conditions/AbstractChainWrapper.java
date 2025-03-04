@@ -804,8 +804,8 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public Children getBaseCondition(String condition,String column, Object value, Class<?> clazz, Field field){
         if (Objects.equals(column, SqlOperationConstant._ID)) {
-            if (value instanceof List<?>) {
-                value = ((List<?>) value).stream()
+            if (value instanceof Collection<?>) {
+                value = ((Collection<?>) value).stream()
                         .map(ObjectIdUtil::getObjectIdValue)
                         .collect(Collectors.toList());
             } else {
