@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gitee.anwena</groupId>
+    <groupId>com.mongoplus</groupId>
     <artifactId>mongo-plus-parent</artifactId>
     <packaging>pom</packaging>
     <name>mongo-plus-parent</name>
-    <version>2.1.6.1</version>
+    <version>2.1.7</version>
     <description>mongo-plus版本控制</description>
     <url>https://www.mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
@@ -52,7 +52,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongoplus.version>2.1.6.1</mongoplus.version>
+        <mongoplus.version>2.1.7</mongoplus.version>
         <mongodb-driver-sync.version>5.1.2</mongodb-driver-sync.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
         <reload4j.version>1.2.25</reload4j.version>
@@ -66,6 +66,10 @@
         <bcprov-jdk18on.version>1.78.1</bcprov-jdk18on.version>
         <javadoc.version>3.6.3</javadoc.version>
         <spring.boot.version>3.3.2</spring.boot.version>
+        <central-publishing.version>0.6.0</central-publishing.version>
+        <maven-release.version>2.5.3</maven-release.version>
+        <maven-source.version>2.2.1</maven-source.version>
+        <maven-gpg.version>1.5</maven-gpg.version>
     </properties>
 
     <dependencyManagement>
@@ -156,10 +160,21 @@
             </activation>
             <build>
                 <plugins>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
+                        <version>${maven-release.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -172,7 +187,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${maven-source.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -192,7 +207,7 @@
                     <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${maven-gpg.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
