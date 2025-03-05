@@ -6,8 +6,7 @@
     <parent>
         <groupId>com.mongoplus</groupId>
         <artifactId>mongo-plus-parent</artifactId>
-        <version>2.1.7</version>
-        <relativePath>../mongo-plus-parent/pom.xml</relativePath>
+        <version>2.1.8</version>
     </parent>
 
     <artifactId>mongo-plus-sharding</artifactId>

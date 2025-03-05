@@ -10,10 +10,10 @@
         <version>2.1.8</version>
     </parent>
 
-    <artifactId>mongo-plus-solon-plugin</artifactId>
-    <name>mongo-plus-solon-plugin</name>
+    <artifactId>mongo-plus-sensitive-word</artifactId>
     <packaging>jar</packaging>
-    <description>mongo-plus-solon-plugin主程序</description>
+    <name>mongo-plus-sensitive-word</name>
+    <description>mongo-plus关键字</description>
     <url>https://www.mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
@@ -40,26 +40,28 @@
     <scm>
         <connection>https://gitee.com/aizuda/mongo-plus.git</connection>
         <developerConnection>https://gitee.com/aizuda/mongo-plus.git</developerConnection>
-        <url>https://gitee.com/aizuda/mongo-plus-solon</url>
+        <url>https://gitee.com/aizuda/mongo-plus</url>
     </scm>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.test.skip>true</maven.test.skip>
+        <sensitive-word.version>0.25.0</sensitive-word.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
             <version>${mongoplus.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>${sensitive-word.version}</version>
         </dependency>
     </dependencies>
 
