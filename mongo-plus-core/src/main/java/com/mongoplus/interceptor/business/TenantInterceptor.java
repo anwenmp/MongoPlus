@@ -31,7 +31,6 @@ import static com.mongoplus.manager.TenantManager.isTenantIgnored;
  * 多租户拦截器
  *
  * @author anwen
- * @date 2024/6/27 上午10:56
  */
 public class TenantInterceptor implements Interceptor {
 
