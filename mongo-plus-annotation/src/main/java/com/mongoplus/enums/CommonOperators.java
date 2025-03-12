@@ -49,6 +49,7 @@ public enum CommonOperators {
 
     CONCAT("$concat"),
 
+    DATE_TRUNC("$dateTrunc"),
     ;
 
     private final String operator;
