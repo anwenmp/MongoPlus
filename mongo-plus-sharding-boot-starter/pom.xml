@@ -8,6 +8,7 @@
         <groupId>com.mongoplus</groupId>
         <artifactId>mongo-plus-parent</artifactId>
         <version>2.1.8</version>
+        <relativePath>../mongo-plus-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mongo-plus-sharding-boot-starter</artifactId>

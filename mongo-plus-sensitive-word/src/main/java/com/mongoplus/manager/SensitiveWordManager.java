@@ -41,8 +41,7 @@ public class SensitiveWordManager {
     }
 
     public SensitiveType getSensitiveType() {
-//        return sensitiveWordProperty.getSensitiveType();
-        return SensitiveType.GLOBAL;
+        return sensitiveWordProperty.getSensitiveType();
     }
 
     /**
@@ -78,25 +77,99 @@ public class SensitiveWordManager {
     }
 
     /**
-     * 添加敏感词
+     * 删除敏感词
      * @param words 敏感词
      * @author anwen
      */
-    public void removeWordBlacklist(String... words) {
-        removeWordBlacklist(Arrays.stream(words).collect(Collectors.toList()));
+    public void removeSensitiveWord(String... words) {
+        removeSensitiveWord(Arrays.stream(words).collect(Collectors.toList()));
     }
 
     /**
-     * 添加敏感词
+     * 删除敏感词
      * @param words 敏感词
      * @author anwen
      */
-    public void removeWordBlacklist(Collection<String> words) {
+    public void removeSensitiveWord(Collection<String> words) {
         sensitiveWordBs.removeWord(words);
     }
 
-    public void addWordWhitelist(String... word) {
-        sensitiveWordBs.addWordAllow(Arrays.stream(word).collect(Collectors.toList()));
+    /**
+     * 删除敏感词
+     * @param wordFile 敏感词文件路径
+     * @author anwen
+     */
+    public void removeSensitiveWord(Path wordFile) {
+        try (Stream<String> stream = Files.lines(wordFile)) {
+            removeSensitiveWord(stream.collect(Collectors.toList()));
+        } catch (IOException e) {
+            log.error("Abnormal loading of sensitive word blacklist file", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 添加敏感词白名单
+     * @param words 敏感词
+     * @author anwen
+     */
+    public void addSensitiveWordAllow(String... words) {
+        addSensitiveWordAllow(Arrays.stream(words).collect(Collectors.toList()));
+    }
+
+    /**
+     * 添加敏感词白名单
+     * @param words 敏感词
+     * @author anwen
+     */
+    public void addSensitiveWordAllow(Collection<String> words) {
+        sensitiveWordBs.addWordAllow(words);
+    }
+
+    /**
+     * 添加敏感词白名单
+     * @param wordFile 敏感词文件路径
+     * @author anwen
+     */
+    public void addSensitiveWordAllow(Path wordFile) {
+        try (Stream<String> stream = Files.lines(wordFile)) {
+            addSensitiveWordAllow(stream.collect(Collectors.toList()));
+        } catch (IOException e) {
+            log.error("Abnormal loading of sensitive word blacklist file", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 删除敏感词白名单
+     * @param words 敏感词
+     * @author anwen
+     */
+    public void removeSensitiveWordAllow(String... words) {
+        removeSensitiveWordAllow(Arrays.stream(words).collect(Collectors.toList()));
+    }
+
+    /**
+     * 删除敏感词白名单
+     * @param words 敏感词
+     * @author anwen
+     */
+    public void removeSensitiveWordAllow(Collection<String> words) {
+        sensitiveWordBs.removeWordAllow(words);
+    }
+
+    /**
+     * 删除敏感词白名单
+     * @param wordFile 敏感词文件路径
+     * @author anwen
+     */
+    public void removeSensitiveWordAllow(Path wordFile) {
+        try (Stream<String> stream = Files.lines(wordFile)) {
+            removeSensitiveWordAllow(stream.collect(Collectors.toList()));
+        } catch (IOException e) {
+            log.error("Abnormal loading of sensitive word blacklist file", e);
+            throw new RuntimeException(e);
+        }
     }
 
 }

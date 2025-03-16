@@ -79,4 +79,7 @@ public class SensitiveWordProperty {
      */
     private int numCheckLen = 8;
 
+    public SensitiveType getSensitiveType() {
+        return sensitiveType;
+    }
 }

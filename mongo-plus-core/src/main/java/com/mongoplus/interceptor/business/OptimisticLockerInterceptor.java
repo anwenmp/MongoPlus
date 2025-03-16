@@ -106,6 +106,10 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (!hitLock(invocation.getExecuteMethod())) {
             return invocation.proceed();
         }
+        FieldInformation fieldInformation = getVersionFieldInformation(invocation.getCollection());
+        if (fieldInformation == null){
+            return invocation.proceed();
+        }
         boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
         Object result = executor(invocation,false);
         if (isUpdate) {
@@ -122,7 +126,8 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     }
 
     public Object executor(Invocation invocation, boolean autoVersion) throws Throwable {
-        handler(invocation,autoVersion);
+        FieldInformation fieldInformation = getVersionFieldInformation(invocation.getCollection());
+        handler(invocation,autoVersion,fieldInformation);
         return invocation.proceed();
     }
 
@@ -132,16 +137,15 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      * @author anwen
      */
     @SuppressWarnings("unchecked")
-    void handler(Invocation invocation,boolean autoVersion) {
-        MongoCollection<Document> collection = invocation.getCollection();
+    void handler(Invocation invocation,boolean autoVersion,FieldInformation fieldInformation) {
         Object[] args = invocation.getArgs();
         ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
         if (executeMethod == SAVE){
-            handleSave((List<Document>) args[0],collection);
+            handleSave((List<Document>) args[0],fieldInformation);
         } else if (executeMethod == UPDATE) {
-            handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,collection);
+            handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == BULK_WRITE) {
-            handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,collection);
+            handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
         }
     }
 
@@ -174,7 +178,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }).get();
         }
         return retryUpdate(result, finalInvocation);
     }
@@ -279,14 +283,10 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     /**
      * save处理
      * @param documentList save参数
-     * @param collection 集合
+     * @param fieldInformation 乐观锁字段
      * @author anwen
      */
-    void handleSave(List<Document> documentList, MongoCollection<Document> collection) {
-        FieldInformation fieldInformation = getVersionFieldInformation(collection);
-        if (fieldInformation == null){
-            return;
-        }
+    void handleSave(List<Document> documentList, FieldInformation fieldInformation) {
         String fieldName = fieldInformation.getCamelCaseName();
         documentList.stream()
                 .filter(document -> !document.containsKey(fieldName) || document.get(fieldName) == null)
@@ -296,13 +296,12 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     /**
      * update处理
      * @param updatePairList update参数
-     * @param collection 集合
+     * @param fieldInformation 乐观锁字段
      * @author anwen
      */
     void handleUpdate(List<MutablePair<Bson,Bson>> updatePairList,
                       boolean autoVersion,
-                      MongoCollection<Document> collection){
-        FieldInformation fieldInformation = getVersionFieldInformation(collection);
+                      FieldInformation fieldInformation){
         if (fieldInformation == null) {
             return;
         }
@@ -317,13 +316,12 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     /**
      * bulkWrite处理
      * @param writeModelList bulkWrite参数
-     * @param collection 集合
+     * @param fieldInformation 乐观锁字段
      * @author anwen
      */
     void handleBulkWrite(List<WriteModel<Document>> writeModelList,
                          boolean autoVersion,
-                         MongoCollection<Document> collection) {
-        FieldInformation fieldInformation = getVersionFieldInformation(collection);
+                         FieldInformation fieldInformation) {
         if (fieldInformation == null){
             return;
         }
