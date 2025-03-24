@@ -397,4 +397,6 @@ public interface Mapper extends SuperMapper {
         return count(EMPTY,collectionName);
     }
 
+    void dropCollection(String databaseName, String collectionName);
+
 }

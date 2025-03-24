@@ -185,4 +185,6 @@ public interface Execute {
 
     void doDropIndexes(DropIndexOptions dropIndexOptions,MongoCollection<Document> collection);
 
+    void doDropCollection(MongoCollection<Document> collection);
+
 }
