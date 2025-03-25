@@ -280,9 +280,4 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
         return getByColumn(namespace.left, namespace.right, column, value, typeReference);
     }
 
-    @Override
-    public void dropCollection(Class<?> clazz) {
-        MutablePair<String, String> namespace = getNamespace(clazz);
-        dropCollection(namespace.getLeft(), namespace.getRight());
-    }
 }

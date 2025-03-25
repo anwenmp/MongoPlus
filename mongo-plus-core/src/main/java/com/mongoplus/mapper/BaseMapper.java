@@ -624,10 +624,4 @@ public interface BaseMapper extends Mapper {
      */
     long count(Class<?> clazz);
 
-    /**
-     * 删除集合
-     */
-    void dropCollection(Class<?> clazz);
-
-
 }

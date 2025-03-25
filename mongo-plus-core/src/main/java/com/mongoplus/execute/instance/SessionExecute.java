@@ -168,9 +168,4 @@ public class SessionExecute implements Execute {
                               MongoCollection<Document> collection) {
         collection.dropIndexes(clientSession,dropIndexOptions);
     }
-
-    @Override
-    public void doDropCollection(MongoCollection<Document> collection) {
-        collection.drop(clientSession);
-    }
 }

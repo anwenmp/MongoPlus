@@ -154,9 +154,4 @@ public class DefaultExecute implements Execute {
     public void doDropIndexes(DropIndexOptions dropIndexOptions, MongoCollection<Document> collection) {
         collection.dropIndexes(dropIndexOptions);
     }
-
-    @Override
-    public void doDropCollection(MongoCollection<Document> collection) {
-        collection.drop();
-    }
 }
