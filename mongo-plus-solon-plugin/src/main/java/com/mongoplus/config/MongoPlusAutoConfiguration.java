@@ -333,7 +333,10 @@ public class MongoPlusAutoConfiguration {
     public void setIdGenerateHandler(AppContext context) {
         IdGenerateHandler idGenerateHandler = new AbstractIdGenerateHandler(mongoPlusClient) {};
         try {
-            idGenerateHandler = context.getBean(IdGenerateHandler.class);
+            IdGenerateHandler userHandler = context.getBean(IdGenerateHandler.class);
+            if (userHandler != null) {
+                idGenerateHandler = userHandler;
+            }
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
     }
