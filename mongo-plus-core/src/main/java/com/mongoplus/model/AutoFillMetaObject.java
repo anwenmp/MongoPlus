@@ -1,6 +1,9 @@
 package com.mongoplus.model;
 
 import com.mongoplus.bson.MongoPlusDocument;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
+import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.support.SFunction;
 import org.bson.Document;
@@ -14,21 +17,20 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class AutoFillMetaObject {
 
+    private Log log = LogFactory.getLog(AutoFillMetaObject.class);
+
     /**
      * 需要自动填充的字段
-     * @date 2024/6/4 下午9:43
      */
     private final MongoPlusDocument document;
 
     /**
      * 自动填充最终的值
-     * @date 2024/6/4 下午9:43
      */
     private final ConcurrentSkipListMap<String,Object> autoFillDocument;
 
     /**
      * 原始对象信息
-     * @date 2024/7/29 上午12:14
      */
     private TypeInformation targetObject;
 
@@ -57,7 +59,6 @@ public class AutoFillMetaObject {
      * 获取所有的自动填充字段
      * @return {@link MongoPlusDocument}
      * @author anwen
-     * @date 2024/5/1 下午10:14
      */
     public ConcurrentSkipListMap<String,Object> getAllFillField() {
         return autoFillDocument;
@@ -66,7 +67,6 @@ public class AutoFillMetaObject {
     /**
      * 获取需要自动填充的字段
      * @author anwen
-     * @date 2024/7/29 上午12:17
      */
     public MongoPlusDocument getDocument() {
         return document;
@@ -75,7 +75,6 @@ public class AutoFillMetaObject {
     /**
      * 获取所有自动填充过的字段，并清空
      * @author anwen
-     * @date 2024/7/29 上午12:17
      */
     public void getAllFillFieldAndClear(Document document){
         document.putAll(autoFillDocument);
@@ -87,7 +86,6 @@ public class AutoFillMetaObject {
      * 是否存在自动填充的字段
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/5/1 下午10:14
      */
     public boolean isEmpty() {
         return document.isEmpty();
@@ -98,12 +96,9 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @param value 值
      * @author anwen
-     * @date 2024/5/1 下午10:14
      */
-    public <T,R> void fillValue(SFunction<T,R> column,Object value){
-        if (metaObjectExist(column)) {
-            autoFillDocument.put(column.getFieldNameLine(), value);
-        }
+    public <T,R> void fillValue(SFunction<T,R> column,R value){
+        fillValue(column.getFieldNameLine(), value);
     }
 
     /**
@@ -111,10 +106,9 @@ public class AutoFillMetaObject {
      * @param column 列明
      * @param value 值
      * @author anwen
-     * @date 2024/7/29 上午12:19
      */
-    public <T,R> void forceFillValue(SFunction<T,R> column,Object value){
-        autoFillDocument.put(column.getFieldNameLine(), value);
+    public <T,R> void forceFillValue(SFunction<T,R> column,R value){
+        forceFillValue(column.getFieldNameLine(), value);
     }
 
     /**
@@ -122,11 +116,10 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @param value 值
      * @author anwen
-     * @date 2024/5/1 下午10:14
      */
     public void fillValue(String column,Object value){
         if (metaObjectExist(column)) {
-            autoFillDocument.put(column, value);
+            forceFillValue(column,value);
         }
     }
 
@@ -135,10 +128,15 @@ public class AutoFillMetaObject {
      * @param column 列明
      * @param value 值
      * @author anwen
-     * @date 2024/7/29 上午12:19
      */
     public void forceFillValue(String column,Object value){
         autoFillDocument.put(column, value);
+        FieldInformation fieldInformation = targetObject.getField(column);
+        if (fieldInformation == null) {
+            log.error("Autofill field not obtained, field name: "+ column);
+            return;
+        }
+        fieldInformation.setValue(value);
     }
 
     /**
@@ -146,7 +144,6 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/5/1 下午10:15
      */
     public <T,R> boolean metaObjectExist(SFunction<T,R> column){
         return document.containsKey(column);
@@ -157,7 +154,6 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/5/1 下午10:15
      */
     public boolean metaObjectExist(String column){
         return document.containsKey(column);
@@ -168,7 +164,6 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @return {@link Object}
      * @author anwen
-     * @date 2024/5/1 下午10:15
      */
     public <T,R> Object getMetaObjectValue(SFunction<T,R> column){
         return document.get(column.getFieldNameLine());
@@ -179,7 +174,6 @@ public class AutoFillMetaObject {
      * @param column 列名
      * @return {@link Object}
      * @author anwen
-     * @date 2024/5/1 下午10:15
      */
     public Object getMetaObjectValue(String column){
         return document.get(column);
@@ -188,7 +182,6 @@ public class AutoFillMetaObject {
     /**
      * 获取原始对象信息
      * @author anwen
-     * @date 2024/7/29 上午12:14
      */
     public TypeInformation getTargetObject() {
         return targetObject;
@@ -198,7 +191,6 @@ public class AutoFillMetaObject {
      * 设置原始对象信息
      * @param targetObject 对象
      * @author anwen
-     * @date 2024/7/29 上午12:14
      */
     public void setTargetObject(TypeInformation targetObject) {
         this.targetObject = targetObject;

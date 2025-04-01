@@ -149,7 +149,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             });
         }
         // 拿到class封装类
-        TypeInformation typeInformation = TypeInformation.ofCache(clazz);
+        TypeInformation typeInformation = TypeInformation.of(clazz);
 
         // 循环所有字段
         typeInformation.getFields().forEach(fieldInformation -> {

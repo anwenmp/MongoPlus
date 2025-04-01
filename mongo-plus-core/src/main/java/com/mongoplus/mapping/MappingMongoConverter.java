@@ -15,6 +15,7 @@ import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.BsonUtil;
 import com.mongoplus.toolkit.ClassTypeUtil;
+import com.mongoplus.toolkit.ObjectIdUtil;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -110,13 +111,16 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                             && PropertyCache.camelToUnderline){
                         fieldName = StringUtils.camelToUnderline(fieldName);
                     }
+                    if (ignoreType.contains(fieldInformation.getTypeClass())){
+                        obj = fieldInformation.getValue();
+                    }
+                    if (collectionField != null && collectionField.isObjectId()) {
+                        obj = ObjectIdUtil.getObjectIdValue(fieldInformation.getValue());
+                    }
                     for (FieldHandler fieldHandler : HandlerCache.fieldHandlers) {
                         if (fieldHandler.activate().apply(fieldInformation)) {
                             obj = fieldHandler.handler(fieldInformation);
                         }
-                    }
-                    if (ignoreType.contains(fieldInformation.getTypeClass())){
-                        obj = fieldInformation.getValue();
                     }
                     //如果类型处理器返回null，则继续走默认处理
                     if (obj != null) {

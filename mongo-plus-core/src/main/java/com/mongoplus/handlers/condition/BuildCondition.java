@@ -28,9 +28,9 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static com.mongoplus.enums.QueryOperatorEnum.*;
 import static com.mongoplus.enums.QueryOperatorEnum.EQ;
 import static com.mongoplus.enums.QueryOperatorEnum.REGEX;
-import static com.mongoplus.enums.QueryOperatorEnum.*;
 import static com.mongoplus.enums.SpecialConditionEnum.*;
 
 
