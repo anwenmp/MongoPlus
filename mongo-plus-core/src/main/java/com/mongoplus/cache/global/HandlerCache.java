@@ -5,6 +5,7 @@ import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.handlers.condition.EncryptorConditionHandler;
 import com.mongoplus.handlers.field.DBRefHandler;
 import com.mongoplus.handlers.field.EncryptFieldHandler;
+import com.mongoplus.handlers.field.ObjectIdHandler;
 import com.mongoplus.handlers.field.TypeHandlerFieldHandler;
 import com.mongoplus.handlers.read.DesensitizationHandlerApply;
 import com.mongoplus.handlers.read.FieldEncryptApply;
@@ -60,6 +61,7 @@ public class HandlerCache {
         readHandlerList.add(new DBRefHandler());
         conditionHandlerList.add(new EncryptorConditionHandler());
         conditionHandlerList.add(new DBRefHandler());
+        conditionHandlerList.add(new ObjectIdHandler());
         // 初始化字段处理器
         initFieldHandler();
     }

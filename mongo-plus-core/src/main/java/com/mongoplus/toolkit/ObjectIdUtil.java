@@ -1,6 +1,8 @@
 package com.mongoplus.toolkit;
 
 import com.mongoplus.cache.global.PropertyCache;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
 import org.bson.types.ObjectId;
 
 import java.util.Collection;
@@ -8,6 +10,8 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class ObjectIdUtil {
+
+    private static Log log = LogFactory.getLog(ObjectIdUtil.class);
 
     /**
      * 转换单个ObjectId
@@ -41,11 +45,22 @@ public class ObjectIdUtil {
      * @date 2024/8/8 下午3:29
      */
     public static Object getObjectIdValue(Object value) {
+        if (value instanceof Collection) {
+            return getObjectIdList(value);
+        }
         if (value instanceof ObjectId){
             return value;
         }
         String convertValue = String.valueOf(value);
-        return ObjectId.isValid(convertValue) && PropertyCache.autoConvertObjectId ? new ObjectId(convertValue) : value;
+        if (ObjectId.isValid(convertValue) && PropertyCache.autoConvertObjectId) {
+            log.error("value '" + value+"' is not ObjectId");
+            return new ObjectId(convertValue);
+        }
+        return value;
+    }
+
+    public static Object getObjectIdList(Object value) {
+        return ((Collection<?>) value).stream().map(ObjectIdUtil::getObjectIdValue).collect(Collectors.toList());
     }
 
 }
