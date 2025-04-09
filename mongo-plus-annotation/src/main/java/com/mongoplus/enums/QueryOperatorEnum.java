@@ -69,6 +69,22 @@ public enum QueryOperatorEnum {
 
     BITS_ANY_SET("bitsAnySet"),
 
+    GEO_INTERSECTS("geoIntersects"),
+
+    GEO_WITHIN("geoWithin"),
+
+    NEAR("near"),
+
+    NEAR_SPHERE("nearSphere"),
+
+    GEO_WITHIN_BOX("geoWithinBox"),
+
+    GEO_WITHIN_CENTER("geoWithinCenter"),
+
+    GEO_WITHIN_CENTER_SPHERE("geoWithinCenterSphere"),
+
+    GEO_WITHIN_POLYGON("geoWithinPolygon"),
+
     ;
 
     private final String value;

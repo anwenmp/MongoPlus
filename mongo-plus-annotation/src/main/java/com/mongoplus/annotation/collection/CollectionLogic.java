@@ -32,4 +32,11 @@ public @interface CollectionLogic {
      */
     String delval() default "";
 
+    /**
+     * 逻辑删除字段值类型
+     * @return {@link Class}
+     * @author anwen
+     */
+    Class<?> delType() default Void.class;
+
 }

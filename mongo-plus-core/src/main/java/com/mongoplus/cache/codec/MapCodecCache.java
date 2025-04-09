@@ -1,5 +1,6 @@
 package com.mongoplus.cache.codec;
 
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
 import com.mongoplus.bson.OverridableUuidRepresentationCodecProvider;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
@@ -37,6 +38,7 @@ public class MapCodecCache {
         add(new Jsr310CodecProvider());
         add(new JsonObjectCodecProvider());
         add(new BsonCodecProvider());
+        add(new GeoJsonCodecProvider());
     }};
 
     /**

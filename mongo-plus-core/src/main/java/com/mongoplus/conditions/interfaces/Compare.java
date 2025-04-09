@@ -1,6 +1,9 @@
 package com.mongoplus.conditions.interfaces;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.geojson.Geometry;
+import com.mongodb.client.model.geojson.Point;
+import com.mongodb.lang.Nullable;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -19,14 +22,13 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
 /**
  * 查询条件封装
  * @author JiaChaoYang
- * @date 2023/6/24/024 1:37
 */
+@SuppressWarnings("unused")
 public interface Compare<T,Children> extends Serializable {
 
     /**
      * 构建条件
      * @author anwen
-     * @date 2024/8/24 15:42
      */
     default BaseConditionResult buildCondition(){
         return buildCondition(condition());
@@ -35,7 +37,6 @@ public interface Compare<T,Children> extends Serializable {
     /**
      * 构建条件
      * @author anwen
-     * @date 2024/8/24 16:06
      */
     BaseConditionResult buildCondition(Condition condition);
 
@@ -46,7 +47,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children eq(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -56,7 +56,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children eq(SFunction<T,Object> column, Object value);
 
@@ -67,7 +66,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children eq(boolean condition, String column, Object value);
 
@@ -77,7 +75,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children eq(String column, Object value);
 
@@ -88,7 +85,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children ne(boolean condition , SFunction<T,Object> column, Object value);
 
@@ -98,7 +94,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children ne(SFunction<T,Object> column, Object value);
 
@@ -109,7 +104,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children ne(boolean condition , String column, Object value);
 
@@ -119,7 +113,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children ne(String column, Object value);
 
@@ -130,7 +123,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lt(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -140,7 +132,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lt(SFunction<T,Object> column, Object value);
 
@@ -151,7 +142,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lt(boolean condition, String column, Object value);
 
@@ -161,7 +151,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lt(String column, Object value);
 
@@ -172,7 +161,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lte(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -182,7 +170,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lte(SFunction<T,Object> column, Object value);
 
@@ -193,7 +180,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children lte(boolean condition, String column, Object value);
 
@@ -203,8 +189,8 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
+    @SuppressWarnings("UnusedReturnValue")
     Children lte(String column, Object value);
 
     /**
@@ -214,7 +200,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gt(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -224,7 +209,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gt(SFunction<T,Object> column, Object value);
 
@@ -235,7 +219,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gt(boolean condition, String column, Object value);
 
@@ -245,7 +228,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gt(String column, Object value);
     /**
@@ -255,7 +237,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gte(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -265,7 +246,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gte(SFunction<T,Object> column, Object value);
 
@@ -276,7 +256,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gte(boolean condition, String column, Object value);
 
@@ -286,7 +265,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children gte(String column, Object value);
 
@@ -297,7 +275,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children like(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -307,7 +284,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children like(SFunction<T,Object> column, Object value);
 
@@ -318,7 +294,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children like(boolean condition, String column, Object value);
 
@@ -328,7 +303,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children like(String column, Object value);
 
@@ -339,7 +313,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeLeft(boolean condition , SFunction<T,Object> column, Object value);
 
@@ -349,7 +322,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeLeft(SFunction<T,Object> column, Object value);
 
@@ -360,7 +332,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeLeft(boolean condition , String column, Object value);
 
@@ -370,7 +341,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeLeft(String column, Object value);
 
@@ -381,7 +351,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeRight(boolean condition , SFunction<T,Object> column, Object value);
 
@@ -391,7 +360,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeRight(SFunction<T,Object> column, Object value);
 
@@ -402,7 +370,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeRight(boolean condition , String column, Object value);
 
@@ -412,7 +379,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children likeRight(String column, Object value);
 
@@ -423,7 +389,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children in(boolean condition, SFunction<T,Object> column, Collection<?> valueList);
 
@@ -433,7 +398,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children in(SFunction<T,Object> column, Collection<?> valueList);
 
@@ -444,7 +408,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     @SuppressWarnings("unchecked")
     <TItem> Children in(boolean condition, SFunction<T,Object> column, TItem... values);
@@ -456,7 +419,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     @SuppressWarnings("unchecked")
     <TItem> Children in(SFunction<T,Object> column, TItem... values);
@@ -468,7 +430,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children in(boolean condition, String column, Collection<?> valueList);
 
@@ -478,7 +439,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children in(String column, Collection<?> valueList);
 
@@ -489,7 +449,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     @SuppressWarnings("unchecked")
     <TItem> Children in(boolean condition,String column,TItem... values);
@@ -500,7 +459,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     @SuppressWarnings("unchecked")
     <TItem> Children in(String column,TItem... values);
@@ -512,7 +470,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:57
     */
     Children nin(boolean condition , SFunction<T,Object> column , Collection<?> valueList);
 
@@ -522,7 +479,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:57
     */
     Children nin(SFunction<T,Object> column , Collection<?> valueList);
 
@@ -532,7 +488,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:57
      */
     @SuppressWarnings("unchecked")
     <TItem> Children nin(boolean condition , SFunction<T,Object> column , TItem... values);
@@ -543,7 +498,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:57
      */
     @SuppressWarnings("unchecked")
     <TItem> Children nin(SFunction<T,Object> column , TItem... values);
@@ -555,7 +509,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:58
     */
     Children nin(boolean condition , String column , Collection<?> valueList);
 
@@ -566,7 +519,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:58
      */
     @SuppressWarnings("unchecked")
     <TItem> Children nin(boolean condition , String column , TItem... values);
@@ -577,7 +529,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param values 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:58
      */
     @SuppressWarnings("unchecked")
     <TItem> Children nin(String column , TItem... values);
@@ -588,7 +539,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param valueList 值的集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/15 15:58
     */
     Children nin(String column , Collection<?> valueList);
 
@@ -597,7 +547,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 22:10
      */
     Children and(QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -607,7 +556,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 22:11
      */
     Children and(boolean condition,QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -617,7 +565,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children and(boolean condition, SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -627,7 +574,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children and(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -637,7 +583,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 20:59
      */
     Children or(boolean condition , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -646,7 +591,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 20:44
      */
     Children or(QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -656,7 +600,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children or(boolean condition, SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -666,7 +609,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children or(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -676,7 +618,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 20:59
      */
     Children nor(boolean condition , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -685,7 +626,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/16 20:44
      */
     Children nor(QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -695,7 +635,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children nor(boolean condition, SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -705,7 +644,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午8:12
      */
     Children nor(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -715,7 +653,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 枚举值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
     */
     Children type(SFunction<T,Object> column, TypeEnum value);
 
@@ -725,7 +662,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 枚举值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
      */
     Children type(String column, TypeEnum value);
 
@@ -735,7 +671,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 类型，参考{@link TypeEnum}的枚举
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
      */
     Children type(SFunction<T,Object> column, String value);
 
@@ -745,7 +680,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 类型，参考{@link TypeEnum}的枚举
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
      */
     Children type(String column, String value);
 
@@ -755,7 +689,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 类型，参考{@link TypeEnum}的枚举
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
      */
     Children type(SFunction<T,Object> column, Integer value);
 
@@ -765,7 +698,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 类型，参考{@link TypeEnum}的枚举
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/18 0:10
      */
     Children type(String column, Integer value);
 
@@ -776,7 +708,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 22:46
     */
     Children exists(boolean condition,SFunction<T,Object> column,Boolean value);
 
@@ -786,7 +717,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 22:47
     */
     Children exists(SFunction<T,Object> column,Boolean value);
 
@@ -797,7 +727,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 22:46
      */
     Children exists(boolean condition,String column,Boolean value);
 
@@ -807,7 +736,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 22:47
      */
     Children exists(String column,Boolean value);
 
@@ -826,42 +754,36 @@ public interface Compare<T,Children> extends Serializable {
     /**
      * 进行计算的表达式
      * @author JiaChaoYang
-     * @date 2023/7/19 23:04
     */
     Children expr(CompareCondition compareCondition);
 
     /**
      * 进行计算的表达式
      * @author JiaChaoYang
-     * @date 2023/7/19 23:04
      */
     Children expr(boolean condition,CompareCondition compareCondition);
 
     /**
      * 进行计算的表达式
      * @author anwen
-     * @date 2024/7/13 下午5:11
      */
     Children expr(boolean condition,QueryChainWrapper<?,?> queryChainWrapper);
 
     /**
      * 进行计算的表达式
      * @author anwen
-     * @date 2024/7/13 下午5:11
      */
     Children expr(QueryChainWrapper<?,?> queryChainWrapper);
 
     /**
      * 进行计算的表达式
      * @author anwen
-     * @date 2024/7/13 下午5:11
      */
     Children expr(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
     /**
      * 进行计算的表达式
      * @author anwen
-     * @date 2024/7/13 下午5:11
      */
     Children expr(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -873,7 +795,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param remain 余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:13
     */
     Children mod(boolean condition,SFunction<T,Object> column,long divide,long remain);
 
@@ -884,7 +805,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param remain 余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:12
     */
     Children mod(SFunction<T,Object> column,long divide,long remain);
 
@@ -895,7 +815,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 传入集合，第一个值为模数，第二个值为余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:13
     */
     Children mod(boolean condition,SFunction<T,Object> column,Collection<Long> value);
 
@@ -905,7 +824,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 传入集合，第一个值为模数，第二个值为余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:14
     */
     Children mod(SFunction<T,Object> column,Collection<Long> value);
 
@@ -917,7 +835,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param remain 余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:14
     */
     Children mod(boolean condition,String column , long divide,long remain);
 
@@ -928,7 +845,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param remain 余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:14
     */
     Children mod(String column , long divide,long remain);
 
@@ -939,7 +855,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 传入集合，第一个值为模数，第二个值为余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:15
     */
     Children mod(boolean condition,String column,Collection<Long> value);
 
@@ -949,7 +864,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 传入集合，第一个值为模数，第二个值为余数
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:15
     */
     Children mod(String column,Collection<Long> value);
 
@@ -960,7 +874,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 查询条件
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:29
     */
     Children elemMatch(boolean condition,SFunction<T,Object> column , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -970,7 +883,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 查询条件
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:31
     */
     Children elemMatch(SFunction<T,Object> column , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -981,7 +893,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 查询条件
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:29
      */
     Children elemMatch(boolean condition,String column , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -991,7 +902,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 查询条件
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:31
      */
     Children elemMatch(String column , QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -1002,7 +912,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:36
     */
     Children all(boolean condition,SFunction<T,Object> column,Collection<?> value);
 
@@ -1012,7 +921,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:36
     */
     Children all(SFunction<T,Object> column,Collection<?> value);
 
@@ -1023,7 +931,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:37
     */
     Children all(boolean condition,String column,Collection<?> value);
 
@@ -1033,7 +940,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/19 23:37
     */
     Children all(String column,Collection<?> value);
 
@@ -1044,7 +950,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值（可传入{@link java.util.regex.Pattern}对象）
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 0:18
     */
     Children regex(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -1054,7 +959,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值（可传入{@link java.util.regex.Pattern}对象）
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 0:19
     */
     Children regex(SFunction<T,Object> column,Object value);
 
@@ -1065,7 +969,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值（可传入{@link java.util.regex.Pattern}对象）
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 0:18
      */
     Children regex(boolean condition,String column,Object value);
 
@@ -1075,7 +978,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值（可传入{@link java.util.regex.Pattern}对象）
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 0:19
      */
     Children regex(String column,Object value);
 
@@ -1085,7 +987,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 1:06
     */
     Children text(boolean condition, Object value);
 
@@ -1094,7 +995,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/7/30 1:06
      */
     Children text(Object value);
 
@@ -1105,7 +1005,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param textSearchOptions 搜索选项
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/26 18:56
      */
     Children text(boolean condition, Object value,TextSearchOptions textSearchOptions);
 
@@ -1115,7 +1014,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param textSearchOptions 搜索选项
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/26 18:56
      */
     Children text(Object value,TextSearchOptions textSearchOptions);
 
@@ -1128,7 +1026,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param convertGtOrLt 设置为true，则转换为大于-小于，默认为大于等于和小于等于
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/11/14 11:02
     */
     Children between(boolean condition , SFunction<T,Object> column,Object gte,Object lte,boolean convertGtOrLt);
 
@@ -1140,7 +1037,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param convertGtOrLt 设置为true，则转换为大于-小于，默认为大于等于和小于等于
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/11/14 11:02
      */
     Children between(SFunction<T,Object> column,Object gte,Object lte,boolean convertGtOrLt);
 
@@ -1153,7 +1049,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param convertGtOrLt 设置为true，则转换为大于-小于，默认为大于等于和小于等于
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/11/14 11:02
      */
     Children between(boolean condition,String column,Object gte,Object lte,boolean convertGtOrLt);
 
@@ -1165,7 +1060,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param convertGtOrLt 设置为true，则转换为大于-小于，默认为大于等于和小于等于
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/11/14 11:02
      */
     Children between(String column,Object gte,Object lte,boolean convertGtOrLt);
 
@@ -1174,7 +1068,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param javaScriptExpression JavaScript 表达式
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:51
      */
     Children where(String javaScriptExpression);
 
@@ -1184,7 +1077,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param size 数组的大小
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:51
      */
     Children size(SFunction<T,?> fieldName, int size);
 
@@ -1194,7 +1086,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param size 数组的大小
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:51
      */
     Children size(String fieldName, int size);
 
@@ -1204,7 +1095,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:57
      */
     Children bitsAllClear(SFunction<T,?> fieldName, long bitmask);
 
@@ -1214,7 +1104,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:57
      */
     Children bitsAllClear(String fieldName, long bitmask);
 
@@ -1224,7 +1113,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:58
      */
     Children bitsAllSet(SFunction<T,?> fieldName, long bitmask);
 
@@ -1234,7 +1122,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:58
      */
     Children bitsAllSet(String fieldName, long bitmask);
 
@@ -1244,7 +1131,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午11:00
      */
     Children bitsAnyClear(SFunction<T,?> fieldName, long bitmask);
 
@@ -1254,7 +1140,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午11:00
      */
     Children bitsAnyClear(String fieldName, long bitmask);
 
@@ -1264,7 +1149,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:58
      */
     Children bitsAnySet(SFunction<T,?> fieldName, long bitmask);
 
@@ -1274,7 +1158,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bitmask 位掩码
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/23 下午10:58
      */
     Children bitsAnySet(String fieldName, long bitmask);
 
@@ -1292,7 +1175,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 需要合并的链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 14:21
      */
     Children combine(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -1309,7 +1191,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function 需要合并的链式查询函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 14:21
      */
     Children combine(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function);
 
@@ -1326,7 +1207,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 14:21
      */
     Children combine(QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -1344,7 +1224,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param queryChainWrapper 链式查询
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 14:21
      */
     Children combine(boolean condition,QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -1353,7 +1232,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param basicDBObject bson对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 11:31
      */
     Children custom(BasicDBObject basicDBObject);
 
@@ -1362,7 +1240,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param bson bson对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 11:31
      */
     Children custom(Bson bson);
 
@@ -1371,7 +1248,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param mongoPlusBasicDBObject bson对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 11:31
      */
     Children custom(MongoPlusBasicDBObject mongoPlusBasicDBObject);
 
@@ -1380,7 +1256,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param function bson对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 11:31
      */
     Children custom(SFunction<MongoPlusBasicDBObject,MongoPlusBasicDBObject> function);
 
@@ -1389,7 +1264,6 @@ public interface Compare<T,Children> extends Serializable {
      * @param basicDBObjectList bson对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/10/21 11:31
      */
     Children custom(List<BasicDBObject> basicDBObjectList);
 }

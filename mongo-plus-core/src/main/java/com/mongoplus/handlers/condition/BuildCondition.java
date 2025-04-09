@@ -1,6 +1,7 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.geojson.Geometry;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
@@ -16,6 +17,9 @@ import com.mongoplus.enums.*;
 import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.BuildUpdate;
 import com.mongoplus.model.MutablePair;
+import com.mongoplus.model.geo.GeoBox;
+import com.mongoplus.model.geo.GeoCenter;
+import com.mongoplus.model.geo.GeoNear;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.Filters;
@@ -205,6 +209,63 @@ public class BuildCondition extends AbstractCondition {
             case BITS_ANY_SET:
                 mongoPlusBasicDBObject.put(Filters.bitsAnySet(compareCondition.getColumn(),
                         (Integer) compareCondition.getValue()));
+                break;
+            case GEO_INTERSECTS:
+                Object geometry = compareCondition.getValue();
+                if (ClassTypeUtil.isTargetClass(Geometry.class,geometry.getClass())) {
+                    mongoPlusBasicDBObject.put(
+                            Filters.geoIntersects(compareCondition.getColumn(),(Geometry) geometry)
+                    );
+                } else {
+                    mongoPlusBasicDBObject.put(
+                            Filters.geoIntersects(compareCondition.getColumn(),(Bson) geometry)
+                    );
+                }
+                break;
+            case GEO_WITHIN:
+                Object withinGeometry = compareCondition.getValue();
+                if (ClassTypeUtil.isTargetClass(Geometry.class,withinGeometry.getClass())) {
+                    mongoPlusBasicDBObject.put(
+                            Filters.geoWithin(compareCondition.getColumn(),(Geometry) withinGeometry)
+                    );
+                } else {
+                    mongoPlusBasicDBObject.put(
+                            Filters.geoWithin(compareCondition.getColumn(),(Bson) withinGeometry)
+                    );
+                }
+                break;
+            case NEAR:
+                GeoNear geoNear = compareCondition.getValue(GeoNear.class);
+                mongoPlusBasicDBObject.put(geoNear.buildNear(compareCondition.getColumn()));
+                break;
+            case NEAR_SPHERE:
+                GeoNear geoNearSphere = compareCondition.getValue(GeoNear.class);
+                mongoPlusBasicDBObject.put(geoNearSphere.buildNearSphere(compareCondition.getColumn()));
+                break;
+            case GEO_WITHIN_BOX:
+                mongoPlusBasicDBObject.put(
+                        compareCondition.getValue(GeoBox.class).toBson(compareCondition.getColumn())
+                );
+                break;
+            case GEO_WITHIN_CENTER:
+                GeoCenter geoCenter = compareCondition.getValue(GeoCenter.class);
+                mongoPlusBasicDBObject.put(
+                        geoCenter.buildCenter(compareCondition.getColumn())
+                );
+                break;
+            case GEO_WITHIN_CENTER_SPHERE:
+                GeoCenter geoCenterSphere = compareCondition.getValue(GeoCenter.class);
+                mongoPlusBasicDBObject.put(
+                        geoCenterSphere.buildCenterSphere(compareCondition.getColumn())
+                );
+                break;
+            case GEO_WITHIN_POLYGON:
+                mongoPlusBasicDBObject.put(
+                        Filters.geoWithinPolygon(
+                                compareCondition.getColumn(),
+                                (List<List<Double>>) compareCondition.getValue()
+                        )
+                );
                 break;
         }
         HandlerCache.conditionHandlerList.forEach(conditionHandler ->

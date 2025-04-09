@@ -53,9 +53,9 @@ public class ObjectIdUtil {
         }
         String convertValue = String.valueOf(value);
         if (ObjectId.isValid(convertValue) && PropertyCache.autoConvertObjectId) {
-            log.error("value '" + value+"' is not ObjectId");
             return new ObjectId(convertValue);
         }
+        log.warn("value '" + value+"' is not ObjectId");
         return value;
     }
 

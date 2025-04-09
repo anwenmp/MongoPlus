@@ -1,9 +1,12 @@
 package com.mongoplus.conditions;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.geojson.Geometry;
+import com.mongodb.client.model.geojson.Point;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.conditions.interfaces.Compare;
+import com.mongoplus.conditions.interfaces.Geo;
 import com.mongoplus.conditions.interfaces.Projection;
 import com.mongoplus.conditions.interfaces.TextSearchOptions;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
@@ -13,6 +16,10 @@ import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.ProjectionEnum;
 import com.mongoplus.enums.TypeEnum;
+import com.mongoplus.model.geo.GeoBox;
+import com.mongoplus.model.geo.Coordinate;
+import com.mongoplus.model.geo.GeoCenter;
+import com.mongoplus.model.geo.GeoNear;
 import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.ObjectIdUtil;
 import org.bson.BsonDocument;
@@ -29,35 +36,30 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
 /**
  * 查询条件
  * @author JiaChaoYang
- * @date 2023/6/24/024 0:49
  */
 public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>>
-        implements Compare<T,Children> {
+        implements Compare<T,Children>, Geo<T,Children> {
 
     @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
 
     /**
      * 构建条件对象
-     * @since 2023/2/10 12:00
      */
     private final List<CompareCondition> compareList = new CopyOnWriteArrayList<>();
 
     /**
      * 构建排序对象
-     * @since 2023/2/10 12:00
      */
     List<Order> orderList = new ArrayList<>();
 
     /**
      * 构建显示字段
-     * @date 2023/7/30 20:34
      */
     List<Projection> projectionList = new ArrayList<>();
 
     /**
      * 自定义条件语句
-     * @date 2023/8/20 19:40
      */
     List<BasicDBObject> basicDBObjectList = new ArrayList<>();
 
@@ -735,6 +737,285 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
+    public Children geoIntersects(SFunction<T, ?> fieldName, Geometry geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoIntersects(boolean condition, SFunction<T, ?> fieldName, Geometry geometry) {
+        return condition ? geoIntersects(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoIntersects(String fieldName, Geometry geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoIntersects(boolean condition, String fieldName, Geometry geometry) {
+        return condition ? geoIntersects(fieldName,geometry) : typedThis;
+    }
+
+    public Children geoIntersects(SFunction<T, ?> fieldName, Bson geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoIntersects(boolean condition, SFunction<T, ?> fieldName, Bson geometry) {
+        return condition ? geoIntersects(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoIntersects(String fieldName, Bson geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoIntersects(boolean condition, String fieldName, Bson geometry) {
+        return condition ? geoIntersects(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoWithin(SFunction<T, ?> fieldName, Geometry geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoWithin(boolean condition, SFunction<T, ?> fieldName, Geometry geometry) {
+        return condition ? geoWithin(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoWithin(String fieldName, Geometry geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoWithin(boolean condition, String fieldName, Geometry geometry) {
+        return condition ? geoWithin(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoWithin(SFunction<T, ?> fieldName, Bson geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoWithin(boolean condition, SFunction<T, ?> fieldName, Bson geometry) {
+        return condition ? geoWithin(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children geoWithin(String fieldName, Bson geometry) {
+        return getBaseCondition(fieldName,geometry);
+    }
+
+    @Override
+    public Children geoWithin(boolean condition, String fieldName, Bson geometry) {
+        return condition ? geoWithin(fieldName,geometry) : typedThis;
+    }
+
+    @Override
+    public Children near(SFunction<T, ?> fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,new Coordinate(x,y),maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, SFunction<T, ?> fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,x,y,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children near(String fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,new Coordinate(x,y),maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, String fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,x,y,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children near(SFunction<T, ?> fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, SFunction<T, ?> fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children near(String fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, String fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children near(SFunction<T, ?> fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, SFunction<T, ?> fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children near(String fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children near(boolean condition, String fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(SFunction<T, ?> fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,new Coordinate(x,y),maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, SFunction<T, ?> fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,x,y,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(String fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,new Coordinate(x,y),maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, String fieldName, double x, double y, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,x,y,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(SFunction<T, ?> fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, SFunction<T, ?> fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(String fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, String fieldName, Bson geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(SFunction<T, ?> fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, SFunction<T, ?> fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children nearSphere(String fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return getNearCondition(fieldName,geometry,maxDistance,minDistance);
+    }
+
+    @Override
+    public Children nearSphere(boolean condition, String fieldName, Point geometry, Double maxDistance, Double minDistance) {
+        return condition ? near(fieldName,geometry,maxDistance,minDistance) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinBox(SFunction<T, ?> fieldName, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY) {
+        return getBaseCondition(fieldName,new GeoBox(lowerLeftX,lowerLeftY,upperRightX,upperRightY));
+    }
+
+    @Override
+    public Children geoWithinBox(boolean condition, SFunction<T, ?> fieldName, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY) {
+        return condition ? geoWithinBox(fieldName,lowerLeftX,lowerLeftY,upperRightX,upperRightY) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinBox(String fieldName, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY) {
+        return getBaseCondition(fieldName,new GeoBox(lowerLeftX,lowerLeftY,upperRightX,upperRightY));
+    }
+
+    @Override
+    public Children geoWithinBox(boolean condition, String fieldName, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY) {
+        return condition ? geoWithinBox(fieldName,lowerLeftX,lowerLeftY,upperRightX,upperRightY) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinCenter(boolean condition, String fieldName, double x, double y, double radius) {
+        return condition ? geoWithinCenter(fieldName, x, y, radius) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinCenter(String fieldName, double x, double y, double radius) {
+        return getBaseCondition(fieldName,new GeoCenter(x,y,radius));
+    }
+
+    @Override
+    public Children geoWithinCenter(boolean condition, SFunction<T,?> fieldName, double x, double y, double radius) {
+        return condition ? geoWithinCenter(fieldName, x, y, radius) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinCenter(SFunction<T,?> fieldName, double x, double y, double radius) {
+        return getBaseCondition(fieldName,new GeoCenter(x,y,radius));
+    }
+
+    @Override
+    public Children geoWithinCenterSphere(boolean condition, String fieldName, double x, double y, double radius) {
+        return condition ? geoWithinCenterSphere(fieldName, x, y, radius) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinCenterSphere(String fieldName, double x, double y, double radius) {
+        return getBaseCondition(fieldName,new GeoCenter(x,y,radius));
+    }
+
+    @Override
+    public Children geoWithinCenterSphere(boolean condition, SFunction<T,?> fieldName, double x, double y, double radius) {
+        return condition ? geoWithinCenterSphere(fieldName, x, y, radius) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinCenterSphere(SFunction<T,?> fieldName, double x, double y, double radius) {
+        return getBaseCondition(fieldName,new GeoCenter(x,y,radius));
+    }
+
+    @Override
+    public Children geoWithinPolygon(SFunction<T, ?> fieldName, List<List<Double>> points) {
+        return getBaseCondition(fieldName,points);
+    }
+
+    @Override
+    public Children geoWithinPolygon(boolean condition, SFunction<T, ?> fieldName, List<List<Double>> points) {
+        return condition ? geoWithinPolygon(fieldName,points) : typedThis;
+    }
+
+    @Override
+    public Children geoWithinPolygon(String fieldName, List<List<Double>> points) {
+        return getBaseCondition(fieldName,points);
+    }
+
+    @Override
+    public Children geoWithinPolygon(boolean condition, String fieldName, List<List<Double>> points) {
+        return condition ? geoWithinPolygon(fieldName,points) : typedThis;
+    }
+
+    @Override
     public Children combine(boolean condition, QueryChainWrapper<?, ?> queryChainWrapper) {
         return condition ? combine(queryChainWrapper) : typedThis;
     }
@@ -796,6 +1077,26 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     public Children getBaseConditionBetween(SFunction<T,?> column,Object gte,Object lte,boolean convertGtOrLt){
         return getBaseConditionBetween(column.getFieldNameLine(),gte,lte,convertGtOrLt);
+    }
+
+    public Children getNearCondition(SFunction<T,?> column, Object geometry,Double maxDistance, Double minDistance) {
+        return getBaseCondition(
+                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                column.getFieldNameLine(),
+                new GeoNear(geometry,maxDistance,minDistance),
+                column.getImplClass(),
+                column.getField()
+        );
+    }
+
+    public Children getNearCondition(String column, Object geometry,Double maxDistance, Double minDistance) {
+        return getBaseCondition(
+                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                column,
+                new GeoNear(geometry,maxDistance,minDistance),
+                Object.class,
+                null
+        );
     }
 
     public Children getBaseCondition(String column, Object value){

@@ -1,8 +1,11 @@
 package com.mongoplus.cache.global;
 
+import com.mongodb.client.model.geojson.*;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.conversion.impl.*;
 import com.mongoplus.strategy.conversion.impl.bson.*;
+import com.mongoplus.strategy.conversion.impl.geo.*;
+import com.mongoplus.toolkit.ClassTypeUtil;
 import org.bson.*;
 
 import java.math.BigDecimal;
@@ -24,7 +27,14 @@ public class ConversionCache {
 
     private static final Map<Class<?>, ConversionStrategy<?>> conversionStrategieMap = new HashMap<>();
 
+    /**
+     * 可赋值类型的策略映射，用于匹配 X 类及其子类等具有继承关系的类型
+     */
+    private static final Map<Class<?>, ConversionStrategy<?>> assignableConversionMap = new HashMap<>();
+
     public static EnumConversionStrategy<?> enumConversion = new EnumConversionStrategy<>();
+
+    public static Map<Class<?>, ConversionStrategy<? extends Geometry>> geometryConversionMap = new HashMap<>();
 
     static {
         conversionStrategieMap.put(Integer.class,new IntegerConversionStrategy());
@@ -52,10 +62,29 @@ public class ConversionCache {
         conversionStrategieMap.put(BsonInt32.class,new BsonInt32ConversionStrategy());
         conversionStrategieMap.put(BsonInt64.class,new BsonInt64ConversionStrategy());
         conversionStrategieMap.put(BsonString.class,new BsonStringConversionStrategy());
+        // geo
+        geometryConversionMap.put(GeometryCollection.class,new GeometryCollectionConversionStrategy());
+        geometryConversionMap.put(LineString.class,new LineStringConversionStrategy());
+        geometryConversionMap.put(MultiLineString.class,new MultiLineStringConversionStrategy());
+        geometryConversionMap.put(MultiPoint.class,new MultiPointConversionStrategy());
+        geometryConversionMap.put(MultiPolygon.class,new MultiPolygonConversionStrategy());
+        geometryConversionMap.put(Point.class,new PointConversionStrategy());
+        geometryConversionMap.put(Polygon.class,new PolygonConversionStrategy());
+        conversionStrategieMap.putAll(geometryConversionMap);
+        conversionStrategieMap.put(Geometry.class,new GeometryConversionStrategy());
     }
 
     public static ConversionStrategy<?> getConversionStrategy(Class<?> clazz){
-        return conversionStrategieMap.get(clazz);
+        ConversionStrategy<?> conversionStrategy = conversionStrategieMap.get(clazz);
+
+        if (conversionStrategy == null) {
+            conversionStrategy = assignableConversionMap.entrySet().stream()
+                    .filter(entry -> ClassTypeUtil.isTargetClass(entry.getKey(),clazz))
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return conversionStrategy;
     }
 
     public static void putConversionStrategy(Class<?> clazz,ConversionStrategy<?> conversionStrategy){

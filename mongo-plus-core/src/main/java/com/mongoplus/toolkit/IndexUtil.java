@@ -63,6 +63,11 @@ public class IndexUtil {
                     mongoHashIndexList.forEach(fieldInformation -> hashIndex(fieldInformation, indexModelList));
                     indexMetaObject.setIndexType(IndexType.HASH_INDEX);
                 }
+                List<FieldInformation> mongoGeoIndexList = typeInformation.getAnnotationFields(MongoGeoIndex.class);
+                if (CollUtil.isNotEmpty(mongoGeoIndexList)) {
+                    mongoGeoIndexList.forEach(fieldInformation -> geoIndex(fieldInformation,indexModelList));
+                    indexMetaObject.setIndexType(IndexType.GEO_INDEX);
+                }
                 indexMetaObject.setIndexModels(indexModelList);
                 indexList.add(indexMetaObject);
             });
@@ -137,6 +142,13 @@ public class IndexUtil {
         indexModelList.add(new IndexModel(
                 indexDocument,
                 getCompoundIndexOptions(typeInformation, mongoCompoundIndex)
+        ));
+    }
+
+    public static void geoIndex(FieldInformation fieldInformation,List<IndexModel> indexModelList) {
+        MongoGeoIndex geoIndex = fieldInformation.getAnnotation(MongoGeoIndex.class);
+        indexModelList.add(new IndexModel(
+                new Document(fieldInformation.getCamelCaseName(),geoIndex.type().getType())
         ));
     }
 

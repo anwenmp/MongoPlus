@@ -2,11 +2,15 @@ package com.mongoplus.context;
 
 import com.mongodb.client.ClientSession;
 import com.mongoplus.cache.global.DataSourceNameCache;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MongoTransactionStatus {
+
+    private final Log log = LogFactory.getLog(MongoTransactionStatus.class);
 
     /**
      * 持有的session
@@ -28,14 +32,17 @@ public class MongoTransactionStatus {
     }
 
     public void incrementReference() {
+        log.debug("Reference increment");
         this.referenceCount++;
     }
 
     public void decrementReference() {
+        log.debug("Reference decrement");
         this.referenceCount--;
     }
 
     public void clearReference() {
+        log.debug("Reference clear");
         this.referenceCount = 0;
     }
 

@@ -1,5 +1,6 @@
 package com.mongoplus.mapping;
 
+import com.mongodb.client.model.geojson.Geometry;
 import com.mongoplus.toolkit.Assert;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import org.bson.BsonValue;
@@ -115,9 +116,8 @@ public class SimpleTypeHolder {
         }
     }
 
-    public boolean isMongoType(Class<?> type){
-        Assert.notNull(type, "Type must not be null");
-        return ObjectId.class.equals(type) || ClassTypeUtil.isTargetClass(BsonValue.class, type);
+    public boolean isMongoType(Class<?> type) {
+        return new MongoType(type).isMongoType();
     }
 
     /**
@@ -163,4 +163,34 @@ public class SimpleTypeHolder {
     private void register(Collection<? extends Class<?>> types) {
         types.forEach(customSimpleType -> this.simpleTypes.put(customSimpleType, true));
     }
+
+    static class MongoType {
+
+        Class<?> clazz;
+
+        MongoType(Class<?> clazz) {
+            Assert.notNull(clazz, "Type must not be null");
+            this.clazz = clazz;
+        }
+
+        public boolean isMongoType(){
+            return isObjectId() ||
+                    isBsonValue() ||
+                    isGeo();
+        }
+
+        boolean isObjectId() {
+            return ObjectId.class.equals(clazz);
+        }
+
+        boolean isBsonValue() {
+            return ClassTypeUtil.isTargetClass(BsonValue.class, clazz);
+        }
+
+        boolean isGeo() {
+            return ClassTypeUtil.isTargetClass(Geometry.class,clazz);
+        }
+
+    }
+
 }

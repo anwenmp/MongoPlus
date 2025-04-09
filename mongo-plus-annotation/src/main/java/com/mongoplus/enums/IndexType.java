@@ -23,6 +23,10 @@ public enum IndexType {
     /**
      * 文本索引
      */
-    TEXT_INDEX
+    TEXT_INDEX,
+
+    GEO_INDEX,
+
+    ;
 
 }
