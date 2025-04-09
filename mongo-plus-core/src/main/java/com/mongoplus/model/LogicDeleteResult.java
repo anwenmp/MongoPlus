@@ -1,5 +1,12 @@
 package com.mongoplus.model;
 
+import com.mongoplus.enums.LogicDataType;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
+import org.bson.*;
+
+import java.util.Objects;
+
 /**
  * 逻辑删除信息
  *
@@ -7,6 +14,8 @@ package com.mongoplus.model;
  * @date 2024/4/29
  */
 public class LogicDeleteResult {
+
+    Log log = LogFactory.getLog(LogicDeleteResult.class);
 
     /**
      * 逻辑删除指定的列
@@ -23,6 +32,19 @@ public class LogicDeleteResult {
      */
     private String logicNotDeleteValue = "0";
 
+    /**
+     * 逻辑删除数据类型（默认 String）
+     */
+    private LogicDataType logicDataType = LogicDataType.DEFAULT;
+
+    public LogicDataType getLogicDataType() {
+        return logicDataType;
+    }
+
+    public void setLogicDataType(LogicDataType logicDataType) {
+        this.logicDataType = logicDataType;
+    }
+
     public String getColumn() {
         return column;
     }
@@ -31,16 +53,51 @@ public class LogicDeleteResult {
         this.column = column;
     }
 
-    public String getLogicDeleteValue() {
-        return logicDeleteValue;
+    public Object getLogicDeleteValue() {
+        return getLogicValue(this.logicDeleteValue);
     }
 
     public void setLogicDeleteValue(String logicDeleteValue) {
         this.logicDeleteValue = logicDeleteValue;
     }
 
-    public String getLogicNotDeleteValue() {
-        return logicNotDeleteValue;
+    public Object getLogicNotDeleteValue() {
+        return getLogicValue(this.logicNotDeleteValue);
+    }
+
+    public BsonValue getLogicDeleteBsonValue() {
+        return getLogicBsonValue(getLogicDeleteValue());
+    }
+
+    public BsonValue getLogicNotDeleteBsonValue() {
+        return getLogicBsonValue(getLogicNotDeleteValue());
+    }
+
+    public BsonValue getLogicBsonValue(Object value) {
+        if (value instanceof String) {
+            return new BsonString((String) value);
+        } else if (value instanceof Integer) {
+            return new BsonInt32((Integer) value);
+        } else if (value instanceof Long) {
+            return new BsonInt64((Long) value);
+        } else if (value instanceof Boolean) {
+            return new BsonBoolean((Boolean) value);
+        }
+        log.debug("logicDeleteValue is not support type: " + value.getClass());
+        return new BsonString(value.toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    <T> T getLogicValue(String value) {
+        T result = (T) value;
+        if (this.logicDataType == LogicDataType.INTEGER) {
+            result = (T) Integer.valueOf(value);
+        } else if (this.logicDataType == LogicDataType.BOOLEAN) {
+            result = (T) Boolean.valueOf(Objects.equals(value, "0") ? "false" : "true");
+        } else if (this.logicDataType == LogicDataType.LONG) {
+            result = (T) Long.valueOf(value);
+        }
+        return result;
     }
 
     public void setLogicNotDeleteValue(String logicNotDeleteValue) {

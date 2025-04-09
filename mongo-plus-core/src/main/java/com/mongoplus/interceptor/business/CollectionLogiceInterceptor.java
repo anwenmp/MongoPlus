@@ -16,7 +16,6 @@ import com.mongoplus.model.MutablePair;
 import com.mongoplus.model.QueryParam;
 import com.mongoplus.toolkit.BsonUtil;
 import org.bson.BsonDocument;
-import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -130,7 +129,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
                             matchBsonDocument.putIfAbsent(
                                     result.getColumn(),
                                     new BsonDocument(EQ.getOperatorValue(),
-                                            new BsonString(result.getLogicNotDeleteValue()))
+                                            result.getLogicNotDeleteBsonValue())
                             );
                             return bsonDocument;
                         }

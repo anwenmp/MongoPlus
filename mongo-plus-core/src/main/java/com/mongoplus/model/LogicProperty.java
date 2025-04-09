@@ -1,5 +1,7 @@
 package com.mongoplus.model;
 
+import com.mongoplus.enums.LogicDataType;
+
 /**
  * @author JiaChaoYang
  * @date 2023-02-23 10:42
@@ -30,6 +32,19 @@ public class LogicProperty {
      * 逻辑未删除全局值（默认 0、表示未删除）
      */
     private String logicNotDeleteValue = "0";
+
+    /**
+     * 逻辑删除值的类型,默认String类型
+     */
+    private LogicDataType logicDataType = LogicDataType.DEFAULT;
+
+    public LogicDataType getLogicDataType() {
+        return logicDataType;
+    }
+
+    public void setLogicDataType(LogicDataType logicDataType) {
+        this.logicDataType = logicDataType;
+    }
 
     public void setAutoFill(Boolean autoFill) {
         this.autoFill = autoFill;

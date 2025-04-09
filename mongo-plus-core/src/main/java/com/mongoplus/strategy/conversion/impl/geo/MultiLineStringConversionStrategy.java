@@ -1,6 +1,7 @@
 package com.mongoplus.strategy.conversion.impl.geo;
 
-import com.mongodb.client.model.geojson.*;
+import com.mongodb.client.model.geojson.MultiLineString;
+import com.mongodb.client.model.geojson.Position;
 import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import org.bson.Document;

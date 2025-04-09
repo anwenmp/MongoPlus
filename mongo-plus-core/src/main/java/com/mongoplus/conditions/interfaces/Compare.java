@@ -1,9 +1,6 @@
 package com.mongoplus.conditions.interfaces;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.model.geojson.Geometry;
-import com.mongodb.client.model.geojson.Point;
-import com.mongodb.lang.Nullable;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;

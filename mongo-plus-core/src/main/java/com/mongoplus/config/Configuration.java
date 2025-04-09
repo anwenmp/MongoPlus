@@ -11,6 +11,7 @@ import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.domain.InitMongoLogicException;
 import com.mongoplus.domain.InitMongoPlusException;
 import com.mongoplus.enums.CollectionNameConvertEnum;
+import com.mongoplus.enums.LogicDataType;
 import com.mongoplus.execute.ExecutorFactory;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.handlers.IdGenerateHandler;
@@ -54,19 +55,18 @@ import java.util.stream.Collectors;
  *
  * @author JiaChaoYang
  **/
+@SuppressWarnings({"unused","UnusedReturnValue"})
 public class Configuration {
 
     /**
      * MongoDB连接URL
      *
-     * @date 2024/3/19 18:25
      */
     private String url;
 
     /**
      * 属性配置文件，url和baseProperty存在一个即可
      *
-     * @date 2024/3/19 18:25
      */
     private BaseProperty baseProperty = new BaseProperty();
 
@@ -80,7 +80,6 @@ public class Configuration {
      * 获取一个空的Configuration
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:26
      */
     public static Configuration builder() {
         return new Configuration();
@@ -90,7 +89,6 @@ public class Configuration {
      * 设置url
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:26
      */
     public Configuration connection(String url) {
         this.url = url;
@@ -101,7 +99,6 @@ public class Configuration {
      * 设置属性配置文件
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:26
      */
     public Configuration connection(BaseProperty baseProperty) {
         this.baseProperty = baseProperty;
@@ -115,7 +112,6 @@ public class Configuration {
      * @param database 数据库 多个库使用逗号隔开
      * @return com.mongoplus.config.Configuration
      * @author JiaChaoYang
-     * @date 2024/3/19 19:08
      */
     public Configuration database(String database) {
         this.baseProperty.setDatabase(database);
@@ -126,7 +122,6 @@ public class Configuration {
      * 设置集合名称获取策略
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:27
      */
     public Configuration collectionNameConvert(CollectionNameConvertEnum collectionNameConvertEnum) {
         AnnotationOperate.setCollectionNameConvertEnum(collectionNameConvertEnum);
@@ -139,7 +134,6 @@ public class Configuration {
      * @param clazzConversions 转换器类
      * @return com.mongoplus.config.Configuration
      * @author JiaChaoYang
-     * @date 2024/3/19 18:29
      */
     @SafeVarargs
     public final Configuration convert(Class<? extends ConversionStrategy<?>>... clazzConversions) {
@@ -163,7 +157,6 @@ public class Configuration {
      * @param metaObjectHandler 元数据填充
      * @return com.mongoplus.config.Configuration
      * @author JiaChaoYang
-     * @date 2024/3/19 18:29
      */
     public Configuration metaObjectHandler(MetaObjectHandler metaObjectHandler) {
         HandlerCache.metaObjectHandler = metaObjectHandler;
@@ -174,7 +167,6 @@ public class Configuration {
      * 开启日志打印
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:31
      */
     public Configuration log() {
         ListenerCache.listeners.add(new LogListener());
@@ -197,7 +189,6 @@ public class Configuration {
      * 开启防攻击
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:31
      */
     public Configuration blockAttackInner() {
         ListenerCache.listeners.add(new BlockAttackInnerListener());
@@ -210,7 +201,6 @@ public class Configuration {
      * @param listeners 监听器
      * @return com.mongoplus.config.Configuration
      * @author JiaChaoYang
-     * @date 2024/3/19 18:38
      */
     @SafeVarargs
     public final Configuration listener(Class<? extends Listener>... listeners) {
@@ -226,7 +216,6 @@ public class Configuration {
      * @param interceptors 拦截器
      * @return com.mongoplus.config.Configuration
      * @author JiaChaoYang
-     * @date 2024/3/19 18:38
      */
     @SafeVarargs
     public final Configuration interceptor(Class<? extends Interceptor>... interceptors) {
@@ -265,7 +254,6 @@ public class Configuration {
      * 设置多租户处理器
      *
      * @author anwen
-     * @date 2024/6/27 下午12:47
      */
     public Configuration tenantHandler(TenantHandler tenantHandler) {
         InterceptorChain.addInterceptor(new TenantInterceptor(tenantHandler));
@@ -276,7 +264,6 @@ public class Configuration {
      * 获取MongoPlusClient
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:38
      */
     public MongoPlusClient getMongoPlusClient() {
         if (StringUtils.isBlank(url)) {
@@ -326,7 +313,6 @@ public class Configuration {
      * 设置数据源
      *
      * @author JiaChaoYang
-     * @date 2024/4/5 1:48
      */
     public void setOtherDataSource(Map<String, MongoClient> mongoClientMap) {
         MongoClientFactory.getInstance(mongoClientMap);
@@ -436,14 +422,12 @@ public class Configuration {
             // 优先使用每个对象自定义规则
             if (Objects.nonNull(annotationField)) {
                 CollectionLogic annotation = annotationField.getAnnotation(CollectionLogic.class);
-                if (annotation.close()) {
-                    continue;
-                }
                 LogicDeleteResult result = new LogicDeleteResult();
                 String column = annotationField.getCamelCaseName();
                 result.setColumn(column);
                 result.setLogicDeleteValue(StringUtils.isNotBlank(annotation.delval()) ? annotation.delval() : logicProperty.getLogicDeleteValue());
                 result.setLogicNotDeleteValue(StringUtils.isNotBlank(annotation.value()) ? annotation.value() : logicProperty.getLogicNotDeleteValue());
+                result.setLogicDataType(annotation.delType() == LogicDataType.DEFAULT ? logicProperty.getLogicDataType() : annotation.delType());
                 logicDeleteResultHashMap.put(clazz, result);
                 continue;
             }
@@ -456,6 +440,7 @@ public class Configuration {
                 result.setColumn(logicProperty.getLogicDeleteField());
                 result.setLogicDeleteValue(logicProperty.getLogicDeleteValue());
                 result.setLogicNotDeleteValue(logicProperty.getLogicNotDeleteValue());
+                result.setLogicDataType(logicProperty.getLogicDataType() == LogicDataType.DEFAULT ? LogicDataType.STRING : logicProperty.getLogicDataType());
                 logicDeleteResultHashMap.put(clazz, result);
                 continue;
             }
@@ -487,7 +472,6 @@ public class Configuration {
      * 获取BaseMapper
      *
      * @author JiaChaoYang
-     * @date 2024/3/19 18:39
      */
     public BaseMapper getBaseMapper() {
         return new DefaultBaseMapperImpl(getMongoPlusClient(), new MappingMongoConverter());

@@ -13,7 +13,6 @@ import com.mongoplus.registry.MongoEntityMappingRegistry;
 import com.mongoplus.toolkit.ChainWrappers;
 import com.mongoplus.toolkit.Filters;
 import org.bson.BsonDocument;
-import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -77,17 +76,17 @@ public interface LogicDeleteHandler {
         }
         if (query instanceof BasicDBObject) {
             BasicDBObject bdb = (BasicDBObject) query;
-            bdb.put(result.getColumn(), new BsonString(result.getLogicNotDeleteValue()));
+            bdb.put(result.getColumn(), result.getLogicNotDeleteBsonValue());
             return bdb;
         }
         if (query instanceof Filters.MPBson) {
             Filters.MPBson filter = (Filters.MPBson) query;
             BasicDBObject bdb = filter.getBasicDBObject();
-            bdb.put(result.getColumn(), new BsonString(result.getLogicNotDeleteValue()));
+            bdb.put(result.getColumn(), result.getLogicNotDeleteBsonValue());
             return bdb;
         } else {
             BsonDocument bsonDocument = query.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
-            bsonDocument.append(result.getColumn(), new BsonString(result.getLogicNotDeleteValue()));
+            bsonDocument.append(result.getColumn(), result.getLogicNotDeleteBsonValue());
             return bsonDocument;
         }
 
