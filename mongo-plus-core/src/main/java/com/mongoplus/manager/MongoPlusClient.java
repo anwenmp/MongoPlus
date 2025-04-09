@@ -12,10 +12,7 @@ import com.mongoplus.model.BaseProperty;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -193,6 +190,15 @@ public class MongoPlusClient {
 
     public void setMongoDatabase(List<MongoDatabase> mongoDatabase) {
         this.mongoDatabase = mongoDatabase;
+    }
+
+
+    public void dropCollection(Class<?> clazz) {
+        Optional.ofNullable(getCollectionManager(clazz).getCollection(clazz)).ifPresent(MongoCollection::drop);
+    }
+
+    public void dropCollection(String database, String collectionName) {
+        Optional.ofNullable(getCollectionManager(database).getCollection(collectionName)).ifPresent(MongoCollection::drop);
     }
 
     @Override
