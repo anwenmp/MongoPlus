@@ -11,7 +11,6 @@ import java.util.Objects;
  * 逻辑删除信息
  *
  * @author loser
- * @date 2024/4/29
  */
 public class LogicDeleteResult {
 

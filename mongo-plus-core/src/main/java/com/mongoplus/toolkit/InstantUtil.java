@@ -19,7 +19,6 @@ public class InstantUtil {
      * 时间戳转LocalDateTime
      * @param timestamp 时间戳
      * @author JiaChaoYang
-     * @date 2023/10/18 22:46
     */
     public static LocalDateTime convertTimestampToLocalDateTime8(long timestamp) {
         return convertTimestampToLocalDateTime(timestamp).minusHours(8);
@@ -45,7 +44,6 @@ public class InstantUtil {
      * 不使用LocalDate的ofInstant的方法，因为java8不可用，这样做可以兼容版本
      * @param timestamp 时间戳
      * @author JiaChaoYang
-     * @date 2023/10/18 22:50
     */
     public static LocalDate convertTimestampToLocalDate(long timestamp){
         return convertTimestampToLocalDateTime8(timestamp).toLocalDate();
@@ -60,7 +58,6 @@ public class InstantUtil {
      * 不使用LocalDate的ofInstant的方法，因为java8不可用，这样做可以兼容版本
      * @param timestamp 时间戳
      * @author JiaChaoYang
-     * @date 2023/10/18 22:51
     */
     public static LocalTime convertTimestampToLocalTime(long timestamp){
         return convertTimestampToLocalDateTime(timestamp).toLocalTime();

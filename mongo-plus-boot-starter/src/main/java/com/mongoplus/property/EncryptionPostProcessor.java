@@ -19,13 +19,11 @@ public class EncryptionPostProcessor implements EnvironmentPostProcessor, Ordere
 
     /**
      * 前缀
-     * @date 2024/8/26 13:31
      */
     private final String PREFIX = "${ENC:";
 
     /**
      * 后缀
-     * @date 2024/8/26 13:31
      */
     private final String SUFFIX = "}";
 

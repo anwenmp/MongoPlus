@@ -19,49 +19,42 @@ public class OperationResult implements Serializable {
     /**
      * 操作类型
      *
-     * @date 2024/6/27 下午5:37
      */
     private String operation;
 
     /**
      * 记录状态
      *
-     * @date 2024/6/27 下午5:37
      */
     private boolean recordStatus;
 
     /**
      * 数据源名称
      *
-     * @date 2024/7/9 下午5:05
      */
     private String datasourceName;
 
     /**
      * 数据库名
      *
-     * @date 2024/6/27 下午5:37
      */
     private String databaseName;
 
     /**
      * 集合名
      *
-     * @date 2024/6/27 下午5:37
      */
     private String collectionName;
 
     /**
      * 改动数据
      *
-     * @date 2024/6/27 下午5:37
      */
     private String changedData;
 
     /**
      * 插件耗时
      *
-     * @date 2024/6/27 下午5:38
      */
     private long cost;
 

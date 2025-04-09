@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * @author anwen
- * @date 2024/6/19 下午11:37
  */
 public class LambdaAggregateChainWrapper<T> extends LambdaAggregateWrapper<LambdaAggregateChainWrapper<T>> implements ChainAggregate<T> {
 

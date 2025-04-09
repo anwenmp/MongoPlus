@@ -29,7 +29,6 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
 /**
  * update接口实现
  * @author JiaChaoYang
- * @date 2023/6/24/024 12:45
 */
 public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children>>
         extends AbstractChainWrapper<T, Children> implements Update<T,Children> {
@@ -60,7 +59,6 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
      * 构建修改条件
      * @return {@link com.mongoplus.model.MutablePair}
      * @author anwen
-     * @date 2024/8/24 16:24
      */
     public MutablePair<BasicDBObject, BasicDBObject> buildUpdateCondition(){
         return buildUpdateCondition(condition());
@@ -71,7 +69,6 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
      * @param condition 条件构造器
      * @return {@link com.mongoplus.model.MutablePair}
      * @author anwen
-     * @date 2024/8/24 16:24
      */
     public MutablePair<BasicDBObject, BasicDBObject> buildUpdateCondition(Condition condition){
         return condition.updateCondition(this);

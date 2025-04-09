@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 自增id生成
  * @author JiaChaoYang
- * @date 2023-11-24 09:19
  **/
 public class AutoIdGenerate {
 
@@ -16,7 +15,6 @@ public class AutoIdGenerate {
     /**
      * 双重检查锁定，保证线程安全，基于懒汉
      * @author JiaChaoYang
-     * @date 2023/11/24 10:36
     */
     public static AutoIdGenerate getInstance() {
         if (instance == null) {
@@ -32,7 +30,6 @@ public class AutoIdGenerate {
     /**
      * 默认从0开始
      * @author JiaChaoYang
-     * @date 2023/11/24 9:22
     */
     private AutoIdGenerate(){
         counter = new AtomicInteger(0);
@@ -42,7 +39,6 @@ public class AutoIdGenerate {
     /**
      * 获取下一个id
      * @author JiaChaoYang
-     * @date 2023/11/24 9:21
     */
     public synchronized int getNextId() {
         return counter.incrementAndGet();

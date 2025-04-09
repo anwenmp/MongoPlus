@@ -14,7 +14,6 @@ import java.security.spec.ECGenParameterSpec;
  * SM2加密
  *
  * @author anwen
- * @date 2024/6/30 上午12:45
  */
 public class SM2Example implements Encryptor {
 
@@ -28,7 +27,6 @@ public class SM2Example implements Encryptor {
      * 生成SM2密钥对
      * @return {@link java.security.KeyPair}
      * @author anwen
-     * @date 2024/6/30 上午1:23
      */
     public KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC", "BC");
@@ -39,7 +37,6 @@ public class SM2Example implements Encryptor {
     /**
      * 使用SM2公钥加密
      * @author anwen
-     * @date 2024/6/30 上午1:23
      */
     public String encrypt(String data,PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("SM2", BouncyCastleProvider.PROVIDER_NAME);
@@ -59,7 +56,6 @@ public class SM2Example implements Encryptor {
      * 使用SM2私钥解密
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/30 上午1:23
      */
     public String decrypt(String data,PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("SM2", BouncyCastleProvider.PROVIDER_NAME);

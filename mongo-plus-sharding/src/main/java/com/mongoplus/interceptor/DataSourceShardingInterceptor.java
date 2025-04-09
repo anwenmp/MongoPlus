@@ -63,7 +63,6 @@ public class DataSourceShardingInterceptor implements Interceptor, AdvancedInter
      *
      * @return {@link int}
      * @author anwen
-     * @date 2024/11/14 20:23
      */
     @Override
     public int order() {
@@ -74,7 +73,6 @@ public class DataSourceShardingInterceptor implements Interceptor, AdvancedInter
      * {@inheritDoc}
      *
      * @author anwen
-     * @date 2024/11/14 18:03
      */
     @Override
     public void beforeExecute(ExecuteMethodEnum executeMethodEnum, Object[] source,

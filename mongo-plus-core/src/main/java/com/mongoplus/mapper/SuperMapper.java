@@ -24,35 +24,30 @@ import static com.mongoplus.toolkit.StringPool.EMPTY;
  * 顶级Mapper接口
  *
  * @author anwen
- * @date 2024/6/26 下午2:03
  */
 public interface SuperMapper extends BaseIndex {
 
     /**
      * 获取MongoPlusClient
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     MongoPlusClient getMongoPlusClient();
 
     /**
      * 获取绑定的转换器
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     MongoConverter getMongoConverter();
 
     /**
      * 获取执行器
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     Execute getExecute();
 
     /**
      * 添加单个
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     default <T> boolean save(String database, String collectionName, T entity){
         return save(database,collectionName,entity,null);
@@ -61,14 +56,12 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 添加单个
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     <T> boolean save(String database, String collectionName, T entity,InsertManyOptions options);
 
     /**
      * 添加多个
      * @author anwen
-     * @date 2024/5/4 下午1:20
      */
     default <T> Boolean saveBatch(String database,String collectionName,Collection<T> entityList){
         return saveBatch(database,collectionName,entityList,null);
@@ -79,7 +72,6 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
      * @author anwen
-     * @date 2024/5/4 下午1:21
      */
     default Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic){
         return update(database,collectionName,queryBasic,updateBasic,null);
@@ -88,7 +80,6 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
      * @author anwen
-     * @date 2024/5/4 下午1:21
      */
     Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic,UpdateOptions options);
 
@@ -97,7 +88,6 @@ public interface SuperMapper extends BaseIndex {
      * @param writeModelList writeModelList
      * @return {@link Integer}
      * @author anwen
-     * @date 2024/5/4 下午1:22
      */
     default Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList){
         return bulkWrite(database,collectionName,writeModelList,null);
@@ -108,14 +98,12 @@ public interface SuperMapper extends BaseIndex {
      * @param writeModelList writeModelList
      * @return {@link Integer}
      * @author anwen
-     * @date 2024/5/4 下午1:22
      */
     Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList,BulkWriteOptions options);
 
     /**
      * 根据queryWrapper修改entity
      * @author anwen
-     * @date 2024/5/4 下午1:23
      */
     default <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
         return update(database,collectionName,entity,queryChainWrapper,null);
@@ -124,7 +112,6 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 根据queryWrapper修改entity
      * @author anwen
-     * @date 2024/5/4 下午1:23
      */
     <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
@@ -133,7 +120,6 @@ public interface SuperMapper extends BaseIndex {
      * @param id id
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     boolean isExist(String database,String collectionName,Serializable id);
 
@@ -142,7 +128,6 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     boolean isExist(String database,String collectionName,QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -150,7 +135,6 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 修改，直接根据UpdateWrapper
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     default Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
         return update(database,collectionName,updateChainWrapper,new UpdateOptions());
@@ -159,7 +143,6 @@ public interface SuperMapper extends BaseIndex {
     /**
      * 修改，直接根据UpdateWrapper
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,UpdateOptions options);
 
@@ -168,7 +151,6 @@ public interface SuperMapper extends BaseIndex {
      * @param updateChainWrapper 条件
      * @return {@link Boolean}
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     default Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
         return remove(database,collectionName,updateChainWrapper,null);
@@ -179,7 +161,6 @@ public interface SuperMapper extends BaseIndex {
      * @param updateChainWrapper 条件
      * @return {@link Boolean}
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options);
 
@@ -188,7 +169,6 @@ public interface SuperMapper extends BaseIndex {
      * @param filter 条件
      * @return {@link Long}
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     default Long remove(String database,String collectionName,Bson filter){
         return remove(database,collectionName,filter,null);
@@ -199,7 +179,6 @@ public interface SuperMapper extends BaseIndex {
      * @param filter 条件
      * @return {@link Long}
      * @author anwen
-     * @date 2024/5/4 下午1:32
      */
     Long remove(String database,String collectionName,Bson filter,DeleteOptions options);
 
@@ -208,14 +187,12 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link long}
      * @author anwen
-     * @date 2024/5/4 下午1:33
      */
     long count(String database,String collectionName,QueryChainWrapper<?, ?> queryChainWrapper);
 
     /**
      * 返回第N页
      * @author anwen
-     * @date 2024/5/4 下午1:33
      */
     long recentPageCount(String database,String collectionName,List<CompareCondition> compareConditionList, Integer pageNum, Integer pageSize, Integer recentPageNum);
 
@@ -225,7 +202,6 @@ public interface SuperMapper extends BaseIndex {
      * @param rClazz 返回的class
      * @return {@link List <T>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> List<R> list(String database,String collectionName,Class<R> rClazz);
 
@@ -234,7 +210,6 @@ public interface SuperMapper extends BaseIndex {
      * @param typeReference 返回的class
      * @return {@link List <T>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> List<R> list(String database,String collectionName, TypeReference<R> typeReference);
 
@@ -243,7 +218,6 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> list(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Class<R> rClazz);
 
@@ -252,7 +226,6 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <T,R> List<R> list(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, TypeReference<R> typeReference);
 
@@ -261,7 +234,6 @@ public interface SuperMapper extends BaseIndex {
      * @param aggregate 管道构建
      * @return {@link List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> List<R> aggregateList(String database,String collectionName,Aggregate<?> aggregate, Class<R> rClazz);
 
@@ -270,7 +242,6 @@ public interface SuperMapper extends BaseIndex {
      * @param aggregate 管道构建
      * @return {@link List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> R aggregateOne(String database,String collectionName,Aggregate<?> aggregate, Class<R> rClazz);
 
@@ -279,7 +250,6 @@ public interface SuperMapper extends BaseIndex {
      * @param aggregate 管道构建
      * @return {@link List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> List<R> aggregateList(String database,String collectionName,Aggregate<?> aggregate, TypeReference<R> typeReference);
 
@@ -288,7 +258,6 @@ public interface SuperMapper extends BaseIndex {
      * @param aggregate 管道构建
      * @return {@link List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <R> R aggregateOne(String database,String collectionName,Aggregate<?> aggregate, TypeReference<R> typeReference);
 
@@ -297,7 +266,6 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link T}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <T,R> R one(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
 
@@ -306,7 +274,6 @@ public interface SuperMapper extends BaseIndex {
      * @param queryChainWrapper 条件
      * @return {@link T}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     <T,R> R one(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
 
@@ -317,7 +284,6 @@ public interface SuperMapper extends BaseIndex {
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
-     * @date 2024/5/4 下午1:25
      */
     <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
@@ -328,7 +294,6 @@ public interface SuperMapper extends BaseIndex {
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
-     * @date 2024/5/4 下午1:25
      */
     <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
@@ -339,7 +304,6 @@ public interface SuperMapper extends BaseIndex {
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/4 下午1:26
      */
     <T,R> List<R> pageList(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz);
 
@@ -350,7 +314,6 @@ public interface SuperMapper extends BaseIndex {
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/4 下午1:26
      */
     <T,R> List<R> pageList(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, TypeReference<R> typeReference);
 
@@ -362,7 +325,6 @@ public interface SuperMapper extends BaseIndex {
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
-     * @date 2024/5/4 下午1:30
      */
     <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
 
@@ -374,7 +336,6 @@ public interface SuperMapper extends BaseIndex {
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
-     * @date 2024/5/4 下午1:30
      */
     <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
 
@@ -383,7 +344,6 @@ public interface SuperMapper extends BaseIndex {
      * @param ids ids
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     <R> List<R> getByIds(String database,String collectionName,Collection<? extends Serializable> ids,Class<R> rClazz);
 
@@ -392,21 +352,18 @@ public interface SuperMapper extends BaseIndex {
      * @param ids ids
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     <R> List<R> getByIds(String database,String collectionName,Collection<? extends Serializable> ids,TypeReference<R> typeReference);
 
     /**
      * 根据id查询单个
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     <R> R getById(String database,String collectionName,Serializable id,Class<R> rClazz);
 
     /**
      * 根据id查询单个
      * @author anwen
-     * @date 2024/5/4 下午1:31
      */
     <R> R getById(String database,String collectionName,Serializable id,TypeReference<R> typeReference);
 
@@ -415,7 +372,6 @@ public interface SuperMapper extends BaseIndex {
      * @param command 命令，请传入mongo命令的find中完整的json
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:34
      */
     <R> List<R> queryCommand(String database,String collectionName,String command,Class<R> rClazz);
 
@@ -424,28 +380,24 @@ public interface SuperMapper extends BaseIndex {
      * @param command 命令，请传入mongo命令的find中完整的json
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/5/4 下午1:34
      */
     <R> List<R> queryCommand(String database,String collectionName,String command,TypeReference<R> typeReference);
 
     /**
      * 根据某列进行查询
      * @author anwen
-     * @date 2024/5/4 下午1:34
      */
     <R> List<R> getByColumn(String database,String collectionName,String column,Object value,Class<R> rClazz);
 
     /**
      * 根据某列进行查询
      * @author anwen
-     * @date 2024/5/4 下午1:34
      */
     <R> List<R> getByColumn(String database,String collectionName,String column,Object value,TypeReference<R> typeReference);
 
     /**
      * 查询总数，estimatedDocumentCount高效率查询，但是不接收条件
      * @author anwen
-     * @date 2024/5/4 下午1:33
      */
     long count(String database,String collectionName);
 
@@ -455,7 +407,6 @@ public interface SuperMapper extends BaseIndex {
      * @param clazz 返回值类型
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/11/15 16:01
      */
     default <T> List<T> command(String command,Class<T> clazz){
         return command(command, new TypeReference<T>(clazz) {});
@@ -467,7 +418,6 @@ public interface SuperMapper extends BaseIndex {
      * @param typeReference 返回值类型
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/11/15 16:01
      */
     default <T> List<T> command(String command,TypeReference<T> typeReference){
         return command(EMPTY,command,typeReference);
@@ -479,7 +429,6 @@ public interface SuperMapper extends BaseIndex {
      * @param clazz 返回值类型
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/11/15 16:01
      */
     default <T> List<T> command(String database , String command,Class<T> clazz){
         return command(database, command, new TypeReference<T>(clazz) {});
@@ -491,7 +440,6 @@ public interface SuperMapper extends BaseIndex {
      * @param typeReference 返回值类型
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/11/15 16:01
      */
     <T> List<T> command(String database , String command,TypeReference<T> typeReference);
 

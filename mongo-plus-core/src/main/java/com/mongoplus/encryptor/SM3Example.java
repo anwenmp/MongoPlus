@@ -10,7 +10,6 @@ import java.security.Security;
  * SM3加密
  *
  * @author anwen
- * @date 2024/6/30 上午1:12
  */
 public class SM3Example implements Encryptor {
 

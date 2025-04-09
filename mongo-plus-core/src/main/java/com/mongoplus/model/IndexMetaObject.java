@@ -14,25 +14,21 @@ public class IndexMetaObject {
 
     /**
      * 类信息
-     * @date 2024/8/27 10:51
      */
     private TypeInformation typeInformation;
 
     /**
      * 数据源
-     * @date 2024/8/27 10:52
      */
     private String dataSource;
 
     /**
      * 索引对象
-     * @date 2024/8/27 10:52
      */
     private List<IndexModel> indexModels;
 
     /**
      * 索引类型
-     * @date 2024/8/27 10:52
      */
     private IndexType indexType;
 

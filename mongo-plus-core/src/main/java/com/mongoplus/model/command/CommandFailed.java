@@ -5,19 +5,16 @@ import com.mongodb.event.CommandFailedEvent;
 /**
  * 命令失败信息
  * @author JiaChaoYang
- * @date 2023-11-22 14:30
  **/
 public class CommandFailed extends BaseCommand {
 
     /**
      * 命令失败的异常
-     * @date 2023/11/22 14:31
     */
     private Throwable throwable;
 
     /**
      * MongoDB提供，比较全的失败信息
-     * @date 2023/11/22 14:32
     */
     private CommandFailedEvent commandFailedEvent;
 

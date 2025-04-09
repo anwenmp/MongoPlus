@@ -89,7 +89,6 @@ public interface SFunction<T,R> extends Function<T,R>, Serializable {
     /**
      * 获取实体类型
      * @author anwen
-     * @date 2024/6/30 下午3:29
      */
     default Class<?> getImplClass() {
         SerializedLambda serializedLambda = getSerializedLambda();

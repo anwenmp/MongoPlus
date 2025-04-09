@@ -6,14 +6,12 @@ import org.bson.conversions.Bson;
 
 /**
  * @author anwen
- * @date 2024/6/19 下午11:41
  */
 public interface AggregateOptions<Children> {
 
     /**
      * 设置为 true，表示允许在磁盘上存储临时数据。默认值为 false。
      * @author JiaChaoYang
-     * @date 2023/8/31 0:49
      */
     Children allowDiskUse(boolean allowDiskUse);
 
@@ -22,7 +20,6 @@ public interface AggregateOptions<Children> {
      * @param size 大小
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/31 0:49
      */
     Children batchSize(Integer size);
 
@@ -31,7 +28,6 @@ public interface AggregateOptions<Children> {
      * @param collationStrength 枚举
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/31 0:56
      */
     Children collation(CollationStrength collationStrength);
 
@@ -40,7 +36,6 @@ public interface AggregateOptions<Children> {
      * @param maxTime 执行时间
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/31 0:55
      */
     Children maxTimeMS(long maxTime);
 
@@ -49,7 +44,6 @@ public interface AggregateOptions<Children> {
      * @param maxAwaitTime 最大等待时间
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:53
      */
     Children maxAwaitTimeMS(long maxAwaitTime);
 
@@ -59,7 +53,6 @@ public interface AggregateOptions<Children> {
      * @param bypassDocumentValidation 如果为true，则允许写入选择退出文档级验证。
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:55
      */
     Children bypassDocumentValidation(boolean bypassDocumentValidation);
 
@@ -68,7 +61,6 @@ public interface AggregateOptions<Children> {
      * @param comment 注释
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:56
      */
     Children comment(BsonValue comment);
 
@@ -77,7 +69,6 @@ public interface AggregateOptions<Children> {
      * @param comment 注释
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:56
      */
     Children comment(String comment);
 
@@ -86,7 +77,6 @@ public interface AggregateOptions<Children> {
      * @param hint 提示
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:58
      */
     Children hint(Bson hint);
 
@@ -95,7 +85,6 @@ public interface AggregateOptions<Children> {
      * @param hint 提示
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:58
      */
     Children hint(String hint);
 
@@ -107,7 +96,6 @@ public interface AggregateOptions<Children> {
      * @param variables 变量
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/9/4 21:59
      */
     Children let(Bson variables);
 

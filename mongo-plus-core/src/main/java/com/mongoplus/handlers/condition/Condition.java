@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * 条件接口
  * @author anwen
- * @date 2024/8/1 下午2:19
  */
 public interface Condition {
 
@@ -23,7 +22,6 @@ public interface Condition {
      * @param compareConditionList 条件集合
      * @return {@link com.mongodb.BasicDBObject}
      * @author anwen
-     * @date 2024/8/1 下午2:20
      */
     BasicDBObject queryCondition(List<CompareCondition> compareConditionList);
 
@@ -32,7 +30,6 @@ public interface Condition {
      * @param compareCondition 条件
      * @return {@link com.mongodb.BasicDBObject}
      * @author anwen
-     * @date 2024/8/1 下午2:26
      */
     BasicDBObject queryCondition(CompareCondition compareCondition);
 
@@ -41,7 +38,6 @@ public interface Condition {
      * @param updateChainWrapper 修改条件构造器
      * @return {@link com.mongoplus.model.MutablePair} left=query,right=update
      * @author anwen
-     * @date 2024/8/1 下午2:21
      */
     MutablePair<BasicDBObject,BasicDBObject> updateCondition(UpdateChainWrapper<?, ?> updateChainWrapper);
 
@@ -50,7 +46,6 @@ public interface Condition {
      * @param projectionList project集合
      * @return {@link BasicDBObject}
      * @author anwen
-     * @date 2024/8/1 下午8:25
      */
     default BasicDBObject projectionCondition(List<Projection> projectionList){
         return new BasicDBObject(){{
@@ -65,7 +60,6 @@ public interface Condition {
      * @param wrapper wrapper
      * @return {@link BaseConditionResult}
      * @author anwen
-     * @date 2024/8/24 15:54
      */
     BaseConditionResult queryCondition(AbstractChainWrapper<?,?> wrapper);
 

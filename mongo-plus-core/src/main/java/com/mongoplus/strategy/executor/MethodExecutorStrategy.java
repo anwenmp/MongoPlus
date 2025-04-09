@@ -7,7 +7,6 @@ import com.mongoplus.interceptor.Interceptor;
  * 方法执行策略(解耦逻辑)
  *
  * @author loser
- * @date 2024/4/28
  */
 public interface MethodExecutorStrategy {
 

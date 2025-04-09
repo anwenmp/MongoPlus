@@ -14,7 +14,6 @@ public class MongoDBLogProperty {
 
     /**
      * 是否开启日志
-     * @date 2024/5/1 下午1:26
      */
     private Boolean log = false;
 
@@ -33,7 +32,6 @@ public class MongoDBLogProperty {
 
     /**
      * 指定日志拦截器的order，默认为0
-     * @date 2023/11/22 19:01
      */
     private int logOrder = 0;
 
@@ -48,7 +46,6 @@ public class MongoDBLogProperty {
 
     /**
      * 是否打开格式化sql
-     * @date 2023/8/29 0:52
      */
     private Boolean format = false;
 

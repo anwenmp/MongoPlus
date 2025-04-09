@@ -6,7 +6,6 @@ import java.util.Map;
 /**
  * 获取集合中的自定义类
  * @author anwen
- * @date 2024/8/2 上午1:05
  */
 public class CustomClassUtil {
 

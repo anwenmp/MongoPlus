@@ -7,7 +7,6 @@ import org.bson.types.Binary;
 /**
  * 转换为byte[]
  * @author anwen
- * @date 2024/5/29 下午10:01
  */
 public class ByteArrayConversionStrategy implements ConversionStrategy<byte[]> {
     @Override

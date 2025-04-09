@@ -12,7 +12,6 @@ import static com.mongoplus.enums.CollectionNameConvertEnum.ALL_CHAR_LOWERCASE;
  * 便捷的注解操作
  *
  * @author anwen
- * @date 2024/7/10 下午3:52
  */
 public class AnnotationOperate implements AnnotationHandler {
 

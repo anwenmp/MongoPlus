@@ -11,19 +11,16 @@ public class BaseConditionResult {
 
     /**
      * 条件策略
-     * @date 2023/12/30 17:30
     */
     private BasicDBObject condition;
 
     /**
      * projection策略
-     * @date 2023/12/30 17:30
     */
     private BasicDBObject projection;
 
     /**
      * 排序策略
-     * @date 2023/12/30 17:30
     */
     private BasicDBObject sort;
 

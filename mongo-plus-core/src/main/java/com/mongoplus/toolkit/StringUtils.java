@@ -568,7 +568,6 @@ public final class StringUtils {
     /**
      * 下划线转驼峰
      * @author JiaChaoYang
-     * @date 2023/10/20 20:45
     */
     public static String convertToCamelCase(String str) {
         if (Objects.equals(str, SqlOperationConstant._ID)){
@@ -582,7 +581,6 @@ public final class StringUtils {
     /**
      * 驼峰转下划线
      * @author anwen
-     * @date 2024/6/27 下午11:47
      */
     public static String convertCamelToUnderscore(String camelCaseString) {
         if (camelCaseString == null || camelCaseString.isEmpty()) {
@@ -982,7 +980,6 @@ public final class StringUtils {
      * @param hex 字符串
      * @return {@link byte[]}
      * @author anwen
-     * @date 2024/6/30 上午12:21
      */
     public static byte[] hexToBytes(String hex) {
         int len = hex.length();
@@ -999,7 +996,6 @@ public final class StringUtils {
      * @param hashBytes 字节
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/30 上午12:23
      */
     public static String bytesToHex(byte[] hashBytes){
         StringBuilder hexString = new StringBuilder();

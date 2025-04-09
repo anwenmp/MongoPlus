@@ -4,7 +4,6 @@ package com.mongoplus.enums;
  * 管道枚举
  *
  * @author anwen
- * @date 2024/6/16 下午9:31
  */
 public enum AggregateEnum {
 

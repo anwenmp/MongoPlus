@@ -5,7 +5,6 @@ import com.mongoplus.model.AutoFillMetaObject;
 /**
  * 元对象(Document当做‘元对象’)字段填充控制器抽象类，实现公共字段自动写入
  * @author JiaChaoYang
- * @date 2023/11/21 11:31
  * @since quote from: MyBatisPlus
 */
 public interface MetaObjectHandler {

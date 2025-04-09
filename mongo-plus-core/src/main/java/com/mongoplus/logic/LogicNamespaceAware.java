@@ -7,7 +7,6 @@ import com.mongoplus.registry.MongoEntityMappingRegistry;
  * 逻辑删除链接命名空间感知类
  *
  * @author loser
- * @date 2024/6/29
  */
 public class LogicNamespaceAware implements NamespaceAware {
 

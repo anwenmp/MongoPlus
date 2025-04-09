@@ -18,14 +18,12 @@ public @interface MongoDs {
     /**
      * 数据源名称
      * @author JiaChaoYang
-     * @date 2024/4/5 1:20
     */
     String value();
 
     /**
      * 数据源处理类，需要实现{@link com.mongoplus.handlers.DataSourceHandler}接口
      * @author JiaChaoYang
-     * @date 2024/4/5 1:20
     */
     Class<?> dsHandler() default Void.class;
 

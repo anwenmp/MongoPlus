@@ -6,7 +6,6 @@ import com.mongoplus.toolkit.IkunRandomUtil;
 /**
  * log的代理
  * @author JiaChaoYang
- * @date 2024/5/2 下午1:37
  */
 public class LogProxy implements Log {
 

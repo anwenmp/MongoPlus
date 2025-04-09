@@ -25,7 +25,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * 获取管道列表
      * @return {@link List<Bson>}
      * @author anwen
-     * @date 2024/6/11 下午8:18
      */
     List<Bson> getAggregateConditionList();
 
@@ -33,7 +32,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * 获取管道
      * <p>这里获取的是第0个，应对构建需要用到一个管道的情况</p>
      * @author anwen
-     * @date 2024/8/23 10:43
      */
     default Bson getAggregateCondition(){
         return getAggregateCondition(0);
@@ -42,7 +40,6 @@ public interface Aggregate<Children> extends Project<Children> {
     /**
      * 获取指定下标的管道
      * @author anwen
-     * @date 2024/8/23 10:44
      */
     default Bson getAggregateCondition(int index){
         return getAggregateConditionList().get(index);
@@ -51,7 +48,6 @@ public interface Aggregate<Children> extends Project<Children> {
     /**
      * 是否跳过获取结果
      * @author anwen
-     * @date 2024/8/23 16:29
      */
     boolean isSkip();
 
@@ -59,7 +55,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * 获取聚合管道选项
      * @return {@link com.mongodb.BasicDBObject}
      * @author anwen
-     * @date 2024/6/19 下午11:45
      */
     BasicDBObject getAggregateOptions();
 
@@ -73,7 +68,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     Children addFields(final String field,final String value);
 
@@ -85,7 +79,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     <T> Children addFields(final SFunction<T,?> field,final String value);
 
@@ -97,7 +90,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段，嵌套文档请按照顺序传入，中间会自动拼接.
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     @SuppressWarnings("unchecked")
     <T> Children addFields(final String value,final SFunction<T,?>... field);
@@ -108,7 +100,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:31
      */
     <T> Children addFields(final SFunction<T,?> field,final Object value);
 
@@ -118,7 +109,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 需要向数组中添加的值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:44
      */
     <T> Children addFields(final SFunction<T,?> field, final Collection<?> value);
 
@@ -128,7 +118,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 需要向数组中添加的值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:44
      */
     Children addFields(final String field, final Collection<?> value);
 
@@ -137,7 +126,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:26
      */
     Children addFields(final Field<?>... fields);
 
@@ -146,7 +134,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:26
      */
     Children addFields(final List<Field<?>> fields);
 
@@ -155,7 +142,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:47
      */
     Children addFields(final Bson bson);
 
@@ -173,7 +159,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     Children set(final String field,final String value);
 
@@ -185,7 +170,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     <T> Children set(final SFunction<T,?> field,final String value);
 
@@ -197,7 +181,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段，嵌套文档请按照顺序传入，中间会自动拼接.
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:37
      */
     @SuppressWarnings("unchecked")
     <T> Children set(final String value,final SFunction<T,?>... field);
@@ -208,7 +191,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:31
      */
     <T> Children set(final SFunction<T,?> field,final Object value);
 
@@ -218,7 +200,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 需要向数组中添加的值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:44
      */
     <T> Children set(final SFunction<T,?> field, final Collection<?> value);
 
@@ -228,7 +209,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 需要向数组中添加的值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:44
      */
     Children set(final String field, final Collection<?> value);
 
@@ -237,7 +217,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:26
      */
     Children set(final Field<?>... fields);
 
@@ -246,7 +225,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:26
      */
     Children set(final List<Field<?>> fields);
 
@@ -255,7 +233,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:47
      */
     Children set(final Bson bson);
 
@@ -271,7 +248,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param boundaries 桶边界
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:07
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy,final List<Boundary> boundaries);
 
@@ -281,7 +257,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param boundaries 桶边界
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:07
      */
     <Boundary> Children bucket(final Object groupBy,final List<Boundary> boundaries);
 
@@ -292,7 +267,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含default和output
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:08
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -303,7 +277,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含default和output
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:08
      */
     <Boundary> Children bucket(final Object groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -312,7 +285,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:47
      */
     Children bucket(final Bson bson);
 
@@ -328,7 +300,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param buckets 桶的数量
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:15
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy,final Integer buckets);
 
@@ -338,7 +309,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param buckets 桶的数量
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:15
      */
     Children bucketAuto(final Object groupBy,final Integer buckets);
 
@@ -349,7 +319,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含output和granularity
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:18
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -360,7 +329,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含output和granularity
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:18
      */
     Children bucketAuto(final Object groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -369,7 +337,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午3:47
      */
     Children bucketAuto(final Bson bson);
 
@@ -383,7 +350,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * $count阶段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:45
      */
     Children count();
 
@@ -392,7 +358,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 输出字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:45
      */
     Children count(final String field);
 
@@ -401,7 +366,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 输出字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:45
      */
     <T> Children count(final SFunction<T,?> field);
 
@@ -416,7 +380,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param queryChainWrapper 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午2:22
      */
     Children match(final QueryChainWrapper<?, ?> queryChainWrapper);
 
@@ -425,7 +388,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param function 函数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/20 16:19
      */
     Children match(final SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
 
@@ -433,7 +395,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * $match阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson
      * @param bson bson
      * @author anwen
-     * @date 2024/6/10 下午3:54
      */
     Children match(final Bson bson);
 
@@ -449,7 +410,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午2:20
      */
     Children project(final Bson bson);
 
@@ -465,7 +425,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:33
      */
     Children sort(final String field, final Integer value);
 
@@ -475,7 +434,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:33
      */
     <T> Children sort(final SFunction<T,?> field,final Integer value);
 
@@ -484,7 +442,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     <T> Children sortAsc(final SFunction<T,?> field);
 
@@ -493,7 +450,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortAsc(final String field);
 
@@ -502,7 +458,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     @SuppressWarnings("unchecked")
     <T> Children sortAsc(final SFunction<T, ?>... field);
@@ -512,7 +467,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortAsc(final String... field);
 
@@ -521,7 +475,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     <T> Children sortAscLambda(final List<SFunction<T,?>> field);
 
@@ -530,7 +483,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortAsc(final List<String> field);
 
@@ -539,7 +491,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     <T> Children sortDesc(final SFunction<T,?> field);
 
@@ -548,7 +499,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortDesc(final String field);
 
@@ -557,7 +507,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     @SuppressWarnings("unchecked")
     <T> Children sortDesc(final SFunction<T, ?>... field);
@@ -567,7 +516,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortDesc(final String... field);
 
@@ -576,7 +524,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     <T> Children sortDescLambda(final List<SFunction<T,?>> field);
 
@@ -585,7 +532,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:35
      */
     Children sortDesc(final List<String> field);
 
@@ -594,7 +540,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:31
      */
     Children metaTextScore(final String field);
 
@@ -603,7 +548,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:31
      */
     <T> Children metaTextScore(final SFunction<T,?> field);
 
@@ -612,7 +556,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午5:32
      */
     Children sort(final Bson bson);
 
@@ -627,7 +570,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:36
      */
     Children sortByCount(final String field);
 
@@ -636,7 +578,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:36
      */
     <T> Children sortByCount(final SFunction<T,?> field);
 
@@ -651,7 +592,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param skip 当前页
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:39
      */
     Children skip(final long skip);
 
@@ -660,7 +600,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param skip 当前页
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:39
      */
     Children skip(final int skip);
 
@@ -675,7 +614,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param limit 每页显示行数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:40
      */
     Children limit(final long limit);
 
@@ -684,7 +622,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param limit 每页显示行数
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:40
      */
     Children limit(final int limit);
 
@@ -702,7 +639,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     Children lookup(final String from,final String localField,final String foreignField,final String as);
 
@@ -714,7 +650,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final String from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -726,7 +661,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     Children lookup(final Class<?> from,final String localField,final String foreignField,final String as);
 
@@ -738,7 +672,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final Class<?> from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -750,7 +683,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,R> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -763,7 +695,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,R,A> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -776,7 +707,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,R> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -789,7 +719,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,R,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -802,7 +731,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -814,7 +742,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,A> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -827,7 +754,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -839,7 +765,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -852,7 +777,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -864,7 +788,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,A> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -877,7 +800,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -889,7 +811,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午7:05
      */
     <T,A> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -902,7 +823,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <TExpression> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -915,7 +835,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <TExpression,T> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -928,7 +847,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <TExpression> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -941,7 +859,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <TExpression,T> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -953,7 +870,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     Children lookup(final String from, final Aggregate<?> aggregate, final String as);
 
@@ -964,7 +880,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <T> Children lookup(final String from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -975,7 +890,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     Children lookup(final Class<?> from, final Aggregate<?> aggregate, final String as);
 
@@ -986,7 +900,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/12 21:07
      */
     <T> Children lookup(final Class<?> from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -995,7 +908,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午6:45
      */
     Children lookup(final Bson bson);
 
@@ -1011,7 +923,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param pipeline facet管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:13
      */
     Children facet(final String name, final Bson... pipeline);
 
@@ -1021,7 +932,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param pipeline facet管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:13
      */
     Children facet(final String name, final List<? extends Bson> pipeline);
 
@@ -1031,7 +941,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate facet管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:14
      */
     Children facet(final String name, final Aggregate<?> aggregate);
 
@@ -1040,7 +949,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param facets facets，可以使用{@link com.mongoplus.aggregate.pipeline.Facet}进行构建
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:16
      */
     Children facet(final Facet... facets);
 
@@ -1049,7 +957,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param facets facets，可以使用{@link com.mongoplus.aggregate.pipeline.Facet}进行构建
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:16
      */
     Children facet(final List<Facet> facets);
 
@@ -1058,7 +965,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:03
      */
     Children facet(final Bson bson);
 
@@ -1077,7 +983,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as);
@@ -1091,7 +996,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                          final SFunction<U,?> connectToField, final String as);
@@ -1105,7 +1009,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as);
@@ -1125,7 +1028,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as, final GraphLookupOptions options);
@@ -1145,7 +1047,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                                final SFunction<U,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1165,7 +1066,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:30
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1175,7 +1075,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午8:26
      */
     Children graphLookup(final Bson bson);
 
@@ -1190,7 +1089,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param _id group的_id表达式
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午9:12
      */
     Children group(final String _id);
 
@@ -1199,7 +1097,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param _id group的_id表达式
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午9:12
      */
     <T> Children group(final SFunction<T,?> _id);
 
@@ -1209,7 +1106,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/6/11 下午9:06
      */
     <TExpression> Children group(@Nullable final TExpression id, final BsonField... fieldAccumulators);
 
@@ -1219,7 +1115,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/6/11 下午9:06
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final BsonField... fieldAccumulators);
 
@@ -1229,7 +1124,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/6/11 下午9:07
      */
     <TExpression> Children group(@Nullable final TExpression id, final List<BsonField> fieldAccumulators);
 
@@ -1239,7 +1133,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/6/11 下午9:07
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final List<BsonField> fieldAccumulators);
 
@@ -1248,7 +1141,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/11 下午9:04
      */
     Children group(final Bson bson);
 
@@ -1264,7 +1156,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/23 13:21
      */
     Children unionWith(final String collectionName);
 
@@ -1274,7 +1165,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合类
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/23 13:21
      */
     Children unionWith(final Class<?> collection);
 
@@ -1284,7 +1174,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午8:44
      */
     Children unionWith(final String collectionName,final Aggregate<?> aggregate);
 
@@ -1294,7 +1183,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午8:44
      */
     Children unionWith(final String collectionName,final List<? extends Bson> aggregate);
 
@@ -1304,7 +1192,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午8:44
      */
     Children unionWith(final Class<?> collection,final Aggregate<?> aggregate);
 
@@ -1314,7 +1201,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午8:44
      */
     Children unionWith(final Class<?> collection,final List<? extends Bson> aggregate);
 
@@ -1323,7 +1209,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午8:41
      */
     Children unionWith(final Bson bson);
 
@@ -1338,7 +1223,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 该字段名称必须以'$'符号为前缀
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:02
      */
     Children unwind(final String fieldName);
 
@@ -1347,7 +1231,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:02
      */
     <T> Children unwind(final SFunction<T,?> fieldName);
 
@@ -1356,7 +1239,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 该字段名称必须以'$'符号为前缀
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:02
      */
     Children unwind(final String fieldName, final UnwindOption unwindOption);
 
@@ -1365,7 +1247,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:02
      */
     <T> Children unwind(final SFunction<T,?> fieldName,final UnwindOption unwindOption);
 
@@ -1374,7 +1255,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:02
      */
     Children unwind(final Bson bson);
 
@@ -1389,7 +1269,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:19
      */
     Children out(final String collectionName);
 
@@ -1398,7 +1277,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:19
      */
     Children out(final Class<?> collection);
 
@@ -1408,7 +1286,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名称
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/6/16 下午9:20
      */
     Children out(final String databaseName, final String collectionName);
 
@@ -1417,7 +1294,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:18
      */
     Children out(final Bson bson);
 
@@ -1432,7 +1308,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 要合并的集合的名称
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:49
      */
     Children merge(final String collectionName);
 
@@ -1441,7 +1316,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:49
      */
     Children merge(final Class<?> collection);
 
@@ -1450,7 +1324,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param namespace 要合并到的命名空间
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:50
      */
     Children merge(final MongoNamespace namespace);
 
@@ -1460,7 +1333,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:51
      */
     Children merge(final String collectionName, final MergeOptions options);
 
@@ -1470,7 +1342,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:51
      */
     Children merge(final Class<?> collection, final MergeOptions options);
 
@@ -1480,7 +1351,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:52
      */
     Children merge(final MongoNamespace namespace, final MergeOptions options);
 
@@ -1489,7 +1359,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:47
      */
     Children merge(final Bson bson);
 
@@ -1504,7 +1373,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:39
      */
     <TExpression> Children replaceRoot(final TExpression fieldName);
 
@@ -1513,7 +1381,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:39
      */
     Children replaceRoot(final Document value);
 
@@ -1522,7 +1389,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:39
      */
     <T> Children replaceRoot(final SFunction<T,?> fieldName);
 
@@ -1531,7 +1397,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/16 下午9:56
      */
     Children replaceRoot(final Bson bson);
 
@@ -1546,7 +1411,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:42
      */
     <TExpression> Children replaceWith(final TExpression fieldName);
 
@@ -1555,7 +1419,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:42
      */
     Children replaceWith(final Document value);
 
@@ -1564,7 +1427,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:39
      */
     <T> Children replaceWith(final SFunction<T,?> fieldName);
 
@@ -1573,7 +1435,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:42
      */
     Children replaceWith(final Bson bson);
 
@@ -1588,7 +1449,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param size 指定数量
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:46
      */
     Children sample(final Number size);
 
@@ -1597,7 +1457,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午10:45
      */
     Children sample(final Bson bson);
 
@@ -1624,7 +1483,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param <TExpression> {@code partitionBy} 表达式类型.
      * @return {@code $setWindowFields} 管道阶段.
      * @author anwen
-     * @date 2024/6/17 下午11:46
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final WindowOutputField output, final WindowOutputField... moreOutput);
@@ -1645,7 +1503,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param <TExpression> {@code partitionBy} 表达式类型.
      * @return {@code $setWindowFields} 管道阶段.
      * @author anwen
-     * @date 2024/6/17 下午11:46
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final Iterable<? extends WindowOutputField> output);
@@ -1655,7 +1512,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/17 下午11:41
      */
     Children setWindowFields(Bson bson);
 
@@ -1671,7 +1527,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param range 范围 指定如何密集化数据的对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/18 上午12:03
      */
     Children densify(final String field, final DensifyRange range);
 
@@ -1681,7 +1536,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param range 范围 指定如何密集化数据的对象
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/18 上午12:04
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range);
 
@@ -1692,7 +1546,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 表示聚合管道的$densify管道阶段的可选字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/18 上午12:06
      */
     Children densify(final String field, final DensifyRange range, final DensifyOptions options);
 
@@ -1703,7 +1556,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 表示聚合管道的$densify管道阶段的可选字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/18 上午12:06
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range, final DensifyOptions options);
 
@@ -1712,7 +1564,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午10:42
      */
     Children densify(final Bson bson);
 
@@ -1729,7 +1580,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param moreOutput {@link FillOutputField}，可以使用{@link com.mongoplus.aggregate.pipeline.FillField}
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:15
      */
     Children fill(final FillOptions options, final FillOutputField output, final FillOutputField... moreOutput);
 
@@ -1739,7 +1589,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param output {@link FillOutputField}，可以使用{@link com.mongoplus.aggregate.pipeline.FillField}
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:15
      */
     Children fill(final FillOptions options, final Iterable<? extends FillOutputField> output);
 
@@ -1748,7 +1597,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午10:51
      */
     Children fill(final Bson bson);
 
@@ -1763,7 +1611,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:21
      */
     Children unset(final String... field);
 
@@ -1772,7 +1619,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:21
      */
     @SuppressWarnings("unchecked")
     <T> Children unset(final SFunction<T,?>... field);
@@ -1782,7 +1628,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:22
      */
     Children unset(final List<String> fields);
 
@@ -1791,7 +1636,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:22
      */
     <T> Children unsetLambda(final List<SFunction<T,?>> fields);
 
@@ -1800,7 +1644,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/19 下午11:19
      */
     Children unset(final Bson bson);
 
@@ -1809,7 +1652,6 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
-     * @date 2024/6/7 下午5:49
      */
     Children custom(final Bson bson);
 

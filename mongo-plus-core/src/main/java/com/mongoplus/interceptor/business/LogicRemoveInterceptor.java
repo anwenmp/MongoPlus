@@ -11,7 +11,6 @@ import com.mongoplus.support.AdvancedFunction;
  * 逻辑删除替换器
  *
  * @author loser
- * @date 2024/4/30
  */
 public class LogicRemoveInterceptor implements AdvancedInterceptor {
 

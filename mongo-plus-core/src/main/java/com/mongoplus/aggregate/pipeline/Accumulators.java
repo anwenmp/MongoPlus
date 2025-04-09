@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.toList;
  * 构建累加器
  *
  * @author anwen
- * @date 2024/6/12 下午3:44
  */
 public final class Accumulators {
 
@@ -67,7 +66,6 @@ public final class Accumulators {
      * @param fieldName 字段名称
      * @param expression 表达式
      * @author anwen
-     * @date 2024/8/23 10:57
      */
     public static <TExpression> BsonField count(final String fieldName,final TExpression expression){
         return accumulatorOperator("$count",fieldName,expression);
@@ -78,7 +76,6 @@ public final class Accumulators {
      * @param fieldName 字段名称
      * @param expression 表达式
      * @author anwen
-     * @date 2024/8/23 10:57
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName,final TExpression expression){
         return count(fieldName.getFieldNameLine(),expression);
@@ -89,7 +86,6 @@ public final class Accumulators {
      * 表达式默认为空对象
      * @param fieldName 字段名称
      * @author anwen
-     * @date 2024/8/23 10:57
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName){
         return count(fieldName.getFieldNameLine(),new Document());
@@ -100,7 +96,6 @@ public final class Accumulators {
      * 表达式默认为空对象
      * @param fieldName 字段名称
      * @author anwen
-     * @date 2024/8/23 10:57
      */
     public static <TExpression> BsonField count(final String fieldName){
         return count(fieldName,new Document());

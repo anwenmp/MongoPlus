@@ -5,7 +5,6 @@ package com.mongoplus.handlers;
  * 类型处理器优先级比转换器和映射器高，因为TypeHandler作用于字段
  * 在实体类上使用类型处理器时，需要实现下边的两个方法，如果返回null，则继续走MongoPlus的处理，反之则直接使用类型处理器各个方法返回的数据
  * @author anwen
- * @date 2024/5/29 下午10:07
  */
 public interface TypeHandler<T> {
 
@@ -16,7 +15,6 @@ public interface TypeHandler<T> {
      * @param obj 内容
      * @return {@link Object}
      * @author anwen
-     * @date 2024/5/29 下午10:12
      */
     Object setParameter(String fieldName,T obj);
 
@@ -27,7 +25,6 @@ public interface TypeHandler<T> {
      * @param obj 数据库中的值
      * @return {@link T}
      * @author anwen
-     * @date 2024/5/29 下午10:16
      */
     T getResult(Object obj);
 

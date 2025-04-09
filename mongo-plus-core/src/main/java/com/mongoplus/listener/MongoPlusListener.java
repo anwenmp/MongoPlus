@@ -8,7 +8,6 @@ import com.mongoplus.model.command.CommandSucceeded;
 /**
  * MongoPlus监听器
  * @author JiaChaoYang
- * @date 2023-11-22 14:55
  **/
 public class MongoPlusListener implements Listener {
 

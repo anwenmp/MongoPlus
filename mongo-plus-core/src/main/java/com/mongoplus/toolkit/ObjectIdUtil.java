@@ -42,7 +42,6 @@ public class ObjectIdUtil {
      * @param value 值
      * @return {@link Object}
      * @author anwen
-     * @date 2024/8/8 下午3:29
      */
     public static Object getObjectIdValue(Object value) {
         if (value instanceof Collection) {

@@ -28,14 +28,12 @@ public interface MongoMapper<T> {
      * 获取当前service所对应的泛型类
      * @return {@link Class<T>}
      * @author JiaChaoYang
-     * @date 2024/1/19 16:22
      */
     Class<T> getGenericityClass();
 
     /**
      * 获取当前service所对应的MongoCollection
      * @author JiaChaoYang
-     * @date 2024/1/19 16:22
      */
     MongoCollection<Document> getCollection();
 
@@ -94,7 +92,6 @@ public interface MongoMapper<T> {
      * @param isQueryDatabase 是否查询数据库判断添加或修改
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/8/6 下午7:37
      */
     boolean saveOrUpdate(T entity, boolean isQueryDatabase);
 
@@ -104,7 +101,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper 条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2024/1/15 23:15
      */
     Boolean saveOrUpdateWrapper(T entity, QueryChainWrapper<T ,?> queryChainWrapper);
 
@@ -123,7 +119,6 @@ public interface MongoMapper<T> {
      * @param isQueryDatabase 是否查询数据库判断添加或修改
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/8/6 下午7:41
      */
     boolean saveOrUpdateBatch(Collection<T> entityList,boolean isQueryDatabase);
 
@@ -161,7 +156,6 @@ public interface MongoMapper<T> {
      * @param entityList 修改的对象，需要包含id
      * @return {@link java.lang.Boolean}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     Boolean updateBatchByIds(Collection<T> entityList);
 
@@ -193,7 +187,6 @@ public interface MongoMapper<T> {
      * @param column 根据什么列修改
      * @return {@link java.lang.Boolean}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     default Boolean updateByColumn(T entity, String column){
         return updateByColumn(entity,column,null);
@@ -205,7 +198,6 @@ public interface MongoMapper<T> {
      * @param column 根据什么列修改
      * @return {@link java.lang.Boolean}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     Boolean updateByColumn(T entity, String column,UpdateOptions options);
 
@@ -214,7 +206,6 @@ public interface MongoMapper<T> {
      * @param updateChainWrapper 条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2023/10/20 0:51
      */
     default Boolean remove(UpdateChainWrapper<T,?> updateChainWrapper){
         return remove(updateChainWrapper,null);
@@ -225,7 +216,6 @@ public interface MongoMapper<T> {
      * @param updateChainWrapper 条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2023/10/20 0:51
      */
     Boolean remove(UpdateChainWrapper<T,?> updateChainWrapper, DeleteOptions options);
 
@@ -234,7 +224,6 @@ public interface MongoMapper<T> {
      * @param updateChainWrapper 条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2023/10/20 0:51
      */
     default Boolean update(UpdateChainWrapper<T,?> updateChainWrapper){
         return update(updateChainWrapper,null);
@@ -245,14 +234,12 @@ public interface MongoMapper<T> {
      * @param updateChainWrapper 条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2023/10/20 0:51
      */
     Boolean update(UpdateChainWrapper<T,?> updateChainWrapper,UpdateOptions options);
 
     /**
      * 根据条件修改
      * @author JiaChaoYang
-     * @date 2024/2/3 13:10
      */
     default Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper){
         return update(entity,queryChainWrapper,null);
@@ -261,7 +248,6 @@ public interface MongoMapper<T> {
     /**
      * 根据条件修改
      * @author JiaChaoYang
-     * @date 2024/2/3 13:10
      */
     Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
@@ -360,7 +346,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回类型
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/6/27 上午9:52
      */
     <R> List<R> list(Class<R> rClazz);
 
@@ -368,7 +353,6 @@ public interface MongoMapper<T> {
      * 查询所有，返回指定类型
      * @param typeReference 返回类型
      * @author anwen
-     * @date 2024/5/28 下午9:03
      */
     <R> List<R> list(TypeReference<R> typeReference);
 
@@ -377,7 +361,6 @@ public interface MongoMapper<T> {
      * @param aggregate 管道
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:03
      */
     List<T> list(Aggregate<?> aggregate);
 
@@ -387,7 +370,6 @@ public interface MongoMapper<T> {
      * @param rClass 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:04
      */
     <R> List<R> list(Aggregate<?> aggregate, Class<R> rClass);
 
@@ -397,7 +379,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:04
      */
     <R> List<R> list(Aggregate<?> aggregate, TypeReference<R> typeReference);
 
@@ -406,7 +387,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper 条件
      * @return {@link T}
      * @author anwen
-     * @date 2024/6/23 下午5:12
      */
     T one(QueryChainWrapper<T,?> queryChainWrapper);
 
@@ -416,7 +396,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link R}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> R one(QueryChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
 
@@ -426,7 +405,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link R}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> R one(QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
 
@@ -435,7 +413,6 @@ public interface MongoMapper<T> {
      * @param aggregate 条件
      * @return {@link T}
      * @author anwen
-     * @date 2024/6/23 下午5:12
      */
     T one(Aggregate<?> aggregate);
 
@@ -445,7 +422,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link R}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> R one(Aggregate<?> aggregate,Class<R> rClazz);
 
@@ -455,7 +431,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link R}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> R one(Aggregate<?> aggregate,TypeReference<R> typeReference);
 
@@ -464,7 +439,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper 条件
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     List<T> list(QueryChainWrapper<T ,?> queryChainWrapper);
 
@@ -474,7 +448,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> List<R> list(QueryChainWrapper<T ,?> queryChainWrapper,Class<R> rClazz);
 
@@ -484,7 +457,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:13
      */
     <R> List<R> list(QueryChainWrapper<T ,?> queryChainWrapper,TypeReference<R> typeReference);
 
@@ -492,7 +464,6 @@ public interface MongoMapper<T> {
      * 获取总数
      * @return {@link long}
      * @author anwen
-     * @date 2024/6/23 下午5:06
      */
     long count();
 
@@ -501,7 +472,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper 条件
      * @return {@link long}
      * @author anwen
-     * @date 2024/6/23 下午5:06
      */
     long count(QueryChainWrapper<T,?> queryChainWrapper);
 
@@ -510,7 +480,6 @@ public interface MongoMapper<T> {
      * @param pageParam 分页参数对象
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     PageResult<T> page(PageParam pageParam);
 
@@ -520,7 +489,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:07
      */
     <R> PageResult<R> page(PageParam pageParam,Class<R> rClazz);
 
@@ -530,7 +498,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:07
      */
     <R> PageResult<R> page(PageParam pageParam,TypeReference<R> typeReference);
 
@@ -540,7 +507,6 @@ public interface MongoMapper<T> {
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     PageResult<T> page(PageParam pageParam, Integer recentPageNum);
 
@@ -551,7 +517,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:07
      */
     <R> PageResult<R> page(PageParam pageParam, Integer recentPageNum,Class<R> rClazz);
 
@@ -562,7 +527,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<R>}
      * @author anwen
-     * @date 2024/6/23 下午5:07
      */
     <R> PageResult<R> page(PageParam pageParam, Integer recentPageNum,TypeReference<R> typeReference);
 
@@ -572,7 +536,6 @@ public interface MongoMapper<T> {
      * @param pageSize 每页显示行数
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     PageResult<T> page(Integer pageNum,Integer pageSize);
 
@@ -583,7 +546,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(Integer pageNum,Integer pageSize,Class<R> rClazz);
 
@@ -594,7 +556,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(Integer pageNum,Integer pageSize,TypeReference<R> typeReference);
 
@@ -605,7 +566,6 @@ public interface MongoMapper<T> {
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     PageResult<T> page(Integer pageNum,Integer pageSize, Integer recentPageNum);
 
@@ -616,7 +576,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper 条件
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize);
 
@@ -626,7 +585,6 @@ public interface MongoMapper<T> {
      * @param pageParam 分页参数对象
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam);
 
@@ -638,7 +596,6 @@ public interface MongoMapper<T> {
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum);
 
@@ -649,7 +606,6 @@ public interface MongoMapper<T> {
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum);
 
@@ -661,7 +617,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(Integer pageNum,Integer pageSize, Integer recentPageNum,Class<R> rClazz);
 
@@ -673,7 +628,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(Integer pageNum,Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
 
@@ -685,7 +639,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
@@ -697,7 +650,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
@@ -708,7 +660,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,Class<R> rClazz);
 
@@ -719,7 +670,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,TypeReference<R> typeReference);
 
@@ -732,7 +682,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
 
@@ -745,7 +694,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
 
@@ -757,7 +705,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum,Class<R> rClazz);
 
@@ -769,7 +716,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:08
      */
     <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum,TypeReference<R> typeReference);
 
@@ -778,7 +724,6 @@ public interface MongoMapper<T> {
      * @param pageParam 分页参数对象
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     List<T> pageList(PageParam pageParam);
 
@@ -788,7 +733,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     <R> List<R> pageList(PageParam pageParam,Class<R> rClazz);
 
@@ -798,7 +742,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     <R> List<R> pageList(PageParam pageParam, TypeReference<R> typeReference);
 
@@ -808,7 +751,6 @@ public interface MongoMapper<T> {
      * @param pageSize 每页显示行数
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     List<T> pageList(Integer pageNum,Integer pageSize);
 
@@ -819,7 +761,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     <R> List<R> pageList(Integer pageNum,Integer pageSize,Class<R> rClazz);
 
@@ -830,7 +771,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:10
      */
     <R> List<R> pageList(Integer pageNum,Integer pageSize,TypeReference<R> typeReference);
 
@@ -841,7 +781,6 @@ public interface MongoMapper<T> {
      * @param pageSize 每页显示行数
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize);
 
@@ -853,7 +792,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
@@ -865,7 +803,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
@@ -875,7 +812,6 @@ public interface MongoMapper<T> {
      * @param pageParam 分页参数对象
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam);
 
@@ -886,7 +822,6 @@ public interface MongoMapper<T> {
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,Class<R> rClazz);
 
@@ -897,7 +832,6 @@ public interface MongoMapper<T> {
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
-     * @date 2024/6/23 下午5:11
      */
     <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,TypeReference<R> typeReference);
 
@@ -906,7 +840,6 @@ public interface MongoMapper<T> {
      * @param id id
      * @return T
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     T getById(Serializable id);
 
@@ -915,7 +848,6 @@ public interface MongoMapper<T> {
      * @param id id
      * @return T
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> R getById(Serializable id,Class<R> rClazz);
 
@@ -924,7 +856,6 @@ public interface MongoMapper<T> {
      * @param id id
      * @return T
      * @author JiaChaoYang
-     * @date 2023/6/25/025
      */
     <R> R getById(Serializable id,TypeReference<R> typeReference);
 
@@ -933,7 +864,6 @@ public interface MongoMapper<T> {
      * @param ids id集合
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/2 上午12:43
      */
     List<T> getByIds(Collection<? extends Serializable> ids);
 
@@ -942,7 +872,6 @@ public interface MongoMapper<T> {
      * @param ids id集合
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/2 上午12:43
      */
     <R> List<R> getByIds(Collection<? extends Serializable> ids,Class<R> rClazz);
 
@@ -951,7 +880,6 @@ public interface MongoMapper<T> {
      * @param ids id集合
      * @return {@link List<T>}
      * @author anwen
-     * @date 2024/5/2 上午12:43
      */
     <R> List<R> getByIds(Collection<? extends Serializable> ids,TypeReference<R> typeReference);
 
@@ -960,7 +888,6 @@ public interface MongoMapper<T> {
      * @param command 命令json
      * @return java.util.List<T>
      * @author JiaChaoYang
-     * @date 2023/12/30 23:28
      */
     List<T> queryCommand(String command);
 
@@ -969,7 +896,6 @@ public interface MongoMapper<T> {
      * @param command 命令json
      * @return java.util.List<T>
      * @author JiaChaoYang
-     * @date 2023/12/30 23:28
      */
     <R> List<R> queryCommand(String command,Class<R> rClazz);
 
@@ -978,7 +904,6 @@ public interface MongoMapper<T> {
      * @param command 命令json
      * @return java.util.List<T>
      * @author JiaChaoYang
-     * @date 2023/12/30 23:28
      */
     <R> List<R> queryCommand(String command,TypeReference<R> typeReference);
 
@@ -988,7 +913,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return List<T>
      * @author JiaChaoYang
-     * @date 2023/10/19 23:28
      */
     List<T> getByColumn(SFunction<T,Object> field,Object fieldValue);
 
@@ -998,7 +922,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return List<T>
      * @author JiaChaoYang
-     * @date 2023/10/19 23:28
      */
     <R> List<R> getByColumn(SFunction<T,Object> field,Object fieldValue,Class<R> rClazz);
 
@@ -1008,7 +931,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return List<T>
      * @author JiaChaoYang
-     * @date 2023/10/19 23:28
      */
     <R> List<R> getByColumn(SFunction<T,Object> field,Object fieldValue,TypeReference<R> typeReference);
 
@@ -1018,7 +940,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return T
      * @author JiaChaoYang
-     * @date 2023/10/19 23:30
      */
     List<T> getByColumn(String field,Object fieldValue);
 
@@ -1028,7 +949,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return T
      * @author JiaChaoYang
-     * @date 2023/10/19 23:30
      */
     <R> List<R> getByColumn(String field,Object fieldValue,Class<R> rClazz);
 
@@ -1038,7 +958,6 @@ public interface MongoMapper<T> {
      * @param fieldValue 字段值
      * @return T
      * @author JiaChaoYang
-     * @date 2023/10/19 23:30
      */
     <R> List<R> getByColumn(String field,Object fieldValue,TypeReference<R> typeReference);
 
@@ -1047,7 +966,6 @@ public interface MongoMapper<T> {
      * @param id id
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2024/2/3 13:42
      */
     Boolean exist(Serializable id);
 
@@ -1056,7 +974,6 @@ public interface MongoMapper<T> {
      * @param queryChainWrapper wrapper条件
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2024/2/3 13:41
      */
     Boolean exist(QueryChainWrapper<T,?> queryChainWrapper);
 

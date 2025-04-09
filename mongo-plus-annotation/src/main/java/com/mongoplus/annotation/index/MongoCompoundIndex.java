@@ -22,28 +22,24 @@ public @interface MongoCompoundIndex {
      *      {@code @CompoundIndex("{'$field1':1,'$field2':-1}")}
      * </p>
      * @author anwen
-     * @date 2024/8/18 20:26
      */
     String value();
 
     /**
      * 索引名称
      * @author anwen
-     * @date 2024/8/18 21:03
      */
     String name() default "";
 
     /**
      * 唯一复合索引
      * @author anwen
-     * @date 2024/8/18 13:26
      */
     boolean unique() default false;
 
     /**
      * 稀疏复合索引
      * @author anwen
-     * @date 2024/8/18 13:33
      */
     boolean sparse() default false;
 
@@ -53,14 +49,12 @@ public @interface MongoCompoundIndex {
      * 同时也可使用{@code $}标识，该操作将会根据json值的key查找类中的该字段，不存在则直接使用json的key，例:
      * <p>例：{"$field1" : {"$gt",5}}</p>
      * @author anwen
-     * @date 2024/8/18 15:17
      */
     String partialFilterExpression() default "";
 
     /**
      * 是否应该在后台创建索引
      * @author anwen
-     * @date 2024/8/18 20:59
      */
     boolean background() default false;
 

@@ -11,7 +11,6 @@ import java.net.URLEncoder;
 /**
  * 拼接mongodb连接
  * @author anwen
- * @date 2024/8/2 上午1:07
  */
 public class UrlJoint {
 

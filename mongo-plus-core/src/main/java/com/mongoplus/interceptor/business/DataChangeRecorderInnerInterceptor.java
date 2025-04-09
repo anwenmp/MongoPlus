@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
  * 数据变动记录拦截器
  * <p>请不要与自增id同时使用</p>
  * @author anwen
- * @date 2024/6/27 下午5:01
  * @since by mybatis-plus
  */
 @SuppressWarnings("unchecked")
@@ -43,14 +42,12 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     /**
      * 超出阈值提示信息
      *
-     * @date 2024/6/27 下午5:48
      */
     private String exceptionMessage = "The operation has exceeded the security threshold and has been intercepted!";
 
     /**
      * 忽略的表
      *
-     * @date 2024/6/27 下午5:33
      */
     private List<String> ignoredColumnList = new CopyOnWriteArrayList<String>(){{
         add("DATA_CHANGE_RECORD");
@@ -59,51 +56,43 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
     /**
      * 批量更新条数上限
      *
-     * @date 2024/6/27 下午5:32
      */
     private Integer batchUpdateLimit = 1000;
 
     /**
      * 是否显示完整数据，开启后，changedData字段数据量可能会很大
      * 默认不开启，只显示数量
-     * @date 2024/6/27 下午8:14
      */
     private Boolean displayCompleteData = true;
 
     /**
      * 是否保存到数据库
-     * @date 2024/7/26 下午8:47
      */
     private Boolean enableSaveDatabase = false;
 
     /**
      * baseMapper
-     * @date 2024/7/26 下午8:39
      */
     private BaseMapper baseMapper;
 
     /**
      * 数据源，默认获取上下文中的数据源，推荐手动设置
-     * @date 2024/7/26 下午8:40
      */
     private String datasourceName;
 
     /**
      * 是否使用默认数据源保存数据，如果设置了datasourceName，该配置会失效
      * <p>推荐设置，使用主数据源，避免连续切库</p>
-     * @date 2024/7/26 下午8:45
      */
     private Boolean isMasterDatasource = false;
 
     /**
      * 数据库，默认获取上下文中对应的数据源的库
-     * @date 2024/7/26 下午8:41
      */
     private String databaseName;
 
     /**
      * 集合名
-     * @date 2024/7/26 下午8:46
      */
     private String collectionName = "DATA_CHANGE_RECORD";
 

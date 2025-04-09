@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 /**
  * type类型
  * @author anwen
- * @date 2024/5/28 下午3:16
  */
 public abstract class TypeReference<T> implements Type {
 
@@ -44,7 +43,6 @@ public abstract class TypeReference<T> implements Type {
     /**
      * 获取Type的Class
      * @author anwen
-     * @date 2024/5/28 下午6:47
      */
     public Class<?> getClazz(){
         if (this.clazz == null){

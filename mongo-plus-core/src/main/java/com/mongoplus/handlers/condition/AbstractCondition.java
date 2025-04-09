@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  * 抽象的条件处理器
  *
  * @author anwen
- * @date 2024/6/30 下午3:58
  */
 public abstract class AbstractCondition implements Condition, UpdateCondition {
 
@@ -85,7 +84,6 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
      * @param compareConditionList 条件集合
      * @return {@link BasicDBObject}
      * @author anwen
-     * @date 2024/8/1 下午5:35
      */
     public BasicDBObject updateValue(UpdateConditionEnum updateConditionEnum, List<CompareCondition> compareConditionList) {
         final AtomicReference<List<CompareCondition>> finalCompareConditionList = new AtomicReference<>(compareConditionList);
@@ -203,7 +201,6 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
      * @param mongoPlusBasicDBObject BasicDBObject
      * @return {@link BasicDBObject}
      * @author anwen
-     * @date 2024/8/1 下午2:27
      */
     public abstract BasicDBObject queryCondition(CompareCondition compareCondition, MongoPlusBasicDBObject mongoPlusBasicDBObject);
 

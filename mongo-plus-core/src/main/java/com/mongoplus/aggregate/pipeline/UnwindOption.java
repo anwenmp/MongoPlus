@@ -7,7 +7,6 @@ import com.mongoplus.support.SFunction;
  * unwind管道可选项
  *
  * @author anwen
- * @date 2024/6/16 下午9:05
  */
 public class UnwindOption {
 
@@ -28,7 +27,6 @@ public class UnwindOption {
      * 如果展开阶段应包含具有空值或空数组的文档，则设置为 true
      * @param preserveNullAndEmptyArrays 描述展开阶段是否应包含具有空值或空数组的文档的标志
      * @author anwen
-     * @date 2024/6/16 下午9:06
      */
     public UnwindOption preserveNullAndEmptyArrays(@Nullable final Boolean preserveNullAndEmptyArrays) {
         this.preserveNullAndEmptyArrays = preserveNullAndEmptyArrays;

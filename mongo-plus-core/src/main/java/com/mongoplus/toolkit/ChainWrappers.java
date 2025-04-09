@@ -12,7 +12,6 @@ import com.mongoplus.mapper.BaseMapper;
 /**
  * 快速构建链式调用
  * @author JiaChaoYang
- * @date 2023/6/24/024 2:27
 */
 public final class ChainWrappers {
 

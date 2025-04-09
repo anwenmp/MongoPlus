@@ -12,31 +12,26 @@ public class ParseCommand {
 
     /**
      * 操作行为
-     * @date 2024/11/15 14:13
      */
     private String operate;
 
     /**
      * 集合
-     * @date 2024/11/15 14:14
      */
     private String collection;
 
     /**
      * 命令
-     * @date 2024/11/15 14:15
      */
     private Object command;
 
     /**
      * 提取但未解析的命令
-     * @date 2024/11/15 14:51
      */
     private String unresolvedCommand;
 
     /**
      * 原始command
-     * @date 2024/11/15 14:16
      */
     private String original;
 

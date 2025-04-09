@@ -21,7 +21,6 @@ public interface TypeInformation {
      * @param clazz 类
      * @return {@link TypeInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:53
      */
     static TypeInformation of(Class<?> clazz) {
         return of(ClassTypeUtil.getInstanceByClass(clazz));
@@ -51,7 +50,6 @@ public interface TypeInformation {
      * @param instance 实例
      * @return {@link com.mongoplus.mapping.TypeInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:53
      */
     static TypeInformation of(Object instance) {
         return SimpleTypeInformation.of(instance);
@@ -61,7 +59,6 @@ public interface TypeInformation {
      * 获取实例
      *
      * @author anwen
-     * @date 2024/7/28 下午11:51
      */
     <T> T getInstance();
 
@@ -70,7 +67,6 @@ public interface TypeInformation {
      *
      * @param instance 实例
      * @author anwen
-     * @date 2024/7/28 下午11:52
      */
     void setInstance(Object instance);
 
@@ -78,7 +74,6 @@ public interface TypeInformation {
      * 获取所有字段，并封装为FieldInformation
      *
      * @author anwen
-     * @date 2024/7/28 下午11:52
      */
     List<FieldInformation> getFields();
 
@@ -86,7 +81,6 @@ public interface TypeInformation {
      * 获取所有字段，并封装为FieldInformation，不包含父类Field
      *
      * @author anwen
-     * @date 2024/7/28 下午11:52
      */
     List<FieldInformation> getThisFields();
 
@@ -96,7 +90,6 @@ public interface TypeInformation {
      * @param fieldName 字段名
      * @return {@link com.mongoplus.mapping.FieldInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:52
      */
     FieldInformation getField(String fieldName);
 
@@ -106,7 +99,6 @@ public interface TypeInformation {
      * @param fieldName 字段名
      * @return {@link com.mongoplus.mapping.FieldInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:52
      */
     FieldInformation getFieldNotException(String fieldName);
 
@@ -116,7 +108,6 @@ public interface TypeInformation {
      * @param annotationClass 注解类
      * @return {@link java.util.List<com.mongoplus.mapping.FieldInformation>}
      * @author anwen
-     * @date 2024/7/28 下午11:53
      */
     List<FieldInformation> getAnnotationFields(Class<? extends Annotation> annotationClass);
 
@@ -126,7 +117,6 @@ public interface TypeInformation {
      * @param annotationClass 注解类
      * @return {@link java.util.List<com.mongoplus.mapping.FieldInformation>}
      * @author anwen
-     * @date 2024/7/28 下午11:53
      */
     List<FieldInformation> getAnnotationThisFields(Class<? extends Annotation> annotationClass);
 
@@ -137,7 +127,6 @@ public interface TypeInformation {
      * @param nullMessage     异常信息
      * @return {@link FieldInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:54
      */
     FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass, String nullMessage);
 
@@ -147,7 +136,6 @@ public interface TypeInformation {
      * @param annotationClass 注解类
      * @return {@link com.mongoplus.mapping.FieldInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:54
      */
     FieldInformation getAnnotationField(Class<? extends Annotation> annotationClass);
 
@@ -157,7 +145,6 @@ public interface TypeInformation {
      * @param annotationClass 注解类
      * @return {@link com.mongoplus.mapping.FieldInformation}
      * @author anwen
-     * @date 2024/7/28 下午11:54
      */
     FieldInformation getAnnotationThisField(Class<? extends Annotation> annotationClass);
 
@@ -168,7 +155,6 @@ public interface TypeInformation {
      * @param nullMessage     异常信息
      * @return {@link Object}
      * @author anwen
-     * @date 2024/7/28 下午11:55
      */
     Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass, String nullMessage);
 
@@ -178,7 +164,6 @@ public interface TypeInformation {
      * @param annotationClass 注解类
      * @return {@link Object}
      * @author anwen
-     * @date 2024/7/28 下午11:55
      */
     Object getAnnotationFieldValue(Class<? extends Annotation> annotationClass);
 
@@ -187,7 +172,6 @@ public interface TypeInformation {
      *
      * @return {@link Class}
      * @author anwen
-     * @date 2024/7/28 下午11:56
      */
     Class<?> getClazz();
 
@@ -196,7 +180,6 @@ public interface TypeInformation {
      *
      * @return {@link Boolean}
      * @author anwen
-     * @date 2024/7/28 下午11:57
      */
     Boolean isMap();
 
@@ -205,7 +188,6 @@ public interface TypeInformation {
      *
      * @return {@link java.lang.Boolean}
      * @author anwen
-     * @date 2024/7/28 下午11:57
      */
     Boolean isCollection();
 
@@ -214,7 +196,6 @@ public interface TypeInformation {
      *
      * @return {@link java.lang.Boolean}
      * @author anwen
-     * @date 2024/7/28 下午11:57
      */
     Boolean isSimpleType();
 
@@ -223,7 +204,6 @@ public interface TypeInformation {
      *
      * @return {@link Type[]}
      * @author anwen
-     * @date 2024/7/28 下午11:57
      */
     Type[] getType();
 

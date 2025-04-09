@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 /**
  * 抽象的解析器
  * @author anwen
- * @date 2024/11/15 14:18
  */
 public abstract class AbstractCommandParse implements Parser {
 
@@ -41,7 +40,6 @@ public abstract class AbstractCommandParse implements Parser {
      * @param command 命令
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/11/17 23:28
      */
     public abstract Bson parseCommand(String command);
 
@@ -50,7 +48,6 @@ public abstract class AbstractCommandParse implements Parser {
      * @param command 命令，一定会是数组
      * @return {@link java.util.List<org.bson.conversions.Bson>}
      * @author anwen
-     * @date 2024/11/17 23:28
      */
     public abstract List<Bson> parseArrayCommand(String command);
 
@@ -59,7 +56,6 @@ public abstract class AbstractCommandParse implements Parser {
      * @param command 命令
      * @return {@link com.mongoplus.model.command.ParseCommand}
      * @author anwen
-     * @date 2024/11/15 14:53
      */
     public ParseCommand buildParseCommand(String command){
         Pattern regex = Pattern.compile(pattern);

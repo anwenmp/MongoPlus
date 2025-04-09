@@ -142,7 +142,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 从Bean中拿到转换器
      * @author JiaChaoYang
-     * @date 2023/10/19 12:49
      */
     private void setConversion(AppContext context){
         context.getBeansOfType(ConversionStrategy.class).forEach(conversionStrategy -> {
@@ -166,7 +165,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 从Bean中拿到自动填充策略
      * @author JiaChaoYang
-     * @date 2023/11/21 12:18
      */
     private void setMetaObjectHandler(AppContext context){
         context.getBeansOfType(MetaObjectHandler.class).forEach(metaObjectHandler -> HandlerCache.metaObjectHandler = metaObjectHandler);
@@ -175,7 +173,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 从Bean中拿到监听器
      * @author JiaChaoYang
-     * @date 2023/11/22 18:39
      */
     private void setListener(AppContext context){
         List<Listener> listeners = ListenerCache.listeners;
@@ -197,7 +194,6 @@ public class MongoPlusAutoConfiguration {
      * 从Bean中拿到拦截器
      *
      * @author JiaChaoYang
-     * @date 2024/3/17 0:30
      */
     private void setInterceptor(AppContext context) {
         List<Interceptor> beansOfType = context.getBeansOfType(Interceptor.class);
@@ -223,7 +219,6 @@ public class MongoPlusAutoConfiguration {
      * 从Bean中拿到映射器
      *
      * @author JiaChaoYang
-     * @date 2024/3/17 0:30
      */
     private void setMapping(AppContext context) {
         context.getBeansOfType(MappingStrategy.class).forEach(mappingStrategy -> {
@@ -251,7 +246,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 自定义id生成器
      * @author anwen
-     * @date 2024/5/30 下午1:35
      */
     private void setIdGenerator(AppContext context) {
         try {
@@ -262,7 +256,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 多租户拦截器
      * @author anwen
-     * @date 2024/6/27 下午12:44
      */
     private void setTenantHandler(AppContext context) {
         TenantHandler tenantHandler = null;
@@ -277,7 +270,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 动态集合名拦截器
      * @author anwen
-     * @date 2024/6/27 下午3:47
      */
     private void setDynamicCollectionHandler(AppContext context){
         CollectionNameHandler collectionNameHandler = null;
@@ -292,7 +284,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 注册集合名转换器
      * @author anwen
-     * @date 2024/5/27 下午11:20
      */
     public void collectionNameConvert(){
         AnnotationOperate.setCollectionNameConvertEnum(mongoDBCollectionProperty.getMappingStrategy());
@@ -301,7 +292,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 自动创建时间序列
      * @author anwen
-     * @date 2024/8/28 11:16
      */
     public void autoCreateTimeSeries(AppContext context){
         if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
@@ -314,7 +304,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 自动创建序列
      * @author anwen
-     * @date 2024/8/28 11:16
      */
     public void autoCreateIndexes(AppContext context){
         if (mongoDBConfigurationProperty.getAutoCreateIndex()) {
@@ -328,7 +317,6 @@ public class MongoPlusAutoConfiguration {
      * 设置id生成器
      *
      * @author anwen
-     * @date 2024/5/30 下午1:35
      */
     public void setIdGenerateHandler(AppContext context) {
         IdGenerateHandler idGenerateHandler = new AbstractIdGenerateHandler(mongoPlusClient) {};
@@ -341,7 +329,6 @@ public class MongoPlusAutoConfiguration {
     /**
      * 设置编解码器
      * @author anwen
-     * @date 2024/11/7 17:15
      */
     public void setMongoPlusCodec(AppContext context){
         context.getBeansOfType(MongoPlusCodec.class).forEach(MongoPlusCodecCache::addCodec);

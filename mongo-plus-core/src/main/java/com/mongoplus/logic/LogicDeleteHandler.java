@@ -26,7 +26,6 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * 逻辑删除处理类
  *
  * @author loser
- * @date 2024/4/29
  */
 public interface LogicDeleteHandler {
 

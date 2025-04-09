@@ -45,7 +45,6 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     /**
      * 是否跳过获取结果
-     * @date 2024/8/23 16:29
      */
     private boolean isSkip = false;
 
@@ -67,7 +66,6 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     /**
      * 定义自己
-     * @date 2024/6/7 下午3:56
      */
     protected final Children typedThis = (Children) this;
 

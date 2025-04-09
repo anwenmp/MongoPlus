@@ -4,7 +4,6 @@ import com.mongoplus.enums.LogicDataType;
 
 /**
  * @author JiaChaoYang
- * @date 2023-02-23 10:42
  **/
 public class LogicProperty {
 

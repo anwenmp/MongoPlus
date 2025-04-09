@@ -4,7 +4,6 @@ package com.mongoplus.enums;
  * 偏好设置节点选择策略
  *
  * @author loser
- * @date 2024/5/8
  */
 public enum ReadPreferenceEnum {
 

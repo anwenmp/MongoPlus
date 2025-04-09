@@ -4,7 +4,6 @@ package com.mongoplus.enums;
  * 加密类型
  *
  * @author anwen
- * @date 2024/6/30 下午1:41
  */
 public enum AlgorithmEnum {
 

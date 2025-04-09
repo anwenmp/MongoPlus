@@ -48,7 +48,6 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * 抽象的baseMapper
  *
  * @author anwen
- * @date 2024/6/26 下午2:01
  */
 public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements BaseMapper {
 

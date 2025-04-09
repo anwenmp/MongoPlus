@@ -13,7 +13,6 @@ import java.util.List;
 /**
  * AbstractChainWrapper的条件扩展类，查询专有的条件，使用类构造条件时，使用QueryChainWrapper的子类，{@link QueryWrapper}
  * @author JiaChaoYang
- * @date 2024/2/3 13:10
 */
 public abstract class QueryChainWrapper<T,Children extends QueryChainWrapper<T,Children>> extends AbstractChainWrapper<T,Children> implements Query<T,Children> {
     @Override

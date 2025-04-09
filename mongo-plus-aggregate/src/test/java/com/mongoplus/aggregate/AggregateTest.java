@@ -342,7 +342,6 @@ public class AggregateTest {
      * 使用MongoDB给的示例和语句，查询结果不一样，他的示例是有问题的
      *
      * @author anwen
-     * @date 2024/8/23 01:22
      */
     @Test
     public void graphLookup() {

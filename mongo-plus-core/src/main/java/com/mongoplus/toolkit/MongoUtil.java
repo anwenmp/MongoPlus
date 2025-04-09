@@ -25,7 +25,6 @@ import java.util.Collections;
 
 /**
  * @author anwen
- * @date 2024/7/9 下午4:20
  */
 public class MongoUtil {
 
@@ -35,7 +34,6 @@ public class MongoUtil {
      * @param baseProperty 配置
      * @return {@link MongoClient}
      * @author anwen
-     * @date 2024/5/27 下午11:20
      */
     public static MongoClient getMongo(String dsName, BaseProperty baseProperty){
         SslSettings sslSettings = null;

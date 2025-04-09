@@ -14,7 +14,6 @@ public @interface MongoIndexDs {
     /**
      * 数据源名称
      * @author anwen
-     * @date 2024/8/27 11:15
      */
     String dataSource() default "";
 

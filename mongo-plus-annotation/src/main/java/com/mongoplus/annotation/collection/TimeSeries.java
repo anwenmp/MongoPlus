@@ -15,7 +15,6 @@ public @interface TimeSeries {
 
     /**
      * 数据源，指定时间序列所在的数据源
-     * @date 2024/8/27 01:35
      */
     String dataSource() default "";
 
@@ -25,7 +24,6 @@ public @interface TimeSeries {
      * <p>
      *      {@code @TimeSeries("$field1"})}
      * </p>
-     * @date 2024/8/27 01:23
      */
     String timeField();
 
@@ -35,31 +33,26 @@ public @interface TimeSeries {
      * <p>
      *      {@code @TimeSeries(metaField="$field1"})}
      * </p>
-     * @date 2024/8/27 01:23
      */
     String metaField() default "";
 
     /**
      * 指定时间序列的粒度
-     * @date 2024/8/27 01:23
      */
     TimeSeriesGranularity granularity() default TimeSeriesGranularity.SECONDS;
 
     /**
      * 设置存储桶中测量之间的最大时间跨度，以秒为单位
-     * @date 2024/8/27 01:30
      */
     long bucketMaxSpan() default -1;
 
     /**
      * 指定确定新存储桶的起始时间戳的时间间隔，以秒为单位
-     * @date 2024/8/27 01:31
      */
     long bucketRounding() default -1;
 
     /**
      * 指定文档过期的秒数
-     * @date 2024/8/27 16:00
      */
     long expireAfter() default -1;
 

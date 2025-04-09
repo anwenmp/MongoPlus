@@ -7,7 +7,6 @@ import com.mongoplus.conditions.interfaces.condition.CompareCondition;
  * 条件处理器
  *
  * @author anwen
- * @date 2024/6/30 下午3:57
  */
 public interface ConditionHandler {
 
@@ -16,7 +15,6 @@ public interface ConditionHandler {
      * @param compareCondition 条件
      * @param basicDBObject 最终对象
      * @author anwen
-     * @date 2024/6/30 下午4:01
      */
     default void beforeQueryCondition(CompareCondition compareCondition,BasicDBObject basicDBObject){}
 
@@ -25,7 +23,6 @@ public interface ConditionHandler {
      * @param compareCondition 条件
      * @param basicDBObject 最终对象
      * @author anwen
-     * @date 2024/8/1 下午2:36
      */
     default void afterQueryCondition(CompareCondition compareCondition,BasicDBObject basicDBObject){}
 
@@ -34,7 +31,6 @@ public interface ConditionHandler {
      * @param compareCondition 条件
      * @param basicDBObject 最终对象
      * @author anwen
-     * @date 2024/6/30 下午4:01
      */
     default void beforeUpdateCondition(CompareCondition compareCondition,BasicDBObject basicDBObject){}
 
@@ -43,7 +39,6 @@ public interface ConditionHandler {
      * @param compareCondition 条件
      * @param basicDBObject 最终对象
      * @author anwen
-     * @date 2024/8/1 下午2:36
      */
     default void afterUpdateCondition(CompareCondition compareCondition,BasicDBObject basicDBObject){}
 

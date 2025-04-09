@@ -16,7 +16,6 @@ import java.util.Objects;
  * 逻辑删除默认字段拦截器(初始化逻辑未删除字段、建议方案：使用数据库默认字段 > 其次是手动设置 > 配置框架提供拦截器 > 自定义拦截器）)
  *
  * @author loser
- * @date 2024/4/30
  */
 public class LogicAutoFillInterceptor implements Interceptor {
 

@@ -13,7 +13,6 @@ public interface Parser {
      * @param command 命令
      * @return {@link ParseCommand}
      * @author anwen
-     * @date 2024/11/15 14:17
      */
     ParseCommand parse(String command);
 

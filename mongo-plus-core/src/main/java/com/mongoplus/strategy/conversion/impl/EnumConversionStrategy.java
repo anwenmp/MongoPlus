@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 枚举的转换策略
  *
  * @author anwen
- * @date 2024/5/4 上午12:42
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class EnumConversionStrategy<T> implements ConversionStrategy<Enum> {
@@ -22,7 +21,6 @@ public class EnumConversionStrategy<T> implements ConversionStrategy<Enum> {
     /**
      * 缓存每个枚举类的值到枚举实例的映射关系
      *
-     * @date 2024/11/18 17:02
      */
     private final Map<Class<? extends Enum>, Map<Object, Enum>> enumValueCache = new ConcurrentHashMap<>();
 

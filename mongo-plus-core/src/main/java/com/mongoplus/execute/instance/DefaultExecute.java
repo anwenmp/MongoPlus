@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * 默认执行器实例
  *
  * @author JiaChaoYang
- * @date 2023-12-28 11:03
  **/
 public class DefaultExecute implements Execute {
 

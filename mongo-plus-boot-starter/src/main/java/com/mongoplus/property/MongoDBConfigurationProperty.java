@@ -15,43 +15,36 @@ public class MongoDBConfigurationProperty {
 
     /**
      * banner打印
-     * @date 2024/1/26 21:58
     */
     private Boolean banner = true;
 
     /**
      * 存放自增id的集合
-     * @date 2024/5/1 下午8:55
      */
     private String autoIdCollectionName;
 
     /**
      * 是否开启小黑子模式
-     * @date 2024/5/2 上午2:23
      */
     private Boolean ikun = false;
 
     /**
      * 自动转换ObjectId
-     * @date 2024/7/26 下午5:40
      */
     private Boolean autoConvertObjectId = true;
 
     /**
      * 是否将Id字段的ObjectId转换为字段的类型
-     * @date 2024/8/9 14:52
      */
     private Boolean objectIdConvertType = false;
 
     /**
      * 自动创建索引
-     * @date 2024/8/18 15:25
      */
     private Boolean autoCreateIndex = false;
 
     /**
      * 自动创建时间序列
-     * @date 2024/8/27 15:41
      */
     private Boolean autoCreateTimeSeries = false;
 

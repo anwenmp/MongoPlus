@@ -22,7 +22,6 @@ import com.mongoplus.toolkit.StringUtils;
  * Id生成器接口
  * @since mp
  * @author JiaChaoYang
- * @date 2023/8/12 0:34
 */
 public interface IdentifierGenerator {
 

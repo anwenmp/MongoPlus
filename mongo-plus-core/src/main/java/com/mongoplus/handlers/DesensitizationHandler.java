@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
  * 字段脱敏处理器
  *
  * @author anwen
- * @date 2024/6/28 下午5:04
  */
 public interface DesensitizationHandler {
 
@@ -21,7 +20,6 @@ public interface DesensitizationHandler {
      * @param desensitizedType 脱敏类型
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/28 下午5:05
      */
     String desensitized(Field field,Object obj, int startInclude, int endExclude, DesensitizationTypeEnum desensitizedType);
 

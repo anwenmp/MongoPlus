@@ -16,21 +16,18 @@ import java.util.stream.Collectors;
  * Class的一些信息和操作
  *
  * @author JiaChaoYang
- * @date 2024/4/16 下午9:04
  */
 public class SimpleTypeInformation<T> implements TypeInformation {
 
     /**
      * 实例
      *
-     * @date 2024/4/16 下午9:58
      */
     private T instance;
 
     /**
      * 实例的Class
      *
-     * @date 2024/4/16 下午9:58
      */
     private final Class<?> clazz;
 
@@ -41,14 +38,12 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     /**
      * 实例的所有Field
      *
-     * @date 2024/4/16 下午9:58
      */
     private final List<FieldInformation> fieldList = new ArrayList<>();
 
     /**
      * 实例的所有Field,不包括父类
      *
-     * @date 2024/4/16 下午9:58
      */
     private final List<FieldInformation> thisFieldList = new ArrayList<>();
 
@@ -60,14 +55,12 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     /**
      * 实例的某个注解的Field
      *
-     * @date 2024/4/16 下午9:58
      */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationFieldMap = new HashMap<>();
 
     /**
      * 实例的某个注解的Field
      *
-     * @date 2024/4/16 下午9:58
      */
     private final Map<Class<? extends Annotation>, List<FieldInformation>> annotationThisFieldMap = new HashMap<>();
 

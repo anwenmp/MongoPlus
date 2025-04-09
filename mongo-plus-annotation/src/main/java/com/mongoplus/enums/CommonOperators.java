@@ -3,7 +3,6 @@ package com.mongoplus.enums;
 /**
  * 操作符
  * @author anwen
- * @date 2024/8/25 11:18
  */
 public enum CommonOperators {
 

@@ -28,7 +28,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * id 获取器
  * @since mp
  * @author JiaChaoYang
- * @date 2023/8/12 0:33
 */
 public class IdWorker {
 
@@ -125,7 +124,6 @@ public class IdWorker {
     /**
      * 生成一个ULID
      * @author JiaChaoYang
-     * @date 2023/8/30 13:47
     */
     public static String get26ULID(){
         return new ULID().nextULID();

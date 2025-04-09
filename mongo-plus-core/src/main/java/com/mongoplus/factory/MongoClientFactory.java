@@ -55,7 +55,6 @@ public class MongoClientFactory implements AutoCloseable {
      * 获取工厂实例，可能为null(spring-boot-starter项目已经初始化好，
      * 如果使用{@link com.mongoplus.config.Configuration}构建，可能会为空)
      * @author JiaChaoYang
-     * @date 2024/4/5 0:01
     */
     public static MongoClientFactory getInstance(){
         return mongoClientFactory;

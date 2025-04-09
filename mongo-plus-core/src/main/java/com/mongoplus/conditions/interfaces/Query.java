@@ -11,7 +11,6 @@ public interface Query<T,Children> extends Project<T,Children> {
      * @param column 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/7/13 下午5:30
      */
     Children order(String column,Integer order);
 
@@ -20,7 +19,6 @@ public interface Query<T,Children> extends Project<T,Children> {
      * @param column 列名、字段名，lambda方式
      * @return com.mongoplus.sql.query.LambdaQueryMongoWrapper<T>
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children orderByAsc(SFunction<T, Object> column);
 
@@ -29,7 +27,6 @@ public interface Query<T,Children> extends Project<T,Children> {
      * @param column 列名、字段名，lambda方式
      * @return com.mongoplus.sql.query.LambdaQueryMongoWrapper<T>
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children orderByDesc(SFunction<T,Object> column);
 
@@ -38,7 +35,6 @@ public interface Query<T,Children> extends Project<T,Children> {
      * @param column 列名、字段名
      * @return com.mongoplus.sql.query.LambdaQueryMongoWrapper<T>
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children orderByAsc(String column);
 
@@ -47,7 +43,6 @@ public interface Query<T,Children> extends Project<T,Children> {
      * @param column 列名、字段名，lambda方式
      * @return com.mongoplus.sql.query.LambdaQueryMongoWrapper<T>
      * @author JiaChaoYang
-     * @date 2023/6/20/020
      */
     Children orderByDesc(String column);
 

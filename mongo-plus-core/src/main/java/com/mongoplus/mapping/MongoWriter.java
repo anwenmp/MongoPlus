@@ -7,7 +7,6 @@ import java.util.Map;
 /**
  * 将java转为mongodb可用类型
  * @author JiaChaoYang
- * @date 2024/5/1 下午8:36
  */
 public interface MongoWriter {
 

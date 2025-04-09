@@ -21,7 +21,6 @@ public interface IRepository<T> extends MongoMapper<T> {
      * @param bson 描述索引键的对象，该对象不能为 null
      * @return java.lang.String
      * @author JiaChaoYang
-     * @date 2023/11/15 14:04
      */
     String createIndex(Bson bson);
 
@@ -31,7 +30,6 @@ public interface IRepository<T> extends MongoMapper<T> {
      * @param indexOptions 指数的选项
      * @return java.lang.String
      * @author JiaChaoYang
-     * @date 2023/11/15 15:37
      */
     String createIndex(Bson bson, IndexOptions indexOptions);
 
@@ -40,7 +38,6 @@ public interface IRepository<T> extends MongoMapper<T> {
      * @param indexes 索引列表
      * @return java.util.List<java.lang.String>
      * @author JiaChaoYang
-     * @date 2023/11/15 15:34
      */
     List<String> createIndexes(List<IndexModel> indexes);
 
@@ -50,7 +47,6 @@ public interface IRepository<T> extends MongoMapper<T> {
      * @param createIndexOptions 创建索引时要使用的选项
      * @return java.util.List<java.lang.String> 索引名称列表
      * @author JiaChaoYang
-     * @date 2023/11/15 15:34
      */
     List<String> createIndexes(List<IndexModel> indexes, CreateIndexOptions createIndexOptions);
 
@@ -109,14 +105,12 @@ public interface IRepository<T> extends MongoMapper<T> {
     /**
      * 获取当前service所对应的MongoCollection
      * @author JiaChaoYang
-     * @date 2024/1/19 16:22
      */
     MongoCollection<Document> getCollection(String database);
 
     /**
      * 获取条件构造器
      * @author anwen
-     * @date 2024/6/25 下午9:05
      */
     LambdaQueryChainWrapper<T> lambdaQuery();
 
@@ -124,21 +118,18 @@ public interface IRepository<T> extends MongoMapper<T> {
      * 获取管道构造器
      * @return {@link com.mongoplus.aggregate.LambdaAggregateChainWrapper<T>}
      * @author anwen
-     * @date 2024/6/20 下午11:34
      */
     LambdaAggregateChainWrapper<T> lambdaAggregate();
 
     /**
      * 获取管道构造器
      * @author anwen
-     * @date 2024/6/20 下午11:34
      */
     LambdaAggregateChainWrapper<T> lambdaAggregates();
 
     /**
      * 获取修改条件构造器
      * @author anwen
-     * @date 2024/6/25 下午9:05
      */
     LambdaUpdateChainWrapper<T> lambdaUpdate();
 

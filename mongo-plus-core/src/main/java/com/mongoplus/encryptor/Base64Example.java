@@ -6,7 +6,6 @@ import java.util.Base64;
  * base64加密
  *
  * @author anwen
- * @date 2024/6/29 下午1:23
  */
 public class Base64Example implements Encryptor {
 

@@ -65,7 +65,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param mongoPlusClient mongoPlusClient
      * @param ignoreType 忽略的类型
      * @author anwen
-     * @date 2024/11/18 22:56
      */
     @Deprecated
     public MappingMongoConverter(MongoPlusClient mongoPlusClient,List<Class<?>> ignoreType){
@@ -138,7 +137,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param sourceObj 源对象
      * @param collectionField 可选的 CollectionField 注解
      * @author anwen
-     * @date 2024/5/1 下午11:45
      */
     private void writeProperties(Bson bson, String key, Object sourceObj, CollectionField collectionField) {
         if (shouldIgnoreNull(sourceObj, collectionField)) {
@@ -153,7 +151,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param key key
      * @param sourceObj 源对象
      * @author anwen
-     * @date 2024/5/1 下午11:45
      */
     private void writeProperties(Bson bson, String key, Object sourceObj) {
         if (shouldIgnoreNull(sourceObj, null)) {
@@ -181,7 +178,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param sourceObj 源对象
      * @return {@link Object}
      * @author anwen
-     * @date 2024/5/1 下午11:46
      */
     private Object writeProperties(Object sourceObj){
         Object resultObj;
@@ -217,7 +213,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param bson bson
      * @return {@link Bson}
      * @author anwen
-     * @date 2024/5/1 下午11:46
      */
     @Override
     public Bson writeMapInternal(Map<?,?> obj,Bson bson) {
@@ -243,7 +238,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param sink 集合
      * @return {@link Collection}
      * @author anwen
-     * @date 2024/5/1 下午11:46
      */
     @SuppressWarnings(value = "unchecked")
     private Collection<?> writeCollectionInternal(Collection<?> obj, Collection<?> sink){
@@ -318,7 +312,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     /**
      * 获取type的泛型
      * @author anwen
-     * @date 2024/5/6 下午9:19
      */
     public static Type getGenericTypeClass(ParameterizedType parameterizedType,int size){
         return parameterizedType.getActualTypeArguments()[size];
@@ -327,7 +320,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     /**
      * 集合单独处理
      * @author anwen
-     * @date 2024/5/6 下午1:14
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Collection<?> convertCollection(Type type, Object fieldValue, Collection collection) {

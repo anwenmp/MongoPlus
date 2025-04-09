@@ -55,7 +55,6 @@ public class MongoPlusConfiguration {
     /**
      * 将MongoClient注册为Bean
      * @author JiaChaoYang
-     * @date 2024/1/4 23:49
      */
     @Bean
     @Condition(onMissingBean = MongoClient.class)
@@ -174,7 +173,6 @@ public class MongoPlusConfiguration {
      * @param mongoClientFactory mongoClient工厂
      * @return {@link DataSourceManager}
      * @author anwen
-     * @date 2024/7/9 下午4:41
      */
     @Bean
     @Condition(onMissingBean = DataSourceManager.class)
@@ -187,7 +185,6 @@ public class MongoPlusConfiguration {
      * 注册mongoPlus多数据源切面
      * @return {@link MongoDataSourceAspect}
      * @author anwen
-     * @date 2024/5/27 下午11:19
      */
     @Bean("mongoDataSourceAspect")
     @Condition(onMissingBean = MongoDataSourceAspect.class)
@@ -210,7 +207,6 @@ public class MongoPlusConfiguration {
     /**
      * 忽略租户
      * @author anwen
-     * @date 2024/6/27 下午1:30
      */
     @Bean("tenantAspect")
     @Condition(onMissingBean = TenantAspect.class)

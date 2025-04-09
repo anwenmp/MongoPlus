@@ -17,7 +17,6 @@ import static com.mongoplus.toolkit.StringUtils.hexToBytes;
  * PEB混合算法
  *
  * @author anwen
- * @date 2024/6/30 下午12:27
  */
 public class PBEExample implements Encryptor {
 

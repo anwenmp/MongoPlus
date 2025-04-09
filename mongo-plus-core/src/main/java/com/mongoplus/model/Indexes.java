@@ -18,7 +18,6 @@ import static java.util.Arrays.asList;
  * 用于定义索引键的工厂。使用此类的一种便捷方法是静态导入其所有方法，这允许使用如下方法: collection.createIndex(compoundIndex(ascending("x"), descending("y")));
  * @author JiaChaoYang
  * @since 引用自 {@link com.mongodb.client.model.Indexes}将其扩展，支持函数
- * @date 2023-11-15 14:17
  **/
 public final class Indexes {
 

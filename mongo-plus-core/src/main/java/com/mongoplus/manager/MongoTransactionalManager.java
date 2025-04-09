@@ -63,7 +63,6 @@ public class MongoTransactionalManager {
      * 事务开启
      *
      * @author JiaChaoYang
-     * @date 2023/7/30 18:15
      */
     public static void startTransaction() {
         startTransaction(getTransaction());
@@ -285,7 +284,6 @@ public class MongoTransactionalManager {
      * 事务提交
      *
      * @author JiaChaoYang
-     * @date 2023/7/30 18:15
      */
     public static void commitTransaction() {
         MongoTransactionStatus status = MongoTransactionContext.getMongoTransactionStatus();
@@ -320,7 +318,6 @@ public class MongoTransactionalManager {
      * 事务回滚
      *
      * @author JiaChaoYang
-     * @date 2023/7/30 18:16
      */
     public static void rollbackTransaction() {
         MongoTransactionStatus status = MongoTransactionContext.getMongoTransactionStatus();
@@ -331,7 +328,6 @@ public class MongoTransactionalManager {
      * 事务回滚
      *
      * @author JiaChaoYang
-     * @date 2023/7/30 18:16
      */
     public static void rollbackTransaction(MongoTransactionStatus status) {
         if (status == null) {

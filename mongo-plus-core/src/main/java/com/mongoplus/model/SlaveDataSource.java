@@ -3,7 +3,6 @@ package com.mongoplus.model;
 /**
  * 从配置
  * @author anwen
- * @date 2024/8/2 上午1:01
  */
 public class SlaveDataSource extends BaseProperty {
     /**

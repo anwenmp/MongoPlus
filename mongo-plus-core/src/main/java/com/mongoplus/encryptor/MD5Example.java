@@ -8,7 +8,6 @@ import java.security.MessageDigest;
  * MD5加密
  *
  * @author anwen
- * @date 2024/6/29 下午1:07
  */
 public class MD5Example implements Encryptor {
 

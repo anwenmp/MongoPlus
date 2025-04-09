@@ -11,7 +11,6 @@ public interface Project<T,Children> {
      * @param projection Projection对象
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(Projection... projection);
 
@@ -20,7 +19,6 @@ public interface Project<T,Children> {
      * @param projectionList Projection集合
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(List<Projection> projectionList);
 
@@ -29,7 +27,6 @@ public interface Project<T,Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(SFunction<T,Object>... column);
 
@@ -38,7 +35,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(String... column);
 
@@ -47,7 +43,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectNone(SFunction<T,Object>... column);
 
@@ -56,7 +51,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:38
      */
     Children projectNone(String... column);
 
@@ -67,7 +61,6 @@ public interface Project<T,Children> {
      * @param
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(boolean displayId,Projection... projection);
 
@@ -77,7 +70,6 @@ public interface Project<T,Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(boolean displayId,SFunction<T,Object>... column);
 
@@ -87,7 +79,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(boolean displayId,String... column);
 
@@ -97,7 +88,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectNone(boolean displayId,SFunction<T,Object>... column);
 
@@ -107,7 +97,6 @@ public interface Project<T,Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:38
      */
     Children projectNone(boolean displayId,String... column);
 

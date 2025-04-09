@@ -10,7 +10,6 @@ import org.bson.conversions.Bson;
 
 /**
  * @author anwen
- * @date 2024/6/11 上午12:39
  */
 public class SimpleExpression<TExpression> implements Bson {
     private final String name;

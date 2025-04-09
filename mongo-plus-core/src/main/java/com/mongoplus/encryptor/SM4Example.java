@@ -13,7 +13,6 @@ import java.security.Security;
  * SM4加密
  *
  * @author anwen
- * @date 2024/6/30 上午1:25
  */
 public class SM4Example implements Encryptor {
 

@@ -23,7 +23,6 @@ import java.net.InetAddress;
  * 默认生成器
  * @since mp
  * @author JiaChaoYang
- * @date 2023/8/11 1:10
 */
 public class DefaultIdentifierGenerator implements IdentifierGenerator {
 
@@ -32,7 +31,6 @@ public class DefaultIdentifierGenerator implements IdentifierGenerator {
     /**
      * 共享默认单例
      * @author JiaChaoYang
-     * @date 2023/8/11 1:10
     */
     @Deprecated
     public DefaultIdentifierGenerator() {

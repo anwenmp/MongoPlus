@@ -68,7 +68,6 @@ public class MongoPlusConfiguration {
      * 注册MongoClient工厂
      * @return {@link MongoClientFactory}
      * @author anwen
-     * @date 2024/5/27 下午11:21
      */
     @Bean
     @ConditionalOnMissingBean
@@ -89,7 +88,6 @@ public class MongoPlusConfiguration {
     /**
      * 这里将MongoClient注册为Bean，但是只是给MongoTemplate使用，master的client
      * @author JiaChaoYang
-     * @date 2024/1/4 23:49
      */
     @Bean
     @ConditionalOnMissingBean
@@ -103,7 +101,6 @@ public class MongoPlusConfiguration {
      * @param mongoClientFactory MongoClient工厂
      * @return {@link com.mongoplus.manager.MongoPlusClient}
      * @author anwen
-     * @date 2024/5/27 下午11:20
      */
     @Bean
     @ConditionalOnMissingBean(MongoPlusClient.class)
@@ -161,7 +158,6 @@ public class MongoPlusConfiguration {
      * 简单类型注册
      * @return {@link SimpleTypeHolder}
      * @author anwen
-     * @date 2024/5/27 下午11:17
      */
     @Bean
     @ConditionalOnMissingBean(SimpleTypeHolder.class)
@@ -175,7 +171,6 @@ public class MongoPlusConfiguration {
      * 注册mongo转换器
      * @return {@link com.mongoplus.mapping.MongoConverter}
      * @author anwen
-     * @date 2024/5/27 下午11:17
      */
     @Bean
     @ConditionalOnMissingBean(MongoConverter.class)
@@ -189,7 +184,6 @@ public class MongoPlusConfiguration {
      * @param mongoConverter 转换器
      * @return {@link com.mongoplus.mapper.BaseMapper}
      * @author anwen
-     * @date 2024/5/27 下午11:18
      */
     @Bean
     @ConditionalOnMissingBean(BaseMapper.class)
@@ -201,7 +195,6 @@ public class MongoPlusConfiguration {
      * 注册MongoPlus事务切面
      * @return {@link MongoTransactionalAspect}
      * @author anwen
-     * @date 2024/5/27 下午11:19
      */
     @Bean("mongoTransactionalAspect")
     @ConditionalOnMissingBean
@@ -219,7 +212,6 @@ public class MongoPlusConfiguration {
      * 注册mongoPlus多数据源切面
      * @return {@link MongoDataSourceAspect}
      * @author anwen
-     * @date 2024/5/27 下午11:19
      */
     @Bean("mongoDataSourceAspect")
     @ConditionalOnMissingBean
@@ -242,7 +234,6 @@ public class MongoPlusConfiguration {
     /**
      * 忽略租户
      * @author anwen
-     * @date 2024/6/27 下午1:30
      */
     @Bean("tenantAspect")
     @ConditionalOnMissingBean
@@ -256,7 +247,6 @@ public class MongoPlusConfiguration {
      * @param mongoClientFactory mongoClient工厂
      * @return {@link DataSourceManager}
      * @author anwen
-     * @date 2024/7/9 下午4:41
      */
     @Bean("dataSourceManager")
     @ConditionalOnMissingBean

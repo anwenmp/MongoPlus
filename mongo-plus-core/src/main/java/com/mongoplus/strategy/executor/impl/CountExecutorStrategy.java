@@ -13,7 +13,6 @@ import org.bson.Document;
  * COUNT 策略执行器
  *
  * @author loser
- * @date 2024/4/30
  */
 @SuppressWarnings("unchecked")
 public class CountExecutorStrategy implements MethodExecutorStrategy {

@@ -3,7 +3,6 @@ package com.mongoplus.enums;
 /**
  * update条件枚举
  * @author anwen
- * @date 2024/8/1 下午2:10
  */
 public enum UpdateConditionEnum {
 

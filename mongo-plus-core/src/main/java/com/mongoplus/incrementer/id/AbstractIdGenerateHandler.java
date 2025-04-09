@@ -61,7 +61,6 @@ public abstract class AbstractIdGenerateHandler implements IdGenerateHandler {
      * @param typeInformation 类信息
      * @return {@link java.lang.Integer}
      * @author anwen
-     * @date 2024/9/24 00:28
      */
     public Integer generateAutoId(TypeInformation typeInformation) {
         String collectionName = AnnotationOperate.getCollectionName(typeInformation.getClazz());

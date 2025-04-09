@@ -15,7 +15,6 @@ import java.util.Objects;
  * Mongo拦截器，这里可以打印日志
  *
  * @author JiaChaoYang
- * @date 2023/11/22 10:54
  */
 public class LogListener implements Listener {
 

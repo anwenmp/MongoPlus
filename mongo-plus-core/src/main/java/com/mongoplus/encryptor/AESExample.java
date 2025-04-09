@@ -19,7 +19,6 @@ import static com.mongoplus.toolkit.StringUtils.hexToBytes;
  * AES对称加密
  *
  * @author anwen
- * @date 2024/6/29 下午1:25
  */
 public class AESExample implements Encryptor {
 
@@ -27,19 +26,16 @@ public class AESExample implements Encryptor {
 
     /**
      * 默认字符串
-     * @date 2024/8/26 14:13
      */
     private static final String DEFAULT_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     
     /**
      * 默认获取大小
-     * @date 2024/8/26 14:13
      */
     private static final int DEFAULT_LENGTH = 16;
     
     /**
      * 使用{@link SecureRandom}生成高质量的随机索引
-     * @date 2024/8/26 14:13
      */
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
@@ -49,7 +45,6 @@ public class AESExample implements Encryptor {
      * @param password 密码
      * @return {@link byte[]}
      * @author anwen
-     * @date 2024/6/29 下午1:26
      */
     @Override
     public String encrypt(String data, String password,String publicKey) throws Exception {
@@ -69,7 +64,6 @@ public class AESExample implements Encryptor {
      * @param privateKey 私钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/29 下午1:27
      */
     @Override
     public String decrypt(String encryptedData, String password, String privateKey) throws Exception {
@@ -85,7 +79,6 @@ public class AESExample implements Encryptor {
      * 生成AES密钥
      * @return {@link javax.crypto.SecretKey}
      * @author anwen
-     * @date 2024/6/29 下午1:27
      */
     public SecretKey getKeyFromPassword(String password) throws NoSuchAlgorithmException {
         byte[] key = password.getBytes();
@@ -101,7 +94,6 @@ public class AESExample implements Encryptor {
      * @param length 长度
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/8/26 14:17
      */
     public static String generateRandom(int length){
         char[] result = new char[length];
@@ -115,7 +107,6 @@ public class AESExample implements Encryptor {
      * 生成16位随机AES秘钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/8/26 14:21
      */
     public static String generateRandom(){
         return generateRandom(DEFAULT_LENGTH);
@@ -127,7 +118,6 @@ public class AESExample implements Encryptor {
      * @param password 秘钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/8/26 14:31
      */
     public static String encrypt(String data, String password) throws Exception {
         return EncryptorUtil.algorithmEnumEncryptorMap.get(AlgorithmEnum.AES).encrypt(data,password,null);
@@ -139,7 +129,6 @@ public class AESExample implements Encryptor {
      * @param password 秘钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/8/26 14:31
      */
     public static String decrypt(String encryptedData, String password) throws Exception {
         return EncryptorUtil.algorithmEnumEncryptorMap.get(AlgorithmEnum.AES).decrypt(encryptedData,password,null);

@@ -25,7 +25,6 @@ public @interface MongoTransactional {
      * 使用会话的操作是否应该彼此一致。
      *
      * @author JiaChaoYang
-     * @date 2024/5/2 下午4:37
      */
     boolean causallyConsistent() default true;
 
@@ -33,7 +32,6 @@ public @interface MongoTransactional {
      * 使用此会话的读取操作是否应全部共享同一个快照。
      *
      * @author JiaChaoYang
-     * @date 2024/5/2 下午4:42
      */
     boolean snapshot() default false;
 
@@ -43,7 +41,6 @@ public @interface MongoTransactional {
      * 设置一致性读策略
      *
      * @author JiaChaoYang
-     * @date 2024/5/2 下午4:46
      */
     ReadConcernEnum readConcern() default ReadConcernEnum.DEFAULT;
 
@@ -51,7 +48,6 @@ public @interface MongoTransactional {
      * 设置写入安全的级别
      *
      * @author anwen
-     * @date 2024/5/2 下午5:26
      */
     WriteConcernEnum writeConcern() default WriteConcernEnum.ACKNOWLEDGED;
 

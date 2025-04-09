@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class工具类
  * @author anwen
- * @date 2024/8/2 上午1:04
  */
 public class ClassTypeUtil {
 
@@ -69,7 +68,6 @@ public class ClassTypeUtil {
     /**
      * 获取field的类型
      * @author JiaChaoYang
-     * @date 2023/8/9 22:04
     */
     public static Class<?> getClassByFieldType(Field field){
         Class<?> fieldType = field.getType();
@@ -93,7 +91,6 @@ public class ClassTypeUtil {
      * @param field 字段
      * @return java.lang.Boolean
      * @author JiaChaoYang
-     * @date 2023/8/9 22:05
     */
     public static Boolean isItCustomType(Field field){
         return CustomClassUtil.isCustomObject(getClassByFieldType(field));
@@ -130,7 +127,6 @@ public class ClassTypeUtil {
     /**
      * 获取实体类中，ID注解的值的值
      * @author JiaChaoYang
-     * @date 2023/8/30 22:05
     */
     public static <T> Object getIdByEntity(T entity,boolean exception){
         Optional<Field> fieldOptional = getFields(ClassTypeUtil.getClass(entity))
@@ -177,7 +173,6 @@ public class ClassTypeUtil {
     /**
      * 获取List的泛型
      * @author JiaChaoYang
-     * @date 2023/11/10 14:54
     */
     public static Class<?> getListGenericType(Field field) {
         return getListGenericType(field.getGenericType());
@@ -215,7 +210,6 @@ public class ClassTypeUtil {
     /**
      * 获取类
      * @author JiaChaoYang
-     * @date 2023/11/10 14:54
     */
     public static Class<?> getClassFromType(Type type) {
         if (type instanceof Class<?>) {

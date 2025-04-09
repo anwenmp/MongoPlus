@@ -11,7 +11,6 @@ import java.util.Optional;
  * 多租户切面
  *
  * @author anwen
- * @date 2024/6/27 下午12:48
  */
 public class TenantAspect implements Interceptor {
 

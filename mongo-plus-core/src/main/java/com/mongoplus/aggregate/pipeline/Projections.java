@@ -26,7 +26,6 @@ import static java.util.Arrays.asList;
  * 构建Project阶段
  *
  * @author anwen
- * @date 2024/6/11 上午12:36
  */
 public class Projections {
 

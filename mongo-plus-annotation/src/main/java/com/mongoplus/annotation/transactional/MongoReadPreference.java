@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
  * 读取偏好设置
  *
  * @author loser
- * @date 2024/5/8
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

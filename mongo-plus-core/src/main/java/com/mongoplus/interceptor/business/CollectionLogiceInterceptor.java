@@ -29,7 +29,6 @@ import static com.mongoplus.enums.QueryOperatorEnum.EQ;
  * 逻辑删除拦截器
  *
  * @author loser
- * @date 2024/4/30
  */
 public class CollectionLogiceInterceptor implements Interceptor {
 

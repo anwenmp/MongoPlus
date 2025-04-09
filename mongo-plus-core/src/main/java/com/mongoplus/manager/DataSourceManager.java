@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 /**
  * 多数据源处理器，可以通过该类
  * @author anwen
- * @date 2024/7/9 下午3:51
  */
 public class DataSourceManager {
 
@@ -34,7 +33,6 @@ public class DataSourceManager {
      * @param dsName 数据源名称
      * @param baseProperty 数据源配置
      * @author anwen
-     * @date 2024/7/9 下午4:02
      */
     public void appendTempDataSource(String dsName, BaseProperty baseProperty,boolean isOverride){
         MongoClient mongoClient = MongoUtil.getMongo(dsName,baseProperty);
@@ -53,7 +51,6 @@ public class DataSourceManager {
      * <p style='color: red'>不推荐使用</p>
      * @param dsName 数据源名称
      * @author anwen
-     * @date 2024/7/9 下午4:46
      */
     public void changeDataSource(String dsName){
         DataSourceNameCache.setDataSource(dsName);
@@ -63,7 +60,6 @@ public class DataSourceManager {
      * 清除上下文中的数据源缓存
      * <p style='color: red'>不推荐使用</p>
      * @author anwen
-     * @date 2024/7/9 下午4:46
      */
     public void clearDataSource(){
         DataSourceNameCache.clear();
@@ -73,7 +69,6 @@ public class DataSourceManager {
      * 获取当前线程的数据源
      * @return {@link String}
      * @author anwen
-     * @date 2024/7/9 下午4:59
      */
     public String currentDataSourceName(){
         return DataSourceNameCache.getDataSource();

@@ -9,14 +9,12 @@ import java.util.function.Function;
  * 映射处理器
  *
  * @author anwen
- * @date 2024/6/30 下午5:54
  */
 public interface ReadHandler {
 
     /**
      * 该处理器的顺序，从小到大
      * @author anwen
-     * @date 2024/6/30 下午5:57
      */
     default Integer order(){
         return Integer.MAX_VALUE;
@@ -55,7 +53,6 @@ public interface ReadHandler {
      * @param source 要写入field的值
      * @return {@link java.lang.Object}
      * @author anwen
-     * @date 2024/6/30 下午5:56
      */
     default Object read(FieldInformation fieldInformation,Object source) {
         return source;
@@ -68,7 +65,6 @@ public interface ReadHandler {
      * @param mongoConverter mongoConvert
      * @return {@link java.lang.Object}
      * @author anwen
-     * @date 2024/6/30 下午5:56
      */
     default Object read(FieldInformation fieldInformation, Object source, MongoConverter mongoConverter) {
         return read(fieldInformation,source);

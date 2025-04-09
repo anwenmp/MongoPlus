@@ -23,7 +23,6 @@ import java.util.List;
  * baseMapper默认实现
  *
  * @author JiaChaoYang
- * @date 2024-02-05 11:47
  **/
 public class DefaultBaseMapperImpl extends AbstractBaseMapper {
 
@@ -71,7 +70,6 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
      * @param rClazz 返回的class
      * @return {@link List <T>}
      * @author anwen
-     * @date 2024/5/4 下午1:24
      */
     @Override
     public <T, R> List<R> list(Class<T> clazz, Class<R> rClazz) {

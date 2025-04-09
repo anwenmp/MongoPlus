@@ -15,14 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * 连接管理器
  *
  * @author JiaChaoYang
- * @date 2023-12-28 11:13
  **/
 public class CollectionManager {
 
     /**
      * 缓存mongoCollection
      *
-     * @date 2023/12/28 10:58
      */
     private final Map<String, MongoCollection<Document>> collectionMap = new ConcurrentHashMap<>();
 
@@ -37,7 +35,6 @@ public class CollectionManager {
      * 设置一个连接
      *
      * @author JiaChaoYang
-     * @date 2023/12/28 11:20
      */
     public void setCollectionMap(String key, MongoCollection<Document> value) {
         collectionMap.put(key, value);

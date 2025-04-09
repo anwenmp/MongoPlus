@@ -16,13 +16,11 @@ public class CompareCondition implements Serializable {
 
     /**
      * 条件
-     * @date 2023/2/10 10:16
      */
     private String condition;
 
     /**
      * 字段
-     * @date 2023/2/10 10:16
     */
     private String column;
 
@@ -34,19 +32,16 @@ public class CompareCondition implements Serializable {
 
     /**
      * 原始class
-     * @date 2024/6/30 下午3:42
      */
     private Class<?> originalClass;
 
     /**
      * 原始Field
-     * @date 2024/6/30 下午4:14
      */
     private Field originalField;
 
     /**
      * 一些额外的值
-     * @date 2024/8/2 下午3:25
      */
     private Object extraValue;
 

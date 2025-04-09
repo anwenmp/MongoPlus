@@ -17,7 +17,6 @@ public class ConditionUtil {
     /**
      * 将条件转为MongoDB可用条件
      * @author anwen
-     * @date 2024/5/4 下午1:16
      */
     public static MutablePair<BasicDBObject,BasicDBObject> getUpdateCondition(
             List<CompareCondition> compareConditionList, Object sourceObj, MongoConverter mongoConverter){
@@ -34,7 +33,6 @@ public class ConditionUtil {
      * @param mongoConverter 转换器
      * @return {@link MutablePair}
      * @author anwen
-     * @date 2024/5/4 下午1:15
      */
     public static MutablePair<BasicDBObject,BasicDBObject> getUpdate(Object sourceObj,MongoConverter mongoConverter) {
         Document document = mongoConverter.writeByUpdate(sourceObj);

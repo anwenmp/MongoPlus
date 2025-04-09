@@ -19,35 +19,30 @@ public @interface MongoIndex {
     /**
      * 索引名称
      * @author anwen
-     * @date 2024/8/18 13:25
      */
     String name() default "";
 
     /**
      * 唯一索引
      * @author anwen
-     * @date 2024/8/18 13:26
      */
     boolean unique() default false;
 
     /**
      * 索引排序方向
      * @author anwen
-     * @date 2024/8/18 13:32
      */
     IndexDirection direction() default IndexDirection.ASC;
 
     /**
      * 稀疏索引
      * @author anwen
-     * @date 2024/8/18 13:33
      */
     boolean sparse() default false;
 
     /**
      * 索引过期时间，以秒为单位
      * @author anwen
-     * @date 2024/8/18 13:34
      */
     long expireAfterSeconds() default -1;
 
@@ -64,7 +59,6 @@ public @interface MongoIndex {
      * <p>{@code @MongoIndex(expireAfter = "30m")}</p>
      * <p>{@code @MongoIndex(expireAfter = "30s")}</p>
      * @author anwen
-     * @date 2024/8/18 13:34
      */
     String expireAfter() default "";
 
@@ -72,14 +66,12 @@ public @interface MongoIndex {
      * 部分索引
      * <p>例：{"$gt",5}</p>
      * @author anwen
-     * @date 2024/8/18 15:17
      */
     String partialFilterExpression() default "";
 
     /**
      * 是否应该在后台创建索引
      * @author anwen
-     * @date 2024/8/18 20:59
      */
     boolean background() default false;
 

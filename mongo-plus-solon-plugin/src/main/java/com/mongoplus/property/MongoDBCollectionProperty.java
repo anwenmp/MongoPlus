@@ -12,13 +12,11 @@ public class MongoDBCollectionProperty {
 
     /**
      * 防止整个集合更新和删除属性
-     * @date 2023/11/22 18:59
      */
     private Boolean blockAttackInner = false;
 
     /**
      * 用来指定全集合更新删除的拦截器的order，默认1
-     * @date 2023/11/22 19:00
      */
     private int blockAttackInnerOrder = 1;
 

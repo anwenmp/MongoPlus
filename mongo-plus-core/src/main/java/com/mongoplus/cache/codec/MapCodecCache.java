@@ -27,7 +27,6 @@ public class MapCodecCache {
      * {@link org.bson.codecs.CollectionCodecProvider},
      * {@link org.bson.codecs.EnumCodecProvider},
      * 因为有些版本并不支持，如需使用，请自行添加
-     * @date 2024/7/25 下午4:10
      */
     private static final List<CodecProvider> codecProviderList = new ArrayList<CodecProvider>() {{
         add(new ValueCodecProvider());
@@ -44,7 +43,6 @@ public class MapCodecCache {
     /**
      * 获取所有默认编解码器
      * @author anwen
-     * @date 2024/7/25 下午4:13
      */
     public static List<CodecProvider> getAllCodecProvider(){
         return codecProviderList;
@@ -53,7 +51,6 @@ public class MapCodecCache {
     /**
      * 设置默认编解码器
      * @author anwen
-     * @date 2024/7/25 下午4:14
      */
     public static void addCodecProvider(CodecProvider codecProvider){
         codecProviderList.add(codecProvider);
@@ -66,7 +63,6 @@ public class MapCodecCache {
     /**
      * 获取默认编解码器
      * @author anwen
-     * @date 2024/7/25 下午4:15
      */
     public static CodecRegistry getDefaultCodecRegistry() {
         if (DEFAULT_CODEC_REGISTRY == null) {
@@ -78,7 +74,6 @@ public class MapCodecCache {
     /**
      * 获取Document默认编解码器
      * @author anwen
-     * @date 2024/7/25 下午4:15
      */
     public static Codec<Document> getDefaultCodec() {
         if (DEFAULT_CODEC == null) {
@@ -95,7 +90,6 @@ public class MapCodecCache {
      * @return {@link org.bson.codecs.configuration.CodecRegistry} 一个 {@code CodecRegistry}，其中给定的
      * {@code UuidRepresentation} 应用于给定的 {@code CodecRegistry}
      * @author anwen
-     * @date 2024/8/18 22:06
      */
     public static CodecRegistry withUuidRepresentation(final CodecRegistry codecRegistry, final UuidRepresentation uuidRepresentation) {
         return fromProviders(new OverridableUuidRepresentationCodecProvider(codecRegistry, uuidRepresentation));

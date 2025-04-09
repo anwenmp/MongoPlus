@@ -8,7 +8,6 @@ import java.util.Collection;
 /**
  * $project阶段
  * @author anwen
- * @date 2024/6/10 下午4:45
  */
 public interface Project<Children> {
 
@@ -17,7 +16,6 @@ public interface Project<Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(SFunction<T,R>... column);
@@ -27,7 +25,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(String... column);
 
@@ -36,7 +33,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(SFunction<T,R>... column);
@@ -46,7 +42,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:38
      */
     Children projectNone(String... column);
 
@@ -56,7 +51,6 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(boolean displayId, Projection... projection);
 
@@ -65,7 +59,6 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(Projection... projection);
 
@@ -75,7 +68,6 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(boolean displayId, Collection<? extends Projection> projection);
 
@@ -84,7 +76,6 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:36
      */
     Children project(Collection<? extends Projection> projection);
 
@@ -94,7 +85,6 @@ public interface Project<Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(boolean displayId,SFunction<T,R>... column);
@@ -105,7 +95,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     Children projectDisplay(boolean displayId,String... column);
 
@@ -115,7 +104,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:37
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(boolean displayId,SFunction<T,R>... column);
@@ -126,7 +114,6 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
-     * @date 2023/8/1 21:38
      */
     Children projectNone(boolean displayId,String... column);
 

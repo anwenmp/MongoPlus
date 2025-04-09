@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 /**
  * bigDecimal映射器
  * @author anwen
- * @date 2024/10/21 16:45
  */
 public class BigDecimalMappingStrategy implements MappingStrategy<BigDecimal> {
     @Override

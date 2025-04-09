@@ -4,7 +4,6 @@ package com.mongoplus.domain;
  * MongoPlus动态数据源异常
  *
  * @author anwen
- * @date 2024/7/9 上午11:23
  */
 public class MongoPlusDsException extends MongoPlusException {
 

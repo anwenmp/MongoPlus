@@ -18,25 +18,21 @@ import java.util.stream.Collectors;
 
 /**
  * @author anwen
- * @date 2023-11-21 11:59
  **/
 public class HandlerCache {
 
     /**
      * 自动填充处理器，只应有一个
-     * @date 2023/11/23 12:53
     */
     public static MetaObjectHandler metaObjectHandler;
 
     /**
      * 读取处理器，可多个
-     * @date 2023/11/23 12:54
     */
     private static List<ReadHandler> readHandlerList = new ArrayList<>();
 
     /**
      * id生成处理器
-     * @date 2024/9/24 00:30
      */
     public static IdGenerateHandler idGenerateHandler;
 

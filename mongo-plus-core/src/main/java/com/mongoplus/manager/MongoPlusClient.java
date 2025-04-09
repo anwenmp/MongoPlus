@@ -41,7 +41,6 @@ public class MongoPlusClient {
 
     /**
      * 连接管理器
-     * @date 2024/1/6 2:12
     */
     private Map<String,Map<String,CollectionManager>> collectionManagerMap;
 
@@ -137,7 +136,6 @@ public class MongoPlusClient {
      * @param database database名称
      * @return {@link com.mongodb.client.MongoDatabase}
      * @author anwen
-     * @date 2024/8/6 下午9:21
      */
     public MongoDatabase getMongoDatabase(String database){
         return getMongoClient().getDatabase(database);
@@ -148,7 +146,6 @@ public class MongoPlusClient {
      * @param database database名称
      * @return {@link java.util.List<java.lang.String>}
      * @author anwen
-     * @date 2024/8/6 下午9:25
      */
     public List<String> getCollectionListByDatabase(String database){
         return getMongoDatabase(database).listCollectionNames().into(new ArrayList<>());

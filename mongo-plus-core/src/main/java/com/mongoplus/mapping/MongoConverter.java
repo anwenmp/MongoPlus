@@ -15,21 +15,18 @@ import static com.mongoplus.convert.Converter.convertKeysToCamelCase;
 /**
  * 将对象映射为Document和将Document映射为对象
  * @author JiaChaoYang
- * @date 2024/4/16 下午9:10
 */
 public interface MongoConverter extends MongoWriter,EntityRead {
 
     /**
      * 添加的映射器
      * @author JiaChaoYang
-     * @date 2024/5/1 下午11:52
      */
     void writeBySave(Object sourceObj, Document document);
 
     /**
      * 添加的映射器
      * @author JiaChaoYang
-     * @date 2024/5/1 下午11:52
      */
     default Document writeBySave(Object sourceObj){
         Document document = new Document();
@@ -40,7 +37,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * map映射到document
      * @author anwen
-     * @date 2024/5/28 下午8:35
      */
     default Document write(Map<String,Object> map){
         Document document = new Document();
@@ -51,7 +47,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 批量映射
      * @author anwen
-     * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection, List<Document> documentList){
         sourceObjCollection.forEach(sourceObj -> documentList.add(write(sourceObj)));
@@ -61,7 +56,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 批量映射
      * @author anwen
-     * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBatch(Collection<Map<String,Object>> sourceObjCollection){
         List<Document> documentList = new ArrayList<>();
@@ -72,7 +66,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 批量映射
      * @author anwen
-     * @date 2024/5/28 下午8:35
      */
     default void writeBySaveBatch(Collection<?> sourceObjCollection, List<Document> documentList){
         sourceObjCollection.forEach(sourceObj -> {
@@ -85,7 +78,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 批量映射
      * @author anwen
-     * @date 2024/5/28 下午8:35
      */
     default List<Document> writeBySaveBatch(Collection<?> sourceObjCollection){
         List<Document> documentList = new ArrayList<>();
@@ -126,7 +118,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 写内部属性
      * @author anwen
-     * @date 2024/6/28 上午12:46
      */
     default <T> T readInternal(Document document, Class<T> clazz){
         return readInternal(document,new TypeReference<T>(clazz){});
@@ -135,14 +126,12 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 写内部属性
      * @author anwen
-     * @date 2024/6/28 上午12:46
      */
     <T> T readInternal(Object sourceObj, TypeReference<T> typeReference);
 
     /**
      * 写为Class
      * @author anwen
-     * @date 2024/5/28 下午8:37
      */
     default <T> List<T> read(MongoIterable<Document> findIterable, Class<T> clazz) {
         List<T> resultList = new ArrayList<>();
@@ -153,7 +142,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 写为class，根据传入的type
      * @author anwen
-     * @date 2024/5/28 下午8:37
      */
     default <T> List<T> read(MongoIterable<Document> findIterable, TypeReference<T> typeReference){
         List<T> resultList = new ArrayList<>();
@@ -164,7 +152,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 写为class
      * @author anwen
-     * @date 2024/5/28 下午8:37
      */
     @SuppressWarnings("unchecked")
     default <T> T readDocument(MongoIterable<Document> findIterable,Class<?> clazz){
@@ -178,7 +165,6 @@ public interface MongoConverter extends MongoWriter,EntityRead {
     /**
      * 写为class
      * @author anwen
-     * @date 2024/5/28 下午8:37
      */
     default <T> T readDocument(MongoIterable<Document> findIterable,TypeReference<T> typeReference){
         Document document = findIterable.first();

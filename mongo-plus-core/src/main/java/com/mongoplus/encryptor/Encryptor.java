@@ -3,7 +3,6 @@ package com.mongoplus.encryptor;
 /**
  * 加密接口
  * @author anwen
- * @date 2024/6/30 上午1:16
  */
 public interface Encryptor {
 
@@ -14,7 +13,6 @@ public interface Encryptor {
      * @param publicKey 公钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/30 上午1:17
      */
     String encrypt(String data,String key,String publicKey) throws Exception;
 
@@ -26,7 +24,6 @@ public interface Encryptor {
      * @param privateKey 私钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/30 上午1:17
      */
     String decrypt(String data,String key,String privateKey) throws Exception;
 

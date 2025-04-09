@@ -12,19 +12,16 @@ public class TextSearchOptions {
 
     /**
      * 文本搜索的语言
-     * @date 2024/8/26 18:53
      */
     private String language;
 
     /**
      * 启用或禁用区分大小写
-     * @date 2024/8/26 18:53
      */
     private Boolean caseSensitive;
 
     /**
      * 文本搜索的变音符号敏感标志
-     * @date 2024/8/26 18:53
      */
     private Boolean diacriticSensitive;
 

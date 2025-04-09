@@ -13,7 +13,6 @@ import java.util.List;
  * BULK_WRITE 策略执行器
  *
  * @author loser
- * @date 2024/4/30
  */
 @SuppressWarnings("unchecked")
 public class BulkWriteExecutorStrategy implements MethodExecutorStrategy {

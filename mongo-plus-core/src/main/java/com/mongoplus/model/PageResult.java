@@ -8,7 +8,6 @@ import java.util.Objects;
  * 分页结果
  * 新增分页的多项属性，主要参考: <a href="https://github.com/pagehelper/Mybatis-PageHelper/blob/master/src/main/java/com/github/pagehelper/PageInfo.java">PageHelper-PageInfo</a>
  * @author anwen
- * @date 2024/7/26 下午5:28
  */
 public class PageResult<T> implements Serializable {
 
@@ -16,31 +15,26 @@ public class PageResult<T> implements Serializable {
 
     /**
      * 当前页
-     * @date 2023/2/23 10:58
      */
     private long pageNum;
 
     /**
      * 每页显示行数
-     * @date 2023/2/23 10:58
     */
     private long pageSize;
 
     /**
      * 总行数
-     * @date 2023/2/23 10:58
     */
     private long totalSize;
 
     /**
      * 页码总数
-     * @date 2023/2/23 10:58
     */
     private long totalPages;
 
     /**
      * 数据模型
-     * @date 2023/2/23 10:59
     */
     private List<T> contentData;
 
@@ -61,7 +55,6 @@ public class PageResult<T> implements Serializable {
 
     /**
      * 是否有下一页
-     * @date 2024/7/26 下午5:03
      */
     private boolean hasNextPage = false;
 

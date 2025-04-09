@@ -15,7 +15,6 @@ import java.util.Arrays;
  * 生成秘钥
  *
  * @author anwen
- * @date 2024/7/1 下午3:41
  */
 public class GenerateKeyUtil {
 
@@ -23,7 +22,6 @@ public class GenerateKeyUtil {
      * 生成AES对称加密秘钥
      * @return {@link javax.crypto.SecretKey}
      * @author anwen
-     * @date 2024/6/29 下午1:27
      */
     public static String generateAESKey(String password) throws NoSuchAlgorithmException {
         byte[] key = password.getBytes();
@@ -39,7 +37,6 @@ public class GenerateKeyUtil {
      * 生成RSA密钥对，返回参数left=公钥，right=私钥
      * @return {@link com.mongoplus.model.MutablePair<java.lang.String,java.lang.String>}
      * @author anwen
-     * @date 2024/7/1 下午3:44
      */
     public static MutablePair<String,String> generateRSAKey() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -54,7 +51,6 @@ public class GenerateKeyUtil {
      * 生成SM2密钥对
      * @return {@link java.security.KeyPair}
      * @author anwen
-     * @date 2024/6/30 上午1:23
      */
     public static MutablePair<String,String> generateSM2Key() throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC", "BC");
@@ -69,7 +65,6 @@ public class GenerateKeyUtil {
      * 生成SM4秘钥
      * @return {@link String}
      * @author anwen
-     * @date 2024/7/1 下午3:50
      */
     public static String generateSM4Key() throws Exception {
         KeyGenerator kg = KeyGenerator.getInstance("SM4", BouncyCastleProvider.PROVIDER_NAME);

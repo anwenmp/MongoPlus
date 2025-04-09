@@ -9,7 +9,6 @@ import java.util.List;
 /**
  * 查询实现
  * @author JiaChaoYang
- * @date 2023/6/24/024 2:11
 */
 public class LambdaQueryChainWrapper<T> extends QueryChainWrapper<T,LambdaQueryChainWrapper<T>> implements ChainQuery<T> {
 

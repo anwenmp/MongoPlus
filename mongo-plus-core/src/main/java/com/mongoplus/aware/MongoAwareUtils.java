@@ -8,7 +8,6 @@ import java.util.List;
  * 感知工具类 获取对应的 class 处理类
  *
  * @author loser
- * @date 2024/6/29
  */
 public class MongoAwareUtils {
 

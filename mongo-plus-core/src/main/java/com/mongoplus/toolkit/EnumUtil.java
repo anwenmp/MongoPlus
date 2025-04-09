@@ -18,7 +18,6 @@ public class EnumUtil {
      *
      * @return {@link com.mongoplus.mapping.FieldInformation}
      * @author anwen
-     * @date 2024/11/18 17:12
      */
     public static FieldInformation getFieldInformation(Object enumInstance) {
         if (enumInstance instanceof Class){

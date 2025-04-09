@@ -19,19 +19,16 @@ public class QueryParam {
 
     /**
      * 查询参数（第一个）
-     * @date 2024/3/17 0:15
     */
     private Bson query;
 
     /**
      * project（第二个）
-     * @date 2024/3/17 0:15
     */
     private BasicDBObject projection;
 
     /**
      * 排序（第三个）
-     * @date 2024/3/17 0:15
     */
     private BasicDBObject sort;
 

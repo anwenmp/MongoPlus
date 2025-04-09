@@ -3,7 +3,6 @@ package com.mongoplus.enums;
 /**
  * 条件枚举
  * @author JiaChaoYang
- * @date 2023/7/30 0:32
 */
 public enum QueryOperatorEnum {
 

@@ -7,7 +7,6 @@ import java.math.BigInteger;
 /**
  * BigInteger映射器
  * @author anwen
- * @date 2024/5/28 下午9:44
  */
 public class BigIntegerMappingStrategy implements MappingStrategy<BigInteger> {
     @Override

@@ -16,7 +16,6 @@ import static com.mongoplus.toolkit.EncryptorUtil.getPublicKeyFromString;
  * RSA非对称加密
  *
  * @author anwen
- * @date 2024/6/30 上午12:16
  */
 public class RSAExample implements Encryptor {
 
@@ -28,7 +27,6 @@ public class RSAExample implements Encryptor {
      * @param publicKey 公钥
      * @return {@link byte[]}
      * @author anwen
-     * @date 2024/6/30 上午12:17
      */
     public String encrypt(String data, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -50,7 +48,6 @@ public class RSAExample implements Encryptor {
      * @param privateKey 私钥
      * @return {@link java.lang.String}
      * @author anwen
-     * @date 2024/6/30 上午12:17
      */
     public String decrypt(String encryptedData, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -70,7 +67,6 @@ public class RSAExample implements Encryptor {
      * 生成RSA密钥对
      * @return {@link java.security.KeyPair}
      * @author anwen
-     * @date 2024/6/30 上午12:17
      */
     public KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);

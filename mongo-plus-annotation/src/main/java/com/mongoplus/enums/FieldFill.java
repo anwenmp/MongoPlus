@@ -2,7 +2,6 @@ package com.mongoplus.enums;
 
 /**
  * @author JiaChaoYang
- * @date 2023-11-21 11:14
  * @since quote from: MyBatisPlus
  **/
 public enum FieldFill {

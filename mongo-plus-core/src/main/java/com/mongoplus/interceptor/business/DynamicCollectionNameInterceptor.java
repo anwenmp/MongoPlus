@@ -12,7 +12,6 @@ import org.bson.Document;
  * 动态集合拦截器
  *
  * @author anwen
- * @date 2024/6/27 下午2:46
  */
 public class DynamicCollectionNameInterceptor implements Interceptor {
 

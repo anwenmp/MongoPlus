@@ -28,7 +28,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link InsertManyResult}
      * @author anwen
-     * @date 2024/9/23 23:41
      */
     default InsertManyResult executeSave(List<Document> documentList, MongoCollection<Document> collection){
         return executeSave(documentList, null, collection);
@@ -40,7 +39,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link InsertManyResult}
      * @author anwen
-     * @date 2024/9/23 23:41
      */
     InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
                                  MongoCollection<Document> collection);
@@ -51,7 +49,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.result.DeleteResult}
      * @author anwen
-     * @date 2024/9/23 23:42
      */
     default DeleteResult executeRemove(Bson filter, MongoCollection<Document> collection){
         return executeRemove(filter,null,collection);
@@ -63,7 +60,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.result.DeleteResult}
      * @author anwen
-     * @date 2024/9/23 23:42
      */
     DeleteResult executeRemove(Bson filter, DeleteOptions options, MongoCollection<Document> collection);
 
@@ -73,7 +69,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.result.UpdateResult}
      * @author anwen
-     * @date 2024/9/23 23:42
      */
     default UpdateResult executeUpdate(List<MutablePair<Bson,Bson>> bsonPairList,
                                        MongoCollection<Document> collection){
@@ -86,7 +81,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.result.UpdateResult}
      * @author anwen
-     * @date 2024/9/23 23:42
      */
     UpdateResult executeUpdate(List<MutablePair<Bson,Bson>> bsonPairList, UpdateOptions options,
                                MongoCollection<Document> collection);
@@ -100,7 +94,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.FindIterable<T>}
      * @author anwen
-     * @date 2024/9/23 23:42
      */
     <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond,
                                      Class<T> clazz,
@@ -113,7 +106,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.client.AggregateIterable<T>}
      * @author anwen
-     * @date 2024/9/23 23:43
      */
     <T> AggregateIterable<T> executeAggregate(List<? extends Bson> aggregateConditionList, Class<T> clazz,
                                               MongoCollection<Document> collection);
@@ -125,7 +117,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link long}
      * @author anwen
-     * @date 2024/9/23 23:43
      */
     long executeCount(BasicDBObject queryBasic,CountOptions countOptions,MongoCollection<Document> collection);
 
@@ -134,7 +125,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link long}
      * @author anwen
-     * @date 2024/9/23 23:44
      */
     long estimatedDocumentCount(MongoCollection<Document> collection);
 
@@ -144,7 +134,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.bulk.BulkWriteResult}
      * @author anwen
-     * @date 2024/9/23 23:44
      */
     default BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                              MongoCollection<Document> collection){
@@ -157,7 +146,6 @@ public interface Execute {
      * @param collection 集合
      * @return {@link com.mongodb.bulk.BulkWriteResult}
      * @author anwen
-     * @date 2024/9/23 23:44
      */
     BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,BulkWriteOptions options,
                                      MongoCollection<Document> collection);

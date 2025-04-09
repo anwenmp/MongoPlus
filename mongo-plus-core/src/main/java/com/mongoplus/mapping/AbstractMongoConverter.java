@@ -32,7 +32,6 @@ import java.util.Map;
  * 抽象地映射处理器
  *
  * @author JiaChaoYang
- * @date 2024/5/1 下午6:22
  */
 public abstract class AbstractMongoConverter implements MongoConverter {
 
@@ -194,7 +193,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @param bson            映射对象
      * @param typeInformation 类信息
      * @author anwen
-     * @date 2024/5/1 下午6:40
      */
     public abstract void write(Object sourceObj, Bson bson, TypeInformation typeInformation);
 
@@ -205,7 +203,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @param bson bson
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
-     * @date 2024/6/26 下午2:23
      */
     public abstract Bson writeMapInternal(Map<?, ?> obj, Bson bson);
 
@@ -215,7 +212,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @param value 值
      * @return {@link Object}
      * @author anwen
-     * @date 2024/5/1 下午9:28
      */
     protected Object getPotentiallyConvertedSimpleWrite(Object value) {
 
@@ -241,7 +237,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @param clazz 类型
      * @return {@link T}
      * @author anwen
-     * @date 2024/5/7 下午4:05
      */
     @SuppressWarnings("unchecked")
     protected <T> T convertValue(Object obj, Class<?> clazz) {
@@ -292,7 +287,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      * @param value 值
      * @return {@link boolean}
      * @author anwen
-     * @date 2024/11/18 22:48
      */
     public boolean checkObjectId(Object value){
         return !(value instanceof ObjectId) && ObjectId.isValid(value.toString());

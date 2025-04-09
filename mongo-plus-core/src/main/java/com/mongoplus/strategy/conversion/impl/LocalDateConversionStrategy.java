@@ -10,7 +10,6 @@ import java.util.Date;
 /**
  * LocalDate类型转换策略
  * @author JiaChaoYang
- * @date 2023-10-17 09:59
  **/
 public class LocalDateConversionStrategy implements ConversionStrategy<LocalDate> {
 

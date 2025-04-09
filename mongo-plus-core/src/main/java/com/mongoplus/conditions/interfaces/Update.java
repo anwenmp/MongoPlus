@@ -54,7 +54,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:46
      */
     Children set(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -64,7 +63,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:46
      */
     Children set(SFunction<T,Object> column, Object value);
 
@@ -75,7 +73,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:46
      */
     Children set(boolean condition, String column, Object value);
 
@@ -85,7 +82,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:46
      */
     Children set(String column, Object value);
 
@@ -96,7 +92,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:48
      */
     Children setOnInsert(boolean condition, SFunction<T,Object> column, Object value);
 
@@ -106,7 +101,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:48
      */
     Children setOnInsert(SFunction<T,Object> column, Object value);
 
@@ -117,7 +111,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:48
      */
     Children setOnInsert(boolean condition, String column, Object value);
 
@@ -127,7 +120,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:48
      */
     Children setOnInsert(String column, Object value);
 
@@ -138,7 +130,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,SFunction<T,Object> column,Object value);
 
@@ -148,7 +139,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,Object value);
 
@@ -159,7 +149,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,SFunction<T,Object> column,Object value,boolean each);
 
@@ -169,7 +158,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,Object value,boolean each);
 
@@ -180,7 +168,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,String column,Object value);
 
@@ -190,7 +177,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column,Object value);
 
@@ -201,7 +187,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,String column,Object value,boolean each);
 
@@ -211,7 +196,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column,Object value,boolean each);
 
@@ -222,7 +206,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,SFunction<T,Object> column,Object ... value);
 
@@ -232,7 +215,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,Object ... value);
 
@@ -243,7 +225,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,SFunction<T,Object> column,PushOptions options,Object ... value);
 
@@ -254,7 +235,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,SFunction<T,Object> column,PushOptions options,Collection<?> value);
 
@@ -264,7 +244,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,PushOptions options,Object ... value);
 
@@ -274,7 +253,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column,PushOptions options,Collection<?> value);
 
@@ -285,7 +263,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,String column,Object ... value);
 
@@ -295,7 +272,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column,Object ... value);
 
@@ -306,7 +282,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,String column,PushOptions options,Object ... value);
 
@@ -316,7 +291,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column,PushOptions options,Object ... value);
 
@@ -327,7 +301,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition,String column,PushOptions options,Collection<?> value);
 
@@ -337,7 +310,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column,PushOptions options,Collection<?> value);
 
@@ -348,7 +320,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition, SFunction<T,Object> column, Collection<?> value);
 
@@ -358,7 +329,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column, Collection<?> value);
 
@@ -369,7 +339,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition, SFunction<T,Object> column, List<?> value,PushOptions options);
 
@@ -379,7 +348,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(SFunction<T,Object> column, List<?> value,PushOptions options);
 
@@ -390,7 +358,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition, String column, List<?> value);
 
@@ -400,7 +367,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column, List<?> value);
 
@@ -411,7 +377,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(boolean condition, String column, List<?> value,PushOptions options);
 
@@ -421,7 +386,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:49
      */
     Children push(String column, List<?> value,PushOptions options);
 
@@ -432,7 +396,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:51
      */
     Children inc(boolean condition,SFunction<T,Object> column,Number value);
 
@@ -442,7 +405,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:51
      */
     Children inc(SFunction<T,Object> column,Number value);
 
@@ -453,7 +415,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:51
      */
     Children inc(boolean condition,String column,Number value);
 
@@ -463,7 +424,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:51
      */
     Children inc(String column,Number value);
 
@@ -473,7 +433,6 @@ public interface Update<T , Children> extends Serializable {
      * @param column 列名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:52
      */
     Children currentDate(boolean condition,SFunction<T,Object> column);
 
@@ -482,7 +441,6 @@ public interface Update<T , Children> extends Serializable {
      * @param column 列名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:52
      */
     Children currentDate(SFunction<T,Object> column);
 
@@ -492,7 +450,6 @@ public interface Update<T , Children> extends Serializable {
      * @param column 列名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:52
      */
     Children currentDate(boolean condition,String column);
 
@@ -501,7 +458,6 @@ public interface Update<T , Children> extends Serializable {
      * @param column 列名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:52
      */
     Children currentDate(String column);
 
@@ -512,7 +468,6 @@ public interface Update<T , Children> extends Serializable {
      * @param currentDateType currentDate类型
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:58
      */
     Children currentDate(boolean condition,SFunction<T,Object> column, CurrentDateType currentDateType);
 
@@ -522,7 +477,6 @@ public interface Update<T , Children> extends Serializable {
      * @param currentDateType currentDate类型
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:58
      */
     Children currentDate(SFunction<T,Object> column, CurrentDateType currentDateType);
 
@@ -533,7 +487,6 @@ public interface Update<T , Children> extends Serializable {
      * @param currentDateType currentDate类型
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:58
      */
     Children currentDate(boolean condition,String column, CurrentDateType currentDateType);
 
@@ -543,7 +496,6 @@ public interface Update<T , Children> extends Serializable {
      * @param currentDateType currentDate类型
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午10:58
      */
     Children currentDate(String column, CurrentDateType currentDateType);
 
@@ -554,7 +506,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children min(boolean condition,SFunction<T,Object> column, Object value);
 
@@ -564,7 +515,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children min(SFunction<T,Object> column, Object value);
 
@@ -575,7 +525,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children min(boolean condition,String column, Object value);
 
@@ -585,7 +534,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children min(String column, Object value);
 
@@ -596,7 +544,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children max(boolean condition,SFunction<T,Object> column, Object value);
 
@@ -606,7 +553,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children max(SFunction<T,Object> column, Object value);
 
@@ -617,7 +563,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children max(boolean condition,String column, Object value);
 
@@ -627,7 +572,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 上午11:27
      */
     Children max(String column, Object value);
 
@@ -638,7 +582,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午12:13
      */
     Children mul(boolean condition,SFunction<T,Object> column,Number value);
 
@@ -648,7 +591,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午12:13
      */
     Children mul(SFunction<T,Object> column,Number value);
 
@@ -659,7 +601,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午12:13
      */
     Children mul(boolean condition,String column,Number value);
 
@@ -669,7 +610,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午12:13
      */
     Children mul(String column,Number value);
 
@@ -680,7 +620,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     Children rename(boolean condition, String oldFieldName,String newFieldName);
 
@@ -690,7 +629,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     Children rename(String oldFieldName,String newFieldName);
 
@@ -701,7 +639,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     <O> Children rename(boolean condition, SFunction<O,Object> oldFieldName,String newFieldName);
 
@@ -711,7 +648,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     <O> Children rename(SFunction<O,Object> oldFieldName,String newFieldName);
 
@@ -722,7 +658,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     <O,N> Children rename(boolean condition, SFunction<O,Object> oldFieldName,SFunction<N,Object> newFieldName);
 
@@ -732,7 +667,6 @@ public interface Update<T , Children> extends Serializable {
      * @param newFieldName 新字段名
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:40
      */
     <O,N> Children rename(SFunction<O,Object> oldFieldName,SFunction<N,Object> newFieldName);
 
@@ -741,7 +675,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     @SuppressWarnings("unchecked")
     Children unset(SFunction<T,Object>... columns);
@@ -752,7 +685,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     @SuppressWarnings("unchecked")
     Children unset(boolean condition,SFunction<T,Object>... columns);
@@ -762,7 +694,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     Children unset(String... columns);
 
@@ -772,7 +703,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     Children unset(boolean condition,String... columns);
 
@@ -781,7 +711,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     Children unset(List<String> columns);
 
@@ -791,7 +720,6 @@ public interface Update<T , Children> extends Serializable {
      * @param columns 字段
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午1:55
      */
     Children unset(boolean condition,List<String> columns);
 
@@ -803,7 +731,6 @@ public interface Update<T , Children> extends Serializable {
      * @param each 通过$each的方式插入
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(boolean condition,SFunction<T,Object> column,Object value,boolean each);
 
@@ -814,7 +741,6 @@ public interface Update<T , Children> extends Serializable {
      * @param each 通过$each的方式插入
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(SFunction<T,Object> column,Object value,boolean each);
 
@@ -825,7 +751,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(boolean condition,SFunction<T,Object> column,List<?> value);
 
@@ -835,7 +760,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(SFunction<T,Object> column,List<?> value);
 
@@ -847,7 +771,6 @@ public interface Update<T , Children> extends Serializable {
      * @param each 通过$each的方式插入
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(boolean condition,String column,Object value,boolean each);
 
@@ -858,7 +781,6 @@ public interface Update<T , Children> extends Serializable {
      * @param each 通过$each的方式插入
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(String column,Object value,boolean each);
 
@@ -869,7 +791,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(boolean condition,String column,List<?> value);
 
@@ -879,7 +800,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午3:13
      */
     Children addToSet(String column,List<?> value);
 
@@ -890,7 +810,6 @@ public interface Update<T , Children> extends Serializable {
      * @param popType pop类型枚举
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午4:25
      */
     Children pop(boolean condition,SFunction<T,Object> column, PopType popType);
 
@@ -900,7 +819,6 @@ public interface Update<T , Children> extends Serializable {
      * @param popType pop类型枚举
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午4:25
      */
     Children pop(SFunction<T,Object> column, PopType popType);
 
@@ -911,7 +829,6 @@ public interface Update<T , Children> extends Serializable {
      * @param popType pop类型枚举
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午4:25
      */
     Children pop(boolean condition,String column, PopType popType);
 
@@ -921,7 +838,6 @@ public interface Update<T , Children> extends Serializable {
      * @param popType pop类型枚举
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/2 下午4:25
      */
     Children pop(String column, PopType popType);
 
@@ -932,7 +848,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(boolean condition,SFunction<T,Object> column,Object value);
 
@@ -942,7 +857,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(SFunction<T,Object> column,Object value);
 
@@ -952,7 +866,6 @@ public interface Update<T , Children> extends Serializable {
      * @param wrapper 值 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(boolean condition,QueryChainWrapper<?,?> wrapper);
 
@@ -962,7 +875,6 @@ public interface Update<T , Children> extends Serializable {
      * @param function 值 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(boolean condition,SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
 
@@ -971,7 +883,6 @@ public interface Update<T , Children> extends Serializable {
      * @param wrapper 值 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(QueryChainWrapper<?,?> wrapper);
 
@@ -980,7 +891,6 @@ public interface Update<T , Children> extends Serializable {
      * @param function 值 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
 
@@ -991,7 +901,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(boolean condition,String column,Object value);
 
@@ -1001,7 +910,6 @@ public interface Update<T , Children> extends Serializable {
      * @param value 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 16:46
      */
     Children pull(String column,Object value);
 
@@ -1012,7 +920,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(boolean condition,SFunction<T,Object> column, Collection<?> values);
 
@@ -1022,7 +929,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(SFunction<T,Object> column, Collection<?> values);
 
@@ -1033,7 +939,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(boolean condition,SFunction<T,Object> column, Object... values);
 
@@ -1043,7 +948,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(SFunction<T,Object> column, Object... values);
 
@@ -1054,7 +958,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(boolean condition,String column, Collection<?> values);
 
@@ -1064,7 +967,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(String column, Collection<?> values);
 
@@ -1075,7 +977,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(boolean condition,String column, Object... values);
 
@@ -1085,7 +986,6 @@ public interface Update<T , Children> extends Serializable {
      * @param values 值
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     Children pullAll(String column, Object... values);
 
@@ -1096,7 +996,6 @@ public interface Update<T , Children> extends Serializable {
      * @param pullAllPair 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     @SuppressWarnings("unchecked")
     Children pullAll(boolean condition,MutablePair<String, Collection<?>>... pullAllPair);
@@ -1107,7 +1006,6 @@ public interface Update<T , Children> extends Serializable {
      * @param pullAllPair 条件
      * @return {@link Children}
      * @author anwen
-     * @date 2024/8/11 17:48
      */
     @SuppressWarnings("unchecked")
     Children pullAll(MutablePair<String, Collection<?>>... pullAllPair);
