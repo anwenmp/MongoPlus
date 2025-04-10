@@ -35,7 +35,7 @@ public class FieldChain<T> {
         return builder.build(isOption);
     }
 
-    public String buildWithDollar() {
+    public String buildOption() {
         return build(true);
     }
 

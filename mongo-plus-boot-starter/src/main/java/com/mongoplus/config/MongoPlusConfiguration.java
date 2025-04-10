@@ -3,9 +3,11 @@ package com.mongoplus.config;
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.MongoClient;
 import com.mongoplus.annotation.SpelAnnotationHandler;
+import com.mongoplus.cache.codec.MongoPlusCodecCache;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.cache.global.SimpleCache;
+import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
@@ -71,7 +73,9 @@ public class MongoPlusConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public MongoClientFactory mongoClientFactory() {
+    public MongoClientFactory mongoClientFactory(ApplicationContext applicationContext) {
+        // 编解码器
+        applicationContext.getBeansOfType(MongoPlusCodec.class).values().forEach(MongoPlusCodecCache::addCodec);
         MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance(
                 getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty)
         );

@@ -3,12 +3,10 @@ package com.mongoplus.config;
 import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.aware.Aware;
-import com.mongoplus.cache.codec.MongoPlusCodecCache;
 import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.ListenerCache;
 import com.mongoplus.cache.global.MappingCache;
-import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.handlers.CollectionNameHandler;
 import com.mongoplus.handlers.IdGenerateHandler;
@@ -104,7 +102,6 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         autoCreateTimeSeries();
         autoCreateIndexes();
         setIdGenerateHandler();
-        setMongoPlusCodec();
         setAdvancedInterceptor();
     }
 
@@ -368,14 +365,6 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             idGenerateHandler = applicationContext.getBean(IdGenerateHandler.class);
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
-    }
-
-    /**
-     * 设置编解码器
-     * @author anwen
-     */
-    public void setMongoPlusCodec(){
-        applicationContext.getBeansOfType(MongoPlusCodec.class).values().forEach(MongoPlusCodecCache::addCodec);
     }
 
 }

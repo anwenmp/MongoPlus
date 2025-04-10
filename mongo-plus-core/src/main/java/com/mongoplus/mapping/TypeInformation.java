@@ -28,6 +28,7 @@ public interface TypeInformation {
 
     /**
      * 根据Class构建一个TypeInformation，并进行缓存，但是他们的实例是不一样的
+     * <p style='color: red'>存在并发问题</p>
      * @param clazz 类
      * @return {@link TypeInformation}
      * @author anwen

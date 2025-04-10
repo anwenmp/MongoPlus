@@ -1,9 +1,11 @@
 package com.mongoplus.config;
 
 import com.mongodb.client.MongoClient;
+import com.mongoplus.cache.codec.MongoPlusCodecCache;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.cache.global.SimpleCache;
+import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
@@ -20,6 +22,7 @@ import com.mongoplus.property.*;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.transactional.MongoTransactionalAspect;
+import org.noear.solon.Solon;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Condition;
 import org.noear.solon.annotation.Configuration;
@@ -65,9 +68,18 @@ public class MongoPlusConfiguration {
     @Bean
     @Condition(onMissingBean = MongoClientFactory.class)
     public MongoClientFactory mongoClientFactory(){
-        MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance(getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty));
+        // 设置编解码器
+        Solon.context().getBeansOfType(MongoPlusCodec.class).forEach(MongoPlusCodecCache::addCodec);
+        MongoClientFactory mongoClientFactory = MongoClientFactory
+                .getInstance(getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty));
         if (CollUtil.isNotEmpty(mongoDBConnectProperty.getSlaveDataSource())){
-            mongoDBConnectProperty.getSlaveDataSource().forEach(slaveDataSource -> mongoClientFactory.addMongoClient(slaveDataSource.getSlaveName(),getMongo(slaveDataSource.getSlaveName(),slaveDataSource)));
+            mongoDBConnectProperty.getSlaveDataSource()
+                    .forEach(slaveDataSource ->
+                            mongoClientFactory.addMongoClient(
+                                    slaveDataSource.getSlaveName(),
+                                    getMongo(slaveDataSource.getSlaveName(),
+                                            slaveDataSource)
+                            ));
         }
         return mongoClientFactory;
     }

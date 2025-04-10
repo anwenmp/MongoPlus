@@ -2,12 +2,10 @@ package com.mongoplus.config;
 
 import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.TimeSeries;
-import com.mongoplus.cache.codec.MongoPlusCodecCache;
 import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.ListenerCache;
 import com.mongoplus.cache.global.MappingCache;
-import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.handlers.CollectionNameHandler;
 import com.mongoplus.handlers.IdGenerateHandler;
@@ -123,8 +121,6 @@ public class MongoPlusAutoConfiguration {
         autoCreateIndexes(context);
         // 设置id生成器
         setIdGenerateHandler(context);
-        // 设置编解码器
-        setMongoPlusCodec(context);
         // 设置高级拦截器
         setAdvancedInterceptor(context);
     }
@@ -321,17 +317,12 @@ public class MongoPlusAutoConfiguration {
     public void setIdGenerateHandler(AppContext context) {
         IdGenerateHandler idGenerateHandler = new AbstractIdGenerateHandler(mongoPlusClient) {};
         try {
-            idGenerateHandler = context.getBean(IdGenerateHandler.class);
+            IdGenerateHandler userHandler = context.getBean(IdGenerateHandler.class);
+            if (userHandler != null) {
+                idGenerateHandler = userHandler;
+            }
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
-    }
-
-    /**
-     * 设置编解码器
-     * @author anwen
-     */
-    public void setMongoPlusCodec(AppContext context){
-        context.getBeansOfType(MongoPlusCodec.class).forEach(MongoPlusCodecCache::addCodec);
     }
 
 }
