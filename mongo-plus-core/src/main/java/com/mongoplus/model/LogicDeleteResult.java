@@ -92,7 +92,14 @@ public class LogicDeleteResult {
         if (this.logicDataType == LogicDataType.INTEGER) {
             result = (T) Integer.valueOf(value);
         } else if (this.logicDataType == LogicDataType.BOOLEAN) {
-            result = (T) Boolean.valueOf(Objects.equals(value, "0") ? "false" : "true");
+            Boolean bool = null;
+            if (value.equals("0") || value.equals("1")) {
+                bool = Boolean.valueOf(Objects.equals(value, "0") ? "false" : "true");
+            }
+            if (value.equals("true") || value.equals("false")){
+                bool = Boolean.valueOf(value);
+            }
+            result = (T) bool;
         } else if (this.logicDataType == LogicDataType.LONG) {
             result = (T) Long.valueOf(value);
         }

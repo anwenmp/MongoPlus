@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class AutoFillMetaObject {
 
-    private Log log = LogFactory.getLog(AutoFillMetaObject.class);
+    private final Log log = LogFactory.getLog(AutoFillMetaObject.class);
 
     /**
      * 需要自动填充的字段

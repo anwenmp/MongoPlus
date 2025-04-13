@@ -4,35 +4,32 @@ import com.mongoplus.support.SFunction;
 import com.mongoplus.toolkit.FunctionUtil;
 
 /**
- * 嵌套字段
- * <p>强制的类型控制,如{@link #of(SFunction)}传入User::getRole,则{@link #then(SFunction)}必须传入getRole响应对象内容</p>
+ * 自由的构建嵌套字段,和{@link FieldChain}类不同,不拘泥于lambda
  * @author anwen
  */
-public class FieldChain<T> {
+public class FreeFieldChain {
 
     private final FunctionUtil.FunctionBuilder builder;
 
-    private FieldChain(SFunction<?,?> root) {
+    private FreeFieldChain() {
         builder = FunctionUtil.builderFunction();
-        builder.add(root);
     }
 
-    public static <T,R> FieldChain<R> of(SFunction<T,R> root) {
-        return new FieldChain<>(root);
+    public static FreeFieldChain create() {
+        return new FreeFieldChain();
     }
 
-    @SuppressWarnings("unchecked")
-    public <R> FieldChain<R> then(SFunction<T,R> function) {
+    public <T> FreeFieldChain append(SFunction<T,?> function) {
         builder.add(function);
-        return (FieldChain<R>) this;
+        return this;
     }
 
-    public FieldChain<T> then(String fieldName) {
+    public FreeFieldChain append(String fieldName) {
         builder.add(fieldName);
         return this;
     }
 
-    public FieldChain<T> then(Class<?> from) {
+    public FreeFieldChain append(Class<?> from) {
         builder.add(from);
         return this;
     }

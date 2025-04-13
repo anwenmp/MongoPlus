@@ -1,5 +1,6 @@
 package com.mongoplus.toolkit;
 
+import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.support.SFunction;
 
 import java.util.LinkedList;
@@ -50,10 +51,11 @@ public class FunctionUtil {
 
     public static class FunctionBuilder {
 
-        private final List<SFunction<?, ?>> functionList;
+        private final List<Object> functionList;
 
         public FunctionBuilder(List<SFunction<?, ?>> functionList) {
-            this.functionList = functionList;
+            this.functionList = new LinkedList<>();
+            this.functionList.addAll(functionList);
         }
 
         public FunctionBuilder() {
@@ -65,6 +67,16 @@ public class FunctionUtil {
             return this;
         }
 
+        public <T> FunctionBuilder add(String fieldName) {
+            this.functionList.add(fieldName);
+            return this;
+        }
+
+        public <T> FunctionBuilder add(Class<?> from) {
+            this.functionList.add(from);
+            return this;
+        }
+
         /**
          * 构建字段
          * @param isOption 是否拼接$符
@@ -73,7 +85,16 @@ public class FunctionUtil {
          */
         public String build(boolean isOption) {
             StringBuilder fieldNameBuffer = new StringBuilder();
-            functionList.forEach(function -> fieldNameBuffer.append(".").append(getFieldName(function)));
+            functionList.forEach(function -> {
+                fieldNameBuffer.append(".");
+                if (function instanceof String) {
+                    fieldNameBuffer.append(function);
+                } else if (function instanceof SFunction<?, ?>) {
+                    fieldNameBuffer.append(getFieldName((SFunction<?, ?>) function));
+                } else {
+                    fieldNameBuffer.append(AnnotationOperate.getCollectionName((Class<?>) function));
+                }
+            });
             if (isOption){
                 fieldNameBuffer.setCharAt(0,'$');
             } else {
