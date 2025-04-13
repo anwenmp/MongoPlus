@@ -33,7 +33,7 @@ public class MongoPlusClient {
      * @author anwen
      */
     public static String getVersion(){
-        return "2.1.8";
+        return "2.1.8.1";
     }
 
     /**
