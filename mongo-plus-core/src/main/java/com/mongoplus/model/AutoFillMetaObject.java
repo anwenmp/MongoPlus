@@ -9,6 +9,7 @@ import com.mongoplus.support.SFunction;
 import org.bson.Document;
 
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 自动填充元对象
@@ -27,6 +28,11 @@ public class AutoFillMetaObject {
      * 自动填充最终的值
      */
     private final ConcurrentSkipListMap<String,Object> autoFillDocument;
+
+    /**
+     * 跳过当前回写
+     */
+    private final AtomicBoolean isSkipWriteBack = new AtomicBoolean(false);
 
     /**
      * 原始对象信息
@@ -91,6 +97,14 @@ public class AutoFillMetaObject {
     }
 
     /**
+     * 本次跳过字段回写
+     * @author anwen
+     */
+    public void skipCurrentWriteBack() {
+        this.isSkipWriteBack.set(true);
+    }
+
+    /**
      * 设置自动填充内容，如果字段不存在，则不填充
      * @param column 列名
      * @param value 值
@@ -116,7 +130,7 @@ public class AutoFillMetaObject {
      * @param value 值
      * @author anwen
      */
-    public void fillValue(String column,Object value){
+    public void fillValue(String column,Object value) {
         if (metaObjectExist(column)) {
             forceFillValue(column,value);
         }
@@ -130,6 +144,9 @@ public class AutoFillMetaObject {
      */
     public void forceFillValue(String column,Object value){
         autoFillDocument.put(column, value);
+        if (isSkipWriteBack.compareAndSet(true, false)) {
+            return;
+        }
         FieldInformation fieldInformation = targetObject.getField(column);
         if (fieldInformation == null) {
             log.error("Autofill field not obtained, field name: "+ column);
