@@ -18,6 +18,9 @@
   <img src='https://gitcode.com/aizuda/mongo-plus/star/badge.svg' alt='star'/>
 </a>
 </p>
+<a href="https://gitcode.com/aizuda/mongo-plus/stargazers">
+  <img src='https://gitcode.com/aizuda/mongo-plus/star/badge.svg' alt='star'/>
+</a>
 <p style="text-align: center;">
 <img style="width: 200px;display: inline-block;" src="logo.png" alt="MongoPlusLogo">
 </p>
