@@ -38,6 +38,18 @@ public interface Compare<T,Children> extends Serializable {
     BaseConditionResult buildCondition(Condition condition);
 
     /**
+     * 判断是否为空
+     */
+    default boolean isNotEmpty(){
+        return isNotEmpty(condition());
+    }
+
+    /**
+     * 判断是否为空
+     */
+    boolean isNotEmpty(Condition condition);
+
+    /**
      * 等于
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
      * @param column 列名、字段名，lambda方式

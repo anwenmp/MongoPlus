@@ -1,12 +1,12 @@
 package com.mongoplus.registrar;
 
 import com.mongoplus.annotation.MongoMapperScan;
+import com.mongoplus.annotation.comm.NonNull;
 import com.mongoplus.mapper.MongoMapper;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.lang.NonNull;
 
 import java.util.Map;
 

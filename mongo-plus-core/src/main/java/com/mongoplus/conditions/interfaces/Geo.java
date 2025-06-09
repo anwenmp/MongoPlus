@@ -2,7 +2,7 @@ package com.mongoplus.conditions.interfaces;
 
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.Point;
-import com.mongodb.lang.Nullable;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.support.SFunction;
 import org.bson.conversions.Bson;
 

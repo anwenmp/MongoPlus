@@ -5,22 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mongoplus</groupId>
-    <artifactId>mongo-plus-parent</artifactId>
+    <artifactId>mongo-plus</artifactId>
     <packaging>pom</packaging>
-    <name>mongo-plus-parent</name>
-    <version>2.1.8.1</version>
+    <name>mongo-plus</name>
+    <version>2.1.9</version>
     <description>mongo-plus版本控制</description>
     <url>https://www.mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <modules>
-        <module>../mongo-plus-annotation</module>
-        <module>../mongo-plus-core</module>
-        <module>../mongo-plus-boot-starter</module>
-        <module>../mongo-plus-solon-plugin</module>
-        <module>../mongo-plus-sharding</module>
-        <module>../mongo-plus-sharding-boot-starter</module>
-        <module>../mongo-plus-sensitive-word</module>
+        <module>mongo-plus-annotation</module>
+        <module>mongo-plus-core</module>
+        <module>mongo-plus-boot-starter</module>
+        <module>mongo-plus-solon-plugin</module>
+        <module>mongo-plus-sharding</module>
+        <module>mongo-plus-sharding-boot-starter</module>
+        <module>mongo-plus-sensitive-word</module>
     </modules>
 
     <licenses>
@@ -53,7 +53,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongoplus.version>2.1.8.1</mongoplus.version>
+        <mongoplus.version>2.1.9</mongoplus.version>
         <mongodb-driver-sync.version>5.1.2</mongodb-driver-sync.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
         <reload4j.version>1.2.25</reload4j.version>
@@ -71,6 +71,7 @@
         <maven-release.version>2.5.3</maven-release.version>
         <maven-source.version>2.2.1</maven-source.version>
         <maven-gpg.version>1.5</maven-gpg.version>
+        <jsr305.version>3.0.2</jsr305.version>
     </properties>
 
     <dependencyManagement>
@@ -159,6 +160,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr305.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

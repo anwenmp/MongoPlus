@@ -54,7 +54,9 @@ public class ObjectIdUtil {
         if (ObjectId.isValid(convertValue) && PropertyCache.autoConvertObjectId) {
             return new ObjectId(convertValue);
         }
-        log.warn("value '" + value+"' is not ObjectId");
+        if (log.isDebugEnabled()) {
+            log.debug("value '" + value+"' is not ObjectId");
+        }
         return value;
     }
 

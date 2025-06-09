@@ -16,6 +16,7 @@ import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.ProjectionEnum;
 import com.mongoplus.enums.TypeEnum;
+import com.mongoplus.handlers.condition.Condition;
 import com.mongoplus.model.geo.Coordinate;
 import com.mongoplus.model.geo.GeoBox;
 import com.mongoplus.model.geo.GeoCenter;
@@ -92,6 +93,12 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
         orderList.clear();
         projectionList.clear();
         basicDBObjectList.clear();
+    }
+
+
+    @Override
+    public boolean isNotEmpty(Condition condition) {
+        return condition.isNotEmpty(this);
     }
 
     @Override
