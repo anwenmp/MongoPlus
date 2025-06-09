@@ -1,5 +1,6 @@
 package com.mongoplus.registrar;
 
+import com.mongoplus.annotation.comm.NonNull;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.toolkit.CollUtil;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.lang.NonNull;
 
 import java.util.Optional;
 import java.util.Set;

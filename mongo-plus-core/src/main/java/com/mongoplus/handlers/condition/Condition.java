@@ -1,6 +1,7 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.Projection;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
@@ -62,5 +63,26 @@ public interface Condition {
      * @author anwen
      */
     BaseConditionResult queryCondition(AbstractChainWrapper<?,?> wrapper);
+
+    /**
+     * wrapper是否为空
+     * @param wrapper wrapper
+     * @return boolean
+     */
+    default boolean isEmpty(@Nullable AbstractChainWrapper<?,?> wrapper) {
+        if (wrapper == null) {
+            return true;
+        }
+        return CollUtil.isEmpty(wrapper.getCompareList()) && CollUtil.isEmpty(wrapper.getBasicDBObjectList());
+    }
+
+    /**
+     * wrapper是否不为空
+     * @param wrapper wrapper
+     * @return boolean
+     */
+    default boolean isNotEmpty(@Nullable AbstractChainWrapper<?,?> wrapper) {
+        return !isEmpty(wrapper);
+    }
 
 }

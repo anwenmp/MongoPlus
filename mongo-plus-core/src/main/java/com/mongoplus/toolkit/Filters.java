@@ -4,7 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.TextSearchOptions;
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.Point;
-import com.mongodb.lang.Nullable;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.enums.SpecialConditionEnum;
 import org.bson.*;
 import org.bson.codecs.configuration.CodecRegistry;

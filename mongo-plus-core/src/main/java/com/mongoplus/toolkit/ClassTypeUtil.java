@@ -255,6 +255,7 @@ public class ClassTypeUtil {
         }
     }
 
+    @SuppressWarnings("all")
     public static Boolean isTargetClass(Class<?> targetClazz, Class<?> sourceClazz) {
         // 获取或初始化目标类的缓存映射
 //        HashMap<Class<?>, Boolean> classBooleanMap = isTargetClassMap.computeIfAbsent(targetClazz, k -> new HashMap<>());

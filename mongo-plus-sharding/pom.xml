@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.mongoplus</groupId>
-        <artifactId>mongo-plus-parent</artifactId>
-        <version>2.1.8.1</version>
-        <relativePath>../mongo-plus-parent/pom.xml</relativePath>
+        <artifactId>mongo-plus</artifactId>
+        <version>2.1.9</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mongo-plus-sharding</artifactId>

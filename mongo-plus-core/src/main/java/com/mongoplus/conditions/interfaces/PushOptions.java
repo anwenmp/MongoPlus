@@ -1,6 +1,6 @@
 package com.mongoplus.conditions.interfaces;
 
-import com.mongodb.lang.Nullable;
+import com.mongoplus.annotation.comm.Nullable;
 import org.bson.Document;
 
 import java.util.Objects;

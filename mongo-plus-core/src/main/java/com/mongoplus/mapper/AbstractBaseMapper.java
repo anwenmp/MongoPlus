@@ -184,13 +184,11 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
      */
     private boolean canEstimatedDocumentCount(MongoCollection<Document> collection,
                                               QueryChainWrapper<?, ?> queryChainWrapper) {
-
         // 忽略逻辑删除 + 条件为空 + 忽略多租户
         return LogicDeleteHandler.close(collection)
-                && (Objects.isNull(queryChainWrapper) || CollUtil.isEmpty(queryChainWrapper.getCompareList()))
+                && !queryChainWrapper.isNotEmpty()
                 && (TenantManager.getIgnoreTenant() != null ||
                 InterceptorChain.getInterceptor(interceptor -> interceptor instanceof TenantInterceptor) == null);
-
     }
 
     @Override
