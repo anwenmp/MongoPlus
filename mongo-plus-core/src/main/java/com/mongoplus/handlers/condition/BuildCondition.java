@@ -285,12 +285,16 @@ public class BuildCondition extends AbstractCondition {
         CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
         Object value = currentCompareCondition.getValue();
-        if (ClassTypeUtil.isTargetClass(Collection.class,value.getClass())) {
-            Bson pushOptions = buildPushOptions(currentCompareCondition.getValue(List.class),
-                    currentCompareCondition.getExtraValue(PushOptions.class));
-            updateBasicDBObject.put(currentCompareCondition.getColumn(),pushOptions);
+        if (ClassTypeUtil.isTargetClass(Collection.class, value.getClass())) {
+            PushOptions extraValue = currentCompareCondition.getExtraValue(PushOptions.class);
+            if (Objects.isNull(extraValue)) {
+                put(updateBasicDBObject, currentCompareCondition);
+            } else {
+                Bson pushOptions = buildPushOptions(currentCompareCondition.getValue(List.class), extraValue);
+                updateBasicDBObject.put(currentCompareCondition.getColumn(), pushOptions);
+            }
         } else {
-            put(updateBasicDBObject,currentCompareCondition);
+            put(updateBasicDBObject, currentCompareCondition);
         }
         return updateBasicDBObject;
     }
