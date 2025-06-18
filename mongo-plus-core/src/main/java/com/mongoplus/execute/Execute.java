@@ -8,7 +8,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.model.MutablePair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -23,15 +25,14 @@ import java.util.List;
 public interface Execute {
 
     /**
-     * 添加执行
-     * @param documentList 需要添加的Document
+     * 添加执行,执行的是insertOne
+     * @param document 需要添加的Document
      * @param collection 集合
-     * @return {@link InsertManyResult}
+     * @return {@link com.mongodb.client.result.InsertOneResult}
      * @author anwen
      */
-    default InsertManyResult executeSave(List<Document> documentList, MongoCollection<Document> collection){
-        return executeSave(documentList, null, collection);
-    }
+    InsertOneResult executeSaveOne(Document document, @Nullable InsertOneOptions options,
+                                   MongoCollection<Document> collection);
 
     /**
      * 添加执行
@@ -40,19 +41,17 @@ public interface Execute {
      * @return {@link InsertManyResult}
      * @author anwen
      */
-    InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
+    InsertManyResult executeSave(List<Document> documentList, @Nullable InsertManyOptions options,
                                  MongoCollection<Document> collection);
 
     /**
-     * 删除执行
+     * 删除执行 执行的是deleteOne
      * @param filter 删除条件
      * @param collection 集合
      * @return {@link com.mongodb.client.result.DeleteResult}
      * @author anwen
      */
-    default DeleteResult executeRemove(Bson filter, MongoCollection<Document> collection){
-        return executeRemove(filter,null,collection);
-    }
+    DeleteResult executeRemoveOne(Bson filter, @Nullable DeleteOptions options, MongoCollection<Document> collection);
 
     /**
      * 删除执行
@@ -61,7 +60,17 @@ public interface Execute {
      * @return {@link com.mongodb.client.result.DeleteResult}
      * @author anwen
      */
-    DeleteResult executeRemove(Bson filter, DeleteOptions options, MongoCollection<Document> collection);
+    DeleteResult executeRemove(Bson filter, @Nullable DeleteOptions options, MongoCollection<Document> collection);
+
+    /**
+     * 更新执行,执行的是updateOne
+     * @param bsonPair 更新条件
+     * @param collection 集合
+     * @return {@link com.mongodb.client.result.UpdateResult}
+     * @author anwen
+     */
+    UpdateResult executeUpdateOne(MutablePair<Bson,Bson> bsonPair, @Nullable UpdateOptions options,
+                                  MongoCollection<Document> collection);
 
     /**
      * 更新执行
@@ -70,19 +79,7 @@ public interface Execute {
      * @return {@link com.mongodb.client.result.UpdateResult}
      * @author anwen
      */
-    default UpdateResult executeUpdate(List<MutablePair<Bson,Bson>> bsonPairList,
-                                       MongoCollection<Document> collection){
-        return executeUpdate(bsonPairList,null,collection);
-    }
-
-    /**
-     * 更新执行
-     * @param bsonPairList 更新条件
-     * @param collection 集合
-     * @return {@link com.mongodb.client.result.UpdateResult}
-     * @author anwen
-     */
-    UpdateResult executeUpdate(List<MutablePair<Bson,Bson>> bsonPairList, UpdateOptions options,
+    UpdateResult executeUpdate(List<MutablePair<Bson,Bson>> bsonPairList, @Nullable UpdateOptions options,
                                MongoCollection<Document> collection);
 
     /**
@@ -118,7 +115,7 @@ public interface Execute {
      * @return {@link long}
      * @author anwen
      */
-    long executeCount(BasicDBObject queryBasic,CountOptions countOptions,MongoCollection<Document> collection);
+    long executeCount(BasicDBObject queryBasic,@Nullable CountOptions countOptions,MongoCollection<Document> collection);
 
     /**
      * 不接受任何条件的统计
@@ -135,19 +132,7 @@ public interface Execute {
      * @return {@link com.mongodb.bulk.BulkWriteResult}
      * @author anwen
      */
-    default BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,
-                                             MongoCollection<Document> collection){
-        return executeBulkWrite(writeModelList,null,collection);
-    }
-
-    /**
-     * 写入多个执行
-     * @param writeModelList 写入实体集合
-     * @param collection 集合
-     * @return {@link com.mongodb.bulk.BulkWriteResult}
-     * @author anwen
-     */
-    BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,BulkWriteOptions options,
+    BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,@Nullable BulkWriteOptions options,
                                      MongoCollection<Document> collection);
 
     String doCreateIndex(Bson bson,MongoCollection<Document> collection);

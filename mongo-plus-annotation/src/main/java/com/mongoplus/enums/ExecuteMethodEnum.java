@@ -15,14 +15,29 @@ public enum ExecuteMethodEnum {
     SAVE("executeSave"),
 
     /**
+     * 新增方法
+     */
+    SAVE_ONE("executeSaveOne"),
+
+    /**
      * 删除方法
      */
     REMOVE("executeRemove"),
 
     /**
+     * 删除方法
+     */
+    REMOVE_ONE("executeRemoveOne"),
+
+    /**
      * 修改方法
      */
     UPDATE("executeUpdate"),
+
+    /**
+     * 修改方法
+     */
+    UPDATE_ONE("executeUpdateOne"),
 
     /**
      * 查询方法

@@ -142,8 +142,12 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
         if (executeMethod == SAVE){
             handleSave((List<Document>) args[0],fieldInformation);
+        } else if (executeMethod == SAVE_ONE) {
+            handleSave((Document) args[0],fieldInformation);
         } else if (executeMethod == UPDATE) {
             handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,fieldInformation);
+        } else if (executeMethod == UPDATE_ONE) {
+            handleUpdate((MutablePair<Bson,Bson>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == BULK_WRITE) {
             handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
         }
@@ -294,6 +298,19 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     }
 
     /**
+     * save处理
+     * @param document save参数
+     * @param fieldInformation 乐观锁字段
+     * @author anwen
+     */
+    void handleSave(Document document, FieldInformation fieldInformation) {
+        String fieldName = fieldInformation.getCamelCaseName();
+        if (!document.containsKey(fieldName) || document.get(fieldName) == null) {
+            document.put(fieldName,0);
+        }
+    }
+
+    /**
      * update处理
      * @param updatePairList update参数
      * @param fieldInformation 乐观锁字段
@@ -311,6 +328,26 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 updatePair.getRight(),
                 autoVersion
         ));
+    }
+
+    /**
+     * update处理
+     * @param updatePair update参数
+     * @param fieldInformation 乐观锁字段
+     * @author anwen
+     */
+    void handleUpdate(MutablePair<Bson,Bson> updatePair,
+                      boolean autoVersion,
+                      FieldInformation fieldInformation){
+        if (fieldInformation == null) {
+            return;
+        }
+        String fieldName = fieldInformation.getCamelCaseName();
+        updateParamHandler(fieldName,
+                updatePair.getLeft(),
+                updatePair.getRight(),
+                autoVersion
+        );
     }
 
     /**

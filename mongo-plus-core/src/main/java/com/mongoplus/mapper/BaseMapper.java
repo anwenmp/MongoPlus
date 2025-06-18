@@ -2,6 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
@@ -28,14 +29,21 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      */
     default <T> boolean save(T entity){
-        return save(entity,null);
+        return save(entity, (InsertOneOptions) null);
     }
 
     /**
      * 添加单个
      * @author anwen
      */
+    @Deprecated
     <T> boolean save(T entity,InsertManyOptions options);
+
+    /**
+     * 添加单个
+     * @author anwen
+     */
+    <T> boolean save(T entity,InsertOneOptions options);
 
     /**
      * 添加多个
@@ -119,6 +127,12 @@ public interface BaseMapper extends Mapper {
     Boolean update(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,UpdateOptions options);
 
     /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     */
+    Boolean updateOne(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,UpdateOptions options);
+
+    /**
      * 删除，直接根据UpdateWrapper
      * @param updateChainWrapper 条件
      * @param clazz class
@@ -139,6 +153,26 @@ public interface BaseMapper extends Mapper {
     Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options);
 
     /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @param clazz class
+     * @return {@link Boolean}
+     * @author anwen
+     */
+    default Boolean removeOne(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz){
+        return removeOne(updateChainWrapper, clazz,null);
+    }
+
+    /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @param clazz class
+     * @return {@link Boolean}
+     * @author anwen
+     */
+    Boolean removeOne(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options);
+
+    /**
      * 根据条件删除
      * @param filter 条件
      * @param clazz class
@@ -157,6 +191,26 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      */
     Long remove(Bson filter,Class<?> clazz,DeleteOptions options);
+
+    /**
+     * 根据条件删除
+     * @param filter 删除条件
+     * @param clazz class
+     * @return {@link Long}
+     * @author anwen
+     */
+    default Long removeOne(Bson filter,Class<?> clazz){
+        return removeOne(filter, clazz,null);
+    }
+
+    /**
+     * 根据条件删除
+     * @param filter 删除条件
+     * @param clazz class
+     * @return {@link Long}
+     * @author anwen
+     */
+    Long removeOne(Bson filter,Class<?> clazz,@Nullable DeleteOptions options);
 
     /**
      * 根据条件查询总数

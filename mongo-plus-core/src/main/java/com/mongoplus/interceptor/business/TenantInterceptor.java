@@ -58,6 +58,16 @@ public class TenantInterceptor implements Interceptor {
     }
 
     @Override
+    public Document executeSave(Document document, MongoCollection<Document> collection) {
+        if (isTenantIgnored(collection, tenantHandler) || tenantHandler.ignoreInsert(new ArrayList<>(document.keySet()),
+                tenantHandler.getTenantIdColumn())) {
+            return document;
+        }
+        document.putIfAbsent(tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
+        return document;
+    }
+
+    @Override
     public Bson executeRemove(Bson filter, MongoCollection<Document> collection) {
         return appendTenantFilter(filter, collection);
     }
@@ -69,6 +79,15 @@ public class TenantInterceptor implements Interceptor {
             updatePairList.forEach(pair -> pair.setLeft(appendTenantFilter(pair.getLeft(), collection)));
         }
         return updatePairList;
+    }
+
+    @Override
+    public MutablePair<Bson, Bson> executeUpdate(MutablePair<Bson, Bson> updatePair,
+                                                       MongoCollection<Document> collection) {
+        if (!isTenantIgnored(collection, tenantHandler)) {
+            updatePair.setLeft(appendTenantFilter(updatePair.getLeft(), collection));
+        }
+        return updatePair;
     }
 
     @Override

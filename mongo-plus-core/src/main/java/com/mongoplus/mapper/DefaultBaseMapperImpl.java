@@ -45,6 +45,12 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
+    public <T> boolean save(T entity, InsertOneOptions options) {
+        MutablePair<String, String> namespace = getNamespace(entity.getClass());
+        return save(namespace.left, namespace.right, entity,options);
+    }
+
+    @Override
     public <T> Boolean saveBatch(Collection<T> entityList,InsertManyOptions options) {
         Class<?> clazz = entityList.iterator().next().getClass();
         MutablePair<String, String> namespace = getNamespace(clazz);
@@ -215,15 +221,33 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
+    public Boolean updateOne(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,UpdateOptions options) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return updateOne(namespace.left, namespace.right, updateChainWrapper,options);
+    }
+
+    @Override
     public Boolean remove(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return remove(namespace.left, namespace.right, updateChainWrapper,options);
     }
 
     @Override
+    public Boolean removeOne(UpdateChainWrapper<?, ?> updateChainWrapper, Class<?> clazz,DeleteOptions options) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return removeOne(namespace.left, namespace.right, updateChainWrapper,options);
+    }
+
+    @Override
     public Long remove(Bson filter, Class<?> clazz,DeleteOptions options) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return remove(namespace.left, namespace.right, filter,options);
+    }
+
+    @Override
+    public Long removeOne(Bson filter, Class<?> clazz, DeleteOptions options) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return removeOne(namespace.left, namespace.right, filter,options);
     }
 
     @Override

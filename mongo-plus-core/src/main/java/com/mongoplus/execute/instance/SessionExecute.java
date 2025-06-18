@@ -9,6 +9,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongoplus.convert.DocumentMapperConvert;
 import com.mongoplus.execute.Execute;
@@ -35,11 +36,25 @@ public class SessionExecute implements Execute {
     }
 
     @Override
+    public InsertOneResult executeSaveOne(Document document, InsertOneOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.insertOne(clientSession,document,o))
+                .orElseGet(() -> collection.insertOne(clientSession,document));
+    }
+
+    @Override
     public InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
                                         MongoCollection<Document> collection) {
         return Optional.ofNullable(options)
                 .map(o -> collection.insertMany(clientSession,documentList,o))
                 .orElseGet(() -> collection.insertMany(clientSession,documentList));
+    }
+
+    @Override
+    public DeleteResult executeRemoveOne(Bson filter, DeleteOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.deleteOne(clientSession,filter,o))
+                .orElseGet(() -> collection.deleteOne(clientSession,filter));
     }
 
     @Override
@@ -57,6 +72,13 @@ public class SessionExecute implements Execute {
         return Optional.ofNullable(options)
                 .map(o -> collection.deleteMany(clientSession,filter,o))
                 .orElseGet(() -> collection.deleteMany(clientSession,filter));
+    }
+
+    @Override
+    public UpdateResult executeUpdateOne(MutablePair<Bson, Bson> bsonPair, UpdateOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.updateOne(clientSession,bsonPair.getLeft(), bsonPair.getRight(), o))
+                .orElseGet(() -> collection.updateOne(clientSession,bsonPair.getLeft(), bsonPair.getRight()));
     }
 
     @Override

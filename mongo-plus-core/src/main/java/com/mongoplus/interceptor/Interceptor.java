@@ -63,6 +63,7 @@ public interface Interceptor {
      * @return java.util.List<org.bson.Document>
      * @author JiaChaoYang
      */
+    @Deprecated
     default List<Document> executeSave(List<Document> documentList) {
         return documentList;
     }
@@ -73,6 +74,7 @@ public interface Interceptor {
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
      */
+    @Deprecated
     default Bson executeRemove(Bson filter) {
         return filter;
     }
@@ -83,6 +85,7 @@ public interface Interceptor {
      * @return {@link List<MutablePair>}
      * @author anwen
      */
+    @Deprecated
     default List<MutablePair<Bson,Bson>> executeUpdate(List<MutablePair<Bson,Bson>> updatePairList){
         return updatePairList;
     }
@@ -95,6 +98,7 @@ public interface Interceptor {
      * @return {@link QueryParam}
      * @author anwen
      */
+    @Deprecated
     default QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond) {
         return new QueryParam(queryBasic, projectionList, sortCond);
     }
@@ -105,6 +109,7 @@ public interface Interceptor {
      * @return {@link List}
      * @author anwen
      */
+    @Deprecated
     default List<Bson> executeAggregates(List<Bson> aggregateConditionList) {
         return aggregateConditionList;
     }
@@ -116,6 +121,7 @@ public interface Interceptor {
      * @return {@link MutablePair} left = 条件 right = 选项
      * @author anwen
      */
+    @Deprecated
     default MutablePair<BasicDBObject, CountOptions> executeCount(BasicDBObject queryBasic,
                                                                   CountOptions countOptions) {
         return new MutablePair<>(queryBasic, countOptions);
@@ -127,6 +133,7 @@ public interface Interceptor {
      * @return {@link List}
      * @author anwen
      */
+    @Deprecated
     default List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList) {
         return writeModelList;
     }
@@ -142,6 +149,16 @@ public interface Interceptor {
     }
 
     /**
+     * 添加拦截方法
+     * @param document 添加的值
+     * @return {@link List<org.bson.Document>}
+     * @author anwen
+     */
+    default Document executeSave(Document document, MongoCollection<Document> collection) {
+        return document;
+    }
+
+    /**
      * 删除拦截方法
      *
      * @author JiaChaoYang
@@ -151,13 +168,34 @@ public interface Interceptor {
     }
 
     /**
+     * 删除拦截方法
+     *
+     * @author JiaChaoYang
+     */
+    default Bson executeRemoveOne(Bson filter, MongoCollection<Document> collection) {
+        return filter;
+    }
+
+    /**
      * 修改拦截方法
      * @param updatePairList 值 left=查询条件 right=更新条件
      * @return {@link java.util.List}
      * @author anwen
      */
-    default List<MutablePair<Bson,Bson>> executeUpdate(List<MutablePair<Bson,Bson>> updatePairList, MongoCollection<Document> collection){
+    default List<MutablePair<Bson,Bson>> executeUpdate(List<MutablePair<Bson,Bson>> updatePairList,
+                                                       MongoCollection<Document> collection){
         return updatePairList;
+    }
+
+    /**
+     * 修改拦截方法
+     * @param updatePair 值 left=查询条件 right=更新条件
+     * @return {@link java.util.List}
+     * @author anwen
+     */
+    default MutablePair<Bson,Bson> executeUpdate(MutablePair<Bson,Bson> updatePair,
+                                                       MongoCollection<Document> collection){
+        return updatePair;
     }
 
     /**

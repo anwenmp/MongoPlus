@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongoplus.convert.DocumentMapperConvert;
 import com.mongoplus.execute.Execute;
@@ -28,11 +29,26 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DefaultExecute implements Execute {
 
     @Override
+    public InsertOneResult executeSaveOne(Document document, InsertOneOptions options,
+                                          MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.insertOne(document,o))
+                .orElseGet(() -> collection.insertOne(document));
+    }
+
+    @Override
     public InsertManyResult executeSave(List<Document> documentList, InsertManyOptions options,
                                         MongoCollection<Document> collection) {
         return Optional.ofNullable(options)
                 .map(o -> collection.insertMany(documentList,o))
                 .orElseGet(() -> collection.insertMany(documentList));
+    }
+
+    @Override
+    public DeleteResult executeRemoveOne(Bson filter, DeleteOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.deleteOne(filter,o))
+                .orElseGet(() -> collection.deleteOne(filter));
     }
 
     @Override
@@ -48,6 +64,13 @@ public class DefaultExecute implements Execute {
         return Optional.ofNullable(options)
                 .map(o -> collection.deleteMany(filter,o))
                 .orElseGet(() -> collection.deleteMany(filter));
+    }
+
+    @Override
+    public UpdateResult executeUpdateOne(MutablePair<Bson, Bson> bsonPair, UpdateOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.updateOne(bsonPair.getLeft(), bsonPair.getRight(), o))
+                .orElseGet(() -> collection.updateOne(bsonPair.getLeft(), bsonPair.getRight()));
     }
 
     @Override

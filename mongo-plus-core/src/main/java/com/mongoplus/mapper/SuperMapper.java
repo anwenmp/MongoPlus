@@ -2,6 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -50,14 +51,21 @@ public interface SuperMapper extends BaseIndex {
      * @author anwen
      */
     default <T> boolean save(String database, String collectionName, T entity){
-        return save(database,collectionName,entity,null);
+        return save(database,collectionName,entity, (InsertOneOptions) null);
     }
 
     /**
      * 添加单个
      * @author anwen
      */
+    @Deprecated
     <T> boolean save(String database, String collectionName, T entity,InsertManyOptions options);
+
+    /**
+     * 添加单个
+     * @author anwen
+     */
+    <T> boolean save(String database, String collectionName, T entity,@Nullable InsertOneOptions options);
 
     /**
      * 添加多个
@@ -84,6 +92,57 @@ public interface SuperMapper extends BaseIndex {
     Long update(String database,String collectionName,Bson queryBasic, Bson updateBasic,UpdateOptions options);
 
     /**
+     * 直接通过Bson条件更新，直接使用BaseMapper调用时，最好将构建的Bson，调用一下{@link MongoConverter#writeByUpdate(Object)}
+     * @author anwen
+     */
+    Long updateOne(String database, String collectionName, Bson queryBasic, Bson updateBasic,
+                   UpdateOptions options);
+
+    /**
+     * 根据queryWrapper修改entity
+     * @author anwen
+     */
+    default <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
+        return update(database,collectionName,entity,queryChainWrapper,null);
+    }
+
+    /**
+     * 根据queryWrapper修改entity
+     * @author anwen
+     */
+    <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper,
+                       UpdateOptions options);
+
+    /**
+     * 根据queryWrapper修改entity
+     * @author anwen
+     */
+    <T> Boolean updateOne(T entity, QueryChainWrapper<T,?> queryChainWrapper,
+                          UpdateOptions options);
+
+    /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     */
+    default Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
+        return update(database,collectionName,updateChainWrapper,new UpdateOptions());
+    }
+
+    /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     */
+    Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,
+                   UpdateOptions options);
+
+    /**
+     * 修改，直接根据UpdateWrapper
+     * @author anwen
+     */
+    Boolean updateOne(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,
+                   UpdateOptions options);
+
+    /**
      * 批量操作
      * @param writeModelList writeModelList
      * @return {@link Integer}
@@ -100,20 +159,6 @@ public interface SuperMapper extends BaseIndex {
      * @author anwen
      */
     Integer bulkWrite(String database,String collectionName,List<WriteModel<Document>> writeModelList,BulkWriteOptions options);
-
-    /**
-     * 根据queryWrapper修改entity
-     * @author anwen
-     */
-    default <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
-        return update(database,collectionName,entity,queryChainWrapper,null);
-    }
-
-    /**
-     * 根据queryWrapper修改entity
-     * @author anwen
-     */
-    <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
 
     /**
      * 是否存在
@@ -133,20 +178,6 @@ public interface SuperMapper extends BaseIndex {
 
 
     /**
-     * 修改，直接根据UpdateWrapper
-     * @author anwen
-     */
-    default Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
-        return update(database,collectionName,updateChainWrapper,new UpdateOptions());
-    }
-
-    /**
-     * 修改，直接根据UpdateWrapper
-     * @author anwen
-     */
-    Boolean update(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,UpdateOptions options);
-
-    /**
      * 删除，直接根据UpdateWrapper
      * @param updateChainWrapper 条件
      * @return {@link Boolean}
@@ -162,7 +193,27 @@ public interface SuperMapper extends BaseIndex {
      * @return {@link Boolean}
      * @author anwen
      */
-    Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options);
+    Boolean remove(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,
+                   DeleteOptions options);
+
+    /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @return {@link Boolean}
+     * @author anwen
+     */
+    default Boolean removeOne(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper){
+        return removeOne(database,collectionName,updateChainWrapper,null);
+    }
+
+    /**
+     * 删除，直接根据UpdateWrapper
+     * @param updateChainWrapper 条件
+     * @return {@link Boolean}
+     * @author anwen
+     */
+    Boolean removeOne(String database,String collectionName,UpdateChainWrapper<?, ?> updateChainWrapper,
+                      DeleteOptions options);
 
     /**
      * 根据条件删除
@@ -181,6 +232,24 @@ public interface SuperMapper extends BaseIndex {
      * @author anwen
      */
     Long remove(String database,String collectionName,Bson filter,DeleteOptions options);
+
+    /**
+     * 根据条件删除
+     * @param filter 条件
+     * @return {@link Long}
+     * @author anwen
+     */
+    default Long removeOne(String database,String collectionName,Bson filter){
+        return removeOne(database,collectionName,filter,null);
+    }
+
+    /**
+     * 根据条件删除
+     * @param filter 条件
+     * @return {@link Long}
+     * @author anwen
+     */
+    Long removeOne(String database,String collectionName,Bson filter,DeleteOptions options);
 
     /**
      * 根据条件查询总数

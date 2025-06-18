@@ -3,6 +3,7 @@ package com.mongoplus.mapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.InsertManyOptions;
+import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -45,7 +46,7 @@ public interface MongoMapper<T> {
      * @since 2023/2/9 13:27
      */
     default Boolean save(T entity){
-        return save(entity,null);
+        return save(entity, (InsertOneOptions) null);
     }
 
     /**
@@ -55,7 +56,17 @@ public interface MongoMapper<T> {
      * @author JiaChaoYang
      * @since 2023/2/9 13:27
      */
+    @Deprecated
     Boolean save(T entity, InsertManyOptions options);
+
+    /**
+     * 添加
+     * @param entity 添加的对象
+     * @return java.lang.Boolean
+     * @author JiaChaoYang
+     * @since 2023/2/9 13:27
+     */
+    Boolean save(T entity, InsertOneOptions options);
 
     /**
      * 添加多个
