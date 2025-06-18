@@ -258,7 +258,11 @@ public class MappingMongoConverter extends AbstractMongoConverter {
 
         try {
             if (ClassTypeUtil.isTargetClass(Collection.class,clazz)) {
-                return handleCollectionType(sourceObj, typeReference, clazz, conversionStrategy);
+                if (isMultiDimensionalCollection(typeReference)) {
+                    return handleDefaultType(sourceObj, clazz, conversionStrategy);
+                } else {
+                    return handleCollectionType(sourceObj, typeReference, clazz, conversionStrategy);
+                }
             } else if (ClassTypeUtil.isTargetClass(Map.class,clazz)) {
                 return handleMapType(sourceObj, typeReference, clazz, conversionStrategy);
             } else {
@@ -425,6 +429,36 @@ public class MappingMongoConverter extends AbstractMongoConverter {
             map = (Map) ClassTypeUtil.getInstanceByClass(mapClass);
         }
         return map;
+    }
+
+
+    /**
+     * 是否是多位数组
+     */
+    private boolean isMultiDimensionalCollection(TypeReference<?> typeRef) {
+        // 1. 检查是否为参数化类型（带泛型）
+        if (!(typeRef.getType() instanceof ParameterizedType)) {
+            return false; // 非泛型类型，直接返回false
+        }
+        ParameterizedType paramType = (ParameterizedType) typeRef.getType();
+        Type[] genericTypes = paramType.getActualTypeArguments();
+        // 2. 检查每个泛型参数
+        for (Type genericType : genericTypes) {
+            if (genericType instanceof Class) {
+                // 如果泛型参数是集合类
+                if (Collection.class.isAssignableFrom((Class<?>) genericType)) {
+                    return true;
+                }
+            } else if (genericType instanceof ParameterizedType) {
+                ParameterizedType nestedType = (ParameterizedType) genericType;
+                Type rawType = nestedType.getRawType();
+                // 3. 如果泛型参数本身是集合类型
+                if (rawType instanceof Class && Collection.class.isAssignableFrom((Class<?>) rawType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
