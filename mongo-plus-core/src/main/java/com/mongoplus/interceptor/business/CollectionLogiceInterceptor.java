@@ -34,7 +34,15 @@ public class CollectionLogiceInterceptor implements Interceptor {
 
     @Override
     public Bson executeRemove(Bson filter, MongoCollection<Document> collection) {
+        return remove(filter, collection);
+    }
 
+    @Override
+    public Bson executeRemoveOne(Bson filter, MongoCollection<Document> collection) {
+        return remove(filter, collection);
+    }
+
+    Bson remove(Bson filter, MongoCollection<Document> collection) {
         if (LogicManager.isIgnoreLogic()) {
             return filter;
         }
@@ -43,7 +51,6 @@ public class CollectionLogiceInterceptor implements Interceptor {
             return filter;
         }
         return LogicDeleteHandler.doBsonLogicDel(filter, clazz);
-
     }
 
     @Override

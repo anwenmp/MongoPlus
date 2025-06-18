@@ -182,6 +182,11 @@ public class SimpleTypeInformation<T> implements TypeInformation {
     }
 
     @Override
+    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+        return clazz.getAnnotation(annotationClass);
+    }
+
+    @Override
     public List<FieldInformation> getAnnotationFields(Class<? extends Annotation> annotationClass) {
         if (!annotationFieldMap.containsKey(annotationClass)) {
             annotationFieldMap.put(

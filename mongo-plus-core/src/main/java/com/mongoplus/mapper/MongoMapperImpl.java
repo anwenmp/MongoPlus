@@ -94,6 +94,11 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
+    public Boolean save(T entity, InsertOneOptions options) {
+        return baseMapper.save(entity,options);
+    }
+
+    @Override
     public Boolean saveBatch(Collection<T> entityList, InsertManyOptions options) {
         return baseMapper.saveBatch(entityList,options);
     }
@@ -255,7 +260,7 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
                 .getAnnotationField(ID.class, "@ID is not found")
                 .getValue()
         );
-        return update(entity, wrapper,options);
+        return baseMapper.updateOne(entity, wrapper,options);
     }
 
     @Override
@@ -308,7 +313,7 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     @Override
     public Boolean removeById(Serializable id, DeleteOptions options) {
         Bson filterId = new Document(SqlOperationConstant._ID, ObjectIdUtil.getObjectIdValue(id));
-        return baseMapper.remove(filterId, clazz,options) >= 1;
+        return baseMapper.removeOne(filterId, clazz,options) >= 1;
     }
 
     @Override

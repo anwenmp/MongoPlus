@@ -247,7 +247,7 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
 
     @Override
     public Children push(SFunction<T, Object> column, Collection<?> value) {
-        return push(column,value,new PushOptions());
+        return push(column,new PushOptions(),value);
     }
 
     @Override

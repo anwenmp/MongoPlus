@@ -21,8 +21,18 @@ public class LambdaUpdateChainWrapper<T> extends UpdateChainWrapper<T,LambdaUpda
     }
 
     @Override
+    public boolean updateOne(UpdateOptions options) {
+        return baseMapper.updateOne(this,clazz,options);
+    }
+
+    @Override
     public boolean remove(DeleteOptions options) {
         return baseMapper.remove(this,clazz,options);
+    }
+
+    @Override
+    public boolean removeOne(DeleteOptions options) {
+        return baseMapper.removeOne(this,clazz,options);
     }
 
 }

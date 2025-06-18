@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
@@ -38,7 +39,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static com.mongoplus.constant.SqlOperationConstant._ID;
 import static com.mongoplus.enums.SpecialConditionEnum.EQ;
@@ -82,6 +86,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
+    @Deprecated
     public <T> boolean save(String database, String collectionName, T entity,InsertManyOptions options) {
         Document document = new Document();
         mongoConverter.writeBySave(entity, document);
@@ -90,6 +95,17 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
                 mongoPlusClient.getCollection(database, collectionName));
         mongoConverter.reSetIdValue(entity, document);
         return insertManyResult.wasAcknowledged();
+    }
+
+    @Override
+    public <T> boolean save(String database, String collectionName, T entity,InsertOneOptions options) {
+        Document document = new Document();
+        mongoConverter.writeBySave(entity, document);
+        InsertOneResult insertOneResult = factory.getExecute().executeSaveOne(document,
+                options,
+                mongoPlusClient.getCollection(database, collectionName));
+        mongoConverter.reSetIdValue(entity, document);
+        return insertOneResult.wasAcknowledged();
     }
 
     @Override
@@ -112,6 +128,25 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
                 mongoPlusClient.getCollection(database, collectionName)
         ).getModifiedCount();
     }
+
+    @Override
+    public Long updateOne(String database, String collectionName, Bson queryBasic, Bson updateBasic,
+                       UpdateOptions options) {
+        return factory.getExecute().executeUpdateOne(
+                new MutablePair<>(queryBasic, updateBasic),
+                options,
+                mongoPlusClient.getCollection(database, collectionName)
+        ).getModifiedCount();
+    }
+
+    @Override
+    public <T> Boolean updateOne(T entity,QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
+        MutablePair<BasicDBObject, BasicDBObject> updatePair =
+                ConditionUtil.getUpdateCondition(queryChainWrapper.getCompareList(), entity, mongoConverter);
+        MutablePair<String, String> namespace = getNamespace(entity.getClass());
+        return updateOne(namespace.getLeft(), namespace.getRight(), updatePair.getLeft(), updatePair.getRight(),options) > 0;
+    }
+
 
     @Override
     public Integer bulkWrite(String database, String collectionName, List<WriteModel<Document>> writeModelList,BulkWriteOptions options) {
@@ -144,7 +179,8 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public Boolean update(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,UpdateOptions options) {
+    public Boolean update(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,
+                          UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> pair = updateChainWrapper.buildUpdateCondition();
         BasicDBObject targetBasicDBObject = new BasicDBObject();
         mongoConverter.write(pair.getRight(), targetBasicDBObject);
@@ -152,13 +188,35 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,DeleteOptions options) {
+    public Boolean updateOne(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,
+                          UpdateOptions options) {
+        MutablePair<BasicDBObject, BasicDBObject> pair = updateChainWrapper.buildUpdateCondition();
+        BasicDBObject targetBasicDBObject = new BasicDBObject();
+        mongoConverter.write(pair.getRight(), targetBasicDBObject);
+        return updateOne(database, collectionName, pair.getLeft(), targetBasicDBObject,options) >= 1;
+    }
+
+    @Override
+    public Boolean remove(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,
+                          DeleteOptions options) {
         return remove(database, collectionName, condition().queryCondition(updateChainWrapper).getCondition(),options) >= 1;
+    }
+
+    @Override
+    public Boolean removeOne(String database, String collectionName, UpdateChainWrapper<?, ?> updateChainWrapper,
+                             DeleteOptions options) {
+        return removeOne(database, collectionName, condition().queryCondition(updateChainWrapper).getCondition(),options) >= 1;
     }
 
     @Override
     public Long remove(String database, String collectionName, Bson filter,DeleteOptions options) {
         return factory.getExecute().executeRemove(filter,options, mongoPlusClient.getCollection(database, collectionName))
+                .getDeletedCount();
+    }
+
+    @Override
+    public Long removeOne(String database, String collectionName, Bson filter,DeleteOptions options) {
+        return factory.getExecute().executeRemoveOne(filter,options, mongoPlusClient.getCollection(database, collectionName))
                 .getDeletedCount();
     }
 

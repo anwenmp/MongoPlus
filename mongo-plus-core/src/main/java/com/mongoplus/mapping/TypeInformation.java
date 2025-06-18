@@ -104,6 +104,14 @@ public interface TypeInformation {
     FieldInformation getFieldNotException(String fieldName);
 
     /**
+     * 获取类上的指定注解
+     *
+     * @return {@link java.util.List<java.lang.annotation.Annotation>}
+     * @author anwen
+     */
+    <A extends Annotation> A getAnnotation(Class<A> annotationClass);
+
+    /**
      * 根据注解获取字段
      *
      * @param annotationClass 注解类

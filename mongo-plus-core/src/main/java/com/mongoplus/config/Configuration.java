@@ -413,9 +413,9 @@ public class Configuration {
                 continue;
             }
             TypeInformation typeInformation = TypeInformation.of(clazz);
-            FieldInformation ignoreLogicAnnotation = typeInformation.getAnnotationField(IgnoreLogic.class);
+            IgnoreLogic ignoreLogic = typeInformation.getAnnotation(IgnoreLogic.class);
             // 如果存在忽略逻辑删除注解
-            if (Objects.nonNull(ignoreLogicAnnotation)) {
+            if (Objects.nonNull(ignoreLogic)) {
                 continue;
             }
             FieldInformation annotationField = typeInformation.getAnnotationField(CollectionLogic.class);

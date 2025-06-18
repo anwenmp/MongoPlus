@@ -42,6 +42,26 @@ public class LogicAutoFillInterceptor implements Interceptor {
     }
 
     @Override
+    public Document executeSave(Document document, MongoCollection<Document> collection) {
+
+        if (LogicManager.isIgnoreLogic()) {
+            return document;
+        }
+        Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
+        if (Objects.isNull(clazz)) {
+            return document;
+        }
+        LogicDeleteResult result = LogicDeleteHandler.mapper().get(clazz);
+        if (Objects.nonNull(result)) {
+            if (!document.containsKey(result.getColumn()) || document.get(result.getColumn()) == null) {
+                document.put(result.getColumn(), result.getLogicNotDeleteValue());
+            }
+        }
+        return document;
+
+    }
+
+    @Override
     public List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
 
         if (LogicManager.isIgnoreLogic()) {

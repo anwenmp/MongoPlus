@@ -149,8 +149,11 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
 
     private boolean isRelevantMethod(ExecuteMethodEnum executeMethodEnum) {
         return executeMethodEnum == ExecuteMethodEnum.SAVE ||
+                executeMethodEnum == ExecuteMethodEnum.SAVE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.UPDATE ||
+                executeMethodEnum == ExecuteMethodEnum.UPDATE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.REMOVE ||
+                executeMethodEnum == ExecuteMethodEnum.REMOVE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.BULK_WRITE;
     }
 
@@ -171,15 +174,28 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         switch (executeMethodEnum) {
             case SAVE:
                 return processSave(source);
+            case SAVE_ONE:
+                return processSaveOne(source);
             case UPDATE:
                 return processUpdate(source);
+            case UPDATE_ONE:
+                return processUpdateOne(source);
             case REMOVE:
+            case REMOVE_ONE:
                 return processRemove(source);
             case BULK_WRITE:
                 return processBulkWrite(source);
             default:
                 return null;
         }
+    }
+
+    private OperationResult processSaveOne(Object[] source) throws DataUpdateLimitationException {
+        Document document = (Document) source[0];
+        OperationResult operationResult = new OperationResult();
+        operationResult.setOperation(ExecuteMethodEnum.SAVE.name());
+        operationResult.setChangedData(displayCompleteData ? document.toString() : "1");
+        return operationResult;
     }
 
     private OperationResult processSave(Object[] source) throws DataUpdateLimitationException {
@@ -191,6 +207,16 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.SAVE.name());
         operationResult.setChangedData(displayCompleteData ? documentList.toString() : String.valueOf(documentList.size()));
+        return operationResult;
+    }
+
+    private OperationResult processUpdateOne(Object[] source) throws DataUpdateLimitationException {
+        MutablePair<Bson, Bson> document = (MutablePair<Bson, Bson>) source[0];
+        OperationResult operationResult = new OperationResult();
+        operationResult.setOperation(ExecuteMethodEnum.UPDATE.name());
+        String left = document.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+        String right = document.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+        operationResult.setChangedData(displayCompleteData ? "(left=" + left + ",right=" + right + ")" : "1");
         return operationResult;
     }
 
