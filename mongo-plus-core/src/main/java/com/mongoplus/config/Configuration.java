@@ -445,7 +445,6 @@ public class Configuration {
                 continue;
             }
             logicDeleteResultHashMap.put(clazz, null);
-
         }
         return this;
 

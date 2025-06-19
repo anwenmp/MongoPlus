@@ -275,7 +275,12 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
                         } else if (writeModel instanceof UpdateManyModel) {
                             UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
                             return "UpdateManyModel{filter=" + updateManyModel.getFilter() +
-                                    ", update=" + (updateManyModel.getUpdate() != null ? updateManyModel.getUpdate().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString() : updateManyModel.getUpdatePipeline()) +
+                                    ", update=" + (updateManyModel.getUpdate() != null ?
+                                    updateManyModel.getUpdate()
+                                            .toBsonDocument(
+                                                    BsonDocument.class,
+                                                    MapCodecCache.getDefaultCodecRegistry()
+                                            ).toString() : updateManyModel.getUpdatePipeline()) +
                                     ", options=" + updateManyModel.getUpdatePipeline() + '}';
                         }
                         return "";
