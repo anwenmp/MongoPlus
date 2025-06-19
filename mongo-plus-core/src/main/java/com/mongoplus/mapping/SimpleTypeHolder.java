@@ -51,6 +51,7 @@ public class SimpleTypeHolder {
         defaults.add(Enum.class);
         defaults.add(BigDecimal.class);
         defaults.add(BigInteger.class);
+        defaults.add(ObjectId.class);
         DEFAULTS = Collections.unmodifiableSet(defaults);
     }
 
