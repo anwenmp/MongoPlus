@@ -1,16 +1,20 @@
 package com.mongoplus.manager;
 
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
+import com.mongoplus.annotation.comm.Nullable;
+import com.mongoplus.domain.SensitiveWordException;
+import com.mongoplus.enums.ResultHandler;
 import com.mongoplus.enums.SensitiveType;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
+import com.mongoplus.model.MutablePair;
 import com.mongoplus.property.SensitiveWordProperty;
+import com.mongoplus.toolkit.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,8 +36,15 @@ public class SensitiveWordManager {
     private final SensitiveWordBs sensitiveWordBs;
 
     public SensitiveWordManager(SensitiveWordProperty sensitiveWordProperty) {
+        this(null,sensitiveWordProperty);
+    }
+
+    public SensitiveWordManager(@Nullable SensitiveWordBs sensitiveWordBs, SensitiveWordProperty sensitiveWordProperty) {
         this.sensitiveWordProperty = sensitiveWordProperty;
-        this.sensitiveWordBs = SensitiveWordBs.newInstance().init();
+        if (sensitiveWordBs == null) {
+            sensitiveWordBs = sensitiveWordProperty.sensitiveWordBs();
+        }
+        this.sensitiveWordBs = sensitiveWordBs;
     }
 
     public SensitiveWordBs sensitiveWordBs() {
@@ -169,6 +180,15 @@ public class SensitiveWordManager {
         } catch (IOException e) {
             log.error("Abnormal loading of sensitive word blacklist file", e);
             throw new RuntimeException(e);
+        }
+    }
+
+    public void handler(String target) {
+        if (sensitiveWordProperty.getResultHandler() == ResultHandler.REJECT) {
+            String work;
+            if (StringUtils.isBlank((work = sensitiveWordBs.findFirst(target)))) {
+                throw new SensitiveWordException(Collections.singleton(work));
+            }
         }
     }
 

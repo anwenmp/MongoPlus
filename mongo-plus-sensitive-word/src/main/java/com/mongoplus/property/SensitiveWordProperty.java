@@ -1,9 +1,12 @@
 package com.mongoplus.property;
 
+import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
+import com.mongoplus.enums.ResultHandler;
 import com.mongoplus.enums.SensitiveType;
 
 /**
  * 敏感词属性
+ *
  * @author anwen
  */
 public class SensitiveWordProperty {
@@ -12,6 +15,12 @@ public class SensitiveWordProperty {
      * 敏感词校验类型,默认为全局
      */
     private SensitiveType sensitiveType = SensitiveType.GLOBAL;
+
+    /**
+     * 敏感词处理，默认抛出异常
+     * <p>暂只支持抛出异常</p>
+     */
+    private ResultHandler resultHandler = ResultHandler.REJECT;
 
     /**
      * 是否忽略大小写
@@ -43,12 +52,6 @@ public class SensitiveWordProperty {
      */
     private boolean ignoreRepeat = false;
 
-    /**
-     * 是否忽略特殊字符,如'傻!@#$帽',将会忽略掉其中的特殊字符
-     */
-    private boolean ignoreChar = false;
-
-
     // 开启校验
     /**
      * 启用连续数字检测
@@ -73,11 +76,112 @@ public class SensitiveWordProperty {
      */
     private boolean enableIpv4Check = false;
 
+    public SensitiveWordBs sensitiveWordBs() {
+        return SensitiveWordBs.newInstance()
+                .ignoreCase(ignoreCase)
+                .ignoreWidth(ignoreWidth)
+                .ignoreNumStyle(ignoreNumStyle)
+                .ignoreChineseStyle(ignoreChineseStyle)
+                .ignoreEnglishStyle(ignoreEnglishStyle)
+                .ignoreRepeat(ignoreRepeat)
+                .enableNumCheck(enableNumCheck)
+                .enableEmailCheck(enableEmailCheck)
+                .enableUrlCheck(enableUrlCheck)
+                .enableIpv4Check(enableIpv4Check)
+                .init();
+    }
 
-    /**
-     * 检测数字时的长度
-     */
-    private int numCheckLen = 8;
+    public ResultHandler getResultHandler() {
+        return resultHandler;
+    }
+
+    public void setResultHandler(ResultHandler resultHandler) {
+        this.resultHandler = resultHandler;
+    }
+
+    public void setSensitiveType(SensitiveType sensitiveType) {
+        this.sensitiveType = sensitiveType;
+    }
+
+    public boolean isIgnoreCase() {
+        return ignoreCase;
+    }
+
+    public void setIgnoreCase(boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+    }
+
+    public boolean isIgnoreWidth() {
+        return ignoreWidth;
+    }
+
+    public void setIgnoreWidth(boolean ignoreWidth) {
+        this.ignoreWidth = ignoreWidth;
+    }
+
+    public boolean isIgnoreNumStyle() {
+        return ignoreNumStyle;
+    }
+
+    public void setIgnoreNumStyle(boolean ignoreNumStyle) {
+        this.ignoreNumStyle = ignoreNumStyle;
+    }
+
+    public boolean isIgnoreChineseStyle() {
+        return ignoreChineseStyle;
+    }
+
+    public void setIgnoreChineseStyle(boolean ignoreChineseStyle) {
+        this.ignoreChineseStyle = ignoreChineseStyle;
+    }
+
+    public boolean isIgnoreEnglishStyle() {
+        return ignoreEnglishStyle;
+    }
+
+    public void setIgnoreEnglishStyle(boolean ignoreEnglishStyle) {
+        this.ignoreEnglishStyle = ignoreEnglishStyle;
+    }
+
+    public boolean isIgnoreRepeat() {
+        return ignoreRepeat;
+    }
+
+    public void setIgnoreRepeat(boolean ignoreRepeat) {
+        this.ignoreRepeat = ignoreRepeat;
+    }
+
+    public boolean isEnableNumCheck() {
+        return enableNumCheck;
+    }
+
+    public void setEnableNumCheck(boolean enableNumCheck) {
+        this.enableNumCheck = enableNumCheck;
+    }
+
+    public boolean isEnableEmailCheck() {
+        return enableEmailCheck;
+    }
+
+    public void setEnableEmailCheck(boolean enableEmailCheck) {
+        this.enableEmailCheck = enableEmailCheck;
+    }
+
+    public boolean isEnableUrlCheck() {
+        return enableUrlCheck;
+    }
+
+    public void setEnableUrlCheck(boolean enableUrlCheck) {
+        this.enableUrlCheck = enableUrlCheck;
+    }
+
+    public boolean isEnableIpv4Check() {
+        return enableIpv4Check;
+    }
+
+    public void setEnableIpv4Check(boolean enableIpv4Check) {
+        this.enableIpv4Check = enableIpv4Check;
+    }
 
     public SensitiveType getSensitiveType() {
         return sensitiveType;
