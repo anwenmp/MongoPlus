@@ -117,9 +117,11 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
         };
         BasicDBObject updateBasicDBObject = new BasicDBObject();
         finalCompareConditionList.get().forEach(compareCondition -> {
-            HandlerCache.conditionHandlerList.forEach(conditionHandler -> conditionHandler.beforeUpdateCondition(compareCondition, updateBasicDBObject));
+            HandlerCache.conditionHandlerList.forEach(conditionHandler ->
+                    conditionHandler.beforeUpdateCondition(compareCondition, updateBasicDBObject));
             updateValueFunc.apply(this, new BuildUpdate(compareCondition, updateBasicDBObject));
-            HandlerCache.conditionHandlerList.forEach(conditionHandler -> conditionHandler.afterUpdateCondition(compareCondition, updateBasicDBObject));
+            HandlerCache.conditionHandlerList.forEach(conditionHandler ->
+                    conditionHandler.afterUpdateCondition(compareCondition, updateBasicDBObject));
         });
         return updateBasicDBObject;
     }

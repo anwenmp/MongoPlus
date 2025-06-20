@@ -3,18 +3,20 @@ package com.mongoplus.manager;
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.domain.SensitiveWordException;
-import com.mongoplus.enums.ResultHandler;
 import com.mongoplus.enums.SensitiveType;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
-import com.mongoplus.model.MutablePair;
+import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.property.SensitiveWordProperty;
+import com.mongoplus.registry.HandlerRegistry;
 import com.mongoplus.toolkit.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,6 +47,8 @@ public class SensitiveWordManager {
             sensitiveWordBs = sensitiveWordProperty.sensitiveWordBs();
         }
         this.sensitiveWordBs = sensitiveWordBs;
+        HandlerRegistry.register(SensitiveWordManager.class, this);
+        sensitiveWordProperty.initSensitiveType();
     }
 
     public SensitiveWordBs sensitiveWordBs() {
@@ -183,13 +187,27 @@ public class SensitiveWordManager {
         }
     }
 
-    public void handler(String target) {
-        if (sensitiveWordProperty.getResultHandler() == ResultHandler.REJECT) {
-            String work;
-            if (StringUtils.isBlank((work = sensitiveWordBs.findFirst(target)))) {
-                throw new SensitiveWordException(Collections.singleton(work));
-            }
+    public void handler(@Nullable String fieldName,String target) {
+        String work;
+        if (StringUtils.isNotBlank((work = sensitiveWordBs.findFirst(target)))) {
+            throw new SensitiveWordException(fieldName,Collections.singleton(work));
         }
+    }
+
+    public void handler(FieldInformation fieldInformation) {
+        Object value = fieldInformation.getValue();
+        String work;
+        if (StringUtils.isNotBlank((work = sensitiveWordBs.findFirst(String.valueOf(value))))) {
+            throw new SensitiveWordException(fieldInformation.getName(),Collections.singleton(work));
+        }
+    }
+
+    public void handler(String target) {
+        handler(null,target);
+    }
+
+    public String replace(String word) {
+        return sensitiveWordBs.replace(word);
     }
 
 }
