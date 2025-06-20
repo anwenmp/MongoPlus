@@ -1,8 +1,13 @@
 package com.mongoplus.property;
 
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
-import com.mongoplus.enums.ResultHandler;
+import com.github.houbb.sensitive.word.support.ignore.SensitiveWordCharIgnores;
+import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.enums.SensitiveType;
+import com.mongoplus.handler.DynamicLoadWord;
+import com.mongoplus.handler.SensitiveWordFieldHandler;
+import com.mongoplus.interceptor.InterceptorChain;
+import com.mongoplus.interceptor.SensitiveWordInterceptor;
 
 /**
  * 敏感词属性
@@ -15,12 +20,6 @@ public class SensitiveWordProperty {
      * 敏感词校验类型,默认为全局
      */
     private SensitiveType sensitiveType = SensitiveType.GLOBAL;
-
-    /**
-     * 敏感词处理，默认抛出异常
-     * <p>暂只支持抛出异常</p>
-     */
-    private ResultHandler resultHandler = ResultHandler.REJECT;
 
     /**
      * 是否忽略大小写
@@ -52,6 +51,11 @@ public class SensitiveWordProperty {
      */
     private boolean ignoreRepeat = false;
 
+    /**
+     * 是否忽略特殊字符,如'傻!@#$帽',将会忽略掉其中的特殊字符
+     */
+    private boolean ignoreChar = false;
+
     // 开启校验
     /**
      * 启用连续数字检测
@@ -76,6 +80,9 @@ public class SensitiveWordProperty {
      */
     private boolean enableIpv4Check = false;
 
+    // ******** 不可配置项 ********* //
+    private DynamicLoadWord dynamicLoadWord = new DynamicLoadWord() {};
+
     public SensitiveWordBs sensitiveWordBs() {
         return SensitiveWordBs.newInstance()
                 .ignoreCase(ignoreCase)
@@ -84,23 +91,39 @@ public class SensitiveWordProperty {
                 .ignoreChineseStyle(ignoreChineseStyle)
                 .ignoreEnglishStyle(ignoreEnglishStyle)
                 .ignoreRepeat(ignoreRepeat)
+                .charIgnore(SensitiveWordCharIgnores.specialChars())
                 .enableNumCheck(enableNumCheck)
                 .enableEmailCheck(enableEmailCheck)
                 .enableUrlCheck(enableUrlCheck)
                 .enableIpv4Check(enableIpv4Check)
+                .wordDeny(dynamicLoadWord)
+                .wordAllow(dynamicLoadWord)
                 .init();
     }
 
-    public ResultHandler getResultHandler() {
-        return resultHandler;
-    }
-
-    public void setResultHandler(ResultHandler resultHandler) {
-        this.resultHandler = resultHandler;
-    }
-
+    /**
+     * 设置敏感词校验类型
+     * @param sensitiveType 类型
+     */
     public void setSensitiveType(SensitiveType sensitiveType) {
         this.sensitiveType = sensitiveType;
+    }
+
+    public void setDynamicLoadWord(DynamicLoadWord dynamicLoadWord) {
+        this.dynamicLoadWord = dynamicLoadWord;
+    }
+
+    /**
+     * 初始化敏感词校验类型
+     */
+    public void initSensitiveType() {
+        if (sensitiveType == SensitiveType.GLOBAL) {
+            // 如果是全局，需要注册拦截器
+            InterceptorChain.addInterceptor(new SensitiveWordInterceptor());
+        } else if (sensitiveType == SensitiveType.LOCAL) {
+            // 如果是局部，需要注册处理器
+            HandlerCache.fieldHandlers.add(new SensitiveWordFieldHandler());
+        }
     }
 
     public boolean isIgnoreCase() {
@@ -113,6 +136,14 @@ public class SensitiveWordProperty {
 
     public boolean isIgnoreWidth() {
         return ignoreWidth;
+    }
+
+    public boolean isIgnoreChar() {
+        return ignoreChar;
+    }
+
+    public void setIgnoreChar(boolean ignoreChar) {
+        this.ignoreChar = ignoreChar;
     }
 
     public void setIgnoreWidth(boolean ignoreWidth) {

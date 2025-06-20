@@ -69,6 +69,12 @@
             <version>${mongoplus.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.mongoplus</groupId>
+            <artifactId>mongo-plus-sensitive-word</artifactId>
+            <version>${mongoplus.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
