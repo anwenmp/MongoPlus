@@ -16,12 +16,17 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Collections;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * @author anwen
@@ -89,6 +94,24 @@ public class MongoUtil {
             builder.codecRegistry(codecRegistry);
         }
         return MongoClients.create(builder.build());
+    }
+
+    public static String getMongoDriverVersion() {
+        try {
+            URI jarUri = MongoClient.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            File jarFile = new File(jarUri);
+            try (JarFile jar = new JarFile(jarFile)) {
+                Manifest manifest = jar.getManifest();
+                Attributes attrs = manifest.getMainAttributes();
+                String version = attrs.getValue("Bundle-Version");
+                if (version != null) {
+                    return version;
+                }
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
     }
 
 }

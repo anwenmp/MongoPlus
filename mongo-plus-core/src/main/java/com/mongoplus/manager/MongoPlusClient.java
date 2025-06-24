@@ -37,6 +37,13 @@ public class MongoPlusClient {
     }
 
     /**
+     * 获取MongoPlus依赖的驱动版本
+     */
+    public static String getMongoDriverVersion() {
+        return "5.4.0";
+    }
+
+    /**
      * 连接管理器
     */
     private Map<String,Map<String,CollectionManager>> collectionManagerMap;

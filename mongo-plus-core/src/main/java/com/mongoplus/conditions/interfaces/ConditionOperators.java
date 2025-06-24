@@ -1,7 +1,6 @@
 package com.mongoplus.conditions.interfaces;
 
 import com.mongoplus.bson.MongoPlusDocument;
-import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.enums.AggregateEnum;
 import com.mongoplus.enums.CommonOperators;
 import com.mongoplus.support.SFunction;
@@ -63,25 +62,6 @@ public class ConditionOperators {
     public static Bson condArray(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
     }
-
-    /**
-     * $cond操作符
-     * @author anwen
-     */
-    @Deprecated
-    public static Bson cond(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
-        return cond(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
-    }
-
-    /**
-     * $cond操作符，数组写法
-     * @author anwen
-     */
-    @Deprecated
-    public static Bson condArray(QueryChainWrapper<?,?> queryChainWrapper,Object thenValue,Object elseValue){
-        return condArray(queryChainWrapper.buildCondition().getCondition(),thenValue,elseValue);
-    }
-
 
     /**
      * $multiply操作符

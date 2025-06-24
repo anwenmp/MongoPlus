@@ -32,7 +32,6 @@ public class DefaultIdentifierGenerator implements IdentifierGenerator {
      * 共享默认单例
      * @author JiaChaoYang
     */
-    @Deprecated
     public DefaultIdentifierGenerator() {
         this.sequence = new Sequence(null);
     }
