@@ -10,7 +10,6 @@ import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.handlers.FieldHandler;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
-import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.BsonUtil;
@@ -48,28 +47,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
         ignoreType.add(ObjectId.class);
         ignoreType.add(Binary.class);
-    }
-
-    /**
-     * 通过此构造方法可将值传递为false，以取消使用ThreadLocal，提高效率，但不会保证多线程的自动填充
-     * @param concurrency 是否并发
-     * @author anwen
-     */
-    @Deprecated
-    public MappingMongoConverter(boolean concurrency) {
-        this();
-    }
-
-    /**
-     * 该构造方法已弃用，MongoPlusClient不再需要传入
-     * @param mongoPlusClient mongoPlusClient
-     * @param ignoreType 忽略的类型
-     * @author anwen
-     */
-    @Deprecated
-    public MappingMongoConverter(MongoPlusClient mongoPlusClient,List<Class<?>> ignoreType){
-        this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
-        this.ignoreType = ignoreType;
     }
 
     public MappingMongoConverter(List<Class<?>> ignoreType){

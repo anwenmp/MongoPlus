@@ -43,11 +43,6 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         this.autoFillHandler = new DefaultAutoFillHandler();
     }
 
-    @Deprecated
-    public AbstractMongoConverter(boolean concurrency) {
-        this();
-    }
-
     @Override
     public void writeBySave(Object sourceObj, Document document) {
         // Map类型不需要再做下边的操作 因为它们只针对实体类

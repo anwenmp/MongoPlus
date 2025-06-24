@@ -13,6 +13,8 @@ import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.handlers.collection.AnnotationOperate;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
 import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.manager.DataSourceManager;
 import com.mongoplus.manager.MongoPlusClient;
@@ -27,6 +29,8 @@ import com.mongoplus.property.MongoDBConnectProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
+import com.mongoplus.toolkit.MongoUtil;
+import com.mongoplus.toolkit.StringUtils;
 import com.mongoplus.transactional.MongoTransactionalAspect;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -52,9 +56,12 @@ import static com.mongoplus.toolkit.MongoUtil.getMongo;
 })
 public class MongoPlusConfiguration {
 
+    private final Log log = LogFactory.getLog(MongoPlusConfiguration.class);
+
     private final MongoDBConnectProperty mongoDBConnectProperty;
 
     private final MongoDBConfigurationProperty mongoDBConfigurationProperty;
+
     protected final MongoDBLogProperty mongoDBLogProperty;
 
 
@@ -108,7 +115,7 @@ public class MongoPlusConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(MongoPlusClient.class)
-    public MongoPlusClient mongoPlusClient(MongoClient mongo,MongoClientFactory mongoClientFactory){
+    public MongoPlusClient mongoPlusClient(MongoClient mongo,MongoClientFactory mongoClientFactory) {
         MongoPlusClient mongoPlusClient = Configuration.builder().initMongoPlusClient(mongo,mongoDBConnectProperty);
         mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagerMap()
                 .put(ds,new LinkedHashMap<String, CollectionManager>(){{
@@ -116,9 +123,9 @@ public class MongoPlusConfiguration {
             Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db ->
                     put(db,new CollectionManager(db)));
         }}));
+        String mongoDriverVersion = MongoUtil.getMongoDriverVersion();
         MongoPlusClientCache.mongoPlusClient = mongoPlusClient;
         if (mongoDBConfigurationProperty.getBanner()){
-            // 参考 Easy-ES
             if (mongoDBConfigurationProperty.getIkun()){
                 System.out.println("                 鸡你太美\n" +
                         "               鸡你实在太美\n" +
@@ -154,6 +161,14 @@ public class MongoPlusConfiguration {
                         "                    |___/                         ");
             }
             System.out.println(":: MongoPlus ::                        (v" + MongoPlusClient.getVersion()+")");
+            System.out.println(":: MongoDBDriver ::                    (v" + mongoDriverVersion+")");
+        }
+        if (StringUtils.isNotBlank(mongoDriverVersion) &&
+                !mongoDriverVersion.equals(MongoPlusClient.getMongoDriverVersion())) {
+            log.warn("The current MongoDB Java Driver version is " + mongoDriverVersion +
+                    ", and the SDK recommends using version " + MongoPlusClient.getMongoDriverVersion() +
+                    ". Suggest adding<mongodb.version>" + MongoPlusClient.getMongoDriverVersion() +
+                    "</mongodb.version>in the pom.xml to override the default version.");
         }
         return mongoPlusClient;
     }
