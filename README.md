@@ -14,6 +14,9 @@
 <a href='https://gitee.com/aizuda/mongo-plus/members'>
   <img src='https://gitee.com/aizuda/mongo-plus/badge/fork.svg?theme=gvp' alt='fork'/>
 </a>
+<a href="https://gitcode.com/aizuda/mongo-plus/stargazers">
+  <img src='https://gitcode.com/aizuda/mongo-plus/star/badge.svg' alt='star'/>
+</a>
 </p>
 <a href="https://gitcode.com/aizuda/mongo-plus/stargazers">
   <img src='https://gitcode.com/aizuda/mongo-plus/star/badge.svg' alt='star'/>
