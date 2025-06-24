@@ -72,14 +72,23 @@
         <maven-source.version>2.2.1</maven-source.version>
         <maven-gpg.version>1.5</maven-gpg.version>
         <jsr305.version>3.0.2</jsr305.version>
+        <sensitive-word.version>0.25.0</sensitive-word.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- mongodb-bom -->
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-bom</artifactId>
                 <version>${mongodb.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.mongoplus</groupId>
+                <artifactId>mongo-plus-bom</artifactId>
+                <version>${mongoplus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,6 +97,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-api.version}</version>
+            </dependency>
+            <!-- sensitive-word -->
+            <dependency>
+                <groupId>com.github.houbb</groupId>
+                <artifactId>sensitive-word</artifactId>
+                <version>${sensitive-word.version}</version>
             </dependency>
             <!-- solon -->
             <dependency>

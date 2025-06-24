@@ -59,7 +59,6 @@
         <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-annotation</artifactId>
-            <version>${mongoplus.version}</version>
         </dependency>
         <!-- SLF4J API -->
         <dependency>

@@ -49,20 +49,17 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.test.skip>true</maven.test.skip>
-        <sensitive-word.version>0.25.0</sensitive-word.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
-            <version>${mongoplus.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.houbb</groupId>
             <artifactId>sensitive-word</artifactId>
-            <version>${sensitive-word.version}</version>
         </dependency>
     </dependencies>
 

@@ -60,7 +60,6 @@
         <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
-            <version>${mongoplus.version}</version>
         </dependency>
     </dependencies>
 
