@@ -21,6 +21,7 @@ import org.bson.conversions.Bson;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mongoplus.enums.QueryOperatorEnum.EQ;
@@ -101,6 +102,9 @@ public class CollectionLogiceInterceptor implements Interceptor {
             if (item instanceof UpdateManyModel) {
                 UpdateManyModel umm = (UpdateManyModel) item;
                 Bson filter = LogicDeleteHandler.doBsonLogicDel(umm.getFilter(), clazz);
+                Optional.ofNullable(umm.getOptions())
+                        .map(u -> new UpdateManyModel(filter, umm.getUpdate(),u))
+                        .orElseGet(() -> new UpdateManyModel(filter, umm.getUpdate()));
                 return new UpdateManyModel<Document>(filter, umm.getUpdate());
             }
             return item;

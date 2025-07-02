@@ -1,11 +1,13 @@
 package com.mongoplus.interceptor.business;
 
-import com.mongoplus.enums.ExecuteMethodEnum;
 import com.mongoplus.interceptor.AdvancedInterceptor;
 import com.mongoplus.interceptor.Invocation;
 import com.mongoplus.logic.LogicRemove;
 import com.mongoplus.manager.LogicManager;
 import com.mongoplus.support.AdvancedFunction;
+
+import static com.mongoplus.enums.ExecuteMethodEnum.REMOVE;
+import static com.mongoplus.enums.ExecuteMethodEnum.REMOVE_ONE;
 
 /**
  * 逻辑删除替换器
@@ -21,8 +23,11 @@ public class LogicRemoveInterceptor implements AdvancedInterceptor {
 
     @Override
     public AdvancedFunction activate() {
-        return (invocation) ->
-                LogicManager.open && invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
+        return (invocation) -> {
+            String methodName = invocation.getMethod().getName();
+            return LogicManager.open &&
+                    (methodName.equals(REMOVE.getMethod()) || methodName.equals(REMOVE_ONE.getMethod()));
+        };
     }
 
     @Override
