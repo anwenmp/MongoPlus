@@ -22,7 +22,9 @@ public class LogicRemoveInterceptor implements AdvancedInterceptor {
     @Override
     public AdvancedFunction activate() {
         return (invocation) ->
-                LogicManager.open && invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE.getMethod());
+                LogicManager.open && (
+                        invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE.getMethod()) || invocation.getMethod().getName().equals(ExecuteMethodEnum.REMOVE_ONE.getMethod())
+                );
     }
 
     @Override
