@@ -9,6 +9,7 @@ import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
+import com.mongoplus.enums.BannerType;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.manager.DataSourceManager;
@@ -18,6 +19,7 @@ import com.mongoplus.mapper.DefaultBaseMapperImpl;
 import com.mongoplus.mapping.MappingMongoConverter;
 import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.SimpleTypeHolder;
+import com.mongoplus.meta.MongoPlusBanner;
 import com.mongoplus.property.*;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
@@ -95,44 +97,10 @@ public class MongoPlusConfiguration {
             Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db -> put(db,new CollectionManager(db)));
         }}));
         MongoPlusClientCache.mongoPlusClient = mongoPlusClient;
-        if (mongoDBConfigurationProperty.getBanner()){
-            // 参考 Easy-ES
-            if (mongoDBConfigurationProperty.getIkun()){
-                System.out.println("                 鸡你太美\n" +
-                        "               鸡你实在太美\n" +
-                        "                鸡你是太美\n" +
-                        "                 鸡你太美\n" +
-                        "              实在是太美鸡你\n" +
-                        "         鸡你 实在是太美鸡你 美\n" +
-                        "       鸡你  实在是太美鸡美   太美\n" +
-                        "      鸡你  实在是太美鸡美      太美\n" +
-                        "    鸡你    实在是太美鸡美       太美\n" +
-                        "   鸡你    鸡你实在是美太美    美蓝球球球\n" +
-                        "鸡 鸡     鸡你实在是太美     篮球篮球球球球\n" +
-                        " 鸡      鸡你太美裆鸡太啊     球球蓝篮球球\n" +
-                        "         鸡你太美裆裆鸡美       球球球\n" +
-                        "          鸡你裆小 j 鸡太美\n" +
-                        "           鸡太美    鸡太美\n" +
-                        "            鸡美      鸡美\n" +
-                        "            鸡美       鸡美\n" +
-                        "             鸡美       鸡美\n" +
-                        "             鸡太       鸡太\n" +
-                        "           鸡 脚       鸡 脚\n" +
-                        "           皮 鞋       皮 鞋\n" +
-                        "       金光 大道         金光 大道\n" +
-                        "      鸡神保佑       永不宕机     永无BUG");
-            }else {
-                System.out.println("___  ___                       ______ _           \n" +
-                        "|  \\/  |                       | ___ \\ |          \n" +
-                        "| .  . | ___  _ __   __ _  ___ | |_/ / |_   _ ___ \n" +
-                        "| |\\/| |/ _ \\| '_ \\ / _` |/ _ \\|  __/| | | | / __|\n" +
-                        "| |  | | (_) | | | | (_| | (_) | |   | | |_| \\__ \\\n" +
-                        "\\_|  |_/\\___/|_| |_|\\__, |\\___/\\_|   |_|\\__,_|___/\n" +
-                        "                     __/ |                        \n" +
-                        "                    |___/                         ");
-            }
-            System.out.println(":: MongoPlus ::                        (v" + MongoPlusClient.getVersion()+")");
-        }
+        MongoPlusBanner.printBanner(
+                mongoDBConfigurationProperty.getBanner(),
+                mongoDBConfigurationProperty.getIkun() ? BannerType.IKUN : BannerType.DEFAULT
+        );
         return mongoPlusClient;
     }
 

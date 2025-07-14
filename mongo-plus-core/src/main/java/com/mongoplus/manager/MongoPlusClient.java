@@ -28,22 +28,6 @@ public class MongoPlusClient {
     private List<MongoDatabase> mongoDatabase;
 
     /**
-     * 获取版本号
-     * @return {@link java.lang.String}
-     * @author anwen
-     */
-    public static String getVersion(){
-        return "2.1.9";
-    }
-
-    /**
-     * 获取MongoPlus依赖的驱动版本
-     */
-    public static String getMongoDriverVersion() {
-        return "5.4.0";
-    }
-
-    /**
      * 连接管理器
     */
     private Map<String,Map<String,CollectionManager>> collectionManagerMap;

@@ -12,6 +12,7 @@ import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.listener.BackupListener;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
+import com.mongoplus.meta.MongoPlusVersion;
 import com.mongoplus.toolkit.Assert;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.StringUtils;
@@ -318,7 +319,7 @@ public class BackupManager {
     public void writeCollectionInfo(MongoNamespace namespace,BufferedWriter writer) throws IOException {
         Document collectionDocument = new Document();
         collectionDocument.put("origin","MongoPlus");
-        collectionDocument.put("version","v"+MongoPlusClient.getVersion());
+        collectionDocument.put("version","v"+ MongoPlusVersion.getVersion());
         collectionDocument.put("homepage","https://www.mongoplus.com/");
         collectionDocument.put("data_source",this.dataSourceName);
         collectionDocument.put("database",namespace.getDatabaseName());

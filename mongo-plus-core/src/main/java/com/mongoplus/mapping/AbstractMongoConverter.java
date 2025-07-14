@@ -55,8 +55,9 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         //拿到类中的@ID字段
         FieldInformation idFieldInformation = typeInformation.getAnnotationField(ID.class);
         if (idFieldInformation != null) {
-            //如果没有设置
+            // 获取id值
             Object idValue = idFieldInformation.getValue();
+            // 如果自定设置了id
             if (idValue != null) {
                 // 如果自设置的值是ObjectId，并且传入的值不是ObjectId类型，则创建并写入
                 if (ObjectId.isValid(String.valueOf(idValue)) && !idValue.getClass().equals(ObjectId.class)) {

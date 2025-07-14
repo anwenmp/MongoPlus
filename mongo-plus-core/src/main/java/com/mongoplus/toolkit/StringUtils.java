@@ -1009,4 +1009,36 @@ public final class StringUtils {
         return hexString.toString();
     }
 
+    /**
+     * 比较两个版本号
+     * 返回值：
+     *   -1：v1 < v2
+     *    0：v1 == v2
+     *    1：v1 > v2
+     */
+    public static int compareVersion(String v1, String v2) {
+        String[] parts1 = v1.split("\\.");
+        String[] parts2 = v2.split("\\.");
+        int length = Math.max(parts1.length, parts2.length);
+
+        for (int i = 0; i < length; i++) {
+            int num1 = i < parts1.length ? parseVersionPart(parts1[i]) : 0;
+            int num2 = i < parts2.length ? parseVersionPart(parts2[i]) : 0;
+
+            if (num1 != num2) {
+                return Integer.compare(num1, num2);
+            }
+        }
+        return 0;
+    }
+
+    // 防止版本段中有非数字（如 SNAPSHOT、RC）
+    private static int parseVersionPart(String part) {
+        try {
+            return Integer.parseInt(part.replaceAll("[^0-9]", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 }

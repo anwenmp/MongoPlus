@@ -37,7 +37,7 @@ public class EncryptorUtil {
         algorithmEnumEncryptorMap.put(AlgorithmEnum.PBEWithSHA1AndRC2_40,new PBEExample(AlgorithmEnum.PBEWithSHA1AndRC2_40.getAlgorithm()));
     }
 
-    public static Object encrypt(FieldEncrypt fieldEncrypt,Object value){
+    public static Object encrypt(FieldEncrypt fieldEncrypt,Object value) {
         try {
             Encryptor encryptor = getEncryptor(fieldEncrypt);
             value = encryptor.encrypt(String.valueOf(value),fieldEncrypt.key(),fieldEncrypt.publicKey());
