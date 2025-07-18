@@ -371,8 +371,8 @@ public class MongoTransactionalManager {
         }
     }
 
-    public static void handleTransactionException(MongoTransactional mongoTransactional, Exception e) {
-        Class<? extends Exception> eClass = e.getClass();
+    public static void handleTransactionException(MongoTransactional mongoTransactional, Throwable e) {
+        Class<? extends Throwable> eClass = e.getClass();
         boolean finished = processRollback(mongoTransactional, eClass, true)
                 || processRollback(mongoTransactional, eClass, false);
         if (!finished) {
@@ -380,7 +380,7 @@ public class MongoTransactionalManager {
         }
     }
 
-    public static boolean processRollback(MongoTransactional mongoTransactional, Class<? extends Exception> eClass, boolean isRollback) {
+    public static boolean processRollback(MongoTransactional mongoTransactional, Class<? extends Throwable> eClass, boolean isRollback) {
         Class<? extends Throwable>[] exceptionList = isRollback ? mongoTransactional.rollbackFor() : mongoTransactional.noRollbackFor();
         if (ArrayUtils.isEmpty(exceptionList)) {
             return false;

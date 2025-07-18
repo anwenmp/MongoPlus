@@ -2,6 +2,7 @@ package com.mongoplus.handlers;
 
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.manager.MongoTransactionalManager;
+import com.mongoplus.support.ThrowableSupplier;
 
 import java.util.function.Supplier;
 
@@ -19,13 +20,13 @@ public class TransactionHandler {
      * @return {@link java.lang.Object}
      * @author anwen
      */
-    public Object transaction(Supplier<Object> supplier, MongoTransactional mongoTransactional) {
+    public Object transaction(ThrowableSupplier<Object> supplier, MongoTransactional mongoTransactional) throws Throwable {
         MongoTransactionalManager.startTransaction(mongoTransactional);
         try {
             Object result = supplier.get();
             MongoTransactionalManager.commitTransaction();
             return result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             handleTransactionException(mongoTransactional, e);
             throw e;
         } finally {

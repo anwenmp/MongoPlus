@@ -1,6 +1,6 @@
 package com.mongoplus.word;
 
-import com.mongoplus.handler.DynamicLoadWord;
+import com.mongoplus.handler.LoadExtraWord;
 import com.mongoplus.manager.SensitiveWordManager;
 import com.mongoplus.property.SensitiveWordProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -18,10 +18,10 @@ public class SensitiveWordConfiguration {
 
     private final WordProperty wordProperty;
 
-    public SensitiveWordConfiguration(WordProperty wordProperty,@Nullable DynamicLoadWord dynamicLoadWord) {
+    public SensitiveWordConfiguration(WordProperty wordProperty,@Nullable LoadExtraWord loadExtraWord) {
         this.wordProperty = wordProperty;
-        if (dynamicLoadWord != null) {
-            wordProperty.setDynamicLoadWord(dynamicLoadWord);
+        if (loadExtraWord != null) {
+            wordProperty.setDynamicLoadWord(loadExtraWord);
         }
     }
 

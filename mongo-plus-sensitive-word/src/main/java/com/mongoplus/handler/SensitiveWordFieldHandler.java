@@ -25,7 +25,7 @@ public class SensitiveWordFieldHandler implements FieldHandler {
     public Object handler(FieldInformation fieldInformation) {
         SensitiveWord sensitiveWord = fieldInformation.getAnnotation(SensitiveWord.class);
         Object value = fieldInformation.getValue();
-        if (sensitiveWord != null) {
+        if (sensitiveWord != null && value != null) {
             sensitiveWordManager.handler(fieldInformation);
         }
         return value;

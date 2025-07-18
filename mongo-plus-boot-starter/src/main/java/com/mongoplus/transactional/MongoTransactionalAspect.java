@@ -24,13 +24,7 @@ public class MongoTransactionalAspect {
 
     @Around(value = "markMongoTransactional() && @annotation(mongoTransactional)")
     public Object manageTransaction(ProceedingJoinPoint joinPoint, MongoTransactional mongoTransactional) throws Throwable {
-        return HandlerCache.transactionHandler.transaction(() -> {
-            try {
-                return joinPoint.proceed();
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }, mongoTransactional);
+        return HandlerCache.transactionHandler.transaction(joinPoint::proceed, mongoTransactional);
     }
 }
 

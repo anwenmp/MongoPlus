@@ -162,7 +162,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         if (sourceObj != null) {
             mappingStrategy = getMappingStrategy(sourceObj.getClass());
         }
-        if (mappingStrategy != null){
+        if (mappingStrategy != null) {
             try {
                 resultObj = mappingStrategy.mapping(sourceObj);
             } catch (IllegalAccessException e) {

@@ -1,10 +1,12 @@
 package com.mongoplus.property;
 
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
+import com.github.houbb.sensitive.word.support.allow.WordAllows;
+import com.github.houbb.sensitive.word.support.deny.WordDenys;
 import com.github.houbb.sensitive.word.support.ignore.SensitiveWordCharIgnores;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.enums.SensitiveType;
-import com.mongoplus.handler.DynamicLoadWord;
+import com.mongoplus.handler.LoadExtraWord;
 import com.mongoplus.handler.SensitiveWordFieldHandler;
 import com.mongoplus.interceptor.InterceptorChain;
 import com.mongoplus.interceptor.SensitiveWordInterceptor;
@@ -17,9 +19,9 @@ import com.mongoplus.interceptor.SensitiveWordInterceptor;
 public class SensitiveWordProperty {
 
     /**
-     * 敏感词校验类型,默认为全局
+     * 敏感词校验类型,默认为局部
      */
-    private SensitiveType sensitiveType = SensitiveType.GLOBAL;
+    private SensitiveType sensitiveType = SensitiveType.LOCAL;
 
     /**
      * 是否忽略大小写
@@ -81,7 +83,7 @@ public class SensitiveWordProperty {
     private boolean enableIpv4Check = false;
 
     // ******** 不可配置项 ********* //
-    private DynamicLoadWord dynamicLoadWord = new DynamicLoadWord() {};
+    private LoadExtraWord loadExtraWord = new LoadExtraWord() {};
 
     public SensitiveWordBs sensitiveWordBs() {
         return SensitiveWordBs.newInstance()
@@ -96,8 +98,8 @@ public class SensitiveWordProperty {
                 .enableEmailCheck(enableEmailCheck)
                 .enableUrlCheck(enableUrlCheck)
                 .enableIpv4Check(enableIpv4Check)
-                .wordDeny(dynamicLoadWord)
-                .wordAllow(dynamicLoadWord)
+                .wordDeny(WordDenys.chains(WordDenys.defaults(), loadExtraWord))
+                .wordAllow(WordAllows.chains(WordAllows.defaults(), loadExtraWord))
                 .init();
     }
 
@@ -109,8 +111,8 @@ public class SensitiveWordProperty {
         this.sensitiveType = sensitiveType;
     }
 
-    public void setDynamicLoadWord(DynamicLoadWord dynamicLoadWord) {
-        this.dynamicLoadWord = dynamicLoadWord;
+    public void setDynamicLoadWord(LoadExtraWord loadExtraWord) {
+        this.loadExtraWord = loadExtraWord;
     }
 
     /**

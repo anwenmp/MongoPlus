@@ -38,21 +38,25 @@ public class EncryptorUtil {
     }
 
     public static Object encrypt(FieldEncrypt fieldEncrypt,Object value) {
-        try {
-            Encryptor encryptor = getEncryptor(fieldEncrypt);
-            value = encryptor.encrypt(String.valueOf(value),fieldEncrypt.key(),fieldEncrypt.publicKey());
-        } catch (Exception e) {
-            log.error(fieldEncrypt.algorithm().name()+" encryption failed due to: {}",e.getMessage(),e);
+        if (value != null) {
+            try {
+                Encryptor encryptor = getEncryptor(fieldEncrypt);
+                value = encryptor.encrypt(String.valueOf(value), fieldEncrypt.key(), fieldEncrypt.publicKey());
+            } catch (Exception e) {
+                log.error(fieldEncrypt.algorithm().name() + " encryption failed due to: {}", e.getMessage(), e);
+            }
         }
         return value;
     }
 
     public static Object decrypt(FieldEncrypt fieldEncrypt,Object value){
-        try {
-            Encryptor encryptor = getEncryptor(fieldEncrypt);
-            value = encryptor.decrypt(String.valueOf(value),fieldEncrypt.key(),fieldEncrypt.publicKey());
-        } catch (Exception e) {
-            log.error(fieldEncrypt.algorithm().name()+" decryption failed due to: {}",e.getMessage(),e);
+        if (value != null) {
+            try {
+                Encryptor encryptor = getEncryptor(fieldEncrypt);
+                value = encryptor.decrypt(String.valueOf(value), fieldEncrypt.key(), fieldEncrypt.publicKey());
+            } catch (Exception e) {
+                log.error(fieldEncrypt.algorithm().name() + " decryption failed due to: {}", e.getMessage(), e);
+            }
         }
         return value;
     }

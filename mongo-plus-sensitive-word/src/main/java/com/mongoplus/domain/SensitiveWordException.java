@@ -63,6 +63,7 @@ public class SensitiveWordException extends MongoPlusException {
     /**
      * 获取字段信息
      */
+    @Nullable
     public FieldInformation getFieldInformation() {
         return fieldInformation;
     }

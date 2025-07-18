@@ -8,9 +8,9 @@ import com.github.houbb.sensitive.word.support.deny.WordDenys;
 import java.util.List;
 
 /**
- * 动态加载敏感词
+ * 加载额外的敏感词
  */
-public interface DynamicLoadWord extends IWordDeny, IWordAllow {
+public interface LoadExtraWord extends IWordDeny, IWordAllow {
 
     @Override
     default List<String> allow() {
