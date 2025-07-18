@@ -97,11 +97,17 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         if (executeMethod == ExecuteMethodEnum.SAVE) {
             executeSave((List<Document>) source[0], (InsertManyOptions) source[1], collection);
         }
-        if (executeMethod == ExecuteMethodEnum.REMOVE) {
+        if (executeMethod == ExecuteMethodEnum.SAVE_ONE) {
+            executeSave((Document) source[0], (InsertOneOptions) source[1], collection);
+        }
+        if (executeMethod == ExecuteMethodEnum.REMOVE || executeMethod == ExecuteMethodEnum.REMOVE_ONE) {
             executeRemove((Bson) source[0], (DeleteOptions) source[1],invocation, collection);
         }
         if (executeMethod == ExecuteMethodEnum.UPDATE) {
             executeUpdate((List<MutablePair<Bson, Bson>>) source[0], (UpdateOptions) source[1], collection);
+        }
+        if (executeMethod == ExecuteMethodEnum.UPDATE_ONE) {
+            executeUpdate((MutablePair<Bson, Bson>) source[0], (UpdateOptions) source[1], collection);
         }
         if (executeMethod == ExecuteMethodEnum.BULK_WRITE) {
             executeBulkWrite((List<WriteModel<Document>>) source[0],(BulkWriteOptions) source[1], collection);
@@ -114,6 +120,14 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
                 SAVE,
                 collection,
                 mongoCollection -> execute.executeSave(documentList,options, mongoCollection)
+        );
+    }
+
+    void executeSave(Document document, InsertOneOptions options, MongoCollection<Document> collection) {
+        executeMultipleWrite(
+                SAVE,
+                collection,
+                mongoCollection -> execute.executeSaveOne(document,options, mongoCollection)
         );
     }
 
@@ -139,6 +153,16 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
                 UPDATE,
                 collection,
                 mongoCollection -> execute.executeUpdate(updatePairList,options, mongoCollection)
+        );
+    }
+
+    void executeUpdate(MutablePair<Bson, Bson> updatePair,
+                       UpdateOptions options,
+                       MongoCollection<Document> collection) {
+        executeMultipleWrite(
+                UPDATE,
+                collection,
+                mongoCollection -> execute.executeUpdateOne(updatePair,options, mongoCollection)
         );
     }
 

@@ -11,8 +11,6 @@ import com.mongoplus.support.ThrowableSupplier;
 import com.mongoplus.toolkit.ArrayUtils;
 import com.mongoplus.toolkit.ClassTypeUtil;
 
-import java.util.function.Supplier;
-
 /**
  * @author anwen
  */

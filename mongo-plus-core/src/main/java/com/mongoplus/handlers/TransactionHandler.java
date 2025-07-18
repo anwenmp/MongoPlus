@@ -4,8 +4,6 @@ import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.manager.MongoTransactionalManager;
 import com.mongoplus.support.ThrowableSupplier;
 
-import java.util.function.Supplier;
-
 import static com.mongoplus.manager.MongoTransactionalManager.handleTransactionException;
 
 /**

@@ -110,7 +110,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (fieldInformation == null){
             return invocation.proceed();
         }
-        boolean isUpdate = executeMethod == UPDATE || executeMethod == BULK_WRITE;
+        boolean isUpdate = executeMethod == UPDATE || executeMethod == UPDATE_ONE || executeMethod == BULK_WRITE;
         Object result = executor(invocation,false);
         if (isUpdate) {
             if (retry != null) {
