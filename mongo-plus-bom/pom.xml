@@ -45,6 +45,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mongoplus.version>2.1.9</mongoplus.version>
         <mongodb.version>5.4.0</mongodb.version>
+        <central-publishing.version>0.6.0</central-publishing.version>
+        <maven-release.version>2.5.3</maven-release.version>
+        <maven-source.version>2.2.1</maven-source.version>
+        <maven-gpg.version>1.5</maven-gpg.version>
+        <javadoc.version>3.6.3</javadoc.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +100,49 @@
             </activation>
             <build>
                 <plugins>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven-release.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.version}</version>
+                    </plugin>
 
                     <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
