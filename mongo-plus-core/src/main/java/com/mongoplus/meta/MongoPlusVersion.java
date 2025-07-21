@@ -24,7 +24,7 @@ public final class MongoPlusVersion {
      * @return MongoPlus版本
      */
     public static String getVersion() {
-        return "2.1.9";
+        return "2.2.0";
     }
 
     /**
