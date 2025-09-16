@@ -42,6 +42,19 @@ public class MongoDBConfigurationProperty {
      */
     private Boolean autoCreateTimeSeries = false;
 
+    /**
+     * 是否懒加载数据源
+     */
+    private Boolean lazyDataSource = false;
+
+    public Boolean getLazyDataSource() {
+        return lazyDataSource;
+    }
+
+    public void setLazyDataSource(Boolean lazyDataSource) {
+        this.lazyDataSource = lazyDataSource;
+    }
+
     public Boolean getAutoCreateTimeSeries() {
         return autoCreateTimeSeries;
     }

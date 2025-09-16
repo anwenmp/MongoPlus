@@ -1,11 +1,9 @@
 package com.mongoplus.manager;
 
-import com.mongodb.client.MongoClient;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.model.BaseProperty;
-import com.mongoplus.toolkit.MongoUtil;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -35,11 +33,10 @@ public class DataSourceManager {
      * @author anwen
      */
     public void appendTempDataSource(String dsName, BaseProperty baseProperty,boolean isOverride){
-        MongoClient mongoClient = MongoUtil.getMongo(dsName,baseProperty);
-        Boolean containsMongoClient = mongoClientFactory.containsMongoClient(dsName);
+        boolean containsMongoClient = mongoClientFactory.existMongoClient(dsName);
         if (!containsMongoClient || isOverride) {
-            mongoClientFactory.addMongoClient(dsName, mongoClient);
-            mongoPlusClient.getCollectionManagerMap().put(dsName,new LinkedHashMap<String, CollectionManager>(){{
+            mongoClientFactory.registerMongoClient(dsName, baseProperty);
+            mongoPlusClient.getCollectionManagers().put(dsName,new LinkedHashMap<String, CollectionManager>(){{
                 Arrays.stream(baseProperty.getDatabase().split(",")).collect(Collectors.toList()).forEach(db -> put(db,new CollectionManager(db)));
             }});
         }

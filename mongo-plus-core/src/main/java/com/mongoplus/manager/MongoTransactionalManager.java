@@ -2,17 +2,16 @@ package com.mongoplus.manager;
 
 import com.mongodb.*;
 import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoClient;
 import com.mongoplus.annotation.transactional.MongoReadPreference;
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.context.MongoTransactionContext;
 import com.mongoplus.context.MongoTransactionStatus;
-import com.mongoplus.domain.InitMongoPlusException;
 import com.mongoplus.domain.MongoPlusException;
 import com.mongoplus.enums.ReadConcernEnum;
 import com.mongoplus.enums.ReadPreferenceEnum;
 import com.mongoplus.enums.WriteConcernEnum;
 import com.mongoplus.factory.MongoClientFactory;
+import com.mongoplus.factory.MongoClientFactoryRegistry;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.toolkit.ArrayUtils;
@@ -31,15 +30,10 @@ public class MongoTransactionalManager {
 
     private static final Log log = LogFactory.getLog(MongoTransactionalManager.class);
 
-    public static MongoClient getMongoClient() {
-
-        MongoClientFactory mongoClientFactory = MongoClientFactory.getInstance();
-        if (mongoClientFactory == null) {
-            throw new InitMongoPlusException("Please initialize MongoClientFactory first");
-        }
-        return mongoClientFactory.getMongoClient();
-
-    }
+    /**
+     * mongoClientFactory
+     */
+    private static final MongoClientFactory mongoClientFactory = MongoClientFactoryRegistry.getFactory();
 
     public static ClientSession getTransaction(){
         return getTransaction(null);
@@ -54,7 +48,7 @@ public class MongoTransactionalManager {
             if (Objects.nonNull(transactional)) {
                 config(transactional, builder);
             }
-            session = getMongoClient().startSession(builder.build());
+            session = mongoClientFactory.getMongoClient().startSession(builder.build());
         }
         return session;
     }

@@ -2,7 +2,9 @@ package com.mongoplus.conn;
 
 import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.global.DataSourceNameCache;
+import com.mongoplus.factory.DefaultMongoClientFactory;
 import com.mongoplus.factory.MongoClientFactory;
+import com.mongoplus.factory.MongoClientFactoryRegistry;
 import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.logic.UnClassCollection;
 import com.mongoplus.registry.MongoEntityMappingRegistry;
@@ -23,6 +25,11 @@ public class CollectionManager {
      *
      */
     private final Map<String, MongoCollection<Document>> collectionMap = new ConcurrentHashMap<>();
+
+    /**
+     * mongoClientFactory
+     */
+    private final MongoClientFactory mongoClientFactory = MongoClientFactoryRegistry.getFactory();
 
 
     private final String database;
@@ -60,8 +67,8 @@ public class CollectionManager {
         MongoCollection<Document> mongoCollection;
         // 检查连接是否需要重新创建
         if (!this.collectionMap.containsKey(collectionName)) {
-            mongoCollection = new ConnectMongoDB(
-                    MongoClientFactory.getInstance().getMongoClient(dsName),
+            mongoCollection = new ConnectMongoDB (
+                    mongoClientFactory.getMongoClient(dsName),
                     database,
                     collectionName
             ).open();

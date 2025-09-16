@@ -20,11 +20,27 @@ public class Wrappers {
     }
 
     /**
+     * 获取条件构造器
+     * @author anwen
+     */
+    public static <T> QueryWrapper<T> lambdaQuery(Class<T> clazz) {
+        return new QueryWrapper<T>();
+    }
+
+    /**
      * 获取修改条件构造器
      * @author anwen
      */
     public static <T> UpdateWrapper<T> lambdaUpdate(){
         return new UpdateWrapper<>();
+    }
+
+    /**
+     * 获取修改条件构造器
+     * @author anwen
+     */
+    public static <T> UpdateWrapper<T> lambdaUpdate(Class<T> clazz){
+        return new UpdateWrapper<T>();
     }
 
     /**

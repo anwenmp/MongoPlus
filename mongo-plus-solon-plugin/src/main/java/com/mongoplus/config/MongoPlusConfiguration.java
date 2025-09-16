@@ -3,13 +3,14 @@ package com.mongoplus.config;
 import com.mongodb.client.MongoClient;
 import com.mongoplus.cache.codec.MongoPlusCodecCache;
 import com.mongoplus.cache.global.DataSourceNameCache;
-import com.mongoplus.cache.global.MongoPlusClientCache;
 import com.mongoplus.cache.global.SimpleCache;
 import com.mongoplus.codecs.MongoPlusCodec;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
 import com.mongoplus.enums.BannerType;
+import com.mongoplus.factory.DefaultMongoClientFactory;
+import com.mongoplus.factory.LazyMongoClientFactory;
 import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.manager.DataSourceManager;
@@ -21,6 +22,7 @@ import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.SimpleTypeHolder;
 import com.mongoplus.meta.MongoPlusBanner;
 import com.mongoplus.property.*;
+import com.mongoplus.registry.ComponentRegistry;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.transactional.MongoTransactionalAspect;
@@ -34,8 +36,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.mongoplus.toolkit.MongoUtil.getMongo;
 
 /**
  * @author JiaChaoYang
@@ -57,30 +57,24 @@ public class MongoPlusConfiguration {
     @Inject("${mongo-plus}")
     private MongoDBLogProperty mongoDBLogProperty;
 
-    /**
-     * 将MongoClient注册为Bean
-     * @author JiaChaoYang
-     */
-    @Bean
-    @Condition(onMissingBean = MongoClient.class)
-    public MongoClient mongo(MongoClientFactory mongoClientFactory){
-        return mongoClientFactory.getMongoClient();
-    }
-
     @Bean
     @Condition(onMissingBean = MongoClientFactory.class)
-    public MongoClientFactory mongoClientFactory(){
+    public MongoClientFactory mongoClientFactory() {
         // 设置编解码器
         Solon.context().getBeansOfType(MongoPlusCodec.class).forEach(MongoPlusCodecCache::addCodec);
-        MongoClientFactory mongoClientFactory = MongoClientFactory
-                .getInstance(getMongo(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty));
+        MongoClientFactory mongoClientFactory;
+        if (mongoDBConfigurationProperty.getLazyDataSource()) {
+            mongoClientFactory = new LazyMongoClientFactory();
+        } else {
+            mongoClientFactory = new DefaultMongoClientFactory();
+        }
+        mongoClientFactory.registerMongoClient(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty);
         if (CollUtil.isNotEmpty(mongoDBConnectProperty.getSlaveDataSource())){
             mongoDBConnectProperty.getSlaveDataSource()
                     .forEach(slaveDataSource ->
-                            mongoClientFactory.addMongoClient(
+                            mongoClientFactory.registerMongoClient(
                                     slaveDataSource.getSlaveName(),
-                                    getMongo(slaveDataSource.getSlaveName(),
-                                            slaveDataSource)
+                                    slaveDataSource
                             ));
         }
         return mongoClientFactory;
@@ -89,14 +83,14 @@ public class MongoPlusConfiguration {
 
     @Bean
     @Condition(onMissingBean = MongoPlusClient.class)
-    public MongoPlusClient mongoPlusClient(MongoClient mongo,MongoClientFactory mongoClientFactory){
+    public MongoPlusClient mongoPlusClient(MongoClientFactory mongoClientFactory){
         mongoDBConfigurationProperty = Optional.ofNullable(mongoDBConfigurationProperty).orElseGet(MongoDBConfigurationProperty::new);
-        MongoPlusClient mongoPlusClient = com.mongoplus.config.Configuration.builder().initMongoPlusClient(mongo,mongoDBConnectProperty);
-        mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagerMap().put(ds,new LinkedHashMap<String, CollectionManager>(){{
+        MongoPlusClient mongoPlusClient = com.mongoplus.config.Configuration.builder().initMongoPlusClient(mongoDBConnectProperty);
+        mongoClientFactory.getDataSources().forEach(ds -> mongoPlusClient.getCollectionManagers().put(ds,new LinkedHashMap<String, CollectionManager>(){{
             String database = DataSourceNameCache.getBaseProperty(ds).getDatabase();
             Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db -> put(db,new CollectionManager(db)));
         }}));
-        MongoPlusClientCache.mongoPlusClient = mongoPlusClient;
+        ComponentRegistry.register(mongoClientFactory);
         MongoPlusBanner.printBanner(
                 mongoDBConfigurationProperty.getBanner(),
                 mongoDBConfigurationProperty.getIkun() ? BannerType.IKUN : BannerType.DEFAULT
@@ -150,15 +144,15 @@ public class MongoPlusConfiguration {
     /**
      * 数据源管理器
      * @param mongoPlusClient mongoPlus客户端
-     * @param mongoClientFactory mongoClient工厂
+     * @param defaultMongoClientFactory mongoClient工厂
      * @return {@link DataSourceManager}
      * @author anwen
      */
     @Bean
     @Condition(onMissingBean = DataSourceManager.class)
     public DataSourceManager dataSourceManager(MongoPlusClient mongoPlusClient,
-                                               MongoClientFactory mongoClientFactory){
-        return new DataSourceManager(mongoPlusClient,mongoClientFactory);
+                                               DefaultMongoClientFactory defaultMongoClientFactory){
+        return new DataSourceManager(mongoPlusClient, defaultMongoClientFactory);
     }
 
     /**

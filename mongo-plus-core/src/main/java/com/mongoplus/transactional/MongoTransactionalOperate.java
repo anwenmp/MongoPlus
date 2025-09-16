@@ -2,7 +2,8 @@ package com.mongoplus.transactional;
 
 import com.mongodb.ClientSessionOptions;
 import com.mongodb.client.ClientSession;
-import com.mongoplus.cache.global.MongoPlusClientCache;
+import com.mongoplus.manager.MongoPlusClient;
+import com.mongoplus.registry.ComponentRegistry;
 
 /**
  * Mongo事务
@@ -11,13 +12,15 @@ import com.mongoplus.cache.global.MongoPlusClientCache;
  **/
 public class MongoTransactionalOperate {
 
+    private static final MongoPlusClient mongoPlusClient = ComponentRegistry.get(MongoPlusClient.class);
+
     /**
      * 创建一个session
      *
      * @author JiaChaoYang
      */
     public static ClientSession createTransaction(){
-        return MongoPlusClientCache.mongoPlusClient.getMongoClient().startSession(ClientSessionOptions.builder().causallyConsistent(true).build());
+        return mongoPlusClient.getMongoClient().startSession(ClientSessionOptions.builder().causallyConsistent(true).build());
     }
 
     /**
@@ -25,7 +28,7 @@ public class MongoTransactionalOperate {
      * @author JiaChaoYang
     */
     public static ClientSession startTransaction(String dataSourceName){
-        ClientSession clientSession = MongoPlusClientCache.mongoPlusClient.getMongoClient().startSession(ClientSessionOptions.builder().causallyConsistent(true).build());
+        ClientSession clientSession = mongoPlusClient.getMongoClient().startSession(ClientSessionOptions.builder().causallyConsistent(true).build());
         clientSession.startTransaction();
         return clientSession;
     }

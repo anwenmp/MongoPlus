@@ -6,7 +6,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.domain.MongoPlusDsException;
+import com.mongoplus.factory.DefaultMongoClientFactory;
 import com.mongoplus.factory.MongoClientFactory;
+import com.mongoplus.factory.MongoClientFactoryRegistry;
 import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.toolkit.StringUtils;
@@ -30,46 +32,107 @@ public class MongoPlusClient {
     /**
      * 连接管理器
     */
-    private Map<String,Map<String,CollectionManager>> collectionManagerMap;
+    private Map<String,Map<String,CollectionManager>> collectionManagers;
 
-    public Map<String,Map<String,CollectionManager>> getCollectionManagerMap() {
-        return collectionManagerMap;
+    /**
+     * mongoClientFactory
+     */
+    private final MongoClientFactory mongoClientFactory = MongoClientFactoryRegistry.getFactory();
+
+    /**
+     * 获取所有连接管理器
+     * @return 连接管理器
+     */
+    public Map<String,Map<String,CollectionManager>> getCollectionManagers() {
+        return collectionManagers;
     }
 
-    public MongoCollection<Document> getCollection(Class<?> clazz){
+    /**
+     * 获取集合，根据class
+     * @param clazz 实体类
+     * @return 集合
+     */
+    public MongoCollection<Document> getCollection(Class<?> clazz) {
         return getCollectionManager(clazz).getCollection(clazz);
     }
 
-    public MongoCollection<Document> getCollection(Class<?> clazz,String collectionName){
+    /**
+     * 获取集合，根据class获取数据源，但是单独指定数据库
+     * @param clazz 实体类
+     * @param collectionName 集合名称
+     * @return 集合
+     */
+    public MongoCollection<Document> getCollection(Class<?> clazz,String collectionName) {
         return getCollectionManager(clazz).getCollection(collectionName);
     }
 
-    public MongoCollection<Document> getCollection(String database,String collectionName){
+    /**
+     * 获取集合，根据database和collectionName
+     * @param database 数据库名称
+     * @param collectionName 集合名称
+     * @return 集合
+     */
+    public MongoCollection<Document> getCollection(String database,String collectionName) {
         return getCollectionManager(database).getCollection(collectionName);
     }
 
+    /**
+     * 获取集合，根据dataSource和database和collectionName
+     * @param dataSource 数据源名称
+     * @param database 数据库名称
+     * @param collectionName 集合名称
+     * @return 集合
+     */
     public MongoCollection<Document> getCollection(String dataSource,String database,String collectionName){
         return getCollectionManager(dataSource,database).getCollection(dataSource,collectionName);
     }
 
+    /**
+     * 获取集合，根据database和clazz
+     * @param database 数据库名称
+     * @param clazz 集合对应的实体类
+     * @return 集合
+     */
     public MongoCollection<Document> getCollection(String database,Class<?> clazz){
         return getCollectionManager(database).getCollection(clazz);
     }
 
+    /**
+     * 获取集合管理器，根据class
+     * @param clazz 集合对应的实体类
+     * @return 集合管理器
+     */
     public CollectionManager getCollectionManager(Class<?> clazz){
         return getCollectionManager(getDatabase(clazz));
     }
 
+    /**
+     * 获取集合管理器，根据dataSource和class
+     * @param dataSource 数据源名称
+     * @param clazz 集合对应的实体类
+     * @return 集合管理器
+     */
     public CollectionManager getCollectionManager(String dataSource,Class<?> clazz){
         return getCollectionManager(dataSource,getDatabase(clazz));
     }
 
+    /**
+     * 获取集合管理器，根据database
+     * @param database 数据库名称
+     * @return 集合管理器
+     */
     public CollectionManager getCollectionManager(String database){
         return getCollectionManager(DataSourceNameCache.getDataSource(),database);
     }
 
+    /**
+     * 获取集合管理器，根据dataSource和database
+     * @param dataSource 数据源名称
+     * @param database 数据库名称
+     * @return 集合管理器
+     */
     public CollectionManager getCollectionManager(String dataSource,String database){
-        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
+        Map<String, CollectionManager> managerMap = getCollectionManagers().get(dataSource);
         if (StringUtils.isBlank(database)){
             database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
                     new MongoPlusDsException("database is null"));
@@ -78,13 +141,18 @@ public class MongoPlusClient {
             CollectionManager collectionManager = new CollectionManager(database);
             getMongoDatabase().add(getMongoClient().getDatabase(database));
             String finalDatabase = database;
-            getCollectionManagerMap().put(dataSource,new ConcurrentHashMap<String,CollectionManager>(){{
+            getCollectionManagers().put(dataSource,new ConcurrentHashMap<String,CollectionManager>(){{
                 put(finalDatabase, collectionManager);
             }});
         }
-        return getCollectionManagerMap().get(dataSource).get(database);
+        return getCollectionManagers().get(dataSource).get(database);
     }
 
+    /**
+     * 获取数据库名称，根据class
+     * @param clazz 集合对应的实体类
+     * @return 数据库名称
+     */
     public String getDatabase(Class<?> clazz){
         String database = DataSourceNameCache.getDatabase();
         if (database.contains(",")){
@@ -94,7 +162,7 @@ public class MongoPlusClient {
         if (StringUtils.isNotBlank(annotationDatabase)){
             database = annotationDatabase;
         }
-        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(DataSourceNameCache.getDataSource());
+        Map<String, CollectionManager> managerMap = getCollectionManagers().get(DataSourceNameCache.getDataSource());
         if (StringUtils.isBlank(database)){
             database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
                     new MongoPlusDsException("database is null"));
@@ -102,6 +170,12 @@ public class MongoPlusClient {
         return database;
     }
 
+    /**
+     * 获取数据库名称，根据dataSource和class
+     * @param dataSource 数据源名称
+     * @param clazz 集合对应的实体类
+     * @return 数据库名称
+     */
     public String getDatabase(String dataSource,Class<?> clazz){
         String database = DataSourceNameCache.getDatabase(dataSource);
         if (database.contains(",")){
@@ -111,7 +185,7 @@ public class MongoPlusClient {
         if (StringUtils.isNotBlank(annotationDatabase)){
             database = annotationDatabase;
         }
-        Map<String, CollectionManager> managerMap = getCollectionManagerMap().get(dataSource);
+        Map<String, CollectionManager> managerMap = getCollectionManagers().get(dataSource);
         if (StringUtils.isBlank(database)){
             database = managerMap.keySet().stream().findFirst().orElseThrow(() ->
                     new MongoPlusDsException("database is null"));
@@ -139,24 +213,38 @@ public class MongoPlusClient {
         return getMongoDatabase(database).listCollectionNames().into(new ArrayList<>());
     }
 
+    /**
+     * 获取数据源名称列表
+     * @return {@link java.util.List<java.lang.String>}
+     * @author anwen
+     */
     public List<String> getDataSourceNameList(){
-        return new ArrayList<>(getCollectionManagerMap().keySet());
+        return new ArrayList<>(getCollectionManagers().keySet());
     }
 
+    /**
+     * 获取集合名称，根据class
+     * @param clazz 集合对应的实体类
+     * @return 集合名称
+     */
     public String getCollectionName(Class<?> clazz){
         return AnnotationOperate.getCollectionName(clazz);
     }
 
+    /**
+     * 设置集合管理器，根据database
+     * @param database 数据库名称
+     */
     public void setCollectionManagerMap(String database) {
         CollectionManager collectionManager = new CollectionManager(database);
         getMongoDatabase().add(getMongoClient().getDatabase(database));
-        getCollectionManagerMap().put(DataSourceNameCache.getDataSource(),new ConcurrentHashMap<String,CollectionManager>(){{
+        getCollectionManagers().put(DataSourceNameCache.getDataSource(),new ConcurrentHashMap<String,CollectionManager>(){{
             put(database, collectionManager);
         }});
     }
 
-    public void setCollectionManagerMap(Map<String,Map<String,CollectionManager>> collectionManagerMap) {
-        this.collectionManagerMap = collectionManagerMap;
+    public void setCollectionManagers(Map<String,Map<String,CollectionManager>> collectionManagerMap) {
+        this.collectionManagers = collectionManagerMap;
     }
 
     public BaseProperty getBaseProperty() {
@@ -168,11 +256,11 @@ public class MongoPlusClient {
     }
 
     public MongoClient getMongoClient() {
-        return MongoClientFactory.getInstance().getMongoClient();
+        return mongoClientFactory.getMongoClient();
     }
 
     public MongoClient getMongoClient(String dataSource) {
-        return MongoClientFactory.getInstance().getMongoClient(dataSource);
+        return mongoClientFactory.getMongoClient(dataSource);
     }
 
     public List<MongoDatabase> getMongoDatabase() {
@@ -197,7 +285,7 @@ public class MongoPlusClient {
         return "ConnectionManager{" +
                 "baseProperty=" + baseProperty +
                 ", mongoDatabase=" + mongoDatabase +
-                ", collectionManager=" + collectionManagerMap +
+                ", collectionManagers=" + collectionManagers +
                 '}';
     }
 }
