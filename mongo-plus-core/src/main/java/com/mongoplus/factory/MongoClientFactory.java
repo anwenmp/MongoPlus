@@ -12,6 +12,17 @@ import java.util.Set;
  */
 public interface MongoClientFactory {
 
+    static MongoClientFactory getInstance(boolean lazyDataSource) {
+        return lazyDataSource ? new LazyMongoClientFactory() : new DefaultMongoClientFactory();
+    }
+
+/*    *//**
+     * 获取属性配置
+     * @param ds 数据源
+     * @return 属性配置
+     *//*
+    BaseProperty getBaseProperty(String ds);*/
+
     /**
      * 注册MongoClient
      * @param ds 数据源

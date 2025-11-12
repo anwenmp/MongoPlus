@@ -11,10 +11,7 @@ import com.mongoplus.conn.CollectionManager;
 import com.mongoplus.constant.DataSourceConstant;
 import com.mongoplus.datasource.MongoDataSourceAspect;
 import com.mongoplus.enums.BannerType;
-import com.mongoplus.factory.DefaultMongoClientFactory;
-import com.mongoplus.factory.LazyMongoClientFactory;
-import com.mongoplus.factory.MongoClientFactory;
-import com.mongoplus.factory.MongoClientFactoryRegistry;
+import com.mongoplus.factory.*;
 import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
@@ -44,6 +41,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -86,12 +84,8 @@ public class MongoPlusConfiguration {
     public MongoClientFactory mongoClientFactory(ApplicationContext applicationContext) {
         // 编解码器
         applicationContext.getBeansOfType(MongoPlusCodec.class).values().forEach(MongoPlusCodecCache::addCodec);
-        MongoClientFactory mongoClientFactory;
-        if (mongoDBConfigurationProperty.getLazyDataSource()) {
-            mongoClientFactory = new LazyMongoClientFactory();
-        } else {
-            mongoClientFactory = new DefaultMongoClientFactory();
-        }
+        MongoClientFactory mongoClientFactory =
+                MongoClientFactory.getInstance(mongoDBConfigurationProperty.getLazyDataSource());
         // 先注册主数据源
         mongoClientFactory.registerMongoClient(DataSourceConstant.DEFAULT_DATASOURCE,mongoDBConnectProperty);
         if (CollUtil.isNotEmpty(mongoDBConnectProperty.getSlaveDataSource())){
@@ -108,13 +102,23 @@ public class MongoPlusConfiguration {
 
     /**
      * 这里将MongoClient注册为Bean，但是只是给MongoTemplate使用，master的client
+     * 为了兼容懒加载，2.0.0改为延迟加载Bean
      * @author JiaChaoYang
      */
     @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = "mongo-plus.configuration.lazy-data-source",havingValue = "false")
-    public MongoClient mongo(MongoClientFactory mongoClientFactory) {
-        return mongoClientFactory.getMongoClient();
+    @ConditionalOnMissingBean(name = "mongoClientFactoryBean")
+    public MongoClientFactoryBean mongoClientFactoryBean(MongoClientFactory mongoClientFactory) {
+        return new MongoClientFactoryBean(mongoClientFactory);
+    }
+
+    /**
+     * 服务于OverrideMongoConfiguration
+     * @author JiaChaoYang
+     */
+    @Bean
+    @ConditionalOnMissingBean(name = "mongoClientSupplier")
+    public Supplier<MongoClient> mongoClientSupplier(MongoClientFactory mongoClientFactory) {
+        return mongoClientFactory::getMongoClient;
     }
 
     /**
@@ -126,28 +130,33 @@ public class MongoPlusConfiguration {
     @Bean
     @ConditionalOnMissingBean(MongoPlusClient.class)
     public MongoPlusClient mongoPlusClient(MongoClientFactory mongoClientFactory) {
-        MongoPlusClient mongoPlusClient = Configuration.builder().initMongoPlusClient(mongoDBConnectProperty);
-        mongoClientFactory.getDataSources().forEach(ds -> {
-            mongoPlusClient.getCollectionManagers().put(ds,new LinkedHashMap<String, CollectionManager>(){{
-                String database = DataSourceNameCache.getBaseProperty(ds).getDatabase();
-                Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db ->
-                        put(db,new CollectionManager(db)));
-            }});
-        });
-        String actualUseMongoDriverVersion = MongoPlusVersion.getActualUseMongoDriverVersion();
-        String mongoDriverVersion = MongoPlusVersion.getMongoDriverVersion();
-        ComponentRegistry.register(mongoPlusClient);
-        MongoPlusBanner.printBanner(
-                mongoDBConfigurationProperty.getBanner(),
-                mongoDBConfigurationProperty.getIkun() ? BannerType.IKUN : BannerType.DEFAULT
-        );
-        if (MongoPlusVersion.isMongoDriverVersionBefore(mongoDriverVersion)) {
-            log.warn("The current MongoDB Java Driver version is " + actualUseMongoDriverVersion +
-                    ", and the SDK recommends using version " + mongoDriverVersion +
-                    " or above. Suggest adding<mongodb.version>" + mongoDriverVersion +
-                    "</mongodb.version>in the pom.xml to override the default version.");
+        try {
+            MongoPlusClient mongoPlusClient = Configuration.builder().initMongoPlusClient(mongoDBConnectProperty);
+            mongoClientFactory.getDataSources().forEach(ds -> {
+                mongoPlusClient.getCollectionManagers().put(ds,new LinkedHashMap<String, CollectionManager>(){{
+                    String database = DataSourceNameCache.getBaseProperty(ds).getDatabase();
+                    Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db ->
+                            put(db,new CollectionManager(db)));
+                }});
+            });
+            String actualUseMongoDriverVersion = MongoPlusVersion.getActualUseMongoDriverVersion();
+            String mongoDriverVersion = MongoPlusVersion.getMongoDriverVersion();
+            ComponentRegistry.register(mongoPlusClient);
+            MongoPlusBanner.printBanner(
+                    mongoDBConfigurationProperty.getBanner(),
+                    mongoDBConfigurationProperty.getIkun() ? BannerType.IKUN : BannerType.DEFAULT
+            );
+            if (MongoPlusVersion.isMongoDriverVersionBefore(mongoDriverVersion)) {
+                log.warn("The current MongoDB Java Driver version is " + actualUseMongoDriverVersion +
+                        ", and the SDK recommends using version " + mongoDriverVersion +
+                        " or above. Suggest adding<mongodb.version>" + mongoDriverVersion +
+                        "</mongodb.version>in the pom.xml to override the default version.");
+            }
+            return mongoPlusClient;
+        } catch (Exception e) {
+            log.error("MongoPlusClient init error: ",e.getMessage(),e);
         }
-        return mongoPlusClient;
+        return null;
     }
 
     /**

@@ -244,7 +244,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
                                               QueryChainWrapper<?, ?> queryChainWrapper) {
         // 忽略逻辑删除 + 条件为空 + 忽略多租户
         return LogicDeleteHandler.close(collection)
-                && !queryChainWrapper.isNotEmpty()
+                && (queryChainWrapper != null && !queryChainWrapper.isNotEmpty())
                 && (TenantManager.getIgnoreTenant() != null ||
                 InterceptorChain.getInterceptor(interceptor -> interceptor instanceof TenantInterceptor) == null);
     }

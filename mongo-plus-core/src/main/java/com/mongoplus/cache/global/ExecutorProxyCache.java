@@ -26,6 +26,7 @@ public class ExecutorProxyCache {
         EXECUTOR_MAP.put(ExecuteMethodEnum.QUERY, new QueryExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.AGGREGATE, new AggregateExecutorStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.COUNT, new CountExecutorStrategy());
+        EXECUTOR_MAP.put(ExecuteMethodEnum.ESTIMATED_DOCUMENT_COUNT, new EstimatedDocumentCountStrategy());
         EXECUTOR_MAP.put(ExecuteMethodEnum.BULK_WRITE, new BulkWriteExecutorStrategy());
     }
 

@@ -34,6 +34,7 @@ import com.mongoplus.property.MongoDBCollectionProperty;
 import com.mongoplus.property.MongoDBConfigurationProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.property.MongoLogicDelProperty;
+import com.mongoplus.scanner.CollectionScanner;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.AutoUtil;
@@ -43,10 +44,7 @@ import org.noear.solon.core.AppContext;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -290,22 +288,22 @@ public class MongoPlusAutoConfiguration {
      * @author anwen
      */
     public void autoCreateTimeSeries(AppContext context){
-        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries()) {
-            AutoUtil.autoCreateTimeSeries(new HashSet<Class<?>>(){{
-                context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) -> add(bw.clz()));
-            }}, mongoPlusClient);
+        Set<Class<?>> classes;
+        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries() &&
+                CollUtil.isNotEmpty(classes = CollectionScanner.getClasses(TimeSeries.class))) {
+            AutoUtil.autoCreateTimeSeries(classes, mongoPlusClient);
         }
     }
 
     /**
-     * 自动创建序列
+     * 自动创建索引
      * @author anwen
      */
-    public void autoCreateIndexes(AppContext context){
-        if (mongoDBConfigurationProperty.getAutoCreateIndex()) {
-            AutoUtil.autoCreateIndexes(new HashSet<Class<?>>(){{
-                context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) -> add(bw.clz()));
-            }}, mongoPlusClient);
+    public void autoCreateIndexes(AppContext context) {
+        Set<Class<?>> classes;
+        if (mongoDBConfigurationProperty.getAutoCreateIndex() &&
+                CollUtil.isNotEmpty(classes = CollectionScanner.getClasses(CollectionName.class))) {
+            AutoUtil.autoCreateIndexes(classes, mongoPlusClient);
         }
     }
 

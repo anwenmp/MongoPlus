@@ -285,19 +285,18 @@ public class Configuration {
         }
         MongoPlusClient mongoPlusClient = new MongoPlusClient();
         mongoPlusClient.setBaseProperty(baseProperty);
-        List<MongoDatabase> mongoDatabaseList = new ArrayList<>();
+        List<String> mongoDatabases = new ArrayList<>();
         mongoPlusClient.setCollectionManagers(new ConcurrentHashMap<String, Map<String, CollectionManager>>() {{
             put(DataSourceConstant.DEFAULT_DATASOURCE, new LinkedHashMap<String, CollectionManager>() {{
                 String database = mongoPlusClient.getBaseProperty().getDatabase();
                 Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db -> {
                     CollectionManager collectionManager = new CollectionManager(db);
-                    MongoDatabase mongoDatabase = mongoPlusClient.getMongoClient().getDatabase(db);
-                    mongoDatabaseList.add(mongoDatabase);
+                    mongoDatabases.add(db);
                     put(db, collectionManager);
                 });
             }});
         }});
-        mongoPlusClient.setMongoDatabase(mongoDatabaseList);
+        mongoPlusClient.setDatabases(mongoDatabases);
         ComponentRegistry.register(mongoPlusClient);
         return mongoPlusClient;
     }

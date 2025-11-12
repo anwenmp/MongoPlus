@@ -12,6 +12,7 @@ import com.mongoplus.enums.BannerType;
 import com.mongoplus.factory.DefaultMongoClientFactory;
 import com.mongoplus.factory.LazyMongoClientFactory;
 import com.mongoplus.factory.MongoClientFactory;
+import com.mongoplus.factory.MongoClientFactoryRegistry;
 import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.manager.DataSourceManager;
 import com.mongoplus.manager.MongoPlusClient;
@@ -77,6 +78,7 @@ public class MongoPlusConfiguration {
                                     slaveDataSource
                             ));
         }
+        MongoClientFactoryRegistry.registerFactory(mongoClientFactory);
         return mongoClientFactory;
     }
 
@@ -114,8 +116,8 @@ public class MongoPlusConfiguration {
 
     @Bean("mongoTransactionalAspect")
     @Condition(onMissingBean = MongoTransactionalAspect.class)
-    public MongoTransactionalAspect mongoTransactionalAspect(MongoClient mongoClient) {
-        return new MongoTransactionalAspect(mongoClient);
+    public MongoTransactionalAspect mongoTransactionalAspect() {
+        return new MongoTransactionalAspect();
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package com.mongoplus.config;
 
-import com.mongodb.client.MongoClient;
+import com.mongoplus.annotation.collection.CollectionName;
+import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.annotation.mapper.Mongo;
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.datasource.MongoDataSourceAspect;
@@ -10,6 +11,7 @@ import com.mongoplus.mapper.MongoMapper;
 import com.mongoplus.property.MongoDBFieldProperty;
 import com.mongoplus.property.MongoEncryptorProperty;
 import com.mongoplus.proxy.MapperProxy;
+import com.mongoplus.scanner.CollectionScanner;
 import com.mongoplus.scanner.meta.MetadataReader;
 import com.mongoplus.scanner.meta.MetadataReaderFactory;
 import com.mongoplus.tenant.TenantAspect;
@@ -28,13 +30,14 @@ public class XPluginAuto implements Plugin {
     public void start(AppContext context) {
         //mongo-plus插件配置
         context.beanMake(MongoPlusConfiguration.class);
-        context.getBeanAsync(MongoClient.class,bean -> context.beanInterceptorAdd(MongoTransactional.class,new MongoTransactionalAspect(bean)));
+        context.beanInterceptorAdd(MongoTransactional.class,new MongoTransactionalAspect());
         context.beanMake(MongoDBFieldProperty.class);
         context.beanMake(MongoEncryptorProperty.class);
         context.beanMake(MongoDataSourceAspect.class);
         context.beanMake(TenantAspect.class);
         context.beanMake(MongoLogicIgnoreAspect.class);
         context.beanInjectorAdd(Inject.class,MongoMapper.class,registerMongoMapper());
+        scannerAutoCreate(context);
     }
 
     BeanInjector<Inject> registerMongoMapper() {
@@ -56,6 +59,17 @@ public class XPluginAuto implements Plugin {
                 }
             }
         };
+    }
+
+    /**
+     * 自动创建索引
+     * @author anwen
+     */
+    public void scannerAutoCreate(AppContext context) {
+        context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) ->
+                CollectionScanner.addCollectionClass(CollectionName.class,bw.clz()));
+        context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) ->
+                CollectionScanner.addCollectionClass(TimeSeries.class,bw.clz()));
     }
 
 }

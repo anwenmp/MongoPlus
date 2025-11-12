@@ -102,10 +102,10 @@ public class CollectionLogiceInterceptor implements Interceptor {
             if (item instanceof UpdateManyModel) {
                 UpdateManyModel umm = (UpdateManyModel) item;
                 Bson filter = LogicDeleteHandler.doBsonLogicDel(umm.getFilter(), clazz);
-                Optional.ofNullable(umm.getOptions())
-                        .map(u -> new UpdateManyModel(filter, umm.getUpdate(),u))
+                WriteModel<Document> updateManyModel = Optional.ofNullable(umm.getOptions())
+                        .map(u -> new UpdateManyModel(filter, umm.getUpdate(), u))
                         .orElseGet(() -> new UpdateManyModel(filter, umm.getUpdate()));
-                return new UpdateManyModel<Document>(filter, umm.getUpdate());
+                return updateManyModel;
             }
             return item;
         }).collect(Collectors.toList());

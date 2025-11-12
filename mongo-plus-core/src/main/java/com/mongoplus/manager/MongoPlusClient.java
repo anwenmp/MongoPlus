@@ -27,7 +27,9 @@ public class MongoPlusClient {
 
     private BaseProperty baseProperty;
 
-    private List<MongoDatabase> mongoDatabase;
+    private List<MongoDatabase> mongoDatabase = new ArrayList<>();
+
+    private List<String> databases;
 
     /**
      * 连接管理器
@@ -264,11 +266,20 @@ public class MongoPlusClient {
     }
 
     public List<MongoDatabase> getMongoDatabase() {
+        getDatabases().forEach(database -> this.mongoDatabase.add(getMongoClient().getDatabase(database)));
         return mongoDatabase;
     }
 
     public void setMongoDatabase(List<MongoDatabase> mongoDatabase) {
         this.mongoDatabase = mongoDatabase;
+    }
+
+    public List<String> getDatabases() {
+        return databases;
+    }
+
+    public void setDatabases(List<String> databases) {
+        this.databases = databases;
     }
 
 

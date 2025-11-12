@@ -1,10 +1,7 @@
 package com.mongoplus.transactional;
 
-import com.mongodb.client.MongoClient;
 import com.mongoplus.annotation.transactional.MongoTransactional;
-import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.manager.MongoTransactionalManager;
-import com.mongoplus.registry.ComponentRegistry;
 import com.mongoplus.toolkit.ArrayUtils;
 import com.mongoplus.toolkit.ClassTypeUtil;
 import org.noear.solon.core.aspect.Interceptor;
@@ -18,17 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
  **/
 public class MongoTransactionalAspect implements Interceptor {
 
-    public MongoTransactionalAspect(MongoClient mongoClient) {
-        this.mongoClient = mongoClient;
-    }
-
-    private MongoClient mongoClient;
-
     @Override
     public Object doIntercept(Invocation inv) throws Throwable {
-        if (mongoClient == null){
-            mongoClient = ComponentRegistry.get(MongoPlusClient.class).getMongoClient();
-        }
         AtomicReference<Object> invoke = new AtomicReference<>();
         Optional.ofNullable(inv.method().getAnnotation(MongoTransactional.class)).map(mongoTransactional -> {
             MongoTransactionalManager.startTransaction(mongoTransactional);

@@ -1,6 +1,7 @@
 package com.mongoplus.factory;
 
 import com.mongodb.client.MongoClient;
+import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.domain.InitMongoPlusException;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.toolkit.MongoUtil;
@@ -17,6 +18,7 @@ public class DefaultMongoClientFactory extends AbstractMongoClientFactory {
 
     @Override
     public void registerMongoClient(String ds, BaseProperty baseProperty) {
+        DataSourceNameCache.setBaseProperty(ds,baseProperty);
         resources.put(ds, MongoUtil.getMongo(ds, baseProperty));
     }
 

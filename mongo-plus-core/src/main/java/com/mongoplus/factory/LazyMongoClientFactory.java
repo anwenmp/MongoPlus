@@ -1,11 +1,14 @@
 package com.mongoplus.factory;
 
 import com.mongodb.client.MongoClient;
+import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.domain.MongoPlusException;
 import com.mongoplus.meta.MongoClientMetaInfo;
 import com.mongoplus.model.BaseProperty;
+import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.MongoUtil;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +25,7 @@ public class LazyMongoClientFactory extends AbstractMongoClientFactory {
 
     @Override
     public void registerMongoClient(String ds, BaseProperty baseProperty) {
+        DataSourceNameCache.setBaseProperty(ds,baseProperty);
         metaInfoResources.put(ds, new MongoClientMetaInfo(baseProperty, () -> MongoUtil.getMongo(ds, baseProperty)));
     }
 
@@ -43,8 +47,11 @@ public class LazyMongoClientFactory extends AbstractMongoClientFactory {
 
     @Override
     public Set<String> getDataSources() {
-        Set<String> dataSources = metaInfoResources.keySet();
-        dataSources.addAll(resources.keySet());
+        Set<String> dataSources = new HashSet<>(metaInfoResources.keySet());
+        Set<String> resourceSet = resources.keySet();
+        if (CollUtil.isNotEmpty(resourceSet)) {
+            dataSources.addAll(resourceSet);
+        }
         return dataSources;
     }
 }
