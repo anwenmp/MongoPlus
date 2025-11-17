@@ -17,14 +17,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author JiaChaoYang
  **/
 public class SimpleFieldInformation<T> implements FieldInformation {
-
 
     private Object value;
 
@@ -48,7 +49,7 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     private String camelCaseName;
 
-    Map<Object,Object> instanceValueMap = new ConcurrentHashMap<>();
+    Map<Object,Object> instanceValueMap = Collections.synchronizedMap(new WeakHashMap<>());
 
     @Override
     public Field getField() {

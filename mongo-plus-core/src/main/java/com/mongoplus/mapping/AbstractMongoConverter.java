@@ -2,31 +2,32 @@ package com.mongoplus.mapping;
 
 import com.mongoplus.annotation.ID;
 import com.mongoplus.annotation.collection.CollectionField;
+import com.mongoplus.annotation.collection.ExtraFields;
 import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.MappingCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.constant.SqlOperationConstant;
+import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.enums.FieldFill;
 import com.mongoplus.handlers.ReadHandler;
 import com.mongoplus.handlers.TypeHandler;
 import com.mongoplus.handlers.auto.AutoFillHandler;
 import com.mongoplus.handlers.auto.DefaultAutoFillHandler;
+import com.mongoplus.holder.ExtraFieldsHolder;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
-import com.mongoplus.toolkit.BsonUtil;
-import com.mongoplus.toolkit.ClassTypeUtil;
-import com.mongoplus.toolkit.CollUtil;
+import com.mongoplus.toolkit.*;
+import jdk.dynalink.linker.support.TypeUtilities;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 抽象地映射处理器
@@ -145,7 +146,17 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         }
         // 拿到class封装类
         TypeInformation typeInformation = TypeInformation.of(clazz);
-
+        // 获取@ExtraFields字段
+        FieldInformation extraFieldInformation = typeInformation.getAnnotationField(ExtraFields.class);
+        List<String> usedFields;
+        if (extraFieldInformation != null) {
+            if (!extraFieldInformation.isMap()) {
+                throw new MongoPlusConvertException("@ExtraFields can only be used for Map fields");
+            }
+            usedFields = new ArrayList<>();
+        } else {
+            usedFields = null;
+        }
         // 循环所有字段
         typeInformation.getFields().forEach(fieldInformation -> {
             String fieldName = useIdAsFieldName ? fieldInformation.getIdOrCamelCaseName() : fieldInformation.getCamelCaseName();
@@ -155,6 +166,9 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             Object obj = document.get(fieldName);
             if (obj == null) {
                 return;
+            }
+            if (extraFieldInformation != null) {
+                usedFields.add(fieldName);
             }
             CollectionField collectionField = fieldInformation.getCollectionField();
             Object resultObj = null;
@@ -178,8 +192,56 @@ public abstract class AbstractMongoConverter implements MongoConverter {
             }
             fieldInformation.setValue(resultObj);
         });
+        if (extraFieldInformation != null) {
+
+            ExtraFields extraFields = extraFieldInformation.getAnnotation(ExtraFields.class);
+
+            Map extraFieldMap = createExtraMap(extraFields, extraFieldInformation);
+
+            if (ArrayUtils.isNotEmpty(extraFields.ignoredFields())) {
+                usedFields.addAll(Arrays.asList(extraFields.ignoredFields()));
+            }
+            boolean isExtraFieldsHolder = extraFieldInformation.getTypeClass() == ExtraFieldsHolder.class;
+            document.keySet().stream()
+                    .filter(k -> !usedFields.contains(k))
+                    .forEach(k -> {
+                        Object value = document.get(k);
+                        if (extraFields.underlineToCamel()) {
+                            k = StringUtils.underlineToCamel(k);
+                        }
+                        if (isExtraFieldsHolder) {
+                            ((ExtraFieldsHolder) extraFieldMap).putValue(k, value);
+                        } else {
+                            extraFieldMap.put(k, value);
+                        }
+                    });
+
+            extraFieldInformation.setValue(extraFieldMap);
+        }
 
         return typeInformation.getInstance();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> createExtraMap(ExtraFields extraFields,
+                                               FieldInformation extraFieldInformation) {
+
+        Class<?> mapType = extraFields.mapType();
+
+        // 注解指定了 mapType，且不是 HashMap.class
+        if (mapType != LinkedHashMap.class) {
+            return (Map<String, Object>) ClassTypeUtil.getInstanceByClass(mapType);
+        }
+
+        Class<?> typeClass = extraFieldInformation.getTypeClass();
+
+        // 如果字段类型是接口，则默认使用 LinkedHashMap
+        if (typeClass.isInterface()) {
+            return new LinkedHashMap<>();
+        }
+
+        // 否则直接实例化字段类型
+        return (Map<String, Object>) ClassTypeUtil.getInstanceByClass(typeClass);
     }
 
     /**
@@ -197,7 +259,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
      *
      * @param obj  map
      * @param bson bson
-     * @return {@link org.bson.conversions.Bson}
+     * @return {@link Bson}
      * @author anwen
      */
     public abstract Bson writeMapInternal(Map<?, ?> obj, Bson bson);
