@@ -3,7 +3,7 @@ package com.mongoplus.logic;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.codec.MapCodecCache;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.config.Configuration;
@@ -104,7 +104,7 @@ public interface LogicDeleteHandler {
      * @return 添加逻辑未删除的条件集合
      */
     @SuppressWarnings("all")
-    static List<CompareCondition> doWrapperLogicDel(Class clazz) {
+    static List<ConditionMetaObject> doWrapperLogicDel(Class clazz) {
         return doWrapperLogicDel(null, clazz);
     }
 
@@ -117,7 +117,7 @@ public interface LogicDeleteHandler {
      * @return 添加逻辑未删除的条件集合
      */
     @SuppressWarnings("unchecked")
-    static <T> List<CompareCondition> doWrapperLogicDel(QueryChainWrapper<T, ?> queryChainWrapper, Class clazz) {
+    static <T> List<ConditionMetaObject> doWrapperLogicDel(QueryChainWrapper<T, ?> queryChainWrapper, Class clazz) {
 
         if (close()) {
             if (Objects.isNull(queryChainWrapper)) {

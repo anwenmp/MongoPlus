@@ -5,7 +5,7 @@ import com.mongoplus.annotation.comm.EnumValue;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.enums.UpdateConditionEnum;
 import com.mongoplus.model.BuildUpdate;
@@ -35,10 +35,10 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
     final Map<Class<?>, Field> enumValueCache = new ConcurrentHashMap<>();
 
     @Override
-    public BasicDBObject queryCondition(List<CompareCondition> compareConditionList) {
+    public BasicDBObject queryCondition(List<ConditionMetaObject> conditionMetaObjectList) {
         MongoPlusBasicDBObject mongoPlusBasicDBObject = new MongoPlusBasicDBObject();
-        if (CollUtil.isNotEmpty(compareConditionList)) {
-            compareConditionList.forEach(compareCondition -> {
+        if (CollUtil.isNotEmpty(conditionMetaObjectList)) {
+            conditionMetaObjectList.forEach(compareCondition -> {
                 checkCompareCondition(compareCondition);
                 queryCondition(compareCondition, mongoPlusBasicDBObject);
             });
@@ -47,15 +47,15 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
     }
 
     @Override
-    public BasicDBObject queryCondition(CompareCondition compareCondition) {
-        return queryCondition(compareCondition, new MongoPlusBasicDBObject());
+    public BasicDBObject queryCondition(ConditionMetaObject conditionMetaObject) {
+        return queryCondition(conditionMetaObject, new MongoPlusBasicDBObject());
     }
 
     @Override
     public MutablePair<BasicDBObject, BasicDBObject> updateCondition(UpdateChainWrapper<?, ?> updateChainWrapper) {
-        List<CompareCondition> updateCompareList = updateChainWrapper.getUpdateCompareList();
+        List<ConditionMetaObject> updateCompareList = updateChainWrapper.getUpdateCompareList();
 
-        Map<UpdateConditionEnum, List<CompareCondition>> conditionMap = Arrays.stream(UpdateConditionEnum.values())
+        Map<UpdateConditionEnum, List<ConditionMetaObject>> conditionMap = Arrays.stream(UpdateConditionEnum.values())
                 .collect(Collectors.toMap(Function.identity(),
                         conditionEnum -> updateCompareList.stream()
                                 .filter(compareCondition -> Objects.equals(compareCondition.getCondition(),
@@ -81,14 +81,14 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
      * 具体的抽象更新构建方法
      *
      * @param updateConditionEnum  操作枚举
-     * @param compareConditionList 条件集合
+     * @param conditionMetaObjectList 条件集合
      * @return {@link BasicDBObject}
      * @author anwen
      */
-    public BasicDBObject updateValue(UpdateConditionEnum updateConditionEnum, List<CompareCondition> compareConditionList) {
-        final AtomicReference<List<CompareCondition>> finalCompareConditionList = new AtomicReference<>(compareConditionList);
+    public BasicDBObject updateValue(UpdateConditionEnum updateConditionEnum, List<ConditionMetaObject> conditionMetaObjectList) {
+        final AtomicReference<List<ConditionMetaObject>> finalCompareConditionList = new AtomicReference<>(conditionMetaObjectList);
         BiFunction<AbstractCondition, BuildUpdate, BasicDBObject> updateValueFunc = (condition, buildUpdate) -> {
-            List<CompareCondition> currentCompareConditionList = finalCompareConditionList.get();
+            List<ConditionMetaObject> currentConditionMetaObjectList = finalCompareConditionList.get();
             switch (updateConditionEnum) {
                 case SET:
                 case INC:
@@ -97,21 +97,21 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
                 case MUL:
                 case POP:
                 case PULL_ALL:
-                    return condition.buildUpdateCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildUpdateCondition(currentConditionMetaObjectList, buildUpdate);
                 case PUSH:
-                    finalCompareConditionList.set(currentCompareConditionList.stream().distinct().collect(Collectors.toList()));
-                    currentCompareConditionList = finalCompareConditionList.get();
-                    return condition.buildPushCondition(currentCompareConditionList, buildUpdate);
+                    finalCompareConditionList.set(currentConditionMetaObjectList.stream().distinct().collect(Collectors.toList()));
+                    currentConditionMetaObjectList = finalCompareConditionList.get();
+                    return condition.buildPushCondition(currentConditionMetaObjectList, buildUpdate);
                 case CURRENT_DATE:
-                    return condition.buildCurrentDateCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildCurrentDateCondition(currentConditionMetaObjectList, buildUpdate);
                 case RENAME:
-                    return condition.buildRenameCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildRenameCondition(currentConditionMetaObjectList, buildUpdate);
                 case UNSET:
-                    return condition.buildUnsetCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildUnsetCondition(currentConditionMetaObjectList, buildUpdate);
                 case ADD_TO_SET:
-                    return condition.buildAddToSetCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildAddToSetCondition(currentConditionMetaObjectList, buildUpdate);
                 case PULL:
-                    return condition.buildPullCondition(currentCompareConditionList, buildUpdate);
+                    return condition.buildPullCondition(currentConditionMetaObjectList, buildUpdate);
             }
             return null;
         };
@@ -126,8 +126,8 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
         return updateBasicDBObject;
     }
 
-    protected void checkCompareCondition(CompareCondition compareCondition) {
-        Object value = compareCondition.getValue();
+    protected void checkCompareCondition(ConditionMetaObject conditionMetaObject) {
+        Object value = conditionMetaObject.getValue();
         if (value == null) return;
         Object targetValue = value;
         Class<?> clazz = value.getClass();
@@ -136,7 +136,7 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
         } else if (clazz.isEnum()) {
             targetValue = handleValue(clazz, value);
         }
-        compareCondition.setValue(targetValue);
+        conditionMetaObject.setValue(targetValue);
     }
 
     protected Object handleCollectionValue(Collection<?> collection) {
@@ -199,11 +199,11 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
     /**
      * 具体的抽象条件构建方法
      *
-     * @param compareCondition       条件
+     * @param conditionMetaObject       条件
      * @param mongoPlusBasicDBObject BasicDBObject
      * @return {@link BasicDBObject}
      * @author anwen
      */
-    public abstract BasicDBObject queryCondition(CompareCondition compareCondition, MongoPlusBasicDBObject mongoPlusBasicDBObject);
+    public abstract BasicDBObject queryCondition(ConditionMetaObject conditionMetaObject, MongoPlusBasicDBObject mongoPlusBasicDBObject);
 
 }

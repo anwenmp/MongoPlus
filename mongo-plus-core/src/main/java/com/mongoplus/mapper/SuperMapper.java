@@ -3,7 +3,7 @@ package com.mongoplus.mapper;
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.annotation.comm.Nullable;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.execute.Execute;
@@ -263,7 +263,7 @@ public interface SuperMapper extends BaseIndex {
      * 返回第N页
      * @author anwen
      */
-    long recentPageCount(String database,String collectionName,List<CompareCondition> compareConditionList, Integer pageNum, Integer pageSize, Integer recentPageNum);
+    long recentPageCount(String database, String collectionName, List<ConditionMetaObject> conditionMetaObjectList, Integer pageNum, Integer pageSize, Integer recentPageNum);
 
 
     /**

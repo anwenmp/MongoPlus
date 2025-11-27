@@ -9,7 +9,7 @@ import com.mongoplus.conditions.interfaces.Compare;
 import com.mongoplus.conditions.interfaces.Geo;
 import com.mongoplus.conditions.interfaces.Projection;
 import com.mongoplus.conditions.interfaces.TextSearchOptions;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.interfaces.condition.Order;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
@@ -48,7 +48,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     /**
      * 构建条件对象
      */
-    private final List<CompareCondition> compareList = new CopyOnWriteArrayList<>();
+    private final List<ConditionMetaObject> compareList = new CopyOnWriteArrayList<>();
 
     /**
      * 构建排序对象
@@ -69,7 +69,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
         return typedThis;
     }
 
-    public List<CompareCondition> getCompareList() {
+    public List<ConditionMetaObject> getCompareList() {
         return compareList;
     }
 
@@ -547,13 +547,13 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
-    public Children not(CompareCondition compareCondition) {
-        return getBaseCondition(Collections.singletonList(condition().queryCondition(compareCondition)));
+    public Children not(ConditionMetaObject conditionMetaObject) {
+        return getBaseCondition(Collections.singletonList(condition().queryCondition(conditionMetaObject)));
     }
 
     @Override
-    public Children not(boolean condition, CompareCondition compareCondition) {
-        return condition ? not(compareCondition) : typedThis;
+    public Children not(boolean condition, ConditionMetaObject conditionMetaObject) {
+        return condition ? not(conditionMetaObject) : typedThis;
     }
 
     @Override
@@ -577,8 +577,8 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
-    public Children expr(boolean condition, CompareCondition compareCondition) {
-        return condition ? expr(compareCondition) : typedThis;
+    public Children expr(boolean condition, ConditionMetaObject conditionMetaObject) {
+        return condition ? expr(conditionMetaObject) : typedThis;
     }
 
     @Override
@@ -602,8 +602,8 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     @Override
-    public Children expr(CompareCondition compareCondition) {
-        return getBaseCondition(Collections.singletonList(condition().queryCondition(compareCondition)));
+    public Children expr(ConditionMetaObject conditionMetaObject) {
+        return getBaseCondition(Collections.singletonList(condition().queryCondition(conditionMetaObject)));
     }
 
     @Override
@@ -1210,7 +1210,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
                 value = ObjectIdUtil.getObjectIdValue(value);
             }
         }
-        this.compareList.add(new CompareCondition(condition, column, value,clazz,field,extraValue));
+        this.compareList.add(new ConditionMetaObject(condition, column, value,clazz,field,extraValue));
         return typedThis;
     }
 
@@ -1227,17 +1227,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
 
     public Children getBaseCondition(QueryChainWrapper<?,?> queryChainWrapper){
-        this.compareList.add(CompareCondition.builder().condition(Thread.currentThread().getStackTrace()[2].getMethodName()).value(queryChainWrapper).build());
+        this.compareList.add(ConditionMetaObject.builder().condition(Thread.currentThread().getStackTrace()[2].getMethodName()).value(queryChainWrapper).build());
         return typedThis;
     }
 
     public Children getBaseCondition(Object value){
-        this.compareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null));
+        this.compareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null));
         return typedThis;
     }
 
     public Children getBaseConditionExtraValue(Object value,Object extraValue){
-        this.compareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null,extraValue));
+        this.compareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),value,Object.class,null,extraValue));
         return typedThis;
     }
 

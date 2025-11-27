@@ -7,7 +7,7 @@ import com.mongoplus.annotation.ID;
 import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.DBRef;
 import com.mongoplus.cache.global.PropertyCache;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.domain.MongoPlusFieldException;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.execute.ExecutorFactory;
@@ -94,8 +94,8 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
     }
 
     @Override
-    public void beforeQueryCondition(CompareCondition compareCondition, BasicDBObject basicDBObject) {
-        Field originalField = compareCondition.getOriginalField();
+    public void beforeQueryCondition(ConditionMetaObject conditionMetaObject, BasicDBObject basicDBObject) {
+        Field originalField = conditionMetaObject.getOriginalField();
         if (originalField != null) {
             FieldInformation fieldInformation = new SimpleFieldInformation<>(null, originalField);
             Boolean existDBRef = dbRefFieldCache
@@ -106,9 +106,9 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
             com.mongodb.DBRef dbRef = getDBRef(
                     originalField.getType(),
                     fieldInformation.getAnnotation(DBRef.class),
-                    compareCondition.getValue()
+                    conditionMetaObject.getValue()
             );
-            basicDBObject.put(compareCondition.getColumn(),dbRef);
+            basicDBObject.put(conditionMetaObject.getColumn(),dbRef);
         }
     }
 

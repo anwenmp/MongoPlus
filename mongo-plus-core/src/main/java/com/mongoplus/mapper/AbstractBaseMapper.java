@@ -10,7 +10,7 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -250,7 +250,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public long recentPageCount(String database, String collectionName, List<CompareCondition> compareConditionList,
+    public long recentPageCount(String database, String collectionName, List<ConditionMetaObject> conditionMetaObjectList,
                                 Integer pageNum, Integer pageSize, Integer recentPageNum) {
         if (recentPageNum == null || !(recentPageNum <= 50 && recentPageNum >= 5)) {
             // 返回-1 表示不查询总条数
@@ -265,7 +265,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
         countOptions.skip(limitParam).limit(1);
         MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
         long isExists = factory.getExecute().executeCount(
-                condition().queryCondition(compareConditionList),
+                condition().queryCondition(conditionMetaObjectList),
                 countOptions,
                 collection);
         //如果查询结果为空 则查询总条数，如果不为空则 limitParam为总条数
@@ -274,7 +274,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
             CountOptions countOptionsReal = new CountOptions();
             countOptionsReal.limit(limitParam);
             return factory.getExecute().executeCount(
-                    condition().queryCondition(compareConditionList),
+                    condition().queryCondition(conditionMetaObjectList),
                     countOptions,
                     collection);
         }

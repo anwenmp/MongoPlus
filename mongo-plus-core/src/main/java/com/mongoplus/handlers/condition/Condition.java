@@ -4,7 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.Projection;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.MutablePair;
@@ -20,19 +20,19 @@ public interface Condition {
 
     /**
      * 查询条件构建
-     * @param compareConditionList 条件集合
+     * @param conditionMetaObjectList 条件集合
      * @return {@link com.mongodb.BasicDBObject}
      * @author anwen
      */
-    BasicDBObject queryCondition(List<CompareCondition> compareConditionList);
+    BasicDBObject queryCondition(List<ConditionMetaObject> conditionMetaObjectList);
 
     /**
      * 单个条件构建
-     * @param compareCondition 条件
+     * @param conditionMetaObject 条件
      * @return {@link com.mongodb.BasicDBObject}
      * @author anwen
      */
-    BasicDBObject queryCondition(CompareCondition compareCondition);
+    BasicDBObject queryCondition(ConditionMetaObject conditionMetaObject);
 
     /**
      * 修改条件构建

@@ -1,28 +1,28 @@
 package com.mongoplus.model;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 
 /**
  * @author anwen
  */
 public class BuildUpdate {
 
-    private CompareCondition currentCompareCondition;
+    private ConditionMetaObject currentConditionMetaObject;
 
     private BasicDBObject updateBasicDBObject;
 
-    public BuildUpdate(CompareCondition currentCompareCondition, BasicDBObject updateBasicDBObject) {
-        this.currentCompareCondition = currentCompareCondition;
+    public BuildUpdate(ConditionMetaObject currentConditionMetaObject, BasicDBObject updateBasicDBObject) {
+        this.currentConditionMetaObject = currentConditionMetaObject;
         this.updateBasicDBObject = updateBasicDBObject;
     }
 
-    public CompareCondition getCurrentCompareCondition() {
-        return currentCompareCondition;
+    public ConditionMetaObject getCurrentCompareCondition() {
+        return currentConditionMetaObject;
     }
 
-    public void setCurrentCompareCondition(CompareCondition currentCompareCondition) {
-        this.currentCompareCondition = currentCompareCondition;
+    public void setCurrentCompareCondition(ConditionMetaObject currentConditionMetaObject) {
+        this.currentConditionMetaObject = currentConditionMetaObject;
     }
 
     public BasicDBObject getUpdateBasicDBObject() {

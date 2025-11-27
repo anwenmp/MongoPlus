@@ -2,7 +2,7 @@ package com.mongoplus.conditions.interfaces;
 
 import com.mongodb.BasicDBObject;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.enums.RegexOptions;
 import com.mongoplus.enums.TypeEnum;
@@ -864,9 +864,9 @@ public interface Compare<T,Children> extends Serializable {
      */
     Children exists(String column,Boolean value);
 
-    Children not(CompareCondition compareCondition);
+    Children not(ConditionMetaObject conditionMetaObject);
 
-    Children not(boolean condition,CompareCondition compareCondition);
+    Children not(boolean condition, ConditionMetaObject conditionMetaObject);
 
     Children not(boolean condition,QueryChainWrapper<?,?> queryChainWrapper);
 
@@ -880,13 +880,13 @@ public interface Compare<T,Children> extends Serializable {
      * 进行计算的表达式
      * @author JiaChaoYang
     */
-    Children expr(CompareCondition compareCondition);
+    Children expr(ConditionMetaObject conditionMetaObject);
 
     /**
      * 进行计算的表达式
      * @author JiaChaoYang
      */
-    Children expr(boolean condition,CompareCondition compareCondition);
+    Children expr(boolean condition, ConditionMetaObject conditionMetaObject);
 
     /**
      * 进行计算的表达式

@@ -1,7 +1,7 @@
 package com.mongoplus.toolkit;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.SpecialConditionEnum;
 import com.mongoplus.mapping.MongoConverter;
@@ -19,8 +19,8 @@ public class ConditionUtil {
      * @author anwen
      */
     public static MutablePair<BasicDBObject,BasicDBObject> getUpdateCondition(
-            List<CompareCondition> compareConditionList, Object sourceObj, MongoConverter mongoConverter){
-        BasicDBObject queryBasic = condition().queryCondition(compareConditionList);
+            List<ConditionMetaObject> conditionMetaObjectList, Object sourceObj, MongoConverter mongoConverter){
+        BasicDBObject queryBasic = condition().queryCondition(conditionMetaObjectList);
         Document document = mongoConverter.writeByUpdate(sourceObj);
         document.remove(SqlOperationConstant._ID);
         BasicDBObject updateField = new BasicDBObject(SpecialConditionEnum.SET.getCondition(), document);

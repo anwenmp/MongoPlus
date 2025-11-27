@@ -2,7 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.model.WriteModel;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.mapping.MongoConverter;
@@ -123,8 +123,8 @@ public interface Mapper extends SuperMapper {
      * 返回第N页
      * @author anwen
      */
-    default long recentPageCount(String collectionName, List<CompareCondition> compareConditionList, Integer pageNum, Integer pageSize, Integer recentPageNum){
-        return recentPageCount(EMPTY,collectionName,compareConditionList,pageNum,pageSize,recentPageNum);
+    default long recentPageCount(String collectionName, List<ConditionMetaObject> conditionMetaObjectList, Integer pageNum, Integer pageSize, Integer recentPageNum){
+        return recentPageCount(EMPTY,collectionName, conditionMetaObjectList,pageNum,pageSize,recentPageNum);
     }
 
 

@@ -2,7 +2,7 @@ package com.mongoplus.handlers.field;
 
 import com.mongodb.BasicDBObject;
 import com.mongoplus.annotation.collection.CollectionField;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.toolkit.ObjectIdUtil;
 
@@ -19,17 +19,17 @@ public class ObjectIdHandler implements ConditionHandler {
     private final Map<Field,Boolean> fieldCache = new ConcurrentHashMap<>();
 
     @Override
-    public void beforeQueryCondition(CompareCondition compareCondition, BasicDBObject basicDBObject) {
-        handler(compareCondition);
+    public void beforeQueryCondition(ConditionMetaObject conditionMetaObject, BasicDBObject basicDBObject) {
+        handler(conditionMetaObject);
     }
 
     @Override
-    public void beforeUpdateCondition(CompareCondition compareCondition, BasicDBObject basicDBObject) {
-        handler(compareCondition);
+    public void beforeUpdateCondition(ConditionMetaObject conditionMetaObject, BasicDBObject basicDBObject) {
+        handler(conditionMetaObject);
     }
 
-    public void handler(CompareCondition compareCondition) {
-        Field originalField = compareCondition.getOriginalField();
+    public void handler(ConditionMetaObject conditionMetaObject) {
+        Field originalField = conditionMetaObject.getOriginalField();
         if (originalField != null) {
             Boolean isObjectId = fieldCache.computeIfAbsent(originalField, k -> {
                 boolean _b = originalField.isAnnotationPresent(CollectionField.class);
@@ -40,7 +40,7 @@ public class ObjectIdHandler implements ConditionHandler {
                 return _b;
             });
             if (isObjectId) {
-                compareCondition.setValue(ObjectIdUtil.getObjectIdValue(compareCondition.getValue()));
+                conditionMetaObject.setValue(ObjectIdUtil.getObjectIdValue(conditionMetaObject.getValue()));
             }
         }
     }

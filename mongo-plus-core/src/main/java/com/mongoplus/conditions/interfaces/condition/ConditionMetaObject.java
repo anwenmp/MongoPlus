@@ -1,5 +1,6 @@
 package com.mongoplus.conditions.interfaces.condition;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -10,8 +11,9 @@ import java.util.Objects;
  * @author JiaChaoYang
  * @since 2023/2/14 14:13
 */
-public class CompareCondition implements Serializable {
+public class ConditionMetaObject implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 682242054799754195L;
 
     /**
@@ -111,7 +113,7 @@ public class CompareCondition implements Serializable {
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
-        CompareCondition that = (CompareCondition) object;
+        ConditionMetaObject that = (ConditionMetaObject) object;
         return Objects.equals(condition, that.condition) && Objects.equals(column, that.column) && Objects.equals(value, that.value) && Objects.equals(originalClass, that.originalClass) && Objects.equals(originalField, that.originalField);
     }
 
@@ -132,7 +134,7 @@ public class CompareCondition implements Serializable {
                 '}';
     }
 
-    public CompareCondition(String condition, String column, Object value, Class<?> originalClass, Field originalField) {
+    public ConditionMetaObject(String condition, String column, Object value, Class<?> originalClass, Field originalField) {
         this.condition = condition;
         this.column = column;
         this.value = value;
@@ -140,7 +142,7 @@ public class CompareCondition implements Serializable {
         this.originalField = originalField;
     }
 
-    public CompareCondition(String condition, String column, Object value, Class<?> originalClass, Field originalField,Object extraValue) {
+    public ConditionMetaObject(String condition, String column, Object value, Class<?> originalClass, Field originalField, Object extraValue) {
         this.condition = condition;
         this.column = column;
         this.value = value;
@@ -149,14 +151,14 @@ public class CompareCondition implements Serializable {
         this.extraValue = extraValue;
     }
 
-    public CompareCondition(String condition, Object value,Class<?> originalClass, Field originalField){
+    public ConditionMetaObject(String condition, Object value, Class<?> originalClass, Field originalField){
         this.condition = condition;
         this.value = value;
         this.originalClass = originalClass;
         this.originalField = originalField;
     }
 
-    public CompareCondition(String condition, Object value,Class<?> originalClass, Field originalField,Object extraValue){
+    public ConditionMetaObject(String condition, Object value, Class<?> originalClass, Field originalField, Object extraValue){
         this.condition = condition;
         this.value = value;
         this.originalClass = originalClass;
@@ -164,12 +166,12 @@ public class CompareCondition implements Serializable {
         this.extraValue = extraValue;
     }
 
-    public CompareCondition(String condition, List<CompareCondition> compareConditionList){
+    public ConditionMetaObject(String condition, List<ConditionMetaObject> conditionMetaObjectList){
         this.condition = condition;
-        this.value = compareConditionList;
+        this.value = conditionMetaObjectList;
     }
 
-    public CompareCondition() {
+    public ConditionMetaObject() {
     }
 
     public static class CompareConditionBuilder {
@@ -206,8 +208,8 @@ public class CompareCondition implements Serializable {
             return this;
         }
 
-        public CompareCondition build() {
-            return new CompareCondition(this.condition, this.column, this.value,this.originalClass, this.originalField);
+        public ConditionMetaObject build() {
+            return new ConditionMetaObject(this.condition, this.column, this.value,this.originalClass, this.originalField);
         }
 
         @Override

@@ -4,20 +4,20 @@ import java.util.List;
 
 public class Condition {
 
-    private List<CompareCondition> compareConditionList;
+    private List<ConditionMetaObject> conditionMetaObjectList;
 
     private List<Order> orderList;
 
-    public List<CompareCondition> getCompareConditionList() {
-        return this.compareConditionList;
+    public List<ConditionMetaObject> getCompareConditionList() {
+        return this.conditionMetaObjectList;
     }
 
     public List<Order> getOrderList() {
         return this.orderList;
     }
 
-    public void setCompareConditionList(List<CompareCondition> compareConditionList) {
-        this.compareConditionList = compareConditionList;
+    public void setCompareConditionList(List<ConditionMetaObject> conditionMetaObjectList) {
+        this.conditionMetaObjectList = conditionMetaObjectList;
     }
 
     public void setOrderList(List<Order> orderList) {
@@ -76,8 +76,8 @@ public class Condition {
         return "Condition(compareConditionList=" + this.getCompareConditionList() + ", orderList=" + this.getOrderList() + ")";
     }
 
-    public Condition(List<CompareCondition> compareConditionList, List<Order> orderList) {
-        this.compareConditionList = compareConditionList;
+    public Condition(List<ConditionMetaObject> conditionMetaObjectList, List<Order> orderList) {
+        this.conditionMetaObjectList = conditionMetaObjectList;
         this.orderList = orderList;
     }
 

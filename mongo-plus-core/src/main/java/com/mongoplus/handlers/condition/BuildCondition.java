@@ -9,7 +9,7 @@ import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.interfaces.TextSearchOptions;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.interfaces.condition.Order;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.domain.MongoPlusException;
@@ -64,82 +64,82 @@ public class BuildCondition extends AbstractCondition {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BasicDBObject queryCondition(CompareCondition compareCondition,
+    public BasicDBObject queryCondition(ConditionMetaObject conditionMetaObject,
                                         MongoPlusBasicDBObject mongoPlusBasicDBObject) {
         HandlerCache.conditionHandlerList.forEach(conditionHandler ->
-                conditionHandler.beforeQueryCondition(compareCondition, mongoPlusBasicDBObject));
+                conditionHandler.beforeQueryCondition(conditionMetaObject, mongoPlusBasicDBObject));
         QueryOperatorEnum query = null;
-        if (compareCondition != null) {
-            query = QueryOperatorEnum.getQueryOperator(compareCondition.getCondition());
+        if (conditionMetaObject != null) {
+            query = QueryOperatorEnum.getQueryOperator(conditionMetaObject.getCondition());
         }
         switch (Objects.requireNonNull(query)) {
             case EQ:
                 mongoPlusBasicDBObject.put(
                         new Document(
-                                compareCondition.getColumn(),
-                                new Document(EQ.getOperatorValue(), compareCondition.getValue())
+                                conditionMetaObject.getColumn(),
+                                new Document(EQ.getOperatorValue(), conditionMetaObject.getValue())
                         )
                 );
                 break;
             case NE:
-                mongoPlusBasicDBObject.put(Filters.ne(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.ne(conditionMetaObject.getColumn(), conditionMetaObject.getValue()));
                 break;
             case GT:
-                mongoPlusBasicDBObject.put(Filters.gt(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.gt(conditionMetaObject.getColumn(), conditionMetaObject.getValue()));
                 break;
             case LT:
-                mongoPlusBasicDBObject.put(Filters.lt(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.lt(conditionMetaObject.getColumn(), conditionMetaObject.getValue()));
                 break;
             case GTE:
-                mongoPlusBasicDBObject.put(Filters.gte(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.gte(conditionMetaObject.getColumn(), conditionMetaObject.getValue()));
                 break;
             case LTE:
-                mongoPlusBasicDBObject.put(Filters.lte(compareCondition.getColumn(), compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.lte(conditionMetaObject.getColumn(), conditionMetaObject.getValue()));
                 break;
             case REGEX:
             case LIKE:
-                Document likeDocument = new Document(compareCondition.getColumn(),
-                        new Document(REGEX.getOperatorValue(), compareCondition.getValue().toString())
+                Document likeDocument = new Document(conditionMetaObject.getColumn(),
+                        new Document(REGEX.getOperatorValue(), conditionMetaObject.getValue().toString())
                                 .append(CommonOperators.OPTIONS.getOperator(), "i")
                 );
                 mongoPlusBasicDBObject.put(likeDocument);
                 break;
             case IN:
-                mongoPlusBasicDBObject.put(Filters.in(compareCondition.getColumn(),
-                        (Collection<?>) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.in(conditionMetaObject.getColumn(),
+                        (Collection<?>) conditionMetaObject.getValue()));
                 break;
             case NIN:
-                mongoPlusBasicDBObject.put(Filters.nin(compareCondition.getColumn(),
-                        (Collection<?>) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.nin(conditionMetaObject.getColumn(),
+                        (Collection<?>) conditionMetaObject.getValue()));
                 break;
             case AND:
-                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::and);
+                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::and);
                 break;
             case OR:
-                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::or);
+                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::or);
                 break;
             case NOR:
-                logic((QueryChainWrapper<?, ?>) compareCondition.getValue(), mongoPlusBasicDBObject, Filters::nor);
+                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::nor);
                 break;
             case TYPE:
-                Object typeValue = compareCondition.getValue();
+                Object typeValue = conditionMetaObject.getValue();
                 if (typeValue instanceof String) {
-                    mongoPlusBasicDBObject.put(Filters.type(compareCondition.getColumn(), (String) typeValue));
+                    mongoPlusBasicDBObject.put(Filters.type(conditionMetaObject.getColumn(), (String) typeValue));
                     break;
                 }
                 if (typeValue instanceof TypeEnum) {
                     typeValue = ((TypeEnum) typeValue).getTypeCode();
                 }
-                mongoPlusBasicDBObject.put(Filters.type(compareCondition.getColumn(),
+                mongoPlusBasicDBObject.put(Filters.type(conditionMetaObject.getColumn(),
                         BsonType.findByValue((Integer) typeValue)));
                 break;
             case EXISTS:
-                mongoPlusBasicDBObject.put(Filters.exists(compareCondition.getColumn(),
-                        (Boolean) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.exists(conditionMetaObject.getColumn(),
+                        (Boolean) conditionMetaObject.getValue()));
                 break;
             case NOT:
             case EXPR:
-                QueryChainWrapper<?, ?> exprWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                QueryChainWrapper<?, ?> exprWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
                 BaseConditionResult baseConditionResult = exprWrapper.buildCondition();
                 BasicDBObject exprBasicDBObject = baseConditionResult.getCondition();
                 Optional<String> exprOptional = exprBasicDBObject.keySet().stream().findFirst();
@@ -149,16 +149,16 @@ public class BuildCondition extends AbstractCondition {
                 }
                 break;
             case MOD:
-                List<Long> modList = (List<Long>) compareCondition.getValue();
+                List<Long> modList = (List<Long>) conditionMetaObject.getValue();
                 if (modList.size() < 2) {
                     throw new MongoPlusException("Mod requires modulus and remainder");
                 }
-                mongoPlusBasicDBObject.put(Filters.mod(compareCondition.getColumn(), modList.get(0), modList.get(1)));
+                mongoPlusBasicDBObject.put(Filters.mod(conditionMetaObject.getColumn(), modList.get(0), modList.get(1)));
                 break;
             case ELEM_MATCH:
-                QueryChainWrapper<?, ?> elemMatchWrapper = (QueryChainWrapper<?, ?>) compareCondition.getValue();
+                QueryChainWrapper<?, ?> elemMatchWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
                 BasicDBObject elemMatchBasicDBObject = queryCondition(elemMatchWrapper).getCondition();
-                Bson elemMatchBson = Filters.elemMatch(compareCondition.getColumn(), elemMatchBasicDBObject);
+                Bson elemMatchBson = Filters.elemMatch(conditionMetaObject.getColumn(), elemMatchBasicDBObject);
                 if (CollUtil.isNotEmpty(elemMatchWrapper.getBasicDBObjectList())) {
                     elemMatchWrapper.getBasicDBObjectList().forEach(bson ->
                             elemMatchBson.toBsonDocument(
@@ -172,13 +172,13 @@ public class BuildCondition extends AbstractCondition {
                 mongoPlusBasicDBObject.put(elemMatchBson);
                 break;
             case ALL:
-                mongoPlusBasicDBObject.put(Filters.all(compareCondition.getColumn(),
-                        (Collection<?>) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.all(conditionMetaObject.getColumn(),
+                        (Collection<?>) conditionMetaObject.getValue()));
                 break;
             case TEXT:
                 Bson textBson;
-                Object value = compareCondition.getValue();
-                TextSearchOptions textSearchOptions = compareCondition.getExtraValue(TextSearchOptions.class);
+                Object value = conditionMetaObject.getValue();
+                TextSearchOptions textSearchOptions = conditionMetaObject.getExtraValue(TextSearchOptions.class);
                 if (textSearchOptions != null) {
                     textBson = Filters.text(value.toString(), textSearchOptions.to());
                 } else {
@@ -187,165 +187,165 @@ public class BuildCondition extends AbstractCondition {
                 mongoPlusBasicDBObject.put(textBson);
                 break;
             case WHERE:
-                mongoPlusBasicDBObject.put(Filters.where((String) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.where((String) conditionMetaObject.getValue()));
                 break;
             case SIZE:
-                mongoPlusBasicDBObject.put(Filters.size(compareCondition.getColumn(),
-                        (Integer) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.size(conditionMetaObject.getColumn(),
+                        (Integer) conditionMetaObject.getValue()));
                 break;
             case BITS_ALL_CLEAR:
-                mongoPlusBasicDBObject.put(Filters.bitsAllClear(compareCondition.getColumn(),
-                        (Integer) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.bitsAllClear(conditionMetaObject.getColumn(),
+                        (Integer) conditionMetaObject.getValue()));
                 break;
             case BITS_ALL_SET:
-                mongoPlusBasicDBObject.put(Filters.bitsAllSet(compareCondition.getColumn(),
-                        (Integer) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.bitsAllSet(conditionMetaObject.getColumn(),
+                        (Integer) conditionMetaObject.getValue()));
                 break;
             case BITS_ANY_CLEAR:
-                mongoPlusBasicDBObject.put(Filters.bitsAnyClear(compareCondition.getColumn(),
-                        (Integer) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.bitsAnyClear(conditionMetaObject.getColumn(),
+                        (Integer) conditionMetaObject.getValue()));
                 break;
             case BITS_ANY_SET:
-                mongoPlusBasicDBObject.put(Filters.bitsAnySet(compareCondition.getColumn(),
-                        (Integer) compareCondition.getValue()));
+                mongoPlusBasicDBObject.put(Filters.bitsAnySet(conditionMetaObject.getColumn(),
+                        (Integer) conditionMetaObject.getValue()));
                 break;
             case GEO_INTERSECTS:
-                Object geometry = compareCondition.getValue();
+                Object geometry = conditionMetaObject.getValue();
                 if (ClassTypeUtil.isTargetClass(Geometry.class,geometry.getClass())) {
                     mongoPlusBasicDBObject.put(
-                            Filters.geoIntersects(compareCondition.getColumn(),(Geometry) geometry)
+                            Filters.geoIntersects(conditionMetaObject.getColumn(),(Geometry) geometry)
                     );
                 } else {
                     mongoPlusBasicDBObject.put(
-                            Filters.geoIntersects(compareCondition.getColumn(),(Bson) geometry)
+                            Filters.geoIntersects(conditionMetaObject.getColumn(),(Bson) geometry)
                     );
                 }
                 break;
             case GEO_WITHIN:
-                Object withinGeometry = compareCondition.getValue();
+                Object withinGeometry = conditionMetaObject.getValue();
                 if (ClassTypeUtil.isTargetClass(Geometry.class,withinGeometry.getClass())) {
                     mongoPlusBasicDBObject.put(
-                            Filters.geoWithin(compareCondition.getColumn(),(Geometry) withinGeometry)
+                            Filters.geoWithin(conditionMetaObject.getColumn(),(Geometry) withinGeometry)
                     );
                 } else {
                     mongoPlusBasicDBObject.put(
-                            Filters.geoWithin(compareCondition.getColumn(),(Bson) withinGeometry)
+                            Filters.geoWithin(conditionMetaObject.getColumn(),(Bson) withinGeometry)
                     );
                 }
                 break;
             case NEAR:
-                GeoNear geoNear = compareCondition.getValue(GeoNear.class);
-                mongoPlusBasicDBObject.put(geoNear.buildNear(compareCondition.getColumn()));
+                GeoNear geoNear = conditionMetaObject.getValue(GeoNear.class);
+                mongoPlusBasicDBObject.put(geoNear.buildNear(conditionMetaObject.getColumn()));
                 break;
             case NEAR_SPHERE:
-                GeoNear geoNearSphere = compareCondition.getValue(GeoNear.class);
-                mongoPlusBasicDBObject.put(geoNearSphere.buildNearSphere(compareCondition.getColumn()));
+                GeoNear geoNearSphere = conditionMetaObject.getValue(GeoNear.class);
+                mongoPlusBasicDBObject.put(geoNearSphere.buildNearSphere(conditionMetaObject.getColumn()));
                 break;
             case GEO_WITHIN_BOX:
                 mongoPlusBasicDBObject.put(
-                        compareCondition.getValue(GeoBox.class).toBson(compareCondition.getColumn())
+                        conditionMetaObject.getValue(GeoBox.class).toBson(conditionMetaObject.getColumn())
                 );
                 break;
             case GEO_WITHIN_CENTER:
-                GeoCenter geoCenter = compareCondition.getValue(GeoCenter.class);
+                GeoCenter geoCenter = conditionMetaObject.getValue(GeoCenter.class);
                 mongoPlusBasicDBObject.put(
-                        geoCenter.buildCenter(compareCondition.getColumn())
+                        geoCenter.buildCenter(conditionMetaObject.getColumn())
                 );
                 break;
             case GEO_WITHIN_CENTER_SPHERE:
-                GeoCenter geoCenterSphere = compareCondition.getValue(GeoCenter.class);
+                GeoCenter geoCenterSphere = conditionMetaObject.getValue(GeoCenter.class);
                 mongoPlusBasicDBObject.put(
-                        geoCenterSphere.buildCenterSphere(compareCondition.getColumn())
+                        geoCenterSphere.buildCenterSphere(conditionMetaObject.getColumn())
                 );
                 break;
             case GEO_WITHIN_POLYGON:
                 mongoPlusBasicDBObject.put(
                         Filters.geoWithinPolygon(
-                                compareCondition.getColumn(),
-                                (List<List<Double>>) compareCondition.getValue()
+                                conditionMetaObject.getColumn(),
+                                (List<List<Double>>) conditionMetaObject.getValue()
                         )
                 );
                 break;
         }
         HandlerCache.conditionHandlerList.forEach(conditionHandler ->
-                conditionHandler.afterQueryCondition(compareCondition, mongoPlusBasicDBObject));
+                conditionHandler.afterQueryCondition(conditionMetaObject, mongoPlusBasicDBObject));
         return mongoPlusBasicDBObject;
     }
 
     @Override
-    public BasicDBObject buildUpdateCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildUpdateCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        updateBasicDBObject.put(currentCompareCondition.getColumn(), currentCompareCondition.getValue());
+        updateBasicDBObject.put(currentConditionMetaObject.getColumn(), currentConditionMetaObject.getValue());
         return updateBasicDBObject;
     }
 
     @Override
-    public BasicDBObject buildPushCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildPushCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        Object value = currentCompareCondition.getValue();
+        Object value = currentConditionMetaObject.getValue();
         if (ClassTypeUtil.isTargetClass(Collection.class, value.getClass())) {
-            PushOptions extraValue = currentCompareCondition.getExtraValue(PushOptions.class);
+            PushOptions extraValue = currentConditionMetaObject.getExtraValue(PushOptions.class);
             if (Objects.isNull(extraValue)) {
-                put(updateBasicDBObject, currentCompareCondition);
+                put(updateBasicDBObject, currentConditionMetaObject);
             } else {
-                Bson pushOptions = buildPushOptions(currentCompareCondition.getValue(List.class), extraValue);
-                updateBasicDBObject.put(currentCompareCondition.getColumn(), pushOptions);
+                Bson pushOptions = buildPushOptions(currentConditionMetaObject.getValue(List.class), extraValue);
+                updateBasicDBObject.put(currentConditionMetaObject.getColumn(), pushOptions);
             }
         } else {
-            put(updateBasicDBObject, currentCompareCondition);
+            put(updateBasicDBObject, currentConditionMetaObject);
         }
         return updateBasicDBObject;
     }
 
     @Override
-    public BasicDBObject buildCurrentDateCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildCurrentDateCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        CurrentDateType currentDateType = currentCompareCondition.getValue(CurrentDateType.class);
-        updateBasicDBObject.put(currentCompareCondition.getColumn(),
+        CurrentDateType currentDateType = currentConditionMetaObject.getValue(CurrentDateType.class);
+        updateBasicDBObject.put(currentConditionMetaObject.getColumn(),
                 new BasicDBObject(SpecialConditionEnum.TYPE.getCondition(), currentDateType.getType()));
         return updateBasicDBObject;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public BasicDBObject buildRenameCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildRenameCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        MutablePair<String, String> pairValue = currentCompareCondition.getValue(MutablePair.class);
+        MutablePair<String, String> pairValue = currentConditionMetaObject.getValue(MutablePair.class);
         updateBasicDBObject.put(pairValue.getLeft(), pairValue.getRight());
         return updateBasicDBObject;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public BasicDBObject buildUnsetCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildUnsetCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        List<String> pairValue = currentCompareCondition.getValue(List.class);
+        List<String> pairValue = currentConditionMetaObject.getValue(List.class);
         pairValue.forEach(column -> updateBasicDBObject.put(column, ""));
         return updateBasicDBObject;
     }
 
     @Override
-    public BasicDBObject buildAddToSetCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildAddToSetCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        updateBasicDBObject.put(currentCompareCondition.getColumn(),
-                currentCompareCondition.getExtraValue(Boolean.class) ?
-                        new BasicDBObject(SpecialConditionEnum.EACH.getCondition(), currentCompareCondition.getValue()) :
-                        currentCompareCondition.getValue());
+        updateBasicDBObject.put(currentConditionMetaObject.getColumn(),
+                currentConditionMetaObject.getExtraValue(Boolean.class) ?
+                        new BasicDBObject(SpecialConditionEnum.EACH.getCondition(), currentConditionMetaObject.getValue()) :
+                        currentConditionMetaObject.getValue());
         return updateBasicDBObject;
     }
 
     @Override
-    public BasicDBObject buildPullCondition(List<CompareCondition> compareConditionList, BuildUpdate buildUpdate) {
-        CompareCondition currentCompareCondition = buildUpdate.getCurrentCompareCondition();
+    public BasicDBObject buildPullCondition(List<ConditionMetaObject> conditionMetaObjectList, BuildUpdate buildUpdate) {
+        ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
-        if (currentCompareCondition.getExtraValue(Boolean.class)) {
-            QueryChainWrapper<?, ?> wrapper = currentCompareCondition.getValue(QueryChainWrapper.class);
+        if (currentConditionMetaObject.getExtraValue(Boolean.class)) {
+            QueryChainWrapper<?, ?> wrapper = currentConditionMetaObject.getValue(QueryChainWrapper.class);
             BasicDBObject queriedCondition = queryCondition(wrapper).getCondition();
             if (CollUtil.isNotEmpty(wrapper.getBasicDBObjectList())) {
                 wrapper.getBasicDBObjectList().forEach(basicDBObject -> queriedCondition.putAll(
@@ -357,7 +357,7 @@ public class BuildCondition extends AbstractCondition {
                     MapCodecCache.getDefaultCodecRegistry()
             ));
         } else {
-            updateBasicDBObject.put(currentCompareCondition.getColumn(), currentCompareCondition.getValue());
+            updateBasicDBObject.put(currentConditionMetaObject.getColumn(), currentConditionMetaObject.getValue());
         }
         return updateBasicDBObject;
     }
@@ -409,17 +409,17 @@ public class BuildCondition extends AbstractCondition {
         return document;
     }
 
-    protected void put(BasicDBObject basicDBObject,CompareCondition compareCondition) {
-        basicDBObject.put(compareCondition.getColumn(),compareCondition.getValue());
+    protected void put(BasicDBObject basicDBObject, ConditionMetaObject conditionMetaObject) {
+        basicDBObject.put(conditionMetaObject.getColumn(), conditionMetaObject.getValue());
     }
 
     @SuppressWarnings("unchecked")
-    public <T> void simpleUpdateLogic(List<Bson> bsonList, CompareCondition compareCondition, BiFunction<String,T,Bson> function) {
-        bsonList.add(function.apply(compareCondition.getColumn(), (T) compareCondition.getValue()));
+    public <T> void simpleUpdateLogic(List<Bson> bsonList, ConditionMetaObject conditionMetaObject, BiFunction<String,T,Bson> function) {
+        bsonList.add(function.apply(conditionMetaObject.getColumn(), (T) conditionMetaObject.getValue()));
     }
 
-    public void simpleUpdateLogic(List<Bson> bsonList, CompareCondition compareCondition, Function<String,Bson> function) {
-        bsonList.add(function.apply(compareCondition.getColumn()));
+    public void simpleUpdateLogic(List<Bson> bsonList, ConditionMetaObject conditionMetaObject, Function<String,Bson> function) {
+        bsonList.add(function.apply(conditionMetaObject.getColumn()));
     }
 
 }

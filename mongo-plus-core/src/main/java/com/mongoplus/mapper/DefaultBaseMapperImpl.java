@@ -2,7 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -259,7 +259,7 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     /**
      * 分页查询 查询总条数
      *
-     * @param compareConditionList 条件集合
+     * @param conditionMetaObjectList 条件集合
      * @param clazz                result class
      * @param pageNum              当前页
      * @param pageSize             每页显示行数
@@ -267,9 +267,9 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
      * @return long
      */
     @Override
-    public long recentPageCount(List<CompareCondition> compareConditionList, Class<?> clazz, Integer pageNum, Integer pageSize, Integer recentPageNum) {
+    public long recentPageCount(List<ConditionMetaObject> conditionMetaObjectList, Class<?> clazz, Integer pageNum, Integer pageSize, Integer recentPageNum) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return recentPageCount(namespace.left, namespace.right, compareConditionList, pageNum, pageSize, recentPageNum);
+        return recentPageCount(namespace.left, namespace.right, conditionMetaObjectList, pageNum, pageSize, recentPageNum);
     }
 
     @Override

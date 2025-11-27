@@ -4,7 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.interfaces.Update;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.domain.MongoPlusException;
@@ -36,7 +36,7 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
 
-    private final List<CompareCondition> updateCompareList = new CopyOnWriteArrayList<>();
+    private final List<ConditionMetaObject> updateCompareList = new CopyOnWriteArrayList<>();
 
     private final List<Bson> updateBson = new CopyOnWriteArrayList<>();
 
@@ -44,7 +44,7 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
         return updateBson;
     }
 
-    public List<CompareCondition> getUpdateCompareList() {
+    public List<ConditionMetaObject> getUpdateCompareList() {
         return updateCompareList;
     }
 
@@ -628,34 +628,34 @@ public class UpdateChainWrapper<T,Children extends UpdateChainWrapper<T,Children
     }
 
     private Children getBaseUpdateCompare(SFunction<T, Object> column, Object value,Object extraValue){
-        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField(),extraValue));
+        updateCompareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField(),extraValue));
         return typedThis;
     }
 
     private Children getBaseUpdateCompare(SFunction<T, Object> column, Object value){
-        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField()));
+        updateCompareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField()));
         return typedThis;
     }
 
     private Children getBaseUpdateCompare(Object value){
         String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        updateCompareList.add(new CompareCondition(methodName,methodName,value,Object.class,null));
+        updateCompareList.add(new ConditionMetaObject(methodName,methodName,value,Object.class,null));
         return typedThis;
     }
 
     private Children getBaseUpdateCompare(Object value,Object extraValue){
         String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        updateCompareList.add(new CompareCondition(methodName,methodName,value,Object.class,null,extraValue));
+        updateCompareList.add(new ConditionMetaObject(methodName,methodName,value,Object.class,null,extraValue));
         return typedThis;
     }
 
     private Children getBaseUpdateCompare(String column, Object value){
-        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null));
+        updateCompareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null));
         return typedThis;
     }
 
     private Children getBaseUpdateCompare(String column, Object value,Object extraValue){
-        updateCompareList.add(new CompareCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null,extraValue));
+        updateCompareList.add(new ConditionMetaObject(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null,extraValue));
         return typedThis;
     }
 

@@ -3,7 +3,7 @@ package com.mongoplus.mapper;
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.annotation.comm.Nullable;
-import com.mongoplus.conditions.interfaces.condition.CompareCondition;
+import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -225,7 +225,7 @@ public interface BaseMapper extends Mapper {
      * 返回第N页
      * @author anwen
      */
-    long recentPageCount(List<CompareCondition> compareConditionList,Class<?> clazz, Integer pageNum, Integer pageSize, Integer recentPageNum);
+    long recentPageCount(List<ConditionMetaObject> conditionMetaObjectList, Class<?> clazz, Integer pageNum, Integer pageSize, Integer recentPageNum);
 
 
     /**
