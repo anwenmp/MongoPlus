@@ -100,7 +100,10 @@ public class BuildCondition extends AbstractCondition {
             case LIKE:
                 Document likeDocument = new Document(compareCondition.getColumn(),
                         new Document(REGEX.getOperatorValue(), compareCondition.getValue().toString())
-                                .append(CommonOperators.OPTIONS.getOperator(), "i")
+                                .append(
+                                        CommonOperators.OPTIONS.getOperator(),
+                                        compareCondition.getExtraValue(RegexOptions.class).getFlag()
+                                )
                 );
                 mongoPlusBasicDBObject.put(likeDocument);
                 break;
