@@ -10,7 +10,7 @@ import com.mongoplus.conditions.AbstractChainWrapper;
 import com.mongoplus.conditions.interfaces.PushOptions;
 import com.mongoplus.conditions.interfaces.TextSearchOptions;
 import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
-import com.mongoplus.conditions.interfaces.condition.Order;
+import com.mongoplus.model.Order;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.domain.MongoPlusException;
 import com.mongoplus.enums.*;

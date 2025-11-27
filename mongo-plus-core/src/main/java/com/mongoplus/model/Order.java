@@ -1,4 +1,4 @@
-package com.mongoplus.conditions.interfaces.condition;
+package com.mongoplus.model;
 
 /**
  * @author JiaChaoYang

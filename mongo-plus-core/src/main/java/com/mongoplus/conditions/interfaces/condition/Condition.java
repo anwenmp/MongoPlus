@@ -1,5 +1,7 @@
 package com.mongoplus.conditions.interfaces.condition;
 
+import com.mongoplus.model.Order;
+
 import java.util.List;
 
 public class Condition {
