@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.conditions.interfaces.condition.CompareCondition;
 import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.enums.RegexOptions;
 import com.mongoplus.enums.TypeEnum;
 import com.mongoplus.handlers.condition.Condition;
 import com.mongoplus.model.BaseConditionResult;
@@ -299,6 +300,25 @@ public interface Compare<T,Children> extends Serializable {
     /**
      * 包含（模糊查询）
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children like(boolean condition, SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 包含（模糊查询）
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children like(SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
      * @param column 列名、字段名
      * @param value 值
      * @return Children
@@ -314,6 +334,25 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      */
     Children like(String column, Object value);
+
+    /**
+     * 包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children like(boolean condition, String column, Object value, RegexOptions options);
+
+    /**
+     * 包含（模糊查询）
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children like(String column, Object value, RegexOptions options);
 
     /**
      * 左包含（模糊查询）
@@ -342,6 +381,26 @@ public interface Compare<T,Children> extends Serializable {
      * @return Children
      * @author JiaChaoYang
      */
+    Children likeLeft(boolean condition , SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 左包含（模糊查询）
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeLeft(SFunction<T,Object> column, Object value, RegexOptions options);
+
+
+    /**
+     * 左包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
     Children likeLeft(boolean condition , String column, Object value);
 
     /**
@@ -352,6 +411,25 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      */
     Children likeLeft(String column, Object value);
+
+    /**
+     * 左包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeLeft(boolean condition , String column, Object value, RegexOptions options);
+
+    /**
+     * 左包含（模糊查询）
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeLeft(String column, Object value, RegexOptions options);
 
     /**
      * 右包含（模糊查询）
@@ -380,6 +458,25 @@ public interface Compare<T,Children> extends Serializable {
      * @return Children
      * @author JiaChaoYang
      */
+    Children likeRight(boolean condition , SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 右包含（模糊查询）
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeRight(SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 右包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
     Children likeRight(boolean condition , String column, Object value);
 
     /**
@@ -390,6 +487,25 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      */
     Children likeRight(String column, Object value);
+
+    /**
+     * 右包含（模糊查询）
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeRight(boolean condition , String column, Object value, RegexOptions options);
+
+    /**
+     * 右包含（模糊查询）
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children likeRight(String column, Object value, RegexOptions options);
 
     /**
      * 多值查询
@@ -989,6 +1105,44 @@ public interface Compare<T,Children> extends Serializable {
      * @author JiaChaoYang
      */
     Children regex(String column,Object value);
+
+    /**
+     * 正则表达式查询
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值（可传入{@link java.util.regex.Pattern}对象）
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children regex(boolean condition, SFunction<T,Object> column, Object value, RegexOptions options);
+
+    /**
+     * 正则表达式查询
+     * @param column 列名、字段名
+     * @param value 值（可传入{@link java.util.regex.Pattern}对象）
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children regex(SFunction<T,Object> column,Object value, RegexOptions options);
+
+    /**
+     * 正则表达式查询
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值（可传入{@link java.util.regex.Pattern}对象）
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children regex(boolean condition,String column,Object value, RegexOptions options);
+
+    /**
+     * 正则表达式查询
+     * @param column 列名、字段名
+     * @param value 值（可传入{@link java.util.regex.Pattern}对象）
+     * @return Children
+     * @author JiaChaoYang
+     */
+    Children regex(String column,Object value, RegexOptions options);
 
     /**
      * 文本查询

@@ -214,7 +214,7 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         MutablePair<Bson, Bson> document = (MutablePair<Bson, Bson>) source[0];
         OperationResult operationResult = new OperationResult();
         operationResult.setOperation(ExecuteMethodEnum.UPDATE.name());
-        String left = document.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+        String left = document.getLeft().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
         String right = document.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
         operationResult.setChangedData(displayCompleteData ? "(left=" + left + ",right=" + right + ")" : "1");
         return operationResult;
@@ -230,7 +230,7 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         operationResult.setOperation(ExecuteMethodEnum.UPDATE.name());
         List<String> dataList = documentList.stream()
                 .map(mutablePair -> {
-                    String left = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
+                    String left = mutablePair.getLeft().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
                     String right = mutablePair.getRight().toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toString();
                     return "(left=" + left + ",right=" + right + ")";
                 })

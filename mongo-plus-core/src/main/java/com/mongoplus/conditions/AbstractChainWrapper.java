@@ -15,6 +15,7 @@ import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.ProjectionEnum;
+import com.mongoplus.enums.RegexOptions;
 import com.mongoplus.enums.TypeEnum;
 import com.mongoplus.handlers.condition.Condition;
 import com.mongoplus.model.geo.Coordinate;
@@ -228,10 +229,20 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children like(SFunction<T, Object> column, Object value) {
+        return like(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children like(boolean condition, SFunction<T, Object> column, Object value, RegexOptions options) {
+        return condition ? like(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children like(SFunction<T, Object> column, Object value, RegexOptions options) {
         if (value instanceof Pattern){
             value = ((Pattern) value).pattern();
         }
-        return getBaseCondition(column,value);
+        return getBaseConditionExtraValue(column,value,options);
     }
 
     @Override
@@ -241,10 +252,20 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children like(String column, Object value) {
+        return like(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children like(boolean condition, String column, Object value, RegexOptions options) {
+        return condition ? like(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children like(String column, Object value, RegexOptions options) {
         if (value instanceof Pattern){
             value = ((Pattern) value).pattern();
         }
-        return getBaseCondition(column,value.toString());
+        return getBaseConditionExtraValue(column,value,options);
     }
 
     @Override
@@ -254,7 +275,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeLeft(SFunction<T, Object> column, Object value) {
-        return like(column,"^"+value);
+        return likeLeft(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children likeLeft(boolean condition, SFunction<T, Object> column, Object value, RegexOptions options) {
+        return condition ? likeLeft(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children likeLeft(SFunction<T, Object> column, Object value, RegexOptions options) {
+        return like(column, "^"+value, options);
     }
 
     @Override
@@ -264,7 +295,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeLeft(String column, Object value) {
-        return like(column,"^"+value);
+        return likeLeft(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children likeLeft(boolean condition, String column, Object value, RegexOptions options) {
+        return condition ? likeLeft(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children likeLeft(String column, Object value, RegexOptions options) {
+        return like(column, "^"+value, options);
     }
 
     @Override
@@ -274,7 +315,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeRight(SFunction<T, Object> column, Object value) {
-        return like(column,value+"$");
+        return likeRight(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children likeRight(boolean condition, SFunction<T, Object> column, Object value, RegexOptions options) {
+        return condition ? likeRight(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children likeRight(SFunction<T, Object> column, Object value, RegexOptions options) {
+        return like(column, value+"$", options);
     }
 
     @Override
@@ -284,7 +335,17 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children likeRight(String column, Object value) {
-        return like(column,value+"$");
+        return likeRight(column, value+"$", RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children likeRight(boolean condition, String column, Object value, RegexOptions options) {
+        return condition ? likeRight(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children likeRight(String column, Object value, RegexOptions options) {
+        return like(column,value+"$", options);
     }
 
     @Override
@@ -632,7 +693,7 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children regex(SFunction<T, Object> column, Object value) {
-        return getBaseCondition(column,value);
+        return regex(column, value, RegexOptions.CASE_INSENSITIVE);
     }
 
     @Override
@@ -642,10 +703,33 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children regex(String column, Object value) {
+        return regex(column, value, RegexOptions.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public Children regex(boolean condition, SFunction<T, Object> column, Object value, RegexOptions options) {
+        return condition ? regex(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children regex(SFunction<T, Object> column, Object value, RegexOptions options) {
         if (value instanceof Pattern){
             value = ((Pattern) value).pattern();
         }
-        return getBaseCondition(column,value);
+        return getBaseConditionExtraValue(column,value,options);
+    }
+
+    @Override
+    public Children regex(boolean condition, String column, Object value, RegexOptions options) {
+        return condition ? regex(column,value,options) : typedThis;
+    }
+
+    @Override
+    public Children regex(String column, Object value, RegexOptions options) {
+        if (value instanceof Pattern){
+            value = ((Pattern) value).pattern();
+        }
+        return getBaseConditionExtraValue(column,value,options);
     }
 
     @Override
@@ -1092,7 +1176,8 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
                 column.getFieldNameLine(),
                 new GeoNear(geometry,maxDistance,minDistance),
                 column.getImplClass(),
-                column.getField()
+                column.getField(),
+                null
         );
     }
 
@@ -1102,15 +1187,20 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
                 column,
                 new GeoNear(geometry,maxDistance,minDistance),
                 Object.class,
+                null,
                 null
         );
     }
 
     public Children getBaseCondition(String column, Object value){
-        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null);
+        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null,null);
     }
 
-    public Children getBaseCondition(String condition,String column, Object value, Class<?> clazz, Field field){
+    public Children getBaseConditionExtraValue(String column, Object value, Object extraValue){
+        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column,value,Object.class,null,extraValue);
+    }
+
+    public Children getBaseCondition(String condition,String column, Object value, Class<?> clazz, Field field, Object extraValue){
         if (Objects.equals(column, SqlOperationConstant._ID)) {
             if (value instanceof Collection<?>) {
                 value = ((Collection<?>) value).stream()
@@ -1120,16 +1210,20 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
                 value = ObjectIdUtil.getObjectIdValue(value);
             }
         }
-        this.compareList.add(new CompareCondition(condition, column, value,clazz,field));
+        this.compareList.add(new CompareCondition(condition, column, value,clazz,field,extraValue));
         return typedThis;
     }
 
     public Children getBaseCondition(SFunction<T, ?> column, Object value){
-        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField());
+        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField(),null);
+    }
+
+    public Children getBaseConditionExtraValue(SFunction<T, ?> column, Object value, Object extraValue){
+        return getBaseCondition(Thread.currentThread().getStackTrace()[2].getMethodName(),column.getFieldNameLine(),value,column.getImplClass(),column.getField(),extraValue);
     }
 
     public Children getBaseCondition(String methodName,SFunction<T, ?> column, Object value){
-        return getBaseCondition(methodName,column.getFieldNameLine(),value,column.getImplClass(),column.getField());
+        return getBaseCondition(methodName,column.getFieldNameLine(),value,column.getImplClass(),column.getField(),null);
     }
 
     public Children getBaseCondition(QueryChainWrapper<?,?> queryChainWrapper){
