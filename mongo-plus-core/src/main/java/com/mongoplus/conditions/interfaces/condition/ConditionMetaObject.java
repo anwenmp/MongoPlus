@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 构建条件对象
+ * 条件元对象
  * @author JiaChaoYang
  * @since 2023/2/14 14:13
 */
