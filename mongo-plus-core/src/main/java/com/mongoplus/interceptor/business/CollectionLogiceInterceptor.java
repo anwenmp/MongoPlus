@@ -154,4 +154,23 @@ public class CollectionLogiceInterceptor implements Interceptor {
         }
         return aggregateConditionList;
     }
+
+    @Override
+    public MutablePair<Bson, Bson> executeUpdate(MutablePair<Bson, Bson> updatePair, MongoCollection<Document> collection) {
+        Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
+        if (LogicDeleteHandler.close() || Objects.isNull(clazz)) {
+            return updatePair;
+        }
+        Bson filter = LogicDeleteHandler.doBsonLogicDel(updatePair.getLeft(), clazz);
+        updatePair.setLeft(filter);
+        return updatePair;
+    }
+
+    @Override
+    public List<MutablePair<Bson, Bson>> executeUpdate(List<MutablePair<Bson, Bson>> updatePairList, MongoCollection<Document> collection) {
+        updatePairList.forEach(pair -> {
+            executeUpdate(pair, collection);
+        });
+        return updatePairList;
+    }
 }

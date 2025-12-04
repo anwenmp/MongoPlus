@@ -24,12 +24,13 @@ public class CountExecutorStrategy implements MethodExecutorStrategy {
 
     @Override
     public void invoke(Interceptor interceptor, Object[] args) {
-        MutablePair<BasicDBObject, CountOptions> basicDBObjectCountOptionsMutablePair = interceptor.executeCount((BasicDBObject) args[0], (CountOptions) args[1]);
-        args[0] = basicDBObjectCountOptionsMutablePair.getLeft();
-        args[1] = basicDBObjectCountOptionsMutablePair.getRight();
-        basicDBObjectCountOptionsMutablePair = interceptor.executeCount((BasicDBObject) args[0], (CountOptions) args[1], (MongoCollection<Document>) args[args.length-1]);
-        args[0] = basicDBObjectCountOptionsMutablePair.getLeft();
-        args[1] = basicDBObjectCountOptionsMutablePair.getRight();
+        MutablePair<BasicDBObject, CountOptions> pair = interceptor.executeCount(
+                (BasicDBObject) args[0],
+                (CountOptions) args[1],
+                (MongoCollection<Document>) args[args.length-1]
+        );
+        args[0] = pair.getLeft();
+        args[1] = pair.getRight();
     }
 
 }

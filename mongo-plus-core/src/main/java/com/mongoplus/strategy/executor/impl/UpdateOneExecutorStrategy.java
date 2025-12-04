@@ -23,7 +23,10 @@ public class UpdateOneExecutorStrategy implements MethodExecutorStrategy {
     @Override
     @SuppressWarnings("unchecked")
     public void invoke(Interceptor interceptor, Object[] args) {
-        args[0] = interceptor.executeUpdate((MutablePair<Bson,Bson>) args[0], (MongoCollection<Document>) args[args.length-1]);
+        args[0] = interceptor.executeUpdate(
+                (MutablePair<Bson,Bson>) args[0],
+                (MongoCollection<Document>) args[args.length-1]
+        );
     }
 
 }

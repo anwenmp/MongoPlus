@@ -24,11 +24,12 @@ public class QueryExecutorStrategy implements MethodExecutorStrategy {
 
     @Override
     public void invoke(Interceptor interceptor, Object[] args) {
-        QueryParam queryParam = interceptor.executeQuery((Bson) args[0], (BasicDBObject) args[1], (BasicDBObject) args[2]);
-        args[0] = queryParam.getQuery();
-        args[1] = queryParam.getProjection();
-        args[2] = queryParam.getSort();
-        queryParam = interceptor.executeQuery((Bson) args[0], (BasicDBObject) args[1], (BasicDBObject) args[2], (MongoCollection<Document>) args[args.length-1]);
+        QueryParam queryParam = interceptor.executeQuery(
+                (Bson) args[0],
+                (BasicDBObject) args[1],
+                (BasicDBObject) args[2],
+                (MongoCollection<Document>) args[args.length-1]
+        );
         args[0] = queryParam.getQuery();
         args[1] = queryParam.getProjection();
         args[2] = queryParam.getSort();

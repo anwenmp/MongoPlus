@@ -281,7 +281,11 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      * @author anwen
      */
     boolean hitLock(ExecuteMethodEnum executeMethod) {
-        return executeMethod == SAVE || executeMethod == UPDATE || executeMethod == BULK_WRITE;
+        return executeMethod == SAVE ||
+                executeMethod == SAVE_ONE ||
+                executeMethod == UPDATE ||
+                executeMethod == UPDATE_ONE ||
+                executeMethod == BULK_WRITE;
     }
 
     /**
