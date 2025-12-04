@@ -35,6 +35,7 @@ import com.mongoplus.property.MongoDBConfigurationProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.property.MongoLogicDelProperty;
 import com.mongoplus.scanner.CollectionScanner;
+import com.mongoplus.scanner.PackageScanner;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.AutoUtil;
@@ -42,6 +43,7 @@ import com.mongoplus.toolkit.CollUtil;
 import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
 
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -288,9 +290,13 @@ public class MongoPlusAutoConfiguration {
      * @author anwen
      */
     public void autoCreateTimeSeries(AppContext context){
-        Set<Class<?>> classes;
-        if (mongoDBConfigurationProperty.getAutoCreateTimeSeries() &&
-                CollUtil.isNotEmpty(classes = CollectionScanner.getClasses(TimeSeries.class))) {
+        List<String> autoScanPackages = mongoDBConfigurationProperty.getAutoScanPackages();
+        if (!mongoDBConfigurationProperty.getAutoCreateTimeSeries() && CollUtil.isEmpty(autoScanPackages)) {
+            return;
+        }
+        getAutoOperationClass(autoScanPackages);
+        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages);
+        if (CollUtil.isNotEmpty(classes)) {
             AutoUtil.autoCreateTimeSeries(classes, mongoPlusClient);
         }
     }
@@ -300,11 +306,34 @@ public class MongoPlusAutoConfiguration {
      * @author anwen
      */
     public void autoCreateIndexes(AppContext context) {
-        Set<Class<?>> classes;
-        if (mongoDBConfigurationProperty.getAutoCreateIndex() &&
-                CollUtil.isNotEmpty(classes = CollectionScanner.getClasses(CollectionName.class))) {
+        List<String> autoScanPackages = mongoDBConfigurationProperty.getAutoScanPackages();
+        if (!mongoDBConfigurationProperty.getAutoCreateIndex() && CollUtil.isEmpty(autoScanPackages)) {
+            return;
+        }
+        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages);
+        getAutoOperationClass(autoScanPackages);
+        if (CollUtil.isNotEmpty(classes)) {
             AutoUtil.autoCreateIndexes(classes, mongoPlusClient);
         }
+    }
+
+    private Set<Class<?>> getAutoOperationClass(List<String> autoScanPackages) {
+        Set<Class<?>> classes = new HashSet<>();
+        PackageScanner scanner = new PackageScanner();
+        autoScanPackages.forEach(packages -> {
+            try {
+                List<Class<?>> classList = scanner.scanPackage(packages);
+                classList.forEach(clazz -> {
+                    CollectionName collectionName = clazz.getAnnotation(CollectionName.class);
+                    if (collectionName != null) {
+                        classes.add(clazz);
+                    }
+                });
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return classes;
     }
 
     /**

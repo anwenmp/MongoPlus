@@ -2,6 +2,8 @@ package com.mongoplus.property;
 
 import com.mongoplus.cache.global.PropertyCache;
 
+import java.util.List;
+
 /**
  * configuration属性配置
  *
@@ -41,6 +43,11 @@ public class MongoDBConfigurationProperty {
      * 自动创建时间序列
      */
     private Boolean autoCreateTimeSeries = false;
+
+    /**
+     * 自动创建包路径
+     */
+    private List<String> autoScanPackages;
 
     /**
      * 是否懒加载数据源
@@ -114,5 +121,13 @@ public class MongoDBConfigurationProperty {
 
     public void setBanner(Boolean banner) {
         this.banner = banner;
+    }
+
+    public List<String> getAutoScanPackages() {
+        return autoScanPackages;
+    }
+
+    public void setAutoScanPackages(List<String> autoScanPackages) {
+        this.autoScanPackages = autoScanPackages;
     }
 }
