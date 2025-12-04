@@ -34,7 +34,6 @@ import com.mongoplus.property.MongoDBCollectionProperty;
 import com.mongoplus.property.MongoDBConfigurationProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.property.MongoLogicDelProperty;
-import com.mongoplus.scanner.CollectionScanner;
 import com.mongoplus.scanner.PackageScanner;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
@@ -44,6 +43,7 @@ import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -123,6 +123,10 @@ public class MongoPlusAutoConfiguration {
         setIdGenerateHandler(context);
         // 设置高级拦截器
         setAdvancedInterceptor(context);
+        // 配置动态集合处理器
+        setDynamicCollectionHandler(context);
+        // 配置多租户处理器
+        setTenantHandler(context);
     }
 
     /**
@@ -294,8 +298,7 @@ public class MongoPlusAutoConfiguration {
         if (!mongoDBConfigurationProperty.getAutoCreateTimeSeries() && CollUtil.isEmpty(autoScanPackages)) {
             return;
         }
-        getAutoOperationClass(autoScanPackages);
-        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages);
+        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages, TimeSeries.class);
         if (CollUtil.isNotEmpty(classes)) {
             AutoUtil.autoCreateTimeSeries(classes, mongoPlusClient);
         }
@@ -310,22 +313,21 @@ public class MongoPlusAutoConfiguration {
         if (!mongoDBConfigurationProperty.getAutoCreateIndex() && CollUtil.isEmpty(autoScanPackages)) {
             return;
         }
-        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages);
-        getAutoOperationClass(autoScanPackages);
+        Set<Class<?>> classes = getAutoOperationClass(autoScanPackages, CollectionName.class);
         if (CollUtil.isNotEmpty(classes)) {
             AutoUtil.autoCreateIndexes(classes, mongoPlusClient);
         }
     }
 
-    private Set<Class<?>> getAutoOperationClass(List<String> autoScanPackages) {
+    private Set<Class<?>> getAutoOperationClass(List<String> autoScanPackages, Class<? extends Annotation> annotation) {
         Set<Class<?>> classes = new HashSet<>();
         PackageScanner scanner = new PackageScanner();
         autoScanPackages.forEach(packages -> {
             try {
                 List<Class<?>> classList = scanner.scanPackage(packages);
                 classList.forEach(clazz -> {
-                    CollectionName collectionName = clazz.getAnnotation(CollectionName.class);
-                    if (collectionName != null) {
+                    Annotation clazzAnnotation = clazz.getAnnotation(annotation);
+                    if (clazzAnnotation != null) {
                         classes.add(clazz);
                     }
                 });

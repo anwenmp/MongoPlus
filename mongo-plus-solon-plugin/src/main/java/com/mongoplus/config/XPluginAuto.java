@@ -37,7 +37,6 @@ public class XPluginAuto implements Plugin {
         context.beanMake(TenantAspect.class);
         context.beanMake(MongoLogicIgnoreAspect.class);
         context.beanInjectorAdd(Inject.class,MongoMapper.class,registerMongoMapper());
-        scannerAutoCreate(context);
     }
 
     BeanInjector<Inject> registerMongoMapper() {
@@ -59,17 +58,6 @@ public class XPluginAuto implements Plugin {
                 }
             }
         };
-    }
-
-    /**
-     * 自动创建索引
-     * @author anwen
-     */
-    public void scannerAutoCreate(AppContext context) {
-        context.beanBuilderAdd(CollectionName.class, (clz, bw, anno) ->
-                CollectionScanner.addCollectionClass(CollectionName.class,bw.clz()));
-        context.beanBuilderAdd(TimeSeries.class, (clz, bw, anno) ->
-                CollectionScanner.addCollectionClass(TimeSeries.class,bw.clz()));
     }
 
 }
