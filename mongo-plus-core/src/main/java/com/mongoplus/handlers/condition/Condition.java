@@ -3,8 +3,8 @@ package com.mongoplus.handlers.condition;
 import com.mongodb.BasicDBObject;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.AbstractChainWrapper;
-import com.mongoplus.conditions.interfaces.Projection;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.model.Projection;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.model.MutablePair;
@@ -73,7 +73,7 @@ public interface Condition {
         if (wrapper == null) {
             return true;
         }
-        return CollUtil.isEmpty(wrapper.getCompareList()) && CollUtil.isEmpty(wrapper.getBasicDBObjectList());
+        return CollUtil.isEmpty(wrapper.getConditionMetaObjects()) && CollUtil.isEmpty(wrapper.getBasicDBObjectList());
     }
 
     /**

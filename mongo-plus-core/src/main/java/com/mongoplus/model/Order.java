@@ -92,6 +92,11 @@ public class Order {
         this.column = column;
     }
 
+    public Order(String column, Integer type) {
+        this.type = type;
+        this.column = column;
+    }
+
     public Order() {
     }
 

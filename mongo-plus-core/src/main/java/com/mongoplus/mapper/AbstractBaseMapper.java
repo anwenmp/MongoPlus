@@ -10,7 +10,7 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -142,7 +142,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     @Override
     public <T> Boolean updateOne(T entity,QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryChainWrapper.getCompareList(), entity, mongoConverter);
+                ConditionUtil.getUpdateCondition(queryChainWrapper.getConditionMetaObjects(), entity, mongoConverter);
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
         return updateOne(namespace.getLeft(), namespace.getRight(), updatePair.getLeft(), updatePair.getRight(),options) > 0;
     }
@@ -160,7 +160,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     public <T> Boolean update(String database, String collectionName, T entity,
                               QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryChainWrapper.getCompareList(), entity, mongoConverter);
+                ConditionUtil.getUpdateCondition(queryChainWrapper.getConditionMetaObjects(), entity, mongoConverter);
         return update(database, collectionName, updatePair.getLeft(), updatePair.getRight(),options) > 0;
     }
 
@@ -459,7 +459,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
         if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
             count = factory.getExecute().estimatedDocumentCount(collection);
         } else {
-            count = recentPageCount(database, collectionName, queryChainWrapper.getCompareList(), pageNum, pageSize, recentPageNum);
+            count = recentPageCount(database, collectionName, queryChainWrapper.getConditionMetaObjects(), pageNum, pageSize, recentPageNum);
         }
         FindIterable<Document> iterable = factory.getExecute().executeQuery(
                 baseConditionResult.getCondition(),

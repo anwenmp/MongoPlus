@@ -2,7 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;

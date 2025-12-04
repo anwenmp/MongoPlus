@@ -1,6 +1,6 @@
 package com.mongoplus.aggregate.pipeline;
 
-import com.mongoplus.conditions.interfaces.Projection;
+import com.mongoplus.model.Projection;
 import com.mongoplus.support.SFunction;
 
 import java.util.Collection;

@@ -1,0 +1,106 @@
+package com.mongoplus.conditions.interfaces.query.geo.operations;
+
+import com.mongodb.client.model.geojson.Geometry;
+import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
+import com.mongoplus.support.SFunction;
+import org.bson.conversions.Bson;
+
+/**
+ * geoIntersects操作
+ * @author anwen
+ */
+public interface GeoIntersects<T, Children> extends BaseQueryCondition<T, Children> {
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(boolean condition,String fieldName, Geometry geometry) {
+        return condition ? geoIntersects(fieldName, geometry) : typeThis();
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(String fieldName, Geometry geometry) {
+        return addCondition(getBaseCondition(fieldName, geometry));
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(boolean condition, SFunction<T,?> fieldName, Geometry geometry) {
+        return condition ? geoIntersects(fieldName, geometry) : typeThis();
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(SFunction<T,?> fieldName, Geometry geometry) {
+        return addCondition(getBaseCondition(fieldName, geometry));
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(boolean condition,String fieldName, Bson geometry) {
+        return condition ? geoIntersects(fieldName, geometry) : typeThis();
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(String fieldName, Bson geometry) {
+        return addCondition(getBaseCondition(fieldName, geometry));
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(boolean condition,SFunction<T,?> fieldName, Bson geometry) {
+        return condition ? geoIntersects(fieldName, geometry) : typeThis();
+    }
+
+    /**
+     * 选择地理空间数据与指定 GeoJSON 对象相交的文档；
+     * @param fieldName 字段名
+     * @param geometry GeoJSON对象
+     * @return {@link Children}
+     * @author anwen
+     */
+    default Children geoIntersects(SFunction<T,?> fieldName, Bson geometry) {
+        return addCondition(getBaseCondition(fieldName, geometry));
+    }
+
+}

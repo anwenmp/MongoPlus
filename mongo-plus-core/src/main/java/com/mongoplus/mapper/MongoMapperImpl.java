@@ -232,7 +232,7 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
             if (count > 0) {
                 MutablePair<BasicDBObject, BasicDBObject> updatePair = ConditionUtil.
                         getUpdateCondition(
-                                queryChainWrapper.getCompareList(),
+                                queryChainWrapper.getConditionMetaObjects(),
                                 entity,
                                 baseMapper.getMongoConverter()
                         );

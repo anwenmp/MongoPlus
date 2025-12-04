@@ -1,7 +1,7 @@
 package com.mongoplus.handlers.condition;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 
 /**
  * 条件处理器

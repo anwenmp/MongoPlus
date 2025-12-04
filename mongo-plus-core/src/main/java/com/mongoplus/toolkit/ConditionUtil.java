@@ -1,7 +1,7 @@
 package com.mongoplus.toolkit;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.SpecialConditionEnum;
 import com.mongoplus.mapping.MongoConverter;

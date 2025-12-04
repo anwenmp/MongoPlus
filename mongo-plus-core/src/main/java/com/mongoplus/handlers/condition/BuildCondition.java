@@ -7,9 +7,9 @@ import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.AbstractChainWrapper;
-import com.mongoplus.conditions.interfaces.PushOptions;
-import com.mongoplus.conditions.interfaces.TextSearchOptions;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.options.PushOptions;
+import com.mongoplus.options.TextSearchOptions;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.model.Order;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.domain.MongoPlusException;
@@ -370,7 +370,7 @@ public class BuildCondition extends AbstractCondition {
         if (CollUtil.isNotEmpty(orderList)) {
             orderList.forEach(order -> sortCond.put(order.getColumn(), order.getType()));
         }
-        BasicDBObject basicDBObject = queryCondition(wrapper.getCompareList());
+        BasicDBObject basicDBObject = queryCondition(wrapper.getConditionMetaObjects());
         if (CollUtil.isNotEmpty(basicDBObjectList)) {
             basicDBObjectList.forEach(basic -> basicDBObject.putAll(basic.toBsonDocument(
                     BsonDocument.class,
@@ -385,11 +385,11 @@ public class BuildCondition extends AbstractCondition {
 
     public void logic(QueryChainWrapper<?, ?> queryChainWrapper, MongoPlusBasicDBObject basicDBObject, Function<List<Bson>, Bson> function) {
         List<Bson> bsonList = new ArrayList<>();
-        queryChainWrapper.getCompareList().forEach(compareCondition -> {
+        queryChainWrapper.getConditionMetaObjects().forEach(compareCondition -> {
             if (Objects.equals(COMBINE.getValue(), compareCondition.getCondition())) {
                 bsonList.add(queryCondition(
                         ((QueryChainWrapper<?, ?>) compareCondition.getValue())
-                                .getCompareList()
+                                .getConditionMetaObjects()
                 ));
             } else {
                 bsonList.add(queryCondition(compareCondition));

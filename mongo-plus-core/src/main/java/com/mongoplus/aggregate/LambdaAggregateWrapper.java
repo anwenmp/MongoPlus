@@ -8,7 +8,7 @@ import com.mongodb.client.model.densify.DensifyRange;
 import com.mongodb.client.model.fill.FillOptions;
 import com.mongodb.client.model.fill.FillOutputField;
 import com.mongoplus.aggregate.pipeline.UnwindOption;
-import com.mongoplus.conditions.interfaces.Projection;
+import com.mongoplus.model.Projection;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.constant.AggregationOperators;

@@ -7,7 +7,7 @@ import com.mongoplus.annotation.ID;
 import com.mongoplus.annotation.collection.CollectionName;
 import com.mongoplus.annotation.collection.DBRef;
 import com.mongoplus.cache.global.PropertyCache;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.domain.MongoPlusFieldException;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.execute.ExecutorFactory;

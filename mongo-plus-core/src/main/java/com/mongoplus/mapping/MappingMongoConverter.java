@@ -5,7 +5,7 @@ import com.mongoplus.cache.global.ConversionCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.cache.global.SimpleCache;
-import com.mongoplus.conditions.update.Holder;
+import com.mongoplus.conditions.interfaces.update.field.operations.Holder;
 import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.handlers.FieldHandler;
 import com.mongoplus.logging.Log;

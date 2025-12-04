@@ -1,7 +1,7 @@
 package com.mongoplus.model;
 
 import com.mongodb.BasicDBObject;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 
 /**
  * @author anwen

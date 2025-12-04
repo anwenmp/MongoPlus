@@ -3,7 +3,7 @@ package com.mongoplus.logic;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.codec.MapCodecCache;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.config.Configuration;
@@ -71,7 +71,7 @@ public interface LogicDeleteHandler {
         if (Objects.isNull(query)) {
             QueryChainWrapper wrapper = new QueryWrapper();
             wrapper.eq(result.getColumn(), result.getLogicNotDeleteValue());
-            return condition().queryCondition(wrapper.getCompareList());
+            return condition().queryCondition(wrapper.getConditionMetaObjects());
         }
         if (query instanceof BasicDBObject) {
             BasicDBObject bdb = (BasicDBObject) query;
@@ -123,20 +123,20 @@ public interface LogicDeleteHandler {
             if (Objects.isNull(queryChainWrapper)) {
                 return null;
             }
-            return queryChainWrapper.getCompareList();
+            return queryChainWrapper.getConditionMetaObjects();
         }
         LogicDeleteResult result = LogicManager.logicDeleteResultHashMap.get(clazz);
         if (Objects.isNull(result)) {
             if (Objects.isNull(queryChainWrapper)) {
                 return null;
             }
-            return queryChainWrapper.getCompareList();
+            return queryChainWrapper.getConditionMetaObjects();
         }
         if (Objects.isNull(queryChainWrapper)) {
             queryChainWrapper = ChainWrappers.lambdaQueryChain(null, clazz);
         }
         queryChainWrapper.eq(result.getColumn(), result.getLogicNotDeleteValue());
-        return queryChainWrapper.getCompareList();
+        return queryChainWrapper.getConditionMetaObjects();
 
     }
 

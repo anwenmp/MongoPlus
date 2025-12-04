@@ -1,0 +1,58 @@
+package com.mongoplus.conditions.interfaces.query.compare.operations;
+
+import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
+import com.mongoplus.support.SFunction;
+
+/**
+ * eq比较
+ * @author anwen
+ */
+public interface Eq<T,Children> extends BaseQueryCondition<T, Children> {
+
+    /**
+     * 等于
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    default Children eq(boolean condition, SFunction<T,Object> column, Object value) {
+        return condition ? eq(column,value) : typeThis();
+    }
+
+    /**
+     * 等于
+     * @param column 列名、字段名，lambda方式
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    default Children eq(SFunction<T,Object> column, Object value) {
+        return addCondition(getBaseCondition(column, value));
+    }
+
+    /**
+     * 等于
+     * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    default Children eq(boolean condition, String column, Object value) {
+        return condition ? eq(column,value) : typeThis();
+    }
+
+    /**
+     * 等于
+     * @param column 列名、字段名
+     * @param value 值
+     * @return Children
+     * @author JiaChaoYang
+     */
+    default Children eq(String column, Object value) {
+        return addCondition(getBaseCondition(column, value));
+    }
+
+}

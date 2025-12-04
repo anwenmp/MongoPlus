@@ -1,0 +1,70 @@
+package com.mongoplus.conditions.interfaces.query.other.operations;
+
+import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
+import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.query.QueryWrapper;
+import com.mongoplus.support.SFunction;
+
+import java.util.Collections;
+
+import static com.mongoplus.handlers.condition.BuildCondition.condition;
+
+/**
+ * expr操作
+ *
+ * @author anwen
+ */
+public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
+
+    /**
+     * 进行计算的表达式
+     * @author JiaChaoYang
+     */
+    default Children expr(ConditionMetaObject conditionMetaObject) {
+        return addCondition(getBaseCondition(
+                Collections.singletonList(condition().queryCondition(conditionMetaObject))
+        ));
+    }
+
+    /**
+     * 进行计算的表达式
+     * @author JiaChaoYang
+     */
+    default Children expr(boolean condition, ConditionMetaObject conditionMetaObject) {
+        return condition ? expr(conditionMetaObject) : typeThis();
+    }
+
+    /**
+     * 进行计算的表达式
+     * @author anwen
+     */
+    default Children expr(boolean condition, QueryChainWrapper<?,?> queryChainWrapper) {
+        return condition ? expr(queryChainWrapper) : typeThis();
+    }
+
+    /**
+     * 进行计算的表达式
+     * @author anwen
+     */
+    default Children expr(QueryChainWrapper<?,?> queryChainWrapper) {
+        return addCondition(getBaseCondition(queryChainWrapper));
+    }
+
+    /**
+     * 进行计算的表达式
+     * @author anwen
+     */
+    default Children expr(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+        return expr(function.apply(new QueryWrapper<>()));
+    }
+
+    /**
+     * 进行计算的表达式
+     * @author anwen
+     */
+    default Children expr(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+        return condition ? expr(function) : typeThis();
+    }
+
+}

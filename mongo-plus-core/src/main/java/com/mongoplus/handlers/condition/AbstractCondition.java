@@ -5,7 +5,7 @@ import com.mongoplus.annotation.comm.EnumValue;
 import com.mongoplus.bson.MongoPlusBasicDBObject;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
-import com.mongoplus.conditions.interfaces.condition.ConditionMetaObject;
+import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.enums.UpdateConditionEnum;
 import com.mongoplus.model.BuildUpdate;
