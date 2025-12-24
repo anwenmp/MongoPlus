@@ -1,5 +1,6 @@
 package com.mongoplus.config;
 
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongoplus.annotation.collection.CollectionLogic;
 import com.mongoplus.annotation.logice.IgnoreLogic;
@@ -12,6 +13,7 @@ import com.mongoplus.domain.InitMongoPlusException;
 import com.mongoplus.enums.CollectionNameConvertEnum;
 import com.mongoplus.enums.LogicDataType;
 import com.mongoplus.execute.ExecutorFactory;
+import com.mongoplus.factory.MongoClientFactory;
 import com.mongoplus.handlers.IdGenerateHandler;
 import com.mongoplus.handlers.MetaObjectHandler;
 import com.mongoplus.handlers.TenantHandler;
@@ -36,9 +38,9 @@ import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.model.LogicDeleteResult;
 import com.mongoplus.model.LogicProperty;
-import com.mongoplus.registry.ComponentRegistry;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.toolkit.ClassTypeUtil;
+import com.mongoplus.toolkit.MongoUtil;
 import com.mongoplus.toolkit.StringUtils;
 import com.mongoplus.toolkit.UrlJoint;
 
@@ -276,29 +278,44 @@ public class Configuration {
     }
 
     public MongoPlusClient initMongoPlusClient() {
-        return initMongoPlusClient(baseProperty);
+        return initMongoPlusClient(MongoUtil.getMongo(DataSourceConstant.DEFAULT_DATASOURCE,baseProperty),baseProperty);
     }
 
     public MongoPlusClient initMongoPlusClient(BaseProperty baseProperty) {
+        return initMongoPlusClient(MongoUtil.getMongo(DataSourceConstant.DEFAULT_DATASOURCE, baseProperty), baseProperty);
+    }
+
+    public MongoPlusClient initMongoPlusClient(MongoClient mongoClient, BaseProperty baseProperty) {
         if (StringUtils.isBlank(baseProperty.getDatabase())) {
             throw new InitMongoPlusException("Connection database not configured");
         }
+        MongoClientFactory.getInstance(mongoClient);
         MongoPlusClient mongoPlusClient = new MongoPlusClient();
         mongoPlusClient.setBaseProperty(baseProperty);
-        List<String> mongoDatabases = new ArrayList<>();
-        mongoPlusClient.setCollectionManagers(new ConcurrentHashMap<String, Map<String, CollectionManager>>() {{
+        List<MongoDatabase> mongoDatabaseList = new ArrayList<>();
+        mongoPlusClient.setCollectionManagerMap(new ConcurrentHashMap<String, Map<String, CollectionManager>>() {{
             put(DataSourceConstant.DEFAULT_DATASOURCE, new LinkedHashMap<String, CollectionManager>() {{
                 String database = mongoPlusClient.getBaseProperty().getDatabase();
                 Arrays.stream(database.split(",")).collect(Collectors.toList()).forEach(db -> {
                     CollectionManager collectionManager = new CollectionManager(db);
-                    mongoDatabases.add(db);
+                    MongoDatabase mongoDatabase = mongoPlusClient.getMongoClient().getDatabase(db);
+                    mongoDatabaseList.add(mongoDatabase);
                     put(db, collectionManager);
                 });
             }});
         }});
-        mongoPlusClient.setDatabases(mongoDatabases);
-        ComponentRegistry.register(mongoPlusClient);
+        mongoPlusClient.setMongoDatabase(mongoDatabaseList);
+        MongoPlusClientCache.mongoPlusClient = mongoPlusClient;
         return mongoPlusClient;
+    }
+
+    /**
+     * 设置数据源
+     *
+     * @author JiaChaoYang
+     */
+    public void setOtherDataSource(Map<String, MongoClient> mongoClientMap) {
+        MongoClientFactory.getInstance(mongoClientMap);
     }
 
     /**

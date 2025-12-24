@@ -2,60 +2,89 @@ package com.mongoplus.factory;
 
 import com.mongodb.client.MongoClient;
 import com.mongoplus.cache.global.DataSourceNameCache;
-import com.mongoplus.model.BaseProperty;
+import com.mongoplus.constant.DataSourceConstant;
+import com.mongoplus.logging.Log;
+import com.mongoplus.logging.LogFactory;
 
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * MongoClient工厂接口
- * @author anwen
- */
-public interface MongoClientFactory {
+ * MongoClient工厂
+ *
+ * @author JiaChaoYang
+ **/
+public class MongoClientFactory implements AutoCloseable {
 
-    static MongoClientFactory getInstance(boolean lazyDataSource) {
-        return lazyDataSource ? new LazyMongoClientFactory() : new DefaultMongoClientFactory();
+    private final Log log = LogFactory.getLog(MongoClientFactory.class);
+
+    private final Map<String , MongoClient> mongoClientMap = new ConcurrentHashMap<>();
+
+    private static MongoClientFactory mongoClientFactory;
+
+    private MongoClientFactory() {
     }
 
-/*    *//**
-     * 获取属性配置
-     * @param ds 数据源
-     * @return 属性配置
-     *//*
-    BaseProperty getBaseProperty(String ds);*/
+    private MongoClientFactory(MongoClient mongoClient){
+        new MongoClientFactory(DataSourceConstant.DEFAULT_DATASOURCE,mongoClient);
+    }
+
+    private MongoClientFactory(String ds,MongoClient mongoClient){
+        mongoClientMap.put(ds,mongoClient);
+    }
+
+    public static MongoClientFactory getInstance(String ds,MongoClient mongoClient){
+        if (mongoClientFactory == null){
+            mongoClientFactory = new MongoClientFactory();
+        }
+        mongoClientFactory.addMongoClient(ds,mongoClient);
+        return mongoClientFactory;
+    }
+
+    public static MongoClientFactory getInstance(MongoClient mongoClient){
+        return getInstance(DataSourceConstant.DEFAULT_DATASOURCE,mongoClient);
+    }
+
+    public static MongoClientFactory getInstance(Map<String,MongoClient> mongoClientMap){
+        mongoClientFactory = new MongoClientFactory();
+        mongoClientFactory.mongoClientMap.putAll(mongoClientMap);
+        return mongoClientFactory;
+    }
 
     /**
-     * 注册MongoClient
-     * @param ds 数据源
-     * @param baseProperty 属性配置
+     * 获取工厂实例，可能为null(spring-boot-starter项目已经初始化好，
+     * 如果使用{@link com.mongoplus.config.Configuration}构建，可能会为空)
+     * @author JiaChaoYang
      */
-    void registerMongoClient(String ds, BaseProperty baseProperty);
+    public static MongoClientFactory getInstance(){
+        return mongoClientFactory;
+    }
 
-    /**
-     * 此数据源是否注册MongoClient
-     * @param ds 数据源
-     * @return 是否注册
-     */
-    boolean existMongoClient(String ds);
+    public void addMongoClient(String ds,MongoClient mongoClient){
+        mongoClientMap.put(ds,mongoClient);
+    }
 
-    /**
-     * 获取MongoClient
-     * @param ds 数据源
-     * @return MongoClient
-     */
-    MongoClient getMongoClient(String ds);
+    public MongoClient getMongoClient(String ds){
+        return mongoClientMap.get(ds);
+    }
 
-    /**
-     * 获取所有数据源
-     * @return 所有MongoClient
-     */
-    Set<String> getDataSources();
+    public Boolean containsMongoClient(String ds){
+        return mongoClientMap.containsKey(ds);
+    }
 
-    /**
-     * 获取MongoClient
-     * @return MongoClient
-     */
-    default MongoClient getMongoClient() {
+    public MongoClient getMongoClient(){
         return getMongoClient(DataSourceNameCache.getDataSource());
     }
 
+    public Map<String, MongoClient> getMongoClientMap() {
+        return mongoClientMap;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (log.isDebugEnabled()){
+            log.debug("Destroy data source connection client");
+        }
+        mongoClientMap.forEach((ds,mongoClient) -> mongoClient.close());
+    }
 }

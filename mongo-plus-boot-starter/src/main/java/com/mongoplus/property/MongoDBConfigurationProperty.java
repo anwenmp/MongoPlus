@@ -53,19 +53,6 @@ public class MongoDBConfigurationProperty {
      */
     private List<String> autoScanPackages;
 
-    /**
-     * 是否懒加载数据源
-     */
-    private Boolean lazyDataSource = false;
-
-    public Boolean getLazyDataSource() {
-        return lazyDataSource;
-    }
-
-    public void setLazyDataSource(Boolean lazyDataSource) {
-        this.lazyDataSource = lazyDataSource;
-    }
-
     public List<String> getAutoScanPackages() {
         return autoScanPackages;
     }

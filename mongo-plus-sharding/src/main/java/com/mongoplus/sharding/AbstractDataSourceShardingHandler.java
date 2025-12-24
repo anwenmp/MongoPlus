@@ -34,6 +34,9 @@ public abstract class AbstractDataSourceShardingHandler {
      */
     private final Map<String,Boolean> regexCache = new ConcurrentHashMap<>();
 
+    /**
+     * 匹配除master外的数据源名称
+     */
     private static final String REGEX = "^(?!master$).*";
 
     /**
@@ -60,8 +63,11 @@ public abstract class AbstractDataSourceShardingHandler {
     static {
         DEFAULT_SHARDING_STRATEGY.put(DataSourceConstant.DEFAULT_DATASOURCE, Arrays.asList(
                 SAVE,
+                SAVE_ONE,
                 REMOVE,
+                REMOVE_ONE,
                 UPDATE,
+                UPDATE_ONE,
                 BULK_WRITE
         ));
         DEFAULT_SHARDING_STRATEGY.put(REGEX,Arrays.asList(
