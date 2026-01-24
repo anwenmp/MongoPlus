@@ -320,7 +320,7 @@ public class BackupManager {
         Document collectionDocument = new Document();
         collectionDocument.put("origin","MongoPlus");
         collectionDocument.put("version","v"+ MongoPlusVersion.getVersion());
-        collectionDocument.put("homepage","https://www.mongoplus.com/");
+        collectionDocument.put("homepage","https://mongoplus.com/");
         collectionDocument.put("data_source",this.dataSourceName);
         collectionDocument.put("database",namespace.getDatabaseName());
         collectionDocument.put("collection_name",namespace.getCollectionName());

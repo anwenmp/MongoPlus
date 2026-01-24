@@ -74,6 +74,7 @@ public class MongoUtil {
     }
 
     public static MongoClient getMongo(String dsName,BaseProperty baseProperty,SslSettings sslSettings){
+        DataSourceNameCache.setBaseProperty(dsName,baseProperty);
         MongoClientSettings.Builder builder = MongoClientSettings.builder();
         if (sslSettings != null){
             builder.applyToSslSettings(ssl -> ssl.applySettings(sslSettings));

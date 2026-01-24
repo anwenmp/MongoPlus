@@ -9,6 +9,7 @@ import com.mongoplus.cache.global.MappingCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.domain.MongoPlusConvertException;
+import com.mongoplus.domain.MongoPlusFieldException;
 import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.enums.FieldFill;
 import com.mongoplus.handlers.ReadHandler;
@@ -228,8 +229,11 @@ public abstract class AbstractMongoConverter implements MongoConverter {
 
         Class<?> mapType = extraFields.mapType();
 
-        // 注解指定了 mapType，且不是 HashMap.class
+        // 注解指定了 mapType，且不是 LinkedHashMap.class
         if (mapType != LinkedHashMap.class) {
+            if (mapType.isInterface()) {
+                throw new MongoPlusFieldException("'mapType' should be a class, not an interface");
+            }
             return (Map<String, Object>) ClassTypeUtil.getInstanceByClass(mapType);
         }
 

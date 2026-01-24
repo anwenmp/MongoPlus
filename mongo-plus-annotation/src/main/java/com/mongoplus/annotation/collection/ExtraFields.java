@@ -20,6 +20,7 @@ public @interface ExtraFields {
 
     /**
      * map类型,如果不主动传值，那么将会根据类型自动创建，如JSONObject
+     * <p style='color:red'>请传递类，而不是接口</p>
      */
     Class<? extends Map> mapType() default LinkedHashMap.class;
 
