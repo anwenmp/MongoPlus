@@ -1,4 +1,4 @@
-package com.mongoplus.options;
+package com.mongoplus.conditions.interfaces;
 
 import com.mongoplus.annotation.comm.Nullable;
 import org.bson.Document;
@@ -6,8 +6,9 @@ import org.bson.Document;
 import java.util.Objects;
 
 /**
- * push选项
+ * push选项，请使用{@link com.mongoplus.options.PushOptions}
  */
+@Deprecated
 public class PushOptions {
     private Integer position;
     private Integer slice;

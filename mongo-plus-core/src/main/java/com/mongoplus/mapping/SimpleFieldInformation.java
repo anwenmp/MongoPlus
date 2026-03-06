@@ -102,6 +102,16 @@ public class SimpleFieldInformation<T> implements FieldInformation {
     }
 
     @Override
+    public Class<?> getBelongClass() {
+        return this.instance.getClass();
+    }
+
+    @Override
+    public Object getInstance() {
+        return this.instance;
+    }
+
+    @Override
     public Object getValue() {
         if (this.value == null){
             try {

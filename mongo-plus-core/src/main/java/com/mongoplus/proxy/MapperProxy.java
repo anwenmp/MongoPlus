@@ -3,6 +3,7 @@ package com.mongoplus.proxy;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.mapper.MongoMapper;
 import com.mongoplus.mapper.MongoMapperImpl;
+import com.mongoplus.toolkit.ExceptionUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -54,12 +55,16 @@ public class MapperProxy<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        // 处理 Object 自带方法
-        if (Object.class.equals(method.getDeclaringClass())) {
-            return method.invoke(this, args);
-        }
+        try {
+            // 处理 Object 自带方法
+            if (Object.class.equals(method.getDeclaringClass())) {
+                return method.invoke(this, args);
+            }
 
-        return cachedInvoker(method).invoke(proxy, args);
+            return cachedInvoker(method).invoke(proxy, args);
+        }  catch (Throwable e) {
+            throw ExceptionUtil.unwrapThrowable(e);
+        }
     }
 
     private MethodInvoker cachedInvoker(Method method) {

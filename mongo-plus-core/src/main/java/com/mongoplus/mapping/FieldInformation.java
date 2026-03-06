@@ -30,6 +30,14 @@ public interface FieldInformation {
     }
 
     /**
+     * 获取所在类
+     * @return 所属类
+     */
+    Class<?> getBelongClass();
+
+    Object getInstance();
+
+    /**
      * 获取字段值
      * @return {@link Object}
      * @author anwen

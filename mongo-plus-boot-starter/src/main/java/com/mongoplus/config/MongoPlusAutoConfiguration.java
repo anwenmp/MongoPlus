@@ -8,10 +8,7 @@ import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.ListenerCache;
 import com.mongoplus.cache.global.MappingCache;
 import com.mongoplus.domain.MongoPlusConvertException;
-import com.mongoplus.handlers.CollectionNameHandler;
-import com.mongoplus.handlers.IdGenerateHandler;
-import com.mongoplus.handlers.MetaObjectHandler;
-import com.mongoplus.handlers.TenantHandler;
+import com.mongoplus.handlers.*;
 import com.mongoplus.handlers.collection.AnnotationOperate;
 import com.mongoplus.incrementer.IdentifierGenerator;
 import com.mongoplus.incrementer.id.AbstractIdGenerateHandler;
@@ -103,6 +100,7 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
         autoCreateIndexes();
         setIdGenerateHandler();
         setAdvancedInterceptor();
+        setReadHandler();
     }
 
     @Override
@@ -184,7 +182,10 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
      * @author JiaChaoYang
      */
     private void setMetaObjectHandler() {
-        applicationContext.getBeansOfType(MetaObjectHandler.class).values().forEach(metaObjectHandler -> HandlerCache.metaObjectHandler = metaObjectHandler);
+        applicationContext
+                .getBeansOfType(MetaObjectHandler.class)
+                .values()
+                .forEach(metaObjectHandler -> HandlerCache.metaObjectHandler = metaObjectHandler);
     }
 
     /**
@@ -365,6 +366,18 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
             idGenerateHandler = applicationContext.getBean(IdGenerateHandler.class);
         } catch (Exception ignored) {}
         HandlerCache.idGenerateHandler  = idGenerateHandler;
+    }
+
+    /**
+     * 设置读取处理器
+     */
+    public void setReadHandler() {
+        Map<String, ReadHandler> readHandlerMap = applicationContext.getBeansOfType(ReadHandler.class);
+        if (CollUtil.isEmpty(readHandlerMap)) {
+            return;
+        }
+        Collection<ReadHandler> values = readHandlerMap.values();
+        HandlerCache.addReadHandler(new ArrayList<>(values));
     }
 
 }

@@ -79,11 +79,33 @@ public class HandlerCache {
     }
 
     /**
+     * 添加读取处理器
+     * @param readHandler 读取处理器
+     */
+    public static void addReadHandler(ReadHandler readHandler){
+        readHandlerList.add(readHandler);
+        sortReadHandler();
+    }
+
+    /**
+     * 添加读取处理器
+     * @param readHandlers 读取处理器
+     */
+    public static void addReadHandler(List<ReadHandler> readHandlers){
+        readHandlerList.addAll(readHandlers);
+        sortReadHandler();
+    }
+
+    /**
      * 设置读取处理器
      * @author anwen
      */
     public static void setReadHandler(List<ReadHandler> readHandlers) {
         readHandlerList.addAll(readHandlers);
+        sortReadHandler();
+    }
+
+    public static void sortReadHandler() {
         readHandlerList = readHandlerList.stream()
                 .sorted(Comparator.comparingInt(ReadHandler::order))
                 .collect(Collectors.toList());

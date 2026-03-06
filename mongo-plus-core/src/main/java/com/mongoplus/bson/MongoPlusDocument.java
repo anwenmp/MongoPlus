@@ -1,7 +1,9 @@
 package com.mongoplus.bson;
 
+import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.support.SFunction;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.Map;
 
@@ -67,5 +69,17 @@ public class MongoPlusDocument extends Document {
 
     public <T,R> boolean containsKey(SFunction<T,R> key){
         return super.containsKey(key.getFieldNameLine());
+    }
+
+    /**
+     * 获取_id
+     * @return ObjectId类型
+     */
+    public ObjectId getId() {
+        if (super.containsKey(SqlOperationConstant._ID)) {
+            return super.get(SqlOperationConstant._ID, ObjectId.class);
+        }
+        return null;
+
     }
 }
