@@ -130,34 +130,36 @@ public class SimpleTypeHolder {
 
         Assert.notNull(type, "Type must not be null");
 
-        Boolean isSimpleType = this.simpleTypes.get(type);
-
-        if (Object.class.equals(type) || ClassTypeUtil.isTargetClass(Enum.class,type)) {
+        if (Object.class.equals(type) || ClassTypeUtil.isTargetClass(Enum.class, type)) {
             return true;
         }
 
+        Boolean isSimpleType = this.simpleTypes.get(type);
         if (isSimpleType != null) {
             return isSimpleType;
         }
 
-        String typeName = type.getName();
+        // 遍历类本身及其所有父类，判断是否匹配简单类型
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
 
-        if (typeName.startsWith("java.lang") || typeName.startsWith("java.time") || typeName.equals("kotlin.Unit")) {
-            return true;
+            String typeName = current.getName();
+            if (typeName.startsWith("java.lang") || typeName.startsWith("java.time") || typeName.equals("kotlin.Unit")) {
+                this.simpleTypes.put(type, true);
+                return true;
+            }
+
+            // 检查是否在已注册的 simpleTypes 中（支持父类匹配）
+            Boolean registered = this.simpleTypes.get(current);
+            if (registered != null && registered) {
+                this.simpleTypes.put(type, true);
+                return true;
+            }
+
+            current = current.getSuperclass();
         }
 
-/*        for (Class<?> simpleType : this.simpleTypes.keySet()) {
-
-            if (ClassTypeUtil.isTargetClass(simpleType,type)) {
-
-                isSimpleType = this.simpleTypes.get(simpleType);
-                this.simpleTypes.put(type, isSimpleType);
-                return isSimpleType;
-            }
-        }*/
-
         this.simpleTypes.put(type, false);
-
         return false;
     }
 

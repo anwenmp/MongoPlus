@@ -22,13 +22,11 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
 import com.mongoplus.strategy.mapping.MappingStrategy;
 import com.mongoplus.toolkit.*;
-import jdk.dynalink.linker.support.TypeUtilities;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 抽象地映射处理器
@@ -92,7 +90,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         //映射到Document
         write(sourceObj, document);
         //添加自动填充字段
-        autoFillHandler.handle(document,typeInformation,FieldFill.INSERT);
+        autoFillHandler.handle(document,typeInformation,FieldFill.INSERT, this);
     }
 
     @Override
@@ -112,7 +110,7 @@ public abstract class AbstractMongoConverter implements MongoConverter {
         //映射到Document
         write(sourceObj, document);
         //添加自动填充字段
-        autoFillHandler.handle(document,typeInformation,FieldFill.UPDATE);
+        autoFillHandler.handle(document,typeInformation,FieldFill.UPDATE, this);
     }
 
     @Override

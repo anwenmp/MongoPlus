@@ -7,6 +7,7 @@ import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.enums.FieldFill;
 import com.mongoplus.handlers.MetaObjectHandler;
 import com.mongoplus.mapping.FieldInformation;
+import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.AutoFillMetaObject;
 import com.mongoplus.toolkit.CollUtil;
@@ -47,7 +48,7 @@ public abstract class AbstractAutoFillHandler implements AutoFillHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handle(Document source, TypeInformation typeInformation, FieldFill fieldFill) {
+    public void handle(Document source, TypeInformation typeInformation, FieldFill fieldFill, MongoConverter converter) {
         if (null == HandlerCache.metaObjectHandler) {
             return;
         }
@@ -61,7 +62,9 @@ public abstract class AbstractAutoFillHandler implements AutoFillHandler {
         }
         AutoFillMetaObject autoFillMetaObject = autoFill.toAutoFillMetaObject();
         fillHandle(autoFill, autoFillMetaObject);
-        source.putAll(autoFillMetaObject.getAllFillField());
+        // 自动填充字段走一遍转换器，防止复杂对象造成写入失败
+        converter.write(autoFillMetaObject.getAllFillField(), source);
+//        source.putAll(autoFillMetaObject.getAllFillField());
     }
 
     protected AutoFill getAutoFill(Document source, TypeInformation typeInformation, FieldFill fieldFill) {
