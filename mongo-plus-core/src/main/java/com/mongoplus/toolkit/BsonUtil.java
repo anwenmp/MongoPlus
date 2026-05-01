@@ -82,7 +82,7 @@ public class BsonUtil {
         Map<String, Object> map = asMap(bson, codecRegistry);
 
         if (map instanceof Document) {
-            return (Document) bson;
+            return (Document) map;
         }
 
         return new Document(map);
