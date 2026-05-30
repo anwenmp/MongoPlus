@@ -15,8 +15,8 @@
     <name>mongo-plus-boot4-starter</name>
     <packaging>jar</packaging>
     <description>mongo-plus-boot4-starter主程序</description>
-    <url>https://www.mongoplus.com</url>
-    <inceptionYear>2024</inceptionYear>
+    <url>https://mongoplus.com</url>
+    <inceptionYear>2026</inceptionYear>
 
     <licenses>
         <license>
@@ -168,7 +168,7 @@
                         </executions>
                     </plugin>
 
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven-gpg.version}</version>
@@ -181,7 +181,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
 
                 </plugins>
             </build>
