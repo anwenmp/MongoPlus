@@ -4,14 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mongoplus</groupId>
-    <artifactId>mongo-plus-bom</artifactId>
-    <packaging>pom</packaging>
-    <name>mongo-plus-bom</name>
-    <version>2.1.9</version>
-    <description>mongo-plus-bom</description>
+    <parent>
+        <groupId>com.mongoplus</groupId>
+        <artifactId>mongo-plus</artifactId>
+        <version>2.1.9</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mongo-plus-boot4-starter</artifactId>
+    <name>mongo-plus-boot4-starter</name>
+    <packaging>jar</packaging>
+    <description>mongo-plus-boot4-starter主程序</description>
     <url>https://www.mongoplus.com</url>
-    <inceptionYear>2025</inceptionYear>
+    <inceptionYear>2024</inceptionYear>
 
     <licenses>
         <license>
@@ -19,12 +24,6 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
-    <scm>
-        <connection>https://gitee.com/aizuda/mongo-plus.git</connection>
-        <developerConnection>https://gitee.com/aizuda/mongo-plus.git</developerConnection>
-        <url>https://gitee.com/aizuda/mongo-plus</url>
-    </scm>
 
     <developers>
         <developer>
@@ -39,63 +38,66 @@
         </developer>
     </developers>
 
+    <scm>
+        <connection>https://gitee.com/aizuda/mongo-plus.git</connection>
+        <developerConnection>https://gitee.com/aizuda/mongo-plus.git</developerConnection>
+        <url>https://gitee.com/aizuda/mongo-plus</url>
+    </scm>
+
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongoplus.version>2.1.9</mongoplus.version>
-        <mongodb.version>5.4.0</mongodb.version>
-        <central-publishing.version>0.6.0</central-publishing.version>
-        <maven-release.version>2.5.3</maven-release.version>
-        <maven-source.version>2.2.1</maven-source.version>
-        <maven-gpg.version>1.5</maven-gpg.version>
-        <javadoc.version>3.6.3</javadoc.version>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-boot-starter</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-boot4-starter</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-core</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-sensitive-word</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-annotation</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-sharding</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-sharding-boot-starter</artifactId>
-                <version>${mongoplus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mongoplus</groupId>
-                <artifactId>mongo-plus-solon-plugin</artifactId>
-                <version>${mongoplus.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot4.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mongoplus</groupId>
+            <artifactId>mongo-plus-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mongoplus</groupId>
+            <artifactId>mongo-plus-sensitive-word</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
 
     <profiles>
         <profile>
@@ -147,6 +149,18 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${javadoc.version}</version>
+                        <configuration>
+                            <additionalJOptions>
+                                <additionalJOption>-Xdoclint:none</additionalJOption>
+                            </additionalJOptions>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
 
                     <!--<plugin>
@@ -166,6 +180,7 @@
 
                 </plugins>
             </build>
+
             <!-- maven中央仓库 -->
             <distributionManagement>
                 <snapshotRepository>

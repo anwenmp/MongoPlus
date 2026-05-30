@@ -1,0 +1,78 @@
+package com.mongoplus.property;
+
+import com.mongoplus.cache.global.OrderCache;
+import com.mongoplus.cache.global.PropertyCache;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+/**
+ * @author JiaChaoYang
+ * 日志属性
+ * @since 2023-06-07 23:07
+ **/
+@ConfigurationProperties(prefix = "mongo-plus")
+public class MongoDBLogProperty {
+
+    /**
+     * 是否开启日志
+     */
+    private Boolean log = false;
+
+    /**
+     * 是否格式化 mongo 语句为可执行语句
+     */
+    private Boolean pretty = false;
+
+    public Boolean getPretty() {
+        return pretty;
+    }
+
+    public void setPretty(Boolean pretty) {
+        this.pretty = pretty;
+    }
+
+    /**
+     * 指定日志拦截器的order，默认为0
+     */
+    private int logOrder = 0;
+
+    public int getLogOrder() {
+        return logOrder;
+    }
+
+    public void setLogOrder(int logOrder) {
+        OrderCache.LOG_ORDER = logOrder;
+        this.logOrder = logOrder;
+    }
+
+    /**
+     * 是否打开格式化sql
+     */
+    private Boolean format = false;
+
+    public Boolean getLog() {
+        return this.log;
+    }
+
+    public Boolean getFormat() {
+        return this.format;
+    }
+
+    public void setLog(final Boolean log) {
+        PropertyCache.log = log;
+        this.log = log;
+    }
+
+    public void setFormat(final Boolean format) {
+        PropertyCache.format = format;
+        this.format = format;
+    }
+
+    public MongoDBLogProperty(final Boolean log, final Boolean format) {
+        this.log = log;
+        this.format = format;
+    }
+
+    public MongoDBLogProperty() {
+    }
+
+}
