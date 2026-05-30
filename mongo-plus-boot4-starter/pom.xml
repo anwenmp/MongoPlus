@@ -51,22 +51,11 @@
         <maven.test.skip>true</maven.test.skip>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot4.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${spring-boot4.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -89,19 +78,23 @@
         <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-core</artifactId>
+            <version>${mongoplus.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mongoplus</groupId>
             <artifactId>mongo-plus-sensitive-word</artifactId>
+            <version>${mongoplus.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
+            <version>1.9.25.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+            <version>7.0.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
