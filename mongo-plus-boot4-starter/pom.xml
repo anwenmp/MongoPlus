@@ -85,7 +85,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-persistence</artifactId>
             <version>${spring-boot4.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.mongoplus</groupId>

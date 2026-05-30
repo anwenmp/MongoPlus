@@ -2,13 +2,17 @@ package com.mongoplus.config;
 
 import com.mongoplus.property.MongoDBConnectProperty;
 import com.mongoplus.toolkit.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.mongodb.autoconfigure.MongoProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
 /**
  * @author JiaChaoYang
  **/
+@Configuration
+@ConditionalOnClass(MongoProperties.class)
 public class MongoPropertyConfiguration {
 
     private final MongoDBConnectProperty mongoDBConnectProperty;

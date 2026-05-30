@@ -2,6 +2,7 @@ package com.mongoplus.config;
 
 import com.mongodb.client.MongoClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Primary;
  * @author JiaChaoYang
  **/
 @AutoConfiguration(beforeName = "org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration")
+@ConditionalOnClass(name = "org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration")
 @ConditionalOnProperty(prefix = "mongo-plus.spring", name = "overrideMongoClient", havingValue = "false")
 public class OverrideMongoConfiguration {
 
