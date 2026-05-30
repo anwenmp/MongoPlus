@@ -2,10 +2,9 @@ package com.mongoplus.config;
 
 import com.mongoplus.property.MongoDBConnectProperty;
 import com.mongoplus.toolkit.StringUtils;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.boot.mongodb.autoconfigure.MongoProperties;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author JiaChaoYang

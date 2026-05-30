@@ -41,7 +41,7 @@ import com.mongoplus.toolkit.CollUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.boot.autoconfigure.domain.EntityScanPackages;
+import org.springframework.boot.persistence.autoconfigure.EntityScanPackages;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.ParameterizedType;
