@@ -1,6 +1,6 @@
 # 构建与测试策略
 
-> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；本次未执行编译、测试或打包。依赖树解析命令曾执行但失败，不能作为构建通过证据。
+> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；本次执行了 core 及其 reactor 依赖的编译，未执行测试、打包或完整校验。编译成功不作为行为或兼容性通过证据。
 
 ## 当前测试事实
 
@@ -26,12 +26,18 @@
 | reactor 测试 | `mvn test` | 当前 reactor 没有可执行测试；带 `maven.test.skip=true` 的模块不会提供测试保障 |
 | reactor 完整校验 | `mvn verify` | 仍不自动等于行为正确；发布 profile 默认激活，执行前留意插件与环境 |
 | 单模块及依赖 | `mvn -pl mongo-plus-core -am test` | 将模块名替换为目标模块；`-am` 同时构建项目内依赖 |
-| 独立测试工程 | `mvn -f mongo-plus-test/pom.xml test` | 仅当该未跟踪工程仍存在且所需 2.2.0 构件可解析时使用 |
+| 独立测试工程 | `mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false test` | 仅当该未跟踪工程仍存在且所需 2.2.0 构件可解析时使用；必须显式覆盖其跳过属性 |
 | BOM 校验 | `mvn -f mongo-plus-bom/pom.xml verify` | BOM 不在根 reactor，需单独执行 |
 
 reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `compile`/`verify`）定向构建；有效的 `<模块>` 是 `mongo-plus-annotation`、`mongo-plus-core`、`mongo-plus-boot-starter`、`mongo-plus-boot4-starter`、`mongo-plus-solon-plugin`、`mongo-plus-sharding`、`mongo-plus-sharding-boot-starter`、`mongo-plus-sensitive-word`。其中声明 `maven.test.skip=true` 的模块即使执行 `test` 也不能据此声称测试已运行；应先建立正式测试并重新审视该属性。`mongo-plus-bom` 不接受根 reactor 的 `-pl` 选择，使用上表独立命令。
 
-本次实际执行了 `mvn -version`，确认 Maven 3.9.2、运行 JDK 17.0.16；还执行了针对 core、Boot 3、Boot 4、Solon 的 `dependency:tree` 尝试。首次受本机仓库权限阻止，修正后又因参数解析错误及 reactor 内构件未安装而失败。**本次没有执行 `compile`、`test`、`package` 或 `verify`，没有任何构建或测试通过声明。**
+本次实际执行了：
+
+- `mvn -version`：Maven 3.9.2，运行 JDK 17.0.16。
+- `mvn -pl mongo-plus-core -am -DskipTests compile`：根聚合项目、annotation、core 编译成功；编译 58 个 annotation 源文件和 441 个 core 源文件，并出现 deprecated/unchecked 提示。
+- `mvn -pl mongo-plus-boot-starter,mongo-plus-boot4-starter -am dependency:tree "-Dincludes=org.springframework:*,org.springframework.boot:*"`：依赖树解析成功；这是依赖解析证据，不是两个 starter 的编译、启动或行为测试。
+
+**本次没有执行 `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。上述 compile 成功只覆盖当前 JDK 17 下 core 及 annotation 的编译，不扩张为行为正确、JDK 8 可用、Driver 兼容或全 reactor 构建通过。**
 
 ## 修改区域的最低验证
 

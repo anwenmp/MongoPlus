@@ -17,8 +17,8 @@
 
 | 集成 | 当前依赖 | 版本来源与差异 |
 |---|---|---|
-| Boot 3 | `spring-boot-autoconfigure`、configuration processor 3.4.2（provided/optional 关系见模块 POM） | 根 `${spring.boot.version}`；`spring-tx` 5.3.27、AspectJ Weaver 1.9.7 也由根 dependencyManagement 提供。Spring Framework 的其他传递版本应由实际依赖树确认，本次未成功解析 |
-| Boot 4 | autoconfigure、configuration processor、`spring-boot-mongodb`、`spring-boot-persistence` 4.0.1 | Boot 4 模块显式版本；同时显式覆盖 `spring-tx` 7.0.2、AspectJ Weaver 1.9.25.1，源码与 Boot 3 平行维护 |
+| Boot 3 | `spring-boot-autoconfigure`、configuration processor 3.4.2（provided/optional 关系见模块 POM） | 根 `${spring.boot.version}`；实际 `dependency:tree` 解析出 Boot 传递的 `spring-context/aop/beans/expression` 6.2.2，但项目显式 `spring-tx` 5.3.27 又带入 `spring-core/jcl` 5.3.27；AspectJ Weaver 1.9.7 来自根 dependencyManagement。该 5.3/6.2 混合类路径需要启动与事务测试，不能仅凭解析成功判定兼容 |
+| Boot 4 | autoconfigure、configuration processor、`spring-boot-mongodb`、`spring-boot-persistence` 4.0.1 | Boot 4 模块显式版本；实际依赖树解析出 Spring Framework 7.0.2，且模块显式 `spring-tx` 7.0.2、AspectJ Weaver 1.9.25.1，源码与 Boot 3 平行维护 |
 | MongoDB Driver | core 直接依赖 `mongodb-driver-sync`；annotation 依赖 `mongodb-driver-core` | 根导入 `org.mongodb:mongodb-driver-bom:5.4.0`，因此当前受管版本为 5.4.0；本次依赖树未成功，不能声称已解析/运行验证 |
 | Solon | `org.noear:solon` 3.0.1，scope=provided | 版本来自根 `${solon-api.version}`；边界限于 `mongo-plus-solon-plugin` 的插件启动、Bean/切面与 Mapper 注入，core 不依赖 Solon |
 
@@ -53,7 +53,7 @@
 - JDK 8 上 annotation/core/sharding/sensitive-word/Solon 的 clean build 与运行。
 - JDK 17/21 等环境下 Boot 3.4.2、Boot 4.0.1、Solon 3.0.1 的启动与行为。
 - Driver 4.x 任一版本、Driver 5.4.0 以外版本，以及各 Driver 对应的 MongoDB Server 版本。
-- Boot 3/4 下 Spring Framework、Spring TX、AspectJ 的完整解析依赖树与类路径冲突。
+- Boot 3 的 Spring Framework 6.2.2 与显式 Spring TX/Core/JCL 5.3.27 混合类路径是否能正确启动并执行事务；Boot 4 的 Spring 7.0.2 启动与事务行为。AspectJ 的实际织入行为也未验证。
 - Boot 3 sharding starter 的多数据源/事务组合；Boot 4 没有该构件。
 - native image、JPMS、不同 servlet/reactive 栈等未在 POM/测试中形成证据的组合。
 
