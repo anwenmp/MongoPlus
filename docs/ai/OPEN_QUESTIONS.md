@@ -2,6 +2,20 @@
 
 > 审计日期：2026-08-02。只记录已从当前源码观察到、尚缺行为验证的边界。除非状态明确写为“已确认缺陷”，这些条目都不是缺陷结论。统一状态值为：待验证 / 已确认行为 / 已确认缺陷 / 已解决。
 
+## Tenant、Logic Delete、Auto Fill（2026-08-02）
+
+- **已确认缺陷：** Tenant bulkWrite 的 UpdateMany 分支只修改临时 pair，不重建也不修改原 model，Tenant filter 不会回写；InsertOne 会原地写 Document，其余 model 未覆盖。仍需逐 model 集成测试固定最终命令。
+- Tenant batch insert 以第一条 Document 的字段决定整批 `ignoreInsert`，混合有/无租户字段时的预期语义未定义。
+- **待验证：** `TenantHandler` 返回 null/空字段名在 insert/filter/aggregate 的准确失败点，以及 Boot 3/4/Solon 多 Bean、重复初始化的实际容器行为。
+- `@IgnoreTenant`/`@IgnoreLogic` 的嵌套调用、异步/子线程传播；Logic 使用 InheritableThreadLocal，Tenant 使用普通 ThreadLocal。
+- **已确认缺陷：** `CollectionLogiceInterceptor.executeUpdate` 缺少 IgnoreLogic 判断，影响实体/Wrapper/BSON 的单条和多 pair update 过滤；不影响 bulk 的独立 Ignore 分支，也不影响高级删除转换的 Ignore 检查。修复前需明确兼容预期并补回归测试。
+- **待验证：** Solon 启动只 `beanMake(MongoLogicIgnoreAspect.class)`，未见 `beanInterceptorAdd(IgnoreLogic.class, ...)`；需确认 `@IgnoreLogic` 是否实际绑定。若被全局挂接，还需验证其 `Optional` 返回包装和异常包装行为。Boot 3/4 的方法级切面绑定已由源码确认。
+- 聚合没有 `$match` 时 Logic filter 被追加在 pipeline 末尾；对 group/project 后字段缺失的实际结果及预期顺序。
+- 动态集合 delete 中普通 Logic 使用原 collection 元数据、高级 LogicRemove 使用替换后 collection，可能造成过滤与物理删除/逻辑更新分裂。
+- 逻辑删除高级链内重调 executeUpdate 与 SessionExecute、OptimisticLocker、分片代理的组合顺序及 session/client 一致性。
+- **已确认行为 + 待验证设计：** Auto Fill 在实体字段映射后运行，fill Map 不再经过实体字段 TypeHandler/Encrypt/DBRef，重命名字段可能形成双字段；null、final/不可写字段和期望契约仍需测试/设计确认。
+- Boot 3/4/Solon 多个 MetaObjectHandler 的最终选择依容器枚举最后项，顺序未形成契约；多应用上下文共享静态 HandlerCache 的污染需验证。
+
 ## 查询和 Wrapper
 
 | 问题 | 状态 | 源码观察 | 暂不能下结论的原因 | 需要执行的验证 | 相关知识文档 | 源码位置 | 可能影响模块 |

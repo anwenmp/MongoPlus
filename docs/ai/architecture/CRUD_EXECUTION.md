@@ -46,7 +46,7 @@ flowchart LR
 | page | 复用 query；完整分页另调用 count 或 `recentPageCount`，不是独立 Driver 操作。 |
 | count | 条件计数 → `executeCount/countDocuments`；`canEstimatedDocumentCount` 仅在逻辑删除关闭、传入的 chain wrapper 非 null 且为空，并且租户被忽略或未注册 `TenantInterceptor` 时走 `estimatedDocumentCount`。当前 `SessionExecute.estimatedDocumentCount` 实际调用 **`countDocuments(clientSession)`**，与 `DefaultExecute` 的 `collection.estimatedDocumentCount()` 不同。 |
 | aggregate | Aggregate pipeline → `executeAggregate/aggregate` → converter；链式聚合仍委托 Mapper。 |
-| bulkWrite | 调用方提供 `List<WriteModel<Document>>` → `executeBulkWrite/bulkWrite`；不做实体批量转换，但普通拦截器可改模型。 |
+| bulkWrite | 调用方提供 `List<WriteModel<Document>>` → `executeBulkWrite/bulkWrite`；不做实体批量转换。普通拦截器只有显式原地修改 model 内容或返回重建列表才真正生效；当前 Tenant 的 UpdateMany 临时 pair 修改不会回写 model，Logic 的 UpdateMany 会重建列表。 |
 | 索引 | `AbstractBaseIndex` → `Execute.doCreateIndex(es)/doListIndexes/doDropIndex(es)` → `MongoCollection` 索引 API；经过普通代理和高级代理，但当前索引方法没有普通参数策略，详见上文。源码：`index/impl/AbstractBaseIndex.java`。 |
 
 ## 处理阶段

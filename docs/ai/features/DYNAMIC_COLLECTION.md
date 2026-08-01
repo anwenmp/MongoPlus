@@ -65,8 +65,8 @@ registry 是进程级单例 `ConcurrentHashMap<String, Class<?>>`：
 |---|---|
 | 多数据源 | 原 collection 先按当前 ds 获取；动态拦截器保留原 database，却调用无显式 ds 的入口，因此按拦截时当前 `DataSourceNameCache` 再取 manager。非栈式上下文和中途切换待测。 |
 | 事务/ClientSession | `ExecutorFactory` 先选 SessionExecute，动态拦截器后换 collection；无 session/client 一致性校验，见 [TRANSACTION.md](TRANSACTION.md)。 |
-| 多租户 | Tenant 与动态集合都是普通插件；每个 before 后立即执行该操作参数策略。最终顺序依注册/排序；租户 Handler 不自动成为集合上下文。 |
-| 逻辑删除 | 条件增强在普通/高级插件，实体识别依 registry；通常首次动态登记为 UnClassCollection 后，逻辑删除不会取得原实体元数据，这是已确认源码行为；最终查询/更新/删除 BSON 与物理结果待测。 |
+| 多租户 | Tenant 与动态集合都是普通插件；每个 before 后立即执行该操作参数策略。当前内置 order 固定为 Tenant 0、Dynamic 2，正常已排序链中 Tenant 先增强原 collection 参数，再由 Dynamic 替换 collection；这由当前 order/注册形成，不是不可变 API 契约。 |
+| 逻辑删除 | 当前普通顺序是 Dynamic（2）先于 Logic（默认最大值），但 `ExecutorProxy` 仍把进入代理时捕获的原 collection 传给 Logic 参数策略；高级 LogicRemove 才从已替换 args/invocation 取得动态 collection。通常首次动态登记为 UnClassCollection 后，高级阶段可能不转换删除；普通阶段则可能已按原实体追加未删除条件。最终物理结果待组合测试。 |
 | 自动填充/实体映射 | 实体转 Document 和填充在执行代理前；动态名不改 converter 实体类型。Driver 返回后仍按 Mapper 目标类型转换。 |
 | 索引/时序 | Handler 不作用于索引 Execute；启动期索引/时序创建不会自动枚举运行时动态名称。组合能力未建立。 |
 | 分片 | 两种插件都可替换 Execute 最后一项；分片另含高级 session 处理。完整 order 和最终 client/namespace 待测。 |

@@ -34,7 +34,7 @@ sequenceDiagram
 
 关键源码：`interceptor/Interceptor.java`、`interceptor/InterceptorChain.java`、`proxy/ExecutorProxy.java`、`cache/global/ExecutorProxyCache.java`、`strategy/executor/`（模块：`mongo-plus-core`）。
 
-- 注册：`Configuration.interceptor(...)` 等入口最终调用静态链。`addInterceptor` 按 `order()` 升序排序；`addInterceptors(List)` 自身不排序，因此多入口的最终顺序不能一概假定。
+- 注册：`Configuration.interceptor(...)` 等单个入口调用 `addInterceptor` 并按 `order()` 升序排序。`addInterceptors(List)` 自身不排序；Boot 3/4 批量加入用户 Bean 后调用链排序，Solon 先对本批 Bean 排序再追加。随后 Tenant/Dynamic 的单个注册会对整个静态链重排。直接使用 core 批量 API 而不再排序仍保留追加顺序。
 - 操作：save one/many、remove one/many、update one/many、query、aggregate、count、estimated count、bulkWrite 有枚举/参数策略。当前索引方法不在 `ExecuteMethodEnum` 中，因此不执行普通 before/参数策略；正常返回后普通 after 仍会遍历。
 - 时机：存在参数策略时，代理先保存最后一个参数所指的原集合；对每个插件依次调用 `beforeExecute`，随即调用该操作策略并把返回值写回 args，然后才处理下一个插件。不存在策略时跳过全部普通 before。之后进入高级链；正常返回后始终按链顺序调用 `afterExecute`。
 - 能力：可改 Document、filter、query/projection/sort、pipeline、count options、bulk model；`before` 可直接改 args，动态集合即替换最后一项。after 接口返回 void，不能被框架接收为替代结果，但可原地改可变对象。
@@ -69,12 +69,14 @@ sequenceDiagram
 - 通过 `ExecutorFactory.getExecute()` 的一次受支持 CRUD 同时经过普通外层与高级内层；高级短路若正常返回，普通 after 仍运行。
 - 用户 Wrapper 先在 Mapper 层变为 BSON；普通逻辑删除/租户可再次增强。逻辑 remove→update 在高级阶段。
 - 实体→Document 在代理前，Document→实体在代理后；高级插件处理的是执行参数和 Driver 原始结果。
+- 当前内置普通 order 为 Tenant 0、Dynamic Collection 2、Collection Logic/Logic Auto Fill 默认最大值，因此已排序链是 Tenant → Dynamic → Logic。Java 当前稳定排序会保留同 order 的插入相对顺序，但容器 Bean 枚举、静态跨上下文累积和未排序 core 批量调用都不是公开契约；同 order 不应承载业务依赖。
+- `ExecutorProxy` 在进入循环前捕获原 collection。Dynamic 会替换 `args` 最后一项，后续高级代理和 Driver 看到新 collection；后续普通专用策略仍收到捕获的原 collection。Logic delete 因而可能在普通阶段按原 namespace 加过滤、高级 remove 阶段按动态 namespace 决定是否转 update。
 - Listener 由 MongoDB Driver `CommandListener` 在 started/succeeded/failed 命令阶段触发；回调抛出的 `Exception` 由 `BaseListener` 包成 `MongoPlusInterceptorException` 并再次抛出。它不是 `InterceptorChain` 或 `AdvancedInterceptorChain` 的一环。
 - 普通插件可改参数/集合；高级插件可改参数、短路、改原始结果/异常；映射扩展改转换；`CollectionNameHandler` 计算集合名；`TenantHandler` 提供策略；Listener 接收命令事件，其中 `BlockAttackInnerListener` 还会执行阻断校验。
 
 ## 待验证顺序
 
-- `Configuration`、Boot 3、Boot 4、Solon 各自注册来源及重复初始化下的最终全局列表内容；已确认普通 `addInterceptors(List)` 不排序、高级 `addInterceptors(List)` 会排序、容器初始化后会调用 `ListenerCache.sorted()`，不把三者概括为相同规则。
+- `Configuration`、Boot 3、Boot 4、Solon 各自注册来源及重复初始化下的最终全局列表内容；已确认普通 `addInterceptors(List)` 自身不排序，Boot 3/4 会在追加后排全链，Solon 只先排本批但后续内置单个注册会重排全链；高级 `addInterceptors(List)` 会排序，容器初始化后会调用 `ListenerCache.sorted()`。不把这些规则概括为完全相同。
 - 内置普通插件相同 order 的顺序，以及动态集合后其他插件看到原集合这一实现是否符合设计意图。
 - `mongo-plus-sharding` 数据源选择相对动态集合、事务 `SessionExecute`、高级异步多写的完整组合顺序。
 - 高级异步执行与 Driver command succeeded/failed、调用方返回之间的时序保证。
