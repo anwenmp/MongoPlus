@@ -116,8 +116,8 @@ lambdaQueryChainWrapper.like(Entity::getName, "mongo")
 - 顶层连续普通条件写入同一个 `MongoPlusBasicDBObject`，表现为 MongoDB 文档的隐式 AND；相同字段/键的覆盖行为取决于 `MongoPlusBasicDBObject.put`，不应把重复键当作稳定的显式分组 API。
 - `and/or/nor(wrapper|function)` 保存一个子 `QueryChainWrapper`。构建时递归转换子 Wrapper 中的条件和自定义 BSON，再交给 `Filters.and/or/nor`，形成显式逻辑数组。
 - function 重载创建新的 `QueryWrapper` 供回调填充，因此是实际的嵌套分组入口。
-- `not(...)` 当前实现值得特别注意：它把子 Wrapper 保存为条件 `not`，但 `BuildCondition` 将 `NOT` 与 `EXPR` 放在同一分支，取子 filter 的第一个键并调用 `Filters.expr(...)`。这不是可直接等同于 MongoDB 字段级 `$not` 的实现；多键子条件也只取第一个键。应视为兼容风险，语义正确性待回归测试验证。
-- `not(ConditionMetaObject)` 先把单条件构造成 BSON 列表再封装；其最终行为同样必须结合 `getBaseCondition(Object)` 记录的方法名和上述 `NOT` 分支看待，不能仅凭 API 名称推断。
+- `not(...)` 把子 Wrapper 保存为条件 `not`，并在 `BuildCondition` 中与 `EXPR` 分支分开处理。空子 Wrapper 不生成 filter；单键子 filter 继续交给 `Filters.not(...)` 形成字段级 `$not`；多键子 filter 作为一个完整文档交给 `Filters.nor(...)`，形成 `{$nor: [{key1: ..., key2: ...}]}`，不会丢弃后续键。
+- `not(ConditionMetaObject)` 先把单条件构造成 BSON 列表再封装，最终同样进入上述 NOT 分支。`EXPR` 保持原有独立行为：从子 filter 取第一个键并调用 `Filters.expr(...)`。
 
 ## 空值、空集合与 condition=false
 
@@ -141,8 +141,9 @@ Wrapper 构建本身不处理这三项。它先在 Mapper 层成为 BSON，随�
 - Wrapper 和大量默认接口方法是公开 API；改变自引用泛型、返回类型、`ChainWrappers` 新建语义或条件元对象结构会影响源码兼容和链式类型推断。
 - `BuildCondition` 是所有 Wrapper 的共享 BSON 语义点；操作符形态、重复键合并、ConditionHandler 时序、枚举/ObjectId/加密转换改变会影响查询、更新 filter、聚合 match 和逻辑删除。
 - Query/Update 边界尤其要覆盖实体更新（converter + `$set`）与 UpdateWrapper（独立更新操作 BSON）两条路径。
-- 当前工作区的 `mongo-plus-test/src/test/java/com/mongoplus/handlers/condition/BuildConditionRegexTest.java` 已有测试源码覆盖：`QueryWrapper` 字符串 `regex` 显式 options、Lambda `like` 显式 options、无 options 默认 `i`、显式 null 回退 `i`、`UpdateWrapper` filter 显式 options、`condition=false`，以及 `regex/like(null)` 的构建期 NPE。该测试模块尚未加入根 Maven reactor，本次无法从根工程运行；独立运行也因本地缺少 `mongo-plus-core:2.2.0` 构件而未执行成功，因此不能记为本次已执行验证。
+- 当前工作区的 `mongo-plus-test/src/test/java/com/mongoplus/handlers/condition/BuildConditionRegexTest.java` 已有测试源码覆盖：`QueryWrapper` 字符串 `regex` 显式 options、Lambda `like` 显式 options、无 options 默认 `i`、显式 null 回退 `i`、`UpdateWrapper` filter 显式 options、`condition=false`，以及 `regex/like(null)` 的构建期 NPE。该测试模块尚未加入根 Maven reactor；2026-08-02 在先安装本地 core 构件并通过命令行指定 UTF-8、Java 8 后独立运行成功，8 项测试通过。
 - RegexOptions 尚缺具体运行覆盖：`LambdaQueryChainWrapper`、直接 `UpdateChainWrapper`、`LambdaUpdateChainWrapper`，以及 `likeLeft/likeRight`、全部枚举值和真实 MongoDB 命中语义。其共享默认方法和共享构建器的源码链已确认，但未把未执行的入口写成运行时已验证。
+- `mongo-plus-test/src/test/java/com/mongoplus/handlers/condition/BuildConditionNotTest.java` 覆盖 QueryWrapper 多键/单键/空 NOT、`condition=false`、EXPR 分支隔离及 UpdateWrapper filter；2026-08-02 独立运行 6 项测试通过，该独立测试工程仍未加入根 Maven reactor。
 - 其他至少缺少：全部操作符 BSON 快照；null/空集合；字符串与 Lambda 字段注解；点路径；重复字段；AND/OR/NOR/NOT 多层分组；自定义 BSON 冲突；Wrapper clear/复用/并发；租户+逻辑删除+动态集合；实体更新与 UpdateWrapper 的差异。
 
 ## 关键源码
