@@ -58,7 +58,7 @@ IService / IRepository / BaseMapper / MongoMapper proxy
 
 ### Solon
 
-`META-INF/solon/anwen.mongo.config.properties` 声明 `solon.plugin=com.mongoplus.config.XPluginAuto`。`XPluginAuto.start(...)` 创建 `MongoPlusConfiguration` 和属性/切面 Bean，并注册 Mapper 注入器；符合条件的接口通过 `MapperProxy.wrap(baseMapper, mapperInterface)` 注入。
+`META-INF/solon/anwen.mongo.config.properties` 声明 `solon.plugin=com.mongoplus.config.XPluginAuto`。`XPluginAuto.start(...)` 创建 `MongoPlusConfiguration` 和属性/拦截器 Bean，并注册 Mapper 注入器；符合条件的接口通过 `MapperProxy.wrap(baseMapper, mapperInterface)` 注入。事务注解通过 `beanInterceptorAdd` 显式绑定；`@MongoDs` 当前只见拦截器 Bean、未见同类绑定入口，其运行能力保留为待验证，详见 [`features/MULTI_DATASOURCE.md`](features/MULTI_DATASOURCE.md)。
 
 ## 模块依赖边界
 

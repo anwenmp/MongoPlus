@@ -23,15 +23,16 @@
 | 任务 | 当前先读 | 专题状态 |
 |---|---|---|
 | CRUD、BaseMapper、IService、Repository、Mapper 代理 | [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) | 扩展顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
+| 自动配置、启动流程、MongoClient 初始化、Mapper 扫描或注册 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 框架版本差异补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
+| 多数据源、`@MongoDs`、SpEL、上下文、动态数据源 | [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) | 启动注册补读 [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md)；运行未决组合补读 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) |
 | Query/Update Wrapper 与链式 API | [architecture/QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md) | 执行前增强顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
 | 实体映射、类型转换、字段 Handler | [architecture/ENTITY_MAPPING.md](architecture/ENTITY_MAPPING.md) | CRUD 转换边界补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
 | 普通/高级拦截器、Listener、Handler 的分类与各自顺序 | [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) | CRUD 汇合点补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
-| 数据源、事务、分片 | [ARCHITECTURE.md](ARCHITECTURE.md) + [MODULES.md](MODULES.md) | `architecture/DATASOURCE_TRANSACTION.md`（待生成） |
-| Spring Boot 3/4 | [MODULES.md](MODULES.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | `integrations/SPRING_BOOT.md`（待生成） |
-| Solon | [MODULES.md](MODULES.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | `integrations/SOLON.md`（待生成） |
+| Spring Boot 3/4 启动集成 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 版本矩阵补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
+| Solon 启动集成 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 多数据源差异补读 [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) |
 | MongoDB Driver 与版本兼容 | [CURRENT_STATE.md](CURRENT_STATE.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | `integrations/MONGODB_DRIVER.md`（待生成） |
 | 聚合、逻辑删除、自动填充、租户、动态集合、索引/时序集合、加密/脱敏、敏感词 | [PROJECT.md](PROJECT.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | 对应 `features/` 专题均待生成；按任务一次只创建一个 |
 
 ## 路径状态
 
-当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md` 和 `architecture/ENTITY_MAPPING.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。
+当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md`、`architecture/ENTITY_MAPPING.md`、`architecture/STARTUP_LIFECYCLE.md` 和 `features/MULTI_DATASOURCE.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。
