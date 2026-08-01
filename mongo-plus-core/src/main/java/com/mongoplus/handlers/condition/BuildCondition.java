@@ -98,9 +98,11 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case REGEX:
             case LIKE:
+                RegexOptions regexOptions = conditionMetaObject.getExtraValue(RegexOptions.class);
                 Document likeDocument = new Document(conditionMetaObject.getColumn(),
                         new Document(REGEX.getOperatorValue(), conditionMetaObject.getValue().toString())
-                                .append(CommonOperators.OPTIONS.getOperator(), "i")
+                                .append(CommonOperators.OPTIONS.getOperator(),
+                                        regexOptions == null ? RegexOptions.CASE_INSENSITIVE.getFlag() : regexOptions.getFlag())
                 );
                 mongoPlusBasicDBObject.put(likeDocument);
                 break;
@@ -143,10 +145,9 @@ public class BuildCondition extends AbstractCondition {
                 BaseConditionResult baseConditionResult = exprWrapper.buildCondition();
                 BasicDBObject exprBasicDBObject = baseConditionResult.getCondition();
                 Optional<String> exprOptional = exprBasicDBObject.keySet().stream().findFirst();
-                if (exprOptional.isPresent()) {
-                    String exprKey = exprOptional.get();
-                    mongoPlusBasicDBObject.put(Filters.expr(new BasicDBObject(exprKey, exprBasicDBObject.get(exprKey))));
-                }
+                exprOptional.ifPresent(exprKey -> mongoPlusBasicDBObject.put(Filters.expr(
+                        new BasicDBObject(exprKey, exprBasicDBObject.get(exprKey))
+                )));
                 break;
             case MOD:
                 List<Long> modList = (List<Long>) conditionMetaObject.getValue();

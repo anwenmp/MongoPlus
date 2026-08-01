@@ -40,6 +40,8 @@ IService / IRepository / BaseMapper / MongoMapper proxy
 
 - Wrapper 保存结构化条件；Mapper 执行时将其转换为 BSON。Wrapper 不负责取得连接。
 - 元数据并非一个统一的“EntityClassCache”。当前已确认的相关入口是 `AnnotationOperate`（集合/数据库注解解析）、`MongoEntityMappingRegistry`（集合命名空间与实体映射）和 `MongoConverter`（字段/类型转换）。
+- Wrapper 的真实类型关系、操作符 BSON、逻辑分组及租户/逻辑删除/动态集合边界见 [`architecture/QUERY_WRAPPER.md`](architecture/QUERY_WRAPPER.md)。
+- 实体与 Document 双向路径、TypeHandler/MappingStrategy/ConversionStrategy 优先级及 Map 模式差异见 [`architecture/ENTITY_MAPPING.md`](architecture/ENTITY_MAPPING.md)。
 - `InterceptorChain` 保存普通 `Interceptor`；`ExecutorProxy` 在方法调用层使用该链及执行策略。
 - `AdvancedInterceptorChain` 将 `AdvancedInterceptor` 逐层代理到 `Execute` 上，`ExecutorFactory` 返回包装后的执行器。两条链不能合并描述为同一个阶段。
 - 字段 Handler、Listener 与两类执行拦截器不是同一条链；已核实的阶段边界和当前实现顺序见 [`architecture/EXTENSION_PIPELINE.md`](architecture/EXTENSION_PIPELINE.md)。未被源码固定的同 order、跨容器注册及分片/异步组合顺序不作稳定承诺。

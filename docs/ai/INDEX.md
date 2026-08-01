@@ -22,8 +22,8 @@
 | 任务 | 当前先读 | 专题状态 |
 |---|---|---|
 | CRUD、BaseMapper、IService、Repository、Mapper 代理 | [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) | 扩展顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
-| Query/Update Wrapper 与链式 API | [ARCHITECTURE.md](ARCHITECTURE.md) | `architecture/CONDITIONS.md`（待生成） |
-| 实体映射、类型转换、字段 Handler | [ARCHITECTURE.md](ARCHITECTURE.md) | `architecture/MAPPING.md`（待生成） |
+| Query/Update Wrapper 与链式 API | [architecture/QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md) | 执行前增强顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
+| 实体映射、类型转换、字段 Handler | [architecture/ENTITY_MAPPING.md](architecture/ENTITY_MAPPING.md) | CRUD 转换边界补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
 | 普通/高级拦截器、Listener、Handler 的分类与各自顺序 | [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) | CRUD 汇合点补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
 | 数据源、事务、分片 | [ARCHITECTURE.md](ARCHITECTURE.md) + [MODULES.md](MODULES.md) | `architecture/DATASOURCE_TRANSACTION.md`（待生成） |
 | Spring Boot 3/4 | [MODULES.md](MODULES.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | `integrations/SPRING_BOOT.md`（待生成） |
@@ -33,4 +33,4 @@
 
 ## 路径状态
 
-当前已完成审计的专题为 `architecture/CRUD_EXECUTION.md` 和 `architecture/EXTENSION_PIPELINE.md`；其余专题仍为待生成，创建并完成审计后才能改成链接。
+当前已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md` 和 `architecture/ENTITY_MAPPING.md`；其余专题仍为待生成，创建并完成审计后才能改成链接。
