@@ -44,7 +44,7 @@ flowchart LR
 | remove/delete | Wrapper 经 `BuildCondition.queryCondition` 形成 filter；物理删除汇入 `executeRemoveOne/deleteOne` 或 `executeRemove/deleteMany`。高级逻辑删除插件可改成 update。 |
 | find/query | 空条件、Wrapper、id、列值和命令入口形成 query/projection/sort → `executeQuery/find`；Mapper 再追加 skip/limit 等 iterable 选项并转换结果。 |
 | page | 复用 query；完整分页另调用 count 或 `recentPageCount`，不是独立 Driver 操作。 |
-| count | 条件计数 → `executeCount/countDocuments`；`canEstimatedDocumentCount` 仅在逻辑删除关闭、传入的 chain wrapper 非 null 且为空，并且租户被忽略或未注册 `TenantInterceptor` 时走 `estimatedDocumentCount`。当前 `SessionExecute.estimatedDocumentCount` 实际调用无 session 参数的 `countDocuments()`，与 `DefaultExecute` 的 `collection.estimatedDocumentCount()` 不同。 |
+| count | 条件计数 → `executeCount/countDocuments`；`canEstimatedDocumentCount` 仅在逻辑删除关闭、传入的 chain wrapper 非 null 且为空，并且租户被忽略或未注册 `TenantInterceptor` 时走 `estimatedDocumentCount`。当前 `SessionExecute.estimatedDocumentCount` 实际调用 **`countDocuments(clientSession)`**，与 `DefaultExecute` 的 `collection.estimatedDocumentCount()` 不同。 |
 | aggregate | Aggregate pipeline → `executeAggregate/aggregate` → converter；链式聚合仍委托 Mapper。 |
 | bulkWrite | 调用方提供 `List<WriteModel<Document>>` → `executeBulkWrite/bulkWrite`；不做实体批量转换，但普通拦截器可改模型。 |
 | 索引 | `AbstractBaseIndex` → `Execute.doCreateIndex(es)/doListIndexes/doDropIndex(es)` → `MongoCollection` 索引 API；经过普通代理和高级代理，但当前索引方法没有普通参数策略，详见上文。源码：`index/impl/AbstractBaseIndex.java`。 |

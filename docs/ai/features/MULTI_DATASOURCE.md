@@ -95,7 +95,7 @@ Mapper/DefaultBaseMapperImpl
 
 - 数据源名称通常在 `@MongoDs` 切面进入业务方法时确定；Mapper 随后从上下文选择 `CollectionManager` 和 client。
 - `MongoTransactionalManager.getMongoClient()` 在创建 `ClientSession` 时通过当前数据源名选 client，session 因此绑定当时的 client。`ExecutorFactory` 只检查 `MongoTransactionContext` 是否有 session，并不会校验随后取得的 collection 是否来自同一 client。
-- 事务开始后再切换 `@MongoDs` 会得到另一数据源的 collection，但 `SessionExecute` 仍携带原 session；源码没有禁止或协调该组合，应视为不支持的高风险路径并做行为验证。
+- 普通事务状态只以开始时的数据源名保存 session，`ExecutorFactory` 按调用当时的当前数据源名查询。若 `@MongoDs` 在取得执行器前已经切换到新名称，查询结果为 null并回退 `DefaultExecute`，该次操作逃逸事务，而不是直接复用旧 session。若执行器先捕获旧 session，之后动态集合/分片等插件再把 collection 改到另一 client，则会形成旧 session + 新 collection；源码没有 client 一致性校验。前者是已确认分支，后者的 Driver 异常外观待运行验证。
 - Spring `MongoPlusTransactionalManager`/Spring `@Transactional` 的具体 thread-bound 状态与 `@MongoDs @Order(0)` 相对顺序尚未建立运行证据；不能由注解名推断。
 - 同一次实体 CRUD 中，数据库/集合解析和 collection 获取发生在 `ExecutorFactory.getExecute()`/Driver 调用前；动态集合普通拦截器可在执行代理内再次替换 collection。
 - 租户、逻辑删除、自动填充不选择数据源；它们作用于选定 collection 的参数或实体转换。Mapper 代理/`MongoPlusClient` 通常为单例，隔离依赖 ThreadLocal 与 manager 外层 key，而不是每数据源一套 Mapper。
