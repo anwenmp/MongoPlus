@@ -117,7 +117,7 @@ public class MongoPlusConfiguration {
     @ConditionalOnMissingBean(MongoPlusClient.class)
     public MongoPlusClient mongoPlusClient(MongoClient mongo,MongoClientFactory mongoClientFactory) {
         MongoPlusClient mongoPlusClient = Configuration.builder().initMongoPlusClient(mongo,mongoDBConnectProperty);
-        mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagerMap()
+        mongoClientFactory.getMongoClientMap().forEach((ds,mongoClient) -> mongoPlusClient.getCollectionManagers()
                 .put(ds, new LinkedHashMap<>() {{
                     String database = DataSourceNameCache.getBaseProperty(ds).getDatabase();
                     Arrays.stream(database.split(",")).toList().forEach(db ->
