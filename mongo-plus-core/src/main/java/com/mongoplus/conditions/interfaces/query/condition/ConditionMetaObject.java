@@ -1,6 +1,5 @@
 package com.mongoplus.conditions.interfaces.query.condition;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.Objects;
 */
 public class ConditionMetaObject implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 682242054799754195L;
 
     /**

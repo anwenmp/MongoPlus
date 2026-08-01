@@ -140,6 +140,14 @@ public class BuildCondition extends AbstractCondition {
                         (Boolean) conditionMetaObject.getValue()));
                 break;
             case NOT:
+                QueryChainWrapper<?, ?> notWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
+                BasicDBObject notBasicDBObject = notWrapper.buildCondition().getCondition();
+                if (CollUtil.isNotEmpty(notBasicDBObject)) {
+                    mongoPlusBasicDBObject.put(notBasicDBObject.size() == 1
+                            ? Filters.not(notBasicDBObject)
+                            : Filters.nor(notBasicDBObject));
+                }
+                break;
             case EXPR:
                 QueryChainWrapper<?, ?> exprWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
                 BaseConditionResult baseConditionResult = exprWrapper.buildCondition();
