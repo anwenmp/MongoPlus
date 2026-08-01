@@ -1,5 +1,12 @@
 # 待验证问题
 
+## 聚合与乐观锁（2026-08-02）
+
+- 聚合：空 pipeline、null/custom stage 的 Driver 版本准确异常；无 match 时 Logic Delete 把 `$match` 追加到尾部是否为设计意图；Wrapper 重复执行被 Tenant/Logic 原地污染的兼容策略；lookup/facet/unionWith 子 pipeline 是否应递归增强；多个 match 是否应全部重复增强；Tenant 插入到 `$geoNear/$search/$vectorSearch` 之前及 Logic 追加到 `$out/$merge` 之后的 Driver/Server 准确异常。
+- 聚合映射：多层泛型 lookup 数组、group `_id` 与别名、out/merge、cursor 消费和所有 AggregateOptions 的 Driver 兼容行为。`Class<Map>`/`TypeReference<Map<...>>` 的无限递归已确认为缺陷，不再仅列差异测试。
+- 乐观锁：null/非 Integer 字段、多个 `@Version`、无 `$set`、retry 多次原地改写 BSON 的准确行为；matched=1/modified=0 是否应视为冲突；成功后是否应回写实体版本。用户 `$inc` 被顶层覆盖已是确认缺陷，不再仅列待验证。
+- 组合：动态 namespace 为 `UnClassCollection` 时是否应继承原实体版本元数据；跨 datasource 同 namespace registry 冲突；分片 bulk 与事务回滚语义。LogicRemove/OptimisticLocker 的默认 order 与运行顺序已经确认，不再列注册顺序问题。
+
 > 审计日期：2026-08-02。只记录已从当前源码观察到、尚缺行为验证的边界。除非状态明确写为“已确认缺陷”，这些条目都不是缺陷结论。统一状态值为：待验证 / 已确认行为 / 已确认缺陷 / 已解决。
 
 ## Tenant、Logic Delete、Auto Fill（2026-08-02）
@@ -12,7 +19,8 @@
 - **待验证：** Solon 启动只 `beanMake(MongoLogicIgnoreAspect.class)`，未见 `beanInterceptorAdd(IgnoreLogic.class, ...)`；需确认 `@IgnoreLogic` 是否实际绑定。若被全局挂接，还需验证其 `Optional` 返回包装和异常包装行为。Boot 3/4 的方法级切面绑定已由源码确认。
 - 聚合没有 `$match` 时 Logic filter 被追加在 pipeline 末尾；对 group/project 后字段缺失的实际结果及预期顺序。
 - 动态集合 delete 中普通 Logic 使用原 collection 元数据、高级 LogicRemove 使用替换后 collection，可能造成过滤与物理删除/逻辑更新分裂。
-- 逻辑删除高级链内重调 executeUpdate 与 SessionExecute、OptimisticLocker、分片代理的组合顺序及 session/client 一致性。
+- **已确认行为：** LogicRemove(order `MAX_VALUE-1`) 默认先于 OptimisticLocker(order `MAX_VALUE`) 运行，并对内层 target 重调 executeUpdate；转换 `$set` 不含版本，乐观锁默认静默跳过，配置缺版本异常则删除失败。SessionExecute target 仍保留；真实事务/分片命令序列待集成验证。
+- **已确认缺陷：** 乐观锁向 update 顶层 `putAll` 新 `$inc`，会覆盖用户整个原 `$inc`；非 Document/BSONObject Bson 的局部转换未写回 pair，改写可能丢失。各种 Driver Bson 实现与 retry 二次改写仍需参数化测试。
 - **已确认行为 + 待验证设计：** Auto Fill 在实体字段映射后运行，fill Map 不再经过实体字段 TypeHandler/Encrypt/DBRef，重命名字段可能形成双字段；null、final/不可写字段和期望契约仍需测试/设计确认。
 - Boot 3/4/Solon 多个 MetaObjectHandler 的最终选择依容器枚举最后项，顺序未形成契约；多应用上下文共享静态 HandlerCache 的污染需验证。
 
@@ -36,7 +44,7 @@
 | TypeHandler、加密、脱敏、DBRef 组合契约 | 待验证 | 这些能力分布在字段 Handler、转换器和 DBRefHandler，并非单一统一阶段 | 全组合优先级、重复转换和异常传播尚无测试 | 双向保存/读取矩阵，逐步启用及组合启用并记录调用顺序 | `architecture/ENTITY_MAPPING.md`、`architecture/EXTENSION_PIPELINE.md` | `AbstractMongoConverter.java`；`handlers/field/DBRefHandler.java`；相关字段 Handler | core、sensitive-word、starters |
 | 多维集合与复杂反射 Type | 待验证 | TypeReference 仅经 `ClassTypeUtil.getClassFromType` 取得 class；转换路径处理集合/Map，但复杂 Type 的递归边界不清 | WildcardType、TypeVariable、GenericArrayType 与多维集合未见覆盖 | 为每种 Type 构造 Document→对象→Document 往返测试 | `architecture/ENTITY_MAPPING.md` | `mapping/TypeReference.java`；`AbstractMongoConverter.java`；`ClassTypeUtil.java` | core |
 | 特殊集合具体实现反序列化 | 待验证 | converter 对 Collection 有通用分支，具体实现的实例化依赖类型工具/策略 | 不可变、排序、队列、自定义集合的选择和失败方式未实测 | 覆盖 Set/SortedSet/Queue/不可变及无无参构造集合 | `architecture/ENTITY_MAPPING.md` | `AbstractMongoConverter.java:139-143,280-288`；`ClassTypeUtil.java` | core |
-| `Class<Map>` 与 `TypeReference<Map<...>>` | 待验证 | `Class<Map>` 路径退化为 `TypeReference<Map<String,Object>>`；显式 TypeReference 保留泛型 Type | 键/值嵌套类型、数字类型和实体值转换差异未行为验证 | 同一 Document 分别读取两种入口并比较运行时类型和值 | `architecture/ENTITY_MAPPING.md` | `AbstractMongoConverter.java:139-141`；`TypeReference.java` | core |
+| `Class<Map>` 与 `TypeReference<Map<...>>` | 已确认缺陷 | Mapper Class 重载先包装 TypeReference；`readInternal` 的 Map 分支再递归创建 `TypeReference<Map<String,Object>>`，raw class 仍为 Map，没有终止条件 | 静态控制流已闭合；运行测试只需固定最终 `StackOverflowError` 与受影响入口 | 覆盖 query/aggregate 的 Class Map 与 TypeReference Map；修复后再验证泛型值和 key 转换契约 | `architecture/ENTITY_MAPPING.md`、`architecture/AGGREGATION.md` | `AbstractBaseMapper.java:323-365`；`MongoConverter.java:146-149`；`AbstractMongoConverter.java:132-141`；`TypeReference.java` | core |
 
 ## 集合与多数据源
 

@@ -27,7 +27,7 @@
 
 它不重新进入外层普通代理，所以 Tenant/Logic 不会第二次注入；也不走实体 `MongoConverter.writeByUpdate`，因此**不会调用 `MetaObjectHandler.updateFill`**，不会更新其他自动填充字段。返回值伪装为 `DeleteResult`，`getDeletedCount()` 实际返回 update 的 `modifiedCount`。已删除记录因普通阶段未删除条件而通常修改 0 条；忽略逻辑时直接物理 delete。没有专用恢复 API，但普通 update 可以自行改逻辑字段；该 update 默认又要求记录当前未删除。
 
-SessionExecute 与普通路径共享外层代理和高级转换，转换后的内层 execute target 是否始终保持同一 session 由高级包装 target 决定，需事务回归测试。乐观锁等高级插件相对 `LogicRemoveInterceptor` 的 order 会影响内层路径。
+SessionExecute 与普通路径共享外层代理和高级转换；`LogicRemove` 调用的内层 target 包裹同一个原始 SessionExecute，因此转换后的 update 仍调用带 session 的 Driver API，事务命令仍建议回归测试。默认乐观锁 order 为 `MAX_VALUE`，LogicRemove 为 `MAX_VALUE-1`：LogicRemove 先转 update，乐观锁随后进入，但 `$set` 不含版本，默认静默跳过；配置缺版本异常时删除失败。该组合不是同 order 注册顺序风险。
 
 ## `@IgnoreLogic`
 
