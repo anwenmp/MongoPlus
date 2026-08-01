@@ -110,7 +110,7 @@ public class SessionExecute implements Execute {
 
     @Override
     public long estimatedDocumentCount(MongoCollection<Document> collection) {
-        return collection.countDocuments();
+        return collection.countDocuments(clientSession);
     }
 
     @Override
