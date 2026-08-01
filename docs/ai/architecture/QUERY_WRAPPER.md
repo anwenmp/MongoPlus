@@ -1,6 +1,6 @@
 # Query / Update Wrapper 与 BSON
 
-> 审计日期：2026-08-01。结论以 `mongo-plus-core` 当前源码为准。本文只描述条件构造、BSON 汇合及执行前增强；CRUD 总链见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md)，执行拦截顺序见 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)。
+> 审计日期：2026-08-02。结论以 `mongo-plus-core` 当前源码为准。本文只描述条件构造、BSON 汇合及执行前增强；CRUD 总链见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md)，执行拦截顺序见 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)。
 
 ## 类型关系与职责边界
 
@@ -46,8 +46,61 @@ eq/ne/.../and/or/not
 | `eq` | `{field: {$eq: value}}`；不是 Driver `Filters.eq` 的简写形态 |
 | `ne/gt/gte/lt/lte` | 交给项目内 `Filters` 构造对应 `$ne/$gt/$gte/$lt/$lte` |
 | `in/nin/all` | Collection 或 varargs（varargs 先转 `ArrayList`）进入 `$in/$nin/$all` |
-| `regex/like` | `BuildCondition` 对两者都固定产生 `$regex` 并追加 `$options: "i"`；带 `RegexOptions` 的 API 将其保存到 `ConditionMetaObject.extraValue`，但 `REGEX/LIKE` 构建分支只读取 `value`，完全不读取 `extraValue` |
+| `regex/like` | 两者最终都形成 `{field: {$regex: pattern, $options: flag}}`。显式 options 由公开 API 保存到 `ConditionMetaObject.extraValue`，`BuildCondition` 的 `REGEX/LIKE` 分支读取它并写入 `RegexOptions.getFlag()`；API 未声明 options 时会先委托为 `CASE_INSENSITIVE`，显式传 `null` 时构建器也回退为 `"i"` |
 | 自定义 BSON | `custom(...)` 转为 `BasicDBObject` 存入独立列表，最终用 `putAll` 合并进 filter；同名键可能覆盖先前结果 |
+
+### RegexOptions 完整公开调用链
+
+`Regex` 与 `Like` 通过 `Other -> QueryCondition -> AbstractChainWrapper` 被所有查询和更新 Wrapper 继承。当前实际类型的覆盖情况如下：
+
+| 公开类型 | 可直接实例化 | `regex` | `like/likeLeft/likeRight` | options 传递结论 |
+|---|---:|---:|---:|---|
+| `QueryChainWrapper<T, Children>` | 否，抽象类 | 继承 | 继承 | 公共基类 API 可传递 |
+| `QueryWrapper<T>` | 是 | 继承 | 继承 | 可传递 |
+| `LambdaQueryChainWrapper<T>` | 是，由 `ChainWrappers`/Repository 创建 | 继承 | 继承 | 可传递 |
+| `UpdateChainWrapper<T, Children>` | 是 | 继承 | 继承 | 作为更新 filter 可传递 |
+| `UpdateWrapper<T>` | 是 | 继承 | 继承 | 作为更新 filter 可传递 |
+| `LambdaUpdateChainWrapper<T>` | 是，由 `ChainWrappers`/Repository 创建 | 继承 | 继承 | 作为更新 filter 可传递 |
+
+未发现其他继承 `AbstractChainWrapper`、`QueryChainWrapper` 或 `UpdateChainWrapper` 的 Wrapper；也不存在独立的 `LambdaQueryWrapper` 或 `LambdaUpdateWrapper`。聚合 Wrapper 不继承这套条件接口，其 `match` 接收已构造的 `QueryChainWrapper`，不属于新的 regex/like 公开入口。
+
+需要区分四个阶段：
+
+1. **保存**：字符串和 `SFunction` 的 options 重载均调用 `getBaseConditionExtraValue(...)`，其最终构造函数把 `RegexOptions` 写入 `ConditionMetaObject.extraValue`；`AbstractChainWrapper.addCondition` 保存该元对象。
+2. **读取**：`BuildCondition.queryCondition(...)` 的共同 `REGEX/LIKE` 分支调用 `conditionMetaObject.getExtraValue(RegexOptions.class)`。
+3. **写入 BSON**：该分支把 `regexOptions.getFlag()` 写到内层文档的 `$options`；当 extraValue 为 `null` 时写入 `CASE_INSENSITIVE.getFlag()`，即 `"i"`。
+4. **公开入口传递**：所有上述 Wrapper 共享同一组接口默认方法，因此源码层面均可把 options 传到同一构建分支；现有运行测试只覆盖其中一部分具体 Wrapper，未覆盖者仍列在 `OPEN_QUESTIONS.md`，不能据此认定缺陷。
+
+带 options 的完整路径（字符串字段）：
+
+```text
+new QueryWrapper<>().regex("name", "^mongo", RegexOptions.MULTILINE)
+  -> Regex.regex(String, Object, RegexOptions)
+  -> BaseQueryCondition.getBaseConditionExtraValue(...)
+  -> ConditionMetaObject.extraValue = MULTILINE
+  -> AbstractChainWrapper.addCondition(...)
+  -> QueryChainWrapper.buildCondition()
+  -> AbstractCondition.queryCondition(wrapper/list)
+  -> BuildCondition REGEX 分支读取 extraValue
+  -> {name: {$regex: "^mongo", $options: "m"}}
+```
+
+不带 options 参数的完整路径（Lambda 字段）：
+
+```text
+lambdaQueryChainWrapper.like(Entity::getName, "mongo")
+  -> Like.like(SFunction, Object)
+  -> Like.like(SFunction, Object, CASE_INSENSITIVE)
+  -> BaseQueryCondition.getBaseConditionExtraValue(...)
+  -> ConditionMetaObject.extraValue = CASE_INSENSITIVE
+  -> AbstractChainWrapper.addCondition(...)
+  -> QueryChainWrapper.buildCondition()
+  -> AbstractCondition.queryCondition(wrapper/list)
+  -> BuildCondition LIKE 分支读取 extraValue
+  -> {name: {$regex: "mongo", $options: "i"}}
+```
+
+这里“不带 options”仅指调用者没有传该参数；正常无参重载仍会在保存阶段放入 `CASE_INSENSITIVE`。只有显式传 `null`（或其他绕过公开重载构造元对象的路径）才使用构建器的 null 回退。`likeLeft`/`likeRight` 的 options 重载分别先把值改为 `"^" + value` / `value + "$"`，再委托 `like(..., options)`，所以最终结构相同，仅 `$regex` 字符串带首/尾锚点。
 
 构建每个查询条件前后都会按 `HandlerCache.conditionHandlerList` 调用 `ConditionHandler.beforeQueryCondition/afterQueryCondition`。当前内置顺序是字段加密、DBRef、ObjectId；这是静态列表插入顺序，未见排序步骤。
 
@@ -88,8 +141,10 @@ Wrapper 构建本身不处理这三项。它先在 Mapper 层成为 BSON，随�
 - Wrapper 和大量默认接口方法是公开 API；改变自引用泛型、返回类型、`ChainWrappers` 新建语义或条件元对象结构会影响源码兼容和链式类型推断。
 - `BuildCondition` 是所有 Wrapper 的共享 BSON 语义点；操作符形态、重复键合并、ConditionHandler 时序、枚举/ObjectId/加密转换改变会影响查询、更新 filter、聚合 match 和逻辑删除。
 - Query/Update 边界尤其要覆盖实体更新（converter + `$set`）与 UpdateWrapper（独立更新操作 BSON）两条路径。
-- CodeGraph 对核心 Wrapper 报告无覆盖测试；仓库知识库此前也确认没有 `src/test`。至少缺少：全部操作符 BSON 快照；null/空集合/false；字符串与 Lambda 字段注解；点路径；重复字段；AND/OR/NOR/NOT 多层分组；自定义 BSON 冲突；Wrapper clear/复用/并发；租户+逻辑删除+动态集合；实体更新与 UpdateWrapper 的差异。
+- 当前工作区的 `mongo-plus-test/src/test/java/com/mongoplus/handlers/condition/BuildConditionRegexTest.java` 已有测试源码覆盖：`QueryWrapper` 字符串 `regex` 显式 options、Lambda `like` 显式 options、无 options 默认 `i`、显式 null 回退 `i`、`UpdateWrapper` filter 显式 options、`condition=false`，以及 `regex/like(null)` 的构建期 NPE。该测试模块尚未加入根 Maven reactor，本次无法从根工程运行；独立运行也因本地缺少 `mongo-plus-core:2.2.0` 构件而未执行成功，因此不能记为本次已执行验证。
+- RegexOptions 尚缺具体运行覆盖：`LambdaQueryChainWrapper`、直接 `UpdateChainWrapper`、`LambdaUpdateChainWrapper`，以及 `likeLeft/likeRight`、全部枚举值和真实 MongoDB 命中语义。其共享默认方法和共享构建器的源码链已确认，但未把未执行的入口写成运行时已验证。
+- 其他至少缺少：全部操作符 BSON 快照；null/空集合；字符串与 Lambda 字段注解；点路径；重复字段；AND/OR/NOR/NOT 多层分组；自定义 BSON 冲突；Wrapper clear/复用/并发；租户+逻辑删除+动态集合；实体更新与 UpdateWrapper 的差异。
 
 ## 关键源码
 
-模块均为 `mongo-plus-core`：`conditions/AbstractChainWrapper.java`、`conditions/query/QueryChainWrapper.java`、`QueryWrapper.java`、`LambdaQueryChainWrapper.java`、`conditions/update/UpdateChainWrapper.java`、`UpdateWrapper.java`、`LambdaUpdateChainWrapper.java`、`conditions/interfaces/query/**`、`handlers/condition/AbstractCondition.java`、`BuildCondition.java`、`toolkit/Filters.java`、`ConditionUtil.java`、`support/SFunction.java`、`mapper/AbstractBaseMapper.java`、三类 business interceptor。
+主要模块为 `mongo-plus-core`：`conditions/AbstractChainWrapper.java`、`conditions/query/QueryChainWrapper.java`、`QueryWrapper.java`、`LambdaQueryChainWrapper.java`、`conditions/update/UpdateChainWrapper.java`、`UpdateWrapper.java`、`LambdaUpdateChainWrapper.java`、`conditions/interfaces/query/BaseQueryCondition.java`、`QueryCondition.java`、`other/Other.java`、`other/operations/Regex.java`、`Like.java`、`conditions/interfaces/query/condition/ConditionMetaObject.java`、`handlers/condition/AbstractCondition.java`、`BuildCondition.java`。`RegexOptions` 位于 `mongo-plus-annotation/src/main/java/com/mongoplus/enums/RegexOptions.java`；现有定向测试位于 `mongo-plus-test/src/test/java/com/mongoplus/handlers/condition/BuildConditionRegexTest.java`。

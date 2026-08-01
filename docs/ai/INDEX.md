@@ -13,8 +13,9 @@
 | 全局分层、CRUD 总体路径、启动入口 | [ARCHITECTURE.md](ARCHITECTURE.md) | [MODULES.md](MODULES.md) |
 | 当前版本、分支、依赖快照、待验证项 | [CURRENT_STATE.md](CURRENT_STATE.md) | [MODULES.md](MODULES.md) |
 | 开发/API 约定 | `CONVENTIONS.md`（待生成） | — |
-| 构建与测试策略 | `TESTING.md`（待生成） | `COMPATIBILITY.md`（待生成） |
-| 兼容性策略 | `COMPATIBILITY.md`（待生成） | [CURRENT_STATE.md](CURRENT_STATE.md) |
+| 修改代码前确定验证方式 | [TESTING.md](TESTING.md) | 按兼容矩阵需要补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
+| 升级 Java、Boot、Driver 或 Solon | [COMPATIBILITY.md](COMPATIBILITY.md) | 验证命令补读 [TESTING.md](TESTING.md) |
+| 调查潜在缺陷或边界行为 | [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) | 按问题链接补读对应架构专题 |
 | 已确认的架构决策 | `DECISIONS.md`（待生成） | — |
 
 ## 专题路由
@@ -33,4 +34,4 @@
 
 ## 路径状态
 
-当前已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md` 和 `architecture/ENTITY_MAPPING.md`；其余专题仍为待生成，创建并完成审计后才能改成链接。
+当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md` 和 `architecture/ENTITY_MAPPING.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。
