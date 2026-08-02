@@ -32,7 +32,7 @@
 - 2026-08-02 执行 `codegraph status`：603 files、10,908 nodes、22,786 edges，结果为 `[OK] Index is up to date`。
 - 当前会话未暴露 CodeGraph MCP 工具，使用与 `codegraph_explore`/`codegraph_status` 对应的 CLI `codegraph explore`、`codegraph status`。
 - CodeGraph 查询未找到 `org.junit`、`BaseMapperTest` 或 `IServiceTest`，并对关键入口报告 `no covering tests found`。这说明当前索引没有相应测试证据；不扩张为对索引外文件或外部 CI 的断言。
-- 2026-08-02 执行 `mvn -pl mongo-plus-core -am -DskipTests compile`，根聚合项目、annotation 和 core 编译成功；没有执行测试、完整 reactor 构建或兼容矩阵，详见 `TESTING.md`。
+- 2026-08-02 历史执行 `mvn -pl mongo-plus-core -am -DskipTests compile`，根聚合项目、annotation 和 core 编译成功；本轮执行全 reactor `mvn validate`，根与 8 个模块成功。没有执行测试、全 reactor compile/package/install/deploy 或兼容矩阵，详见 `TESTING.md`。
 
 ## 待验证
 

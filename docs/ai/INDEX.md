@@ -16,6 +16,8 @@
 | 选择公开 CRUD、Service、Repository、Chain 或无实体入口 | [PUBLIC_API.md](PUBLIC_API.md) | 按链接补读一个实现专题 |
 | 查询配置 key、默认值、消费者或集成差异 | [CONFIGURATION.md](CONFIGURATION.md) | 启动细节补读 [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) |
 | 修改代码前确定验证方式 | [TESTING.md](TESTING.md) | 按兼容矩阵需要补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
+| 修改代码时确定最小影响面、顺序和遗漏矩阵 | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | 验证命令补读 [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) |
+| 构建、安装、升级版本或发布 | [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) | 模块职责补读 [MODULES.md](MODULES.md)；测试边界补读 [TESTING.md](TESTING.md) |
 | 升级 Java、Boot、Driver 或 Solon | [COMPATIBILITY.md](COMPATIBILITY.md) | 验证命令补读 [TESTING.md](TESTING.md) |
 | 调查潜在缺陷或边界行为 | [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) | 按问题链接补读对应架构专题 |
 | 已确认的架构决策 | `DECISIONS.md`（待生成） | — |
@@ -24,6 +26,15 @@
 
 | 任务 | 当前先读 | 专题状态 |
 |---|---|---|
+| 修改公开 CRUD API | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | 入口选择补读 [PUBLIC_API.md](PUBLIC_API.md)；执行链补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
+| 新增 Wrapper 操作符 | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | 条件语义补读 [architecture/QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md) |
+| 新增普通拦截器或高级拦截器 | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | 顺序与包装补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
+| 新增字段注解或 Mapping Handler | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | 映射阶段补读 [architecture/ENTITY_MAPPING.md](architecture/ENTITY_MAPPING.md) |
+| 新增配置项 | [CHANGE_PLAYBOOK.md](CHANGE_PLAYBOOK.md) | key/消费者补读 [CONFIGURATION.md](CONFIGURATION.md) |
+| 新增模块或修改 POM | [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) | 职责补读 [MODULES.md](MODULES.md)；Java/框架边界补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
+| 构建单模块或整个 reactor | [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) | 测试保障补读 [TESTING.md](TESTING.md) |
+| 升级版本或发布 Maven Central | [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) | 未决凭据/平台步骤补读 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) |
+| 检查 Boot 3/Boot 4/Solon 兼容性 | [COMPATIBILITY.md](COMPATIBILITY.md) | 发布接线清单补读 [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) |
 | CRUD、BaseMapper、IService、Repository、Mapper 代理 | [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) | 扩展顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
 | 选择 BaseMapper、IService 或 IRepository；调查公开 CRUD API | [PUBLIC_API.md](PUBLIC_API.md) | 深入链路再读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
 | Wrapper、Chain、DTO 或无实体 Map/Document 入口 | [PUBLIC_API.md](PUBLIC_API.md) | 条件细节补读 [architecture/QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md) |
@@ -64,5 +75,7 @@
 | 调查恢复与异步多写组合 | [features/BACKUP_AND_RESTORE.md](features/BACKUP_AND_RESTORE.md) + [features/ASYNC_MULTI_WRITE.md](features/ASYNC_MULTI_WRITE.md) | 拦截器顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
 
 ## 路径状态
+
+`CHANGE_PLAYBOOK.md` 与 `BUILD_AND_RELEASE.md` 已于 2026-08-02 完成独立审计并进入正式路由。
 
 当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md`、`architecture/ENTITY_MAPPING.md`、`architecture/STARTUP_LIFECYCLE.md`、`architecture/AGGREGATION.md`、`features/MULTI_DATASOURCE.md`、`features/TRANSACTION.md`、`features/DYNAMIC_COLLECTION.md`、`features/TENANT.md`、`features/LOGIC_DELETE.md`、`features/AUTO_FILL.md`、`features/OPTIMISTIC_LOCK.md`、`features/INDEX_AND_TIMESERIES.md`、`features/SHARDING.md`、`features/FIELD_ENCRYPTION.md`、`features/DESENSITIZATION.md`、`features/SENSITIVE_WORD.md`、`features/COMMAND_LISTENER.md`、`features/DATA_CHANGE_RECORDER.md`、`features/ASYNC_MULTI_WRITE.md` 和 `features/BACKUP_AND_RESTORE.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。

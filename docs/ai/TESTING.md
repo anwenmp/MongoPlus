@@ -1,6 +1,6 @@
 # 构建与测试策略
 
-> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；本次执行了 core 及其 reactor 依赖的编译，未执行测试、打包或完整校验。编译成功不作为行为或兼容性通过证据。
+> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；历史记录包含 core 及其 reactor 依赖的编译，本轮新增全 reactor `validate`，仍未执行测试、打包或完整校验。编译/validate 成功不作为行为或兼容性通过证据。
 
 ## 当前测试事实
 
@@ -14,7 +14,7 @@
 - `mongo-plus-sharding-boot-starter`
 - `mongo-plus-sensitive-word`
 
-仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `src/test/java/com/mongoplus/handlers/condition/BuildConditionRegexTest.java`，POM 声明 JUnit 4.13.2。它不是 reactor 测试保障，状态变化后应重新确认。根及 reactor 模块 POM未声明 JUnit、TestNG 或专用测试插件；多个集成/扩展模块还声明了 `maven.test.skip=true`。
+仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `BuildConditionRegexTest.java` 和 `BuildConditionNotTest.java`，POM 声明 JUnit 4.13.2，并有本机 surefire 输出。它不是 reactor 测试保障，状态变化后应重新确认。根及 reactor 模块 POM未声明 JUnit、TestNG 或专用测试插件；多个集成/扩展模块还声明了 `maven.test.skip=true`。
 
 ## Maven 命令
 
@@ -31,13 +31,15 @@
 
 reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `compile`/`verify`）定向构建；有效的 `<模块>` 是 `mongo-plus-annotation`、`mongo-plus-core`、`mongo-plus-boot-starter`、`mongo-plus-boot4-starter`、`mongo-plus-solon-plugin`、`mongo-plus-sharding`、`mongo-plus-sharding-boot-starter`、`mongo-plus-sensitive-word`。其中声明 `maven.test.skip=true` 的模块即使执行 `test` 也不能据此声称测试已运行；应先建立正式测试并重新审视该属性。`mongo-plus-bom` 不接受根 reactor 的 `-pl` 选择，使用上表独立命令。
 
-本次实际执行了：
+2026-08-02 的已运行记录：
 
 - `mvn -version`：Maven 3.9.2，运行 JDK 17.0.16。
+- `mvn help:active-profiles`：首次因沙箱不能写本地仓库跟踪文件失败，授权后成功；当前项目 `release` profile 默认活动，settings 另有同名外部 profile。
+- `mvn validate`：根与 8 个 JAR 模块全部成功；只覆盖 validate 阶段。
 - `mvn -pl mongo-plus-core -am -DskipTests compile`：根聚合项目、annotation、core 编译成功；编译 58 个 annotation 源文件和 441 个 core 源文件，并出现 deprecated/unchecked 提示。
 - `mvn -pl mongo-plus-boot-starter,mongo-plus-boot4-starter -am dependency:tree "-Dincludes=org.springframework:*,org.springframework.boot:*"`：依赖树解析成功；这是依赖解析证据，不是两个 starter 的编译、启动或行为测试。
 
-**本次没有执行 `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。上述 compile 成功只覆盖当前 JDK 17 下 core 及 annotation 的编译，不扩张为行为正确、JDK 8 可用、Driver 兼容或全 reactor 构建通过。**
+**本轮没有执行 `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。历史 compile 成功只覆盖当前 JDK 17 下 core 及 annotation 的编译；本轮 validate 只覆盖模型/validate 阶段，均不扩张为行为正确、JDK 8 可用、Driver 兼容或全 reactor 编译通过。**
 
 ## 修改区域的最低验证
 

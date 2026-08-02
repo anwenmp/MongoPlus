@@ -1,5 +1,14 @@
 # 待验证问题
 
+## 构建与发布（2026-08-02）
+
+- **待验证：** 全 8 模块 reactor 的 clean compile/test/package/install/verify/deploy、独立 BOM 的 verify/deploy，以及 JDK 8/17/21 构建矩阵；本轮只完成全 reactor `validate`，没有执行这些更高阶段命令。
+- **待验证：** 根 POM 先导入 reactor 外 `mongo-plus-bom:2.2.0`，而 BOM 又管理 8 个 reactor 构件时，干净本地仓库和正式 Central deployment 的可行批次。干净本地仓库可先 install 无 parent 的 BOM 再构建根；BOM 自身部署不会解析受管 JAR，但 Central Portal 能否合并两次构建、平台校验和公开顺序仍不能由 POM 推断。
+- **待验证：** `central-publishing-maven-plugin` 的 server id `central` 与 `distributionManagement` 的 server id `release` 分别对应哪条真实发布路径；Central Portal 与旧 OSSRH URL 是否仍同时使用、平台端是否需要手工 publish/close/release。
+- **待验证：** 发布所需 source、javadoc、签名和凭据。当前 sources/javadoc 配置有效，GPG execution 被注释；仓库内没有 CI/secret 名或 settings 凭据证据，不得把配置存在写成 deploy 已可用。
+- **待验证：** 是否存在仓库外 GitHub/Gitee/其他 CI、发布流水线和人工 release 流程。当前工作树没有 `.github`、`.gitee` 或其他常见 CI 定义，只能确认仓库内未配置。
+- **待验证：** 此前 Driver `dependency:tree` 未成功的准确命令、错误和本地仓库前置条件；知识库只保存了失败结论，不能据此诊断版本兼容。
+
 ## 字段加密、脱敏与敏感词（2026-08-02）
 
 - **已确认缺陷：** decrypt 把注解 `publicKey` 作为第三参数；RSA/SM2 空值又回退全局 `publicKey`，内置路径不读取 `privateKey`；PBE decrypt 空 key 也不回退全局 key。
