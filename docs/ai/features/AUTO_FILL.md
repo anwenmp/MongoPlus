@@ -20,9 +20,9 @@ Handler 收到的 `AutoFillMetaObject.document` 只含被标注的顶层字段�
 
 ## 映射顺序
 
-实体插入真实顺序为：ID 生成/规范化 → 普通字段循环（TypeHandler → EncryptFieldHandler → DBRefHandler；未命中再 MappingStrategy/默认递归）→ Auto Fill Handler → `converter.write(fillMap, source)` → Tenant/Logic/Dynamic 等普通执行插件 → 高级链 → Driver → ID 回填实体。
+实体插入真实顺序为：ID 生成/规范化 → 普通字段循环（core 为 TypeHandler → EncryptFieldHandler → DBRefHandler；LOCAL sensitive-word 启用时在尾部追加其 FieldHandler；未留下非 null Handler 结果才走 MappingStrategy/默认递归）→ Auto Fill Handler → `converter.write(fillMap, source)` → Tenant/Logic/Dynamic/GLOBAL sensitive-word 等普通执行插件（按实际 order）→ 高级链 → Driver → ID 回填实体。
 
-Auto Fill 发生在普通字段映射**之后**，但填充值随后通过 `converter.write(Map, Document)` 合并。该 Map 写路径没有实体 `FieldInformation`，所以填充值**不会**再次经过实体字段 TypeHandler、EncryptFieldHandler 或 DBRefHandler；复杂值只走通用 Map/value 转换。Auto Fill 元对象以 `FieldInformation.getCamelCaseName()` 暴露字段，回写 Map 又按 Map key 规则写入；它没有重新读取 `@CollectionField.value`。因此字段重命名时可与先前已映射存储字段形成双字段；全局下划线转换对 Map key 的影响可由源码确认，最终重名/覆盖组合仍应做 BSON 测试。
+Auto Fill 发生在普通字段映射**之后**，但填充值随后通过 `converter.write(Map, Document)` 合并。该 Map 写路径没有实体 `FieldInformation`，所以填充值**不会**再次经过实体字段 TypeHandler、EncryptFieldHandler、DBRefHandler 或 LOCAL sensitive-word Handler；复杂值只走通用 Map/value 转换。GLOBAL sensitive-word 位于后续普通执行链，因而会扫描填充后的序列化 Document。Auto Fill 元对象以 `FieldInformation.getCamelCaseName()` 暴露字段，回写 Map 又按 Map key 规则写入；它没有重新读取 `@CollectionField.value`。因此字段重命名时可与先前已映射存储字段形成双字段；全局下划线转换对 Map key 的影响可由源码确认，最终重名/覆盖组合仍应做 BSON 测试。
 
 生命周期没有独立 before/after 实体回调；执行代理只看到完成映射和填充后的 Document。Tenant 后续 `putIfAbsent`，所以若 Auto Fill 使用同一存储 key，填充值优先；但租户本身由 TenantHandler/TenantInterceptor 负责，不属于 MetaObjectHandler 职责。
 

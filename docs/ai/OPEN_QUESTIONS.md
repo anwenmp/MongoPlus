@@ -1,5 +1,15 @@
 # 待验证问题
 
+## 字段加密、脱敏与敏感词（2026-08-02）
+
+- **已确认缺陷：** decrypt 把注解 `publicKey` 作为第三参数；RSA/SM2 空值又回退全局 `publicKey`，内置路径不读取 `privateKey`；PBE decrypt 空 key 也不回退全局 key。
+- **已确认安全缺陷 + 待运行影响：** 加解密异常被记录并返回原输入；写侧会把普通 String 原值继续放入 Document，读侧保留原始 Document 值。具体入口是否到达 Driver/数据库及日志后端渲染内容仍需覆盖坏 key/Base64/hex、长度、provider、拦截器与目标字段类型。
+- **待验证：** AES/RSA 默认 transformation、RSA/SM2 相同明文随机性和长度边界、四种 PBE 在 JDK/provider 矩阵上的可用性；未运行前不承诺明文等值查询。
+- **已确认安全缺陷：** LOCAL 敏感词 Handler 使用默认全激活并无条件返回原字段值；不只“未命中”，连没有 `@SensitiveWord` 的字段也会覆盖 TypeHandler/Encrypt/DBRef。启用 LOCAL 后加密字段会稳定把明文重新放入 Document。GLOBAL 则扫描最终 BSON/Document 的序列化文本，对已加密字段看到密文。
+- **已确认缺口：** `ResultHandler.MASK` 未接入，`ignoreChar` boolean 未参与 builder；bulk 对非 InsertOne model 直接强转 UpdateMany。需覆盖全部 WriteModel、key 误命中和异常泄露。
+- **待验证：** 第三方词库 Unicode/繁简/重叠词、动态词库并发与规模、重复上下文静态污染；Boot 3/4 显式依赖和 Solon 手工接入。
+- **待验证：** 16 种脱敏对短值、非 String、容器、`CLEAR_TO_NULL` 的最终赋值，以及脱敏对象再次保存；TypeHandler/解密/脱敏/DBRef 全组合。
+
 ## 索引、时序集合与分片（2026-08-02）
 
 - **待验证：** 自动 `createIndexes` 面对相同定义、同名不同 keys/options、同 keys 不同名称及批量部分失败时，不同 MongoDB Server 版本的准确错误、已创建状态和重试结果；MongoPlus 源码不做读取、比较、删除或补偿。

@@ -81,11 +81,11 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 1. 字段名、忽略字段、顶层 ID 过滤先确定。
 2. `@CollectionField.isObjectId` 可先给 `obj` 赋值。
-3. 依 `HandlerCache.fieldHandlers` 当前顺序运行所有激活 Handler：`TypeHandlerFieldHandler` → `EncryptFieldHandler` → `DBRefHandler`。后运行且激活的 Handler 会覆盖前一个 `obj`；没有“命中即停止”。
+3. 依 `HandlerCache.fieldHandlers` 当前顺序运行所有激活 Handler：core 初始为 `TypeHandlerFieldHandler` → `EncryptFieldHandler` → `DBRefHandler`；安装 sensitive-word 且选择 LOCAL 后，会在尾部追加 `SensitiveWordFieldHandler`。后运行且激活的 Handler 会覆盖前一个 `obj`；没有“命中即停止”。LOCAL Handler 无显式 activate，所有字段都会调用，但只有带 `@SensitiveWord` 且值非 null 时检查，随后无论是否带注解都返回原字段值，因而会覆盖任一前序非 null 处理结果。
 4. 最终 `obj != null` 时直接写 BSON，跳过 MappingStrategy 和默认递归；Handler 返回 null 则继续默认分支。
 5. 默认分支中，`MappingStrategy` 最优先；命中后直接返回。未命中才依次判断 simple/Mongo type、集合/数组、Map、嵌套对象。
 
-因此仅在没有后续 Handler 覆盖且 TypeHandler 返回非 null 时，TypeHandler 高于 MappingStrategy；加密/DBRef 可覆盖 TypeHandler。MappingStrategy 也只按精确 class 查缓存（enum 归一到 `Enum.class`），不是 assignable 匹配。
+因此仅在没有后续 Handler 覆盖且 TypeHandler 返回非 null 时，TypeHandler 高于 MappingStrategy；加密/DBRef 可覆盖 TypeHandler，启用 LOCAL sensitive-word 后其尾部 Handler 又会把字段恢复为原 Java 值。MappingStrategy 也只按精确 class 查缓存（enum 归一到 `Enum.class`），不是 assignable 匹配。
 
 ### 读方向
 

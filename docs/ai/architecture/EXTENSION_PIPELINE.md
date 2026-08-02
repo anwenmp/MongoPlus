@@ -69,7 +69,7 @@ sequenceDiagram
 - 通过 `ExecutorFactory.getExecute()` 的一次受支持 CRUD 同时经过普通外层与高级内层；高级短路若正常返回，普通 after 仍运行。
 - 用户 Wrapper 先在 Mapper 层变为 BSON；普通逻辑删除/租户可再次增强。逻辑 remove→update 在高级阶段。
 - 实体→Document 在代理前，Document→实体在代理后；高级插件处理的是执行参数和 Driver 原始结果。
-- 当前内置普通 order 为 Tenant 0、Dynamic Collection 2、Collection Logic/Logic Auto Fill 默认最大值，因此已排序链是 Tenant → Dynamic → Logic。Java 当前稳定排序会保留同 order 的插入相对顺序，但容器 Bean 枚举、静态跨上下文累积和未排序 core 批量调用都不是公开契约；同 order 不应承载业务依赖。
+- 当前内置普通 order 为 Tenant 0、Dynamic Collection 2、Collection Logic/Logic Auto Fill 默认最大值；可选 GLOBAL sensitive-word 也使用默认最大值。因此确定前缀是 Tenant → Dynamic，Logic/GLOBAL 等同 order 项的相对次序取决于注册先后。Java 当前稳定排序会保留同 order 的现有相对顺序，但容器 Bean 枚举、静态跨上下文累积和未排序 core 批量调用都不是公开契约；同 order 不应承载业务依赖。
 - `ExecutorProxy` 在进入循环前捕获原 collection。Dynamic 会替换 `args` 最后一项，后续高级代理和 Driver 看到新 collection；后续普通专用策略仍收到捕获的原 collection。Logic delete 因而可能在普通阶段按原 namespace 加过滤、高级 remove 阶段按动态 namespace 决定是否转 update。
 - Listener 由 MongoDB Driver `CommandListener` 在 started/succeeded/failed 命令阶段触发；回调抛出的 `Exception` 由 `BaseListener` 包成 `MongoPlusInterceptorException` 并再次抛出。它不是 `InterceptorChain` 或 `AdvancedInterceptorChain` 的一环。
 - 普通插件可改参数/集合；高级插件可改参数、短路、改原始结果/异常；映射扩展改转换；`CollectionNameHandler` 计算集合名；`TenantHandler` 提供策略；Listener 接收命令事件，其中 `BlockAttackInnerListener` 还会执行阻断校验。
