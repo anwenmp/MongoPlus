@@ -6,7 +6,7 @@
 
 根 reactor 当前只有 `mongo-plus-sensitive-word` 包含 tracked 测试源码：`SensitiveWordFieldHandlerTest` 使用 JUnit 4.13.2，以 `MappingMongoConverter` 生成的 `Document` 验证 FieldHandler order、最新值传递、旧实现兼容、TypeHandler→Encrypt，以及 LOCAL 与 Encrypt/TypeHandler/DBRef 的组合，不需要真实 MongoDB。`mongo-plus-core/src/test` 目录为空，其余模块没有正式测试源码。
 
-仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `BuildConditionRegexTest.java` 和 `BuildConditionNotTest.java`，POM 声明 JUnit 4.13.2，并有本机 surefire 输出。它不是 reactor 测试保障，状态变化后应重新确认。除 `mongo-plus-sensitive-word` 的 test-scope JUnit 4.13.2 外，根及其他 reactor 模块 POM 未声明 JUnit、TestNG 或专用测试插件；多个其他集成/扩展模块仍声明 `maven.test.skip=true`。
+仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `BuildConditionRegexTest.java`、`BuildConditionNotTest.java` 和 `MongoPlusTransactionalManagerTest.java`；事务测试以代理 `MongoClient`/`ClientSession` 覆盖 `REQUIRED` 最外层提交关闭、参与式 rollback-only、`REQUIRES_NEW` suspend/resume。POM 只在该独立工程声明 JUnit 与 Spring TX 测试依赖，主 reactor 未因本次事务修改引入测试依赖。它不是 reactor 测试保障，状态变化后应重新确认。
 
 ## Maven 命令
 
@@ -24,6 +24,8 @@
 reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `compile`/`verify`）定向构建；有效的 `<模块>` 是 `mongo-plus-annotation`、`mongo-plus-core`、`mongo-plus-boot-starter`、`mongo-plus-boot4-starter`、`mongo-plus-solon-plugin`、`mongo-plus-sharding`、`mongo-plus-sharding-boot-starter`、`mongo-plus-sensitive-word`。其中声明 `maven.test.skip=true` 的模块即使执行 `test` 也不能据此声称测试已运行；应先建立正式测试并重新审视该属性。`mongo-plus-bom` 不接受根 reactor 的 `-pl` 选择，使用上表独立命令。
 
 2026-08-02 的已运行记录：
+
+- 独立 `mongo-plus-test`：先安装当前 core/starter 构件，再执行 `mvn "-Dmaven.test.skip=false" test`，17 项测试全部通过，其中事务 3 项；使用代理 session，不等价于真实 MongoDB 或 Boot 2/3/4 启动测试。
 
 - `mvn -version`：Maven 3.9.2，运行 JDK 17.0.16。
 - `mvn help:active-profiles`：首次因沙箱不能写本地仓库跟踪文件失败，授权后成功；当前项目 `release` profile 默认活动，settings 另有同名外部 profile。

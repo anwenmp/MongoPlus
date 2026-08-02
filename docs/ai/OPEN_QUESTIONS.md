@@ -2,10 +2,10 @@
 
 > 收口日期：2026-08-02。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
 
-## A. 已确认缺陷（10 个未修复，1 个已修复）
+## A. 已确认缺陷（8 个未修复，3 个已修复）
 
-1. **事务结束未关闭 session：** 正常 commit/abort 后 `hasActiveTransaction()` 为 false，清理只移除上下文而不调用 `ClientSession.close()`；影响 core 自有事务。[事务](features/TRANSACTION.md)
-2. **Spring TransactionManager 泄漏两套 session：** `doGetTransaction` 创建的 session A 未交给 `doBegin` 且无关闭路径；session B 正常结束也受上一缺陷影响。影响 Boot 3/4。[事务](features/TRANSACTION.md)
+1. **已修复：事务结束未关闭 session：** 2026-08-02 将最外层 cleanup 改为正常 commit/abort 后也无条件 `ClientSession.close()`；参与式内层不提前清理。[事务](features/TRANSACTION.md)
+2. **已修复：Spring TransactionManager 泄漏两套 session：** 2026-08-02 改为 Spring transaction object、resource binding 和执行器上下文共享同一 status/session，并补充 `REQUIRED` rollback-only 与 `REQUIRES_NEW` 回归测试。[事务](features/TRANSACTION.md)
 3. **`@IgnoreLogic` update 漏检：** `CollectionLogiceInterceptor.executeUpdate` 未检查 ignore，影响实体、Wrapper、BSON 的单条和多 pair update；bulk 和高级删除转换走独立分支。[Logic Delete](features/LOGIC_DELETE.md)
 4. **Tenant `UpdateManyModel` filter 未写回：** bulk 分支只修改临时 pair，未重建或修改原 model；InsertOne 会原地修改，其余 model 尚需运行覆盖。[Tenant](features/TENANT.md)
 5. **已修复：LOCAL Sensitive Word 覆盖其他字段处理：** 2026-08-02 在 core FieldHandler 契约、`MappingMongoConverter.processFields` 与 sensitive-word Handler 范围内修复：写 Handler 按 order 执行并传递最新值，null 不替换累计值，LOCAL 最先检查且未拒绝时返回 null。回归测试位于 `mongo-plus-sensitive-word/src/test/java/com/mongoplus/handler/SensitiveWordFieldHandlerTest.java`，覆盖 order、最新值、旧实现兼容、TypeHandler→Encrypt、DBRef、拒绝和明文检查。[Sensitive Word](features/SENSITIVE_WORD.md)
@@ -35,7 +35,7 @@
 
 每项格式为“环境；最小验证；成功判定；专题”。
 
-1. **事务 session 生命周期：** MongoDB replica set + Driver command/session 计数器 + Boot 3/4；覆盖 commit、rollback、嵌套和失败；每个创建的 session 恰好结束并关闭、上下文清空；[事务](features/TRANSACTION.md)。
+1. **事务 session 生命周期：** MongoDB replica set + Driver command/session 计数器 + Boot 2/3/4；覆盖 commit、rollback、嵌套和失败；每个创建的 session 恰好结束并关闭、上下文清空；当前仅有代理 session 单测，尚无真实 Server 证据；[事务](features/TRANSACTION.md)。
 2. **跨 datasource 事务与分片 session：** 两个 replica set/client；事务中换源并记录 session id、commit/abort/close；命令使用预期 client/session且所有状态可解释、资源释放；[多数据源](features/MULTI_DATASOURCE.md) / [分片](features/SHARDING.md)。
 3. **Driver/Server 异常类型：** 支持的 MongoDB Server 版本矩阵；对空/null 聚合 stage、索引冲突、时序 options、无权限分别触发；固定准确异常、部分成功状态和重试结果；[兼容性](COMPATIBILITY.md) / [聚合](architecture/AGGREGATION.md) / [索引](features/INDEX_AND_TIMESERIES.md)。
 4. **BSON 往返保真：** MongoDB + 临时目录；备份/恢复 ObjectId、Date、Decimal128、Binary、UUID、Regex、Timestamp、DBRef、Min/MaxKey 和大整数；值与 BSON 类型均相同；[Backup / Restore](features/BACKUP_AND_RESTORE.md)。
@@ -46,10 +46,10 @@
 9. **跨 datasource 同 namespace：** 两个 client 使用相同 database/collection、不同实体；交替 CRUD 并检查 registry、逻辑删除和映射；最终实体/namespace 隔离符合契约；[Multi Datasource](features/MULTI_DATASOURCE.md)。
 10. **Wrapper 与映射边界：** BSON 单测 + MongoDB；覆盖 null、空集合、重复字段、Wrapper 复用、RegexOptions、复杂 Type/集合及 Map 修复回归；构建 BSON、异常和往返结果有稳定断言；[Query Wrapper](architecture/QUERY_WRAPPER.md) / [Entity Mapping](architecture/ENTITY_MAPPING.md)。
 11. **聚合/乐观锁组合：** 多 MongoDB Server 版本；覆盖首 stage 限制、末尾 `$out/$merge`、重复执行、已有 `$inc`、matched/modified 差异；最终 pipeline/update 合法且冲突判定符合契约；[Aggregate](architecture/AGGREGATION.md) / [Optimistic Lock](features/OPTIMISTIC_LOCK.md)。
-12. **Boot/Solon 注解绑定：** Boot 3、Boot 4、Solon 最小应用；调用 `@MongoDs`、`@IgnoreLogic`、事务注解的类级/方法级/嵌套/异常路径；拦截器确实进入且返回包装和清理一致；[Startup](architecture/STARTUP_LIFECYCLE.md)。
+12. **Boot/Solon 注解绑定：** Boot 2、Boot 3、Boot 4、Solon 最小应用；调用 `@MongoDs`、`@IgnoreLogic`、事务注解的类级/方法级/嵌套/异常路径；拦截器确实进入且返回包装和清理一致；[Startup](architecture/STARTUP_LIFECYCLE.md)。
 13. **Recorder 与 Async 的事务结果：** replica set + 审计库/镜像库；提交、回滚、主写失败、保存失败时记录命令顺序和库状态；只有选定一致性策略允许的副作用存在；[Recorder](features/DATA_CHANGE_RECORDER.md) / [Async](features/ASYNC_MULTI_WRITE.md)。
 14. **Listener 运行外观：** MongoDB + retry/getMore/bulkWrite/事务；记录线程、requestId/operationId、started/终态和异常 listener；事件配对、数量及失败传播形成可重复断言；[Command Listener](features/COMMAND_LISTENER.md)。
-15. **Java/Driver/框架兼容矩阵：** JDK 8/17/21、Driver 支持版本、Boot 3/4、Solon；执行最小编译与启动 smoke test；core/Solon 的 Java 8 结论和 Boot 3/4 的 Java 17 下限由实际结果支撑；[Compatibility](COMPATIBILITY.md)。
+15. **Java/Driver/框架兼容矩阵：** JDK 8/11/17/21、Driver 支持版本、Boot 2/3/4、Solon；执行最小编译与启动 smoke test；Java 与各 Boot 代际下限由实际结果支撑；[Compatibility](COMPATIBILITY.md)。
 
 ## D. 构建和发布问题（6）
 
@@ -58,7 +58,7 @@
 3. `central-publishing-maven-plugin` 的 server id `central` 与 `distributionManagement` 的 `release` 如何组合，Central Portal bundle 是否需要人工 publish/close/release，尚无运行证据。[Build / Release](BUILD_AND_RELEASE.md)
 4. source、javadoc、GPG 签名、`central`/`release` 凭据和 settings 的真实要求尚未验证；GPG execution 当前被注释，配置存在不等于 deploy 可用。[Build / Release](BUILD_AND_RELEASE.md)
 5. 仓库内未发现 CI、Wrapper、Enforcer 或 toolchains；是否存在外部 CI、secret 和人工发布流程需由维护者或平台确认。[Testing](TESTING.md)
-6. 发布产物需执行 Boot 3、Boot 4、Solon 以及必要 sharding starter 的最小消费应用 smoke test；当前未执行。[Compatibility](COMPATIBILITY.md)
+6. 发布产物需执行 Boot 2、Boot 3、Boot 4、Solon 以及必要 sharding starter 的最小消费应用 smoke test；当前未执行。[Compatibility](COMPATIBILITY.md)
 
 ## E. 设计决策（8）
 

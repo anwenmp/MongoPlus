@@ -90,7 +90,7 @@ flowchart LR
 
 当前 8 个 reactor 模块中，仅 `mongo-plus-core/src/test` 存在且为空；其余模块没有 `src/test`。根与 reactor POM 未声明 JUnit/TestNG，未配置专用 surefire/failsafe 或集成测试 profile，也未发现 Testcontainers。
 
-未跟踪、reactor 外的 `mongo-plus-test` 当前有两个 JUnit 4 测试源：`BuildConditionRegexTest` 和 `BuildConditionNotTest`，并存在本机 surefire 输出。它们的目录状态可变化，不能当成仓库发布门禁。真实 MongoDB、Boot/Solon context、事务和分片均没有 reactor 内自动化保障。
+未跟踪、reactor 外的 `mongo-plus-test` 当前有三个 JUnit 4 测试源：`BuildConditionRegexTest`、`BuildConditionNotTest` 和 `MongoPlusTransactionalManagerTest`，并存在本机 surefire 输出。它们的目录状态可变化，不能当成仓库发布门禁。事务测试使用代理 session；真实 MongoDB、Boot/Solon context 和分片仍没有 reactor 内自动化保障。
 
 ### 已有、推荐、缺失与本轮状态
 

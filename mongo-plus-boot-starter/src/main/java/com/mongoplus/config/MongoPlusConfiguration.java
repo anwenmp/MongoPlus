@@ -32,11 +32,15 @@ import com.mongoplus.property.MongoDBConnectProperty;
 import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
+import com.mongoplus.transactional.MongoPlusTransactionalManager;
 import com.mongoplus.transactional.MongoTransactionalAspect;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -184,8 +188,14 @@ public class MongoPlusConfiguration {
      */
     @Bean("mongoTransactionalAspect")
     @ConditionalOnMissingBean
-    public MongoTransactionalAspect mongoTransactionalAspect() {
-        return new MongoTransactionalAspect();
+    public MongoTransactionalAspect mongoTransactionalAspect(
+            TransactionOptions transactionOptions,
+            @Qualifier("mongoPlusTransactionalManager") ObjectProvider<PlatformTransactionManager> transactionManagerProvider) {
+        PlatformTransactionManager transactionManager = transactionManagerProvider.getIfAvailable();
+        if (transactionManager == null) {
+            transactionManager = new MongoPlusTransactionalManager(transactionOptions);
+        }
+        return new MongoTransactionalAspect(transactionManager);
     }
 
     @Bean("transactionOptions")

@@ -7,13 +7,13 @@
 - `ClientSession` 只是 Driver 会话；`MongoTransactionalManager.getTransaction(...)` 只创建/复用 session，不启动事务，也不保存新 session。
 - `startTransaction(...)` 才启动 Driver 事务并把 `MongoTransactionStatus` 放入 `MongoTransactionContext`。
 - `SessionExecute` 只负责把上下文 session 传给 Driver API，不负责 start/commit/abort。仅有 session 包装不等于已开启事务。
-- MongoPlus 自有事务和 Spring 事务入口最终都委托 `MongoTransactionalManager`；它们不是 Spring Data 的事务资源绑定。
+- core/Solon 自有事务仍由 `MongoTransactionalManager` 管理；Spring Boot 入口由 `MongoPlusTransactionalManager` 按 Spring `PlatformTransactionManager` 生命周期管理，并用 `TransactionSynchronizationManager` 绑定唯一的 `MongoTransactionStatus`。MongoPlus ThreadLocal 只向执行器暴露同一个 session。
 
 | 入口 | 当前实现 |
 |---|---|
-| `@MongoTransactional` | 仅支持方法。Boot 3/4 的 AOP 委托全局 `HandlerCache.transactionHandler`；默认实现是 `TransactionHandler`。 |
+| `@MongoTransactional` | 仅支持方法。Boot 2/3/4 的 AOP 把注解属性转换为 Spring transaction definition，并调用 `PlatformTransactionManager.getTransaction/commit/rollback`；Solon 仍走自有 handler。 |
 | 编程式 API | `MongoTransactionalManager` 公开 get/start/commit/rollback/close；没有 callback/template 式公开 API，调用方自行保证 try/catch/finally。 |
-| Spring `@Transactional` | `mongo-plus.spring.transaction=true` 时，Boot 3/4 可创建名为 `mongoPlusTransactionalManager` 的 `PlatformTransactionManager`。 |
+| Spring `@Transactional` | `mongo-plus.spring.transaction=true` 时，Boot 2/3/4 创建名为 `mongoPlusTransactionalManager` 的 `PlatformTransactionManager`；存在同名用户 Bean 时允许覆盖。多 manager 必须显式指定该名称。 |
 | Solon | `XPluginAuto` 明确把 `@MongoTransactional` 绑定到 Solon `MongoTransactionalAspect`；有自有事务集成，没有 Spring manager。 |
 | 分片 | `ShardingTransactionalHandler`、`ShardingTransactionContext` 提供按数据源保存状态的独立容器；默认入口只确定登记入口数据源状态，换源状态收集存在已确认接线缺口，不能视为已闭合的多源事务。 |
 
@@ -42,7 +42,7 @@
 - 内层成功仅减引用；归零才 commit，正常嵌套近似加入外层。
 - 内层默认回滚会清零引用并 abort；其 finally 随后清掉整个上下文。若外层捕获后继续 CRUD，后续会退回 `DefaultExecute`。
 - commit/abort 失败直接传播；没有 commit 失败后 abort、`TransientTransactionError` 或 `UnknownTransactionCommitResult` 重试。外层 finally 仍调用 close。
-- `closeSession` 在 `readyClose()` 时会在 finally 清 ThreadLocal，但只在 `hasActiveTransaction()` 为 true 时调用 `ClientSession.close()`。正常 commit/abort 返回后 transaction 已非 active，所以源码可确认该 session **不会被 MongoPlus 显式关闭**；commit/abort 只结束事务，不等价于关闭 `ClientSession`。这是已确认的生命周期缺陷。实际服务端/本地资源增长幅度仍需运行观测，不能仅凭静态源码量化为某种具体泄漏量。
+- `closeSession` 在 `readyClose()` 时无条件调用 `ClientSession.close()`，并在 finally 清 ThreadLocal；正常 commit/abort 后也会关闭。Spring 参与式内层事务不执行 cleanup，只有最外层或独立的 `REQUIRES_NEW` 边界关闭自己的 session。
 - 引用仍大于零时既不 close 也不 clear，用于保留正常外层事务。
 
 ## SessionExecute 与 DefaultExecute
@@ -65,11 +65,19 @@
 
 ## Spring 事务关系
 
-Boot 3/4 实现相同。自动配置不注入也不创建 `MongoDatabaseFactory`；`MongoPlusTransactionalManager` 直接继承 `AbstractPlatformTransactionManager` 并委托 MongoPlus ThreadLocal。因此它不是 Spring Data `MongoTransactionManager`，但与 `@MongoTransactional` 共享 MongoPlus 上下文。
+Boot 2/3 共用 Java 8 starter 源码，Boot 4 使用平行 starter；三者的事务实现同构。`MongoPlusTransactionalManager` 继承 `AbstractPlatformTransactionManager`，借鉴 Spring Data MongoDB 的资源持有方式，但不依赖 `MongoDatabaseFactory`：
 
-Bean 使用 `@ConditionalOnMissingBean(TransactionManager.class)`：存在任意用户 `TransactionManager` 时默认 Bean 不创建，用户可覆盖。框架不为每个数据源创建 manager；事务开始时绑定当时 `DataSourceNameCache` 对应 client。多 manager 的选择遵循 Spring 的 Bean 名/限定符规则。
+```text
+doGetTransaction -> 从 TransactionSynchronizationManager 取得已绑定 status
+doBegin          -> 创建唯一 ClientSession，start，并同时绑定 Spring resource 和执行器上下文
+doCommit         -> 提交该 status 的同一个 session
+doRollback       -> abort 同一个 session
+doCleanup        -> 解绑 resource，无条件 close，并清执行器上下文
+```
 
-当前 `doGetTransaction()` 得到未绑定上下文的 session A，并把 A 作为 Spring transaction object；`doBegin()` 只把 A 用于日志，随后调用无参 session 的 `startTransaction(options)`，再次经 `getTransaction()` 创建 session B、启动事务并放入 MongoPlus ThreadLocal。因而一次正常 Spring begin 后确实同时存在两个打开的 `ClientSession` 对象，但只有 B 是 active transaction；不能称为“两套活动事务”。`doCommit`/`doRollback` 从 Spring status 取 A 也只用于 Boot 3 的日志（Boot 4 rollback 连 A 都不取），真正 commit/abort 的是 ThreadLocal 中的 B；cleanup 同样只查 B。A 从未进入 MongoPlus status，也没有任何 close 路径；B 正常 commit/abort 后又因上述 `hasActiveTransaction()` 条件不被 close。Boot 3/4 的生命周期逻辑一致，差异只在 rollback 日志局部变量。
+`REQUIRED` 内层参与外层物理事务；内层 rollback 通过 `SmartTransactionObject.isRollbackOnly()` 传播到最外层。`REQUIRES_NEW` 会 suspend 外层 Spring resource 和 MongoPlus 上下文，创建独立 session，完成后恢复外层。MongoDB 没有 savepoint，不能把 Spring `NESTED` 理解为独立 MongoDB 子事务。
+
+自动配置同时受配置开关和 Bean 名约束：只有 `mongo-plus.spring.transaction=true` 且缺少 `mongoPlusTransactionalManager` 时才注册 manager Bean，避免它成为 MySQL/JPA 场景的默认候选。`@MongoTransactional` 优先使用该 Bean；开关关闭时，切面内部创建不注册到容器的同类型 manager，因此仍使用 Spring事务基础设施，但不会影响 Spring `@Transactional` 的 manager 选择。多 manager 场景使用 Spring `@Transactional` 时必须写明 `transactionManager = "mongoPlusTransactionalManager"`。
 
 ## 多数据源和分片
 
@@ -94,13 +102,13 @@ MongoPlus 已把注解的 causal consistency、snapshot、ReadConcern、WriteCon
 - commit/abort 后 session close 与 context clear；正常嵌套、内层回滚外层捕获；并发和线程池。
 - 事务内切换/覆盖数据源、动态集合；普通/高级拦截器和索引。
 - count/estimated 与未提交写可见性。
-- Boot 3/4：MongoPlus 注解、指定 manager 的 Spring `@Transactional`、二者叠加、用户覆盖和多 manager。
+- Boot 2/3/4：MongoPlus 注解、指定 manager 的 Spring `@Transactional`、`REQUIRED`、rollback-only、`REQUIRES_NEW` suspend/resume、用户同名覆盖和多 manager。
 - Solon；分片单/多源、部分 commit 失败、无 replicaSet 分支。
 
 ## 关键源码
 
 - core: `manager/MongoTransactionalManager.java`、`context/MongoTransactionContext.java`、`MongoTransactionStatus.java`、`handlers/TransactionHandler.java`、`execute/ExecutorFactory.java`、`execute/instance/{DefaultExecute,SessionExecute}.java`
 - annotation: `annotation/transactional/MongoTransactional.java`
-- Boot 3/4: `transactional/MongoTransactionalAspect.java`、`MongoPlusTransactionalManager.java`、`MongoTransactionManagerAutoConfiguration.java`
+- Boot 2/3/4: `transactional/MongoTransactionalAspect.java`、`MongoTransactionDefinition.java`、`MongoPlusTransactionalManager.java`、`MongoTransactionManagerAutoConfiguration.java`
 - Solon: `transactional/MongoTransactionalAspect.java`、`config/XPluginAuto.java`
 - sharding: `sharding/ShardingTransactionalHandler.java`、`context/ShardingTransactionContext.java`、`interceptor/DataSourceShardingInterceptor.java`

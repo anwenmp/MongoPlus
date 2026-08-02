@@ -22,6 +22,11 @@ public class MongoTransactionStatus {
      */
     private long referenceCount;
 
+    /**
+     * 参与 Spring 事务的组件使用此标志将内部的回滚决策传播到外部事务边界。
+     */
+    private boolean rollbackOnly;
+
     public MongoTransactionStatus(ClientSession clientSession) {
         this.clientSessionMap.put(DataSourceNameCache.getDataSource(),clientSession);
         this.referenceCount = 0;
@@ -52,5 +57,13 @@ public class MongoTransactionStatus {
 
     public boolean readyClose() {
         return this.referenceCount <= 0;
+    }
+
+    public boolean isRollbackOnly() {
+        return rollbackOnly;
+    }
+
+    public void setRollbackOnly() {
+        this.rollbackOnly = true;
     }
 }

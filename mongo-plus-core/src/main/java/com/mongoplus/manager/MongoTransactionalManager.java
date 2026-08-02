@@ -358,9 +358,7 @@ public class MongoTransactionalManager {
         if (status.readyClose()) {
             try {
                 ClientSession clientSession = status.getClientSession();
-                if (clientSession.hasActiveTransaction()) {
-                    clientSession.close();
-                }
+                clientSession.close();
             } finally {
                 // 确保清理线程变量时不会被打断
                 MongoTransactionContext.clear();

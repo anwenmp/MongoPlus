@@ -9,7 +9,7 @@
 | 模块 | 本项目源码目标 | 可确认的使用下限 |
 |---|---:|---|
 | annotation、core、sharding、sensitive-word | Java 8 | 源码/产物目标为 8；依赖组合尚未用 JDK 8 实际构建运行 |
-| Boot 3 starter、sharding Boot starter | Java 8 | 集成依赖是 Spring Boot 3.4.2，实际应用侧至少需要 Java 17；模块自身 target=8 不降低 Boot 的运行要求 |
+| Boot 2/3 starter、sharding Boot starter | Java 8 | `mongo-plus-boot-starter` 以 Spring 5.3 / Java 8 API 为编译基线并保留 Boot 2 `spring.factories` 与 Boot 3 imports；当前 reactor 默认依赖 Boot 3.4.2，Boot 2.7 实际编译/启动仍需独立矩阵确认 |
 | Boot 4 starter | Java 17 | 至少 Java 17；POM 与 Boot 4.0.1 依赖一致，未验证更高 JDK |
 | Solon plugin | Java 8 | 本模块目标为 8；Solon 3.0.1 的完整运行矩阵未实测，暂不承诺仅凭 target=8 即可运行 |
 
@@ -17,7 +17,7 @@
 
 | 集成 | 当前依赖 | 版本来源与差异 |
 |---|---|---|
-| Boot 3 | `spring-boot-autoconfigure`、configuration processor 3.4.2（provided/optional 关系见模块 POM） | 根 `${spring.boot.version}`；实际 `dependency:tree` 解析出 Boot 传递的 `spring-context/aop/beans/expression` 6.2.2，但项目显式 `spring-tx` 5.3.27 又带入 `spring-core/jcl` 5.3.27；AspectJ Weaver 1.9.7 来自根 dependencyManagement。该 5.3/6.2 混合类路径需要启动与事务测试，不能仅凭解析成功判定兼容 |
+| Boot 2/3 | `mongo-plus-boot-starter` 当前 reactor 用 autoconfigure/configuration processor 3.4.2 编译，事务 API 基线是 Spring TX 5.3.27 | 源码只使用 Spring 5.3 已有的 `AbstractPlatformTransactionManager`、`SmartTransactionObject` 和 `TransactionSynchronizationManager` API；消费应用应由自身 Boot BOM 统一 Spring 版本，Boot 2.7/3.4 启动矩阵尚未完成 |
 | Boot 4 | autoconfigure、configuration processor、`spring-boot-mongodb`、`spring-boot-persistence` 4.0.1 | Boot 4 模块显式版本；实际依赖树解析出 Spring Framework 7.0.2，且模块显式 `spring-tx` 7.0.2、AspectJ Weaver 1.9.25.1，源码与 Boot 3 平行维护 |
 | MongoDB Driver | core 直接依赖 `mongodb-driver-sync`；annotation 依赖 `mongodb-driver-core` | 根导入 `org.mongodb:mongodb-driver-bom:5.4.0`，因此当前受管版本为 5.4.0；本次依赖树未成功，不能声称已解析/运行验证 |
 | Solon | `org.noear:solon` 3.0.1，scope=provided | 版本来自根 `${solon-api.version}`；边界限于 `mongo-plus-solon-plugin` 的插件启动、Bean/切面与 Mapper 注入，core 不依赖 Solon |
@@ -44,6 +44,7 @@
 | Java | 集成 | 声明版本 | Driver 声明 | 证据 |
 |---:|---|---:|---:|---|
 | 17 | Boot 3 starter | 3.4.2 | BOM 5.4.0 | POM 静态声明；未运行 |
+| 8/11/17 | Boot 2 starter | 2.7.x | BOM 5.4.0 | 兼容目标；本轮下载 Boot 2.7.18 依赖未获权限，尚未完成独立编译或启动验证 |
 | 17 | Boot 4 starter | 4.0.1 | BOM 5.4.0 | 模块 target=17 与 POM 静态声明；未运行 |
 | 8（源码目标） | Solon plugin | 3.0.1 | BOM 5.4.0 经 core | POM 静态声明；运行下限未验证 |
 | 8（源码目标） | core/annotation | 无容器 | BOM 5.4.0 | POM 静态声明；未运行 |
@@ -51,16 +52,16 @@
 ### 仍未验证
 
 - JDK 8 上 annotation/core/sharding/sensitive-word/Solon 的 clean build 与运行。
-- JDK 17/21 等环境下 Boot 3.4.2、Boot 4.0.1、Solon 3.0.1 的启动与行为。
+- JDK 8/11/17 下 Boot 2.7.x、JDK 17/21 下 Boot 3.4.2/Boot 4.0.1，以及 Solon 3.0.1 的启动与行为。
 - Driver 4.x 任一版本、Driver 5.4.0 以外版本，以及各 Driver 对应的 MongoDB Server 版本。
-- Boot 3 的 Spring Framework 6.2.2 与显式 Spring TX/Core/JCL 5.3.27 混合类路径是否能正确启动并执行事务；Boot 4 的 Spring 7.0.2 启动与事务行为。AspectJ 的实际织入行为也未验证。
+- Boot 2/3 消费应用能否由各自 Boot BOM 完整改写 Spring TX 版本并启动；Boot 4 的 Spring 7.0.2 启动与事务行为。AspectJ 的实际织入行为也未验证。
 - Boot 3 sharding starter 的多数据源/事务组合；Boot 4 没有该构件。
 - native image、JPMS、不同 servlet/reactive 栈等未在 POM/测试中形成证据的组合。
 
 ## 升级检查区域
 
 - Java：反射与泛型转换（`mapping/`、`toolkit/ClassTypeUtil`）、代理、日期/UUID codec、编译插件与 Javadoc。
-- Boot/Spring：两个 starter 的 9 个自动配置入口、Mapper scanner/factory bean、属性绑定、事务、AOP、可选敏感词；Boot 3/4 必须分别验证。
+- Boot/Spring：两个 starter 的自动配置入口、Mapper scanner/factory bean、属性绑定、事务、AOP、可选敏感词；Boot 2/3/4 必须分别验证。
 - Driver：`DefaultExecute`、`SessionExecute`、`Filters`/`BuildCondition`、聚合 pipeline、codec、DBRef、事务与 `FillField` internal API。
 - Solon：`XPluginAuto`、Solon 配置资源、Bean/切面注册与 Mapper 注入。
 - 任一升级都应先更新静态版本表，再按 `TESTING.md` 执行矩阵；依赖解析或编译成功不能替代行为验证。

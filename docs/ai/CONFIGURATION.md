@@ -33,7 +33,7 @@ Boot 4 的 Java/框架要求见 [COMPATIBILITY.md](COMPATIBILITY.md)，完整启
 | `mongo-plus.configuration.field.ignoring-null` | Boolean / `true` | 实体写 Document 时忽略 null |
 | `mongo-plus.log` / `pretty` / `format` | Boolean / `false` | 日志 listener 与格式 cache |
 | `mongo-plus.log-order` | int / `0` | `OrderCache.LOG_ORDER` |
-| `mongo-plus.spring.transaction` | Boolean / `false` | 条件创建 Spring transaction manager |
+| `mongo-plus.spring.transaction` | Boolean / `false` | 是否向 Spring 容器注册 `mongoPlusTransactionalManager`；关闭时不影响默认 MySQL/JPA manager，`@MongoTransactional` 使用切面内部 manager |
 | `mongo-plus.spring.override-mongo-client` | Boolean / `true` | Spring MongoClient 覆盖/适配配置 |
 
 包装类型允许缺省绑定不等于消费者安全接受显式 null；源码没有统一 null 契约。
@@ -127,7 +127,7 @@ Boot 4 的 Java/框架要求见 [COMPATIBILITY.md](COMPATIBILITY.md)，完整启
 
 - Backup/Restore 的 page size、path、文件名、charset、ZIP、mode 来自调用参数或固定实现，未发现统一 `mongo-plus.*` 属性对象。
 - 异步多写线程池当前未发现 core/max/queue/rejection/shutdown application key，生命周期见 [ASYNC_MULTI_WRITE.md](features/ASYNC_MULTI_WRITE.md)。
-- `mongo-plus.spring.transaction=true` 且缺少 `TransactionManager` 时，Boot 3/4 创建 `mongoPlusTransactionalManager`。
+- `mongo-plus.spring.transaction=true` 且缺少同名 Bean 时，Boot 2/3/4 创建 `mongoPlusTransactionalManager`。默认 false 是为了避免多事务管理器应用把 MongoPlus manager 误选为 MySQL/JPA 操作的默认 manager。
 - `TransactionOptions` 是 Bean/Driver 对象，不是展开的 MongoPlus 属性；read/write concern、read preference、timeout 和事务重试没有统一键。用户 manager 抑制默认 manager；Solon 使用自有 aspect。见 [TRANSACTION.md](features/TRANSACTION.md)。
 
 ## Boot 3 / Boot 4 / Solon
@@ -138,7 +138,7 @@ Boot 4 的 Java/框架要求见 [COMPATIBILITY.md](COMPATIBILITY.md)，完整启
 | Mapper 扫描 | registrar/FactoryBean | 同构 | 插件扫描/注入回调 |
 | 自动索引/时序 | 支持 | 支持 | 有对应字段与路径，异常语义按插件 |
 | 多数据源/`@MongoDs` | Spring AOP 显式切点 | 同构 | aspect 实现存在，但 `XPluginAuto` 未显示注解到 interceptor 的显式绑定；运行接线待集成测试 |
-| Spring transaction | 条件 manager | 条件 manager | 不适用；自有 aspect |
+| Spring transaction | Boot 2/3 共用的条件 manager | 条件 manager | 不适用；自有 aspect |
 | Sensitive Word | 模块在 classpath 时条件配置 | 同构 | 不保证同等自动配置 |
 | Sharding starter | 存在 Boot 3 专用模块 | 当前未发现对应 Boot 4 starter | 无同等 starter |
 | 扩展 Bean 收集 | 类型较全 | 同构 | 只认插件明确类型 |
@@ -150,7 +150,7 @@ Boot 4 的 Java/框架要求见 [COMPATIBILITY.md](COMPATIBILITY.md)，完整启
 - collection：动态 handler 可覆盖实体/显式 collection；实体默认名受 mapping strategy 影响。
 - encryption key：注解参数与全局 cache 的关系按算法分别判断。
 - index/time-series datasource：注解 datasource 优先于默认数据源，运行时 ThreadLocal 不参与启动扫描。
-- transaction manager：用户 `TransactionManager` Bean 抑制默认 manager；core 自有事务是另一上下文。
+- transaction manager：配置开关关闭时不注册 Bean；开启后只有用户提供同名 `mongoPlusTransactionalManager` Bean 才抑制默认实现。存在多个 manager 时必须在 Spring `@Transactional` 上显式指定名称。Spring resource 是生命周期事实来源，core ThreadLocal 仅为执行器暴露同一个 session。
 - listener/interceptor：用户 Bean 与默认项进入静态链并排序，重复初始化不去重。
 
 ## 声明但未发现消费者
