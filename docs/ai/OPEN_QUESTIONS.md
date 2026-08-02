@@ -94,3 +94,11 @@
 | 动态集合与索引/时序/分片组合 | 待验证 | Handler 依赖普通参数策略，索引无 ExecuteMethodEnum；分片也替换 collection，时序创建位于独立生命周期 | 最终 namespace、插件顺序和动态结构未集成验证 | Boot 3/4/Solon 覆盖动态 CRUD 后索引、时序和分片路由 | `features/DYNAMIC_COLLECTION.md`、`architecture/EXTENSION_PIPELINE.md` | `ExecutorProxy.java`；`AbstractBaseIndex.java`；动态集合/分片拦截器 | core、sharding、所有集成 |
 | Driver internal API 跨版本风险 | 待验证 | `FillField` 继承 `com.mongodb.internal.client.model.AbstractConstructibleBsonElement` | internal API 无稳定承诺，尚未在 Driver 4.x/多个 5.x 编译运行 | 建立 Driver 版本矩阵，编译并执行 `$fill` BSON/服务器行为测试 | `COMPATIBILITY.md`、`TESTING.md` | `aggregate/pipeline/FillField.java:3-17` | core |
 | 核心执行路径缺少回归测试 | 待验证 | CodeGraph 对 Execute、CRUD、转换、拦截器等大量入口报告 no covering tests；reactor 测试目录为空 | 未检查外部 CI/外部测试仓库，不能断言项目完全无测试 | 将 CRUD、Wrapper、mapping、两类拦截器、事务的最小测试纳入 reactor 并在 CI 执行 | `TESTING.md`、`architecture/CRUD_EXECUTION.md` | `mapper/AbstractBaseMapper.java`；`execute/`；`mapping/`；`interceptor/` | 全部模块 |
+
+## 命令监听与数据变更记录
+
+| 问题 | 状态 | 源码观察 | 暂不能下结论的原因 | 需要执行的验证 | 相关知识文档 | 源码位置 | 可能影响模块 |
+|---|---|---|---|---|---|---|---|
+| Driver 命令回调线程、配对、重试/getMore/bulkWrite 事件数与 listener 异常后果 | 待验证 | MongoPlus 同步分发并重新抛出 listener `Exception`，无队列或隔离 | 最终调度与异常处理属于 Driver/Server 运行时 | 记录线程、requestId/operationId、started/终态，覆盖 retry、事务、getMore、bulkWrite、慢/异常 listener 与 close | `features/COMMAND_LISTENER.md`、`COMPATIBILITY.md` | `BaseListener.java`；`MongoPlusListener.java`；Driver 5.4.0 command event API | core、所有集成 |
+| Recorder 在事务 commit/rollback、换源与分片中的记录归属 | 待验证 | 保存发生在普通 after、提交前；改写 datasource 且不恢复，无 afterCommit | session 与目标 client 是否一致、回滚结果依赖运行路径 | 覆盖普通/分片事务提交回滚、审计库同源/异源、动态集合与保存失败，核对集合和 session | `features/DATA_CHANGE_RECORDER.md`、`features/TRANSACTION.md`、`features/SHARDING.md` | `DataChangeRecorderInnerInterceptor.java`；`ExecutorFactory.java` | core、sharding、所有集成 |
+| Recorder 递归、嵌套与 ThreadLocal 异常清理 | 已确认缺陷/后果待验证 | 保存目标默认会加入按 collection name 的忽略表，但用户覆盖列表可破坏防递归；单槽 ThreadLocal 只在保存成功后 remove，失败残留且 datasource 不恢复 | 污染持续时间、递归外观与线程复用后果无回归证据 | 构造嵌套 CRUD、移除保存目标忽略、Driver/保存异常和线程复用，断言覆盖、上下文与清理 | `features/DATA_CHANGE_RECORDER.md`、`TESTING.md` | `DataChangeRecorderInnerInterceptor.java` | core |
