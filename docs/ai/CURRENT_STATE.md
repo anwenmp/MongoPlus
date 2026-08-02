@@ -1,44 +1,48 @@
 # 当前状态
 
-> 快照日期：2026-08-01。版本值来自当日工作树中的 POM；分支来自 `git branch --show-current`。易变信息在升级后必须重新核对。
+> 快照日期：2026-08-02。版本、工具和仓库状态会变化，后续任务必须重新核对当前工作树。
 
-## 版本、分支与模块
+## 知识库完成度
 
-- 当前分支：`dev`（来源：Git，2026-08-01）。
-- 根坐标：`com.mongoplus:mongo-plus:2.2.0`，`packaging=pom`（来源：根 [`pom.xml`](../../pom.xml)）。
-- 根 reactor 共 8 个模块：`mongo-plus-annotation`、`mongo-plus-core`、`mongo-plus-boot-starter`、`mongo-plus-solon-plugin`、`mongo-plus-sharding`、`mongo-plus-sharding-boot-starter`、`mongo-plus-sensitive-word`、`mongo-plus-boot4-starter`。
-- `mongo-plus-bom:2.2.0` 是仓库内独立 BOM，管理上述 8 个构件，但未列入根 reactor。
+知识库建设范围已经覆盖：
 
-不在本文件保存未提交文件列表、一次性任务记录或本机 Git 警告。
+- 项目定位、模块结构、架构总览、CRUD、Wrapper、聚合、实体映射和启动生命周期。
+- 公开 API、配置、修改手册、测试、兼容性、构建与发布。
+- 多数据源、事务、动态集合、Tenant、Logic Delete、Auto Fill、Optimistic Lock、Index、Time Series 和 Sharding。
+- Encryption、Desensitization、Sensitive Word、Command Listener、Data Change Recorder、Async Multi Write、Backup / Restore。
 
-## Java 与主要依赖版本
+[`INDEX.md`](INDEX.md) 已为 `docs/ai` 中每个 Markdown 文件提供路由。覆盖完成不等于全部行为已验证；缺陷、风险、运行验证、构建发布和维护者决策统一收口到 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md)。
 
-| 项目 | 当前声明 | 来源与含义 |
-|---|---:|---|
-| Maven compiler source/target | 8 | 根 POM；表示项目统一声明的编译目标，不证明所有依赖可在 JDK 8 运行 |
-| MongoDB Driver BOM | 5.4.0 | 根 POM；core 的 `mongodb-driver-sync` 由该 BOM 管理 |
-| Spring Boot 3 | 3.4.2 | 根 POM；Boot 3 starter 的 autoconfigure/processor |
-| Spring Boot 4 | 4.0.1 | 根属性及 Boot 4 模块 POM；Boot 4 模块显式引用相关构件 |
-| Solon | 3.0.1 | 根 POM；Solon 插件的 `provided` 依赖 |
-| Spring TX（Boot 3） | 5.3.27 | 根 POM / Boot 3 starter |
-| Spring TX（Boot 4） | 7.0.2 | `mongo-plus-boot4-starter/pom.xml` 的显式覆盖 |
-| AspectJ Weaver（Boot 3） | 1.9.7 | 根 POM / Boot 3 starter |
-| AspectJ Weaver（Boot 4） | 1.9.25.1 | Boot 4 模块 POM 的显式覆盖 |
-| sensitive-word | 0.25.0 | 根 POM / sensitive-word 模块 |
-| Bouncy Castle | 1.78.1 | 根 POM；core 中为 `provided` |
+## 已验证工程状态
 
-## CodeGraph 与测试证据
+截至本次收口，只把实际执行结果记为已验证：
 
-- 2026-08-02 执行 `codegraph status`：603 files、10,908 nodes、22,786 edges，结果为 `[OK] Index is up to date`。
-- 当前会话未暴露 CodeGraph MCP 工具，使用与 `codegraph_explore`/`codegraph_status` 对应的 CLI `codegraph explore`、`codegraph status`。
-- CodeGraph 查询未找到 `org.junit`、`BaseMapperTest` 或 `IServiceTest`，并对关键入口报告 `no covering tests found`。这说明当前索引没有相应测试证据；不扩张为对索引外文件或外部 CI 的断言。
-- 2026-08-02 历史执行 `mvn -pl mongo-plus-core -am -DskipTests compile`，根聚合项目、annotation 和 core 编译成功；本轮执行全 reactor `mvn validate`，根与 8 个模块成功。没有执行测试、全 reactor compile/package/install/deploy 或兼容矩阵，详见 `TESTING.md`。
+- `codegraph status`：603 files、10,908 nodes、22,786 edges，`[OK] Index is up to date`。
+- `mvn -version`、`java -version`、`where.exe java`、`where.exe mvn`、`mvn help:active-profiles` 和 `mvn validate` 的本机结果已执行核对；具体工具版本和 profile 输出属于本机快照，不扩张为兼容性保证。
+- 本次对允许修改的 Markdown 执行了相对链接、重复标题/anchor、尾随空白和 `git diff --check` 检查。
 
-## 待验证
+未执行或未形成已验证结论：全 reactor `compile`、`test`、`package`、`verify`、`install`、`deploy`，独立 BOM 的 `verify/deploy`，MongoDB 集成测试，以及 Boot 3、Boot 4、Solon 启动测试。推荐命令见 [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) 和 [TESTING.md](TESTING.md)，不能据此写成已成功。
 
-- Java 8/17 与 Boot 3、Boot 4、Solon 各组合的实际构建和运行矩阵，尤其是 Boot 4 的实际 JDK 下限。
-- MongoDB Server 兼容矩阵，以及 Driver 5.4.0 之外的已测试范围。
-- `mongo-plus-bom` 不加入根 reactor 的发布设计与发布流水线。
-- Boot 4 是否需要对应的 sharding starter。
-- 全模块 clean build、Javadoc、发布 profile 和外部 CI 的当前结果。
-- 主要功能的行为边界与回归保障；当前缺少已索引的自动化测试证据。
+## 当前仓库边界
+
+- 根 reactor 是 1 个根聚合项目加 8 个 JAR 模块；“8 个模块”与 Maven reactor 的 9 个 project 不冲突。
+- `mongo-plus-bom` 是无 parent 的独立 Maven project，不在根 reactor。
+- `mongo-plus-test` 当前是未跟踪目录且不在根 reactor；其中测试源码没有在本次运行。
+- 仓库内未发现 CI、Maven Wrapper、Maven Enforcer 或 toolchains；这不证明外部平台不存在 CI。
+- Boot 4 模块显式 target 17；其他模块主要沿用根 target 8。Boot 3/4 应用运行至少需要 Java 17；target 8 不表示 Boot 3 可在 Java 8 运行。
+- core/Solon 在 Java 8 上的真实运行能力尚未执行验证。
+- 当前公开 API 继承关系为：`MongoMapper` 不继承 `BaseMapper`，`IService extends IRepository`，`IRepository extends MongoMapper`。
+- Query/Update 链有 `clear`；Aggregate 链没有同等 `reset`。`auto-scan-packages` 不负责 Mapper 扫描。
+- `release` 的 `activeByDefault` 仍受 Maven profile 激活规则约束；`central` 与 `release` 是不同 server id，真实发布组合尚未验证。
+- Solon 存在拦截器实现类不等于注解绑定已生效，相关项保留为运行验证问题。
+
+## 后续工作方向
+
+知识库建设阶段建议结束。后续从 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md) 选择单一条目：
+
+1. 已确认缺陷先重新核对当前源码。
+2. 编写能失败的最小测试并修复。
+3. 运行最小测试和必要组合测试。
+4. 更新对应专题，再更新 `OPEN_QUESTIONS.md` 与本状态快照。
+
+高风险设计先由维护者评估，运行验证按条目给出的环境和成功判定执行；二者不能直接升级为缺陷。
