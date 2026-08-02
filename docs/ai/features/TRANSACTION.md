@@ -15,7 +15,7 @@
 | 编程式 API | `MongoTransactionalManager` 公开 get/start/commit/rollback/close；没有 callback/template 式公开 API，调用方自行保证 try/catch/finally。 |
 | Spring `@Transactional` | `mongo-plus.spring.transaction=true` 时，Boot 3/4 可创建名为 `mongoPlusTransactionalManager` 的 `PlatformTransactionManager`。 |
 | Solon | `XPluginAuto` 明确把 `@MongoTransactional` 绑定到 Solon `MongoTransactionalAspect`；有自有事务集成，没有 Spring manager。 |
-| 分片 | `ShardingTransactionalHandler`、`ShardingTransactionContext`、`DataSourceShardingInterceptor` 是按数据源收集多个状态的独立机制。 |
+| 分片 | `ShardingTransactionalHandler`、`ShardingTransactionContext` 提供按数据源保存状态的独立容器；默认入口只确定登记入口数据源状态，换源状态收集存在已确认接线缺口，不能视为已闭合的多源事务。 |
 
 ## 自有事务完整生命周期
 
@@ -80,7 +80,7 @@ Bean 使用 `@ConditionalOnMissingBean(TransactionManager.class)`：存在任意
 
 数据源上下文 clear 后当前名称回到默认值；仅当 status map 恰有该名称时仍能取到 session，否则回退默认执行器。切回还受非栈式上下文影响。动态覆盖/关闭数据源不会重绑 session 或清 collection cache。详见 [MULTI_DATASOURCE.md](MULTI_DATASOURCE.md)。
 
-分片机制另用 `ThreadLocal<Map<ds,status>>` 汇总提交/回滚/关闭；路由到配置 replicaSet 的新源时可由 handler 派生并启动 session，无 replicaSet 时可绕过 session 执行。它不是普通 `@MongoDs` 的自动多源事务保证；逐项 commit 没有两阶段提交或失败补偿。
+分片机制另用 `ThreadLocal<Map<ds,status>>` 对**已登记状态**逐项提交/回滚/关闭。默认入口登记入口数据源；路由到配置 replicaSet 的新源时虽会派生并启动 session，但当前源码没有把新状态加入 sharding map，且 Execute 已在路由前持有入口 session；无 replicaSet 时共享 boolean 可令高级链改用 `DefaultExecute`。因此它不是普通 `@MongoDs` 的自动多源事务保证，也不能稳定承诺默认换源 CRUD 已纳入新 session。即使 map 中存在多个状态，逐项 commit 也没有两阶段提交或失败补偿。完整边界见 [SHARDING.md](SHARDING.md)。
 
 ## MongoDB 前提与 MongoPlus 能力
 

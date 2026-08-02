@@ -1,5 +1,13 @@
 # 待验证问题
 
+## 索引、时序集合与分片（2026-08-02）
+
+- **待验证：** 自动 `createIndexes` 面对相同定义、同名不同 keys/options、同 keys 不同名称及批量部分失败时，不同 MongoDB Server 版本的准确错误、已创建状态和重试结果；MongoPlus 源码不做读取、比较、删除或补偿。
+- **待验证：** 已有普通 collection、已有 options 不同的时序 collection、无权限或不支持时序的 Server 下，`AutoUtil` 吞掉 `MongoCommandException` 后的最终结构与启动外观；bucketMaxSpan/bucketRounding 组合及 metaField 被清空的 Server 版本行为。
+- **高风险并发设计：** `DataSourceShardingInterceptor.sessionIsNotNull` 是 Boot 单例 Bean 上的普通 boolean，无 ThreadLocal、同步或 finally；它会切换到 `DefaultExecute` 并影响 session/执行器选择。需用双线程屏障固定交叉消费；运行前不写成必现缺陷。
+- **已确认实现缺口 + 待集成验证：** 分片换源且目标配置 `replicaSet` 时会新建并启动 session，但没有把新状态加入 `ShardingTransactionContext`，当前 `SessionExecute` 又在路由前持有入口 session。需记录 Driver command session、commit/abort/close 次数与资源释放；commit/rollback/close 任一步异常还会中断 `HashMap.forEach`。源码不能支持“默认多数据源事务已闭合”的稳定承诺。
+- **待验证：** 自定义分片策略返回 null、空、无匹配，position 为 0/负数，以及动态增加/移除数据源后 handler 匹配缓存的准确结果。
+
 ## 聚合与乐观锁（2026-08-02）
 
 - 聚合：空 pipeline、null/custom stage 的 Driver 版本准确异常；无 match 时 Logic Delete 把 `$match` 追加到尾部是否为设计意图；Wrapper 重复执行被 Tenant/Logic 原地污染的兼容策略；lookup/facet/unionWith 子 pipeline 是否应递归增强；多个 match 是否应全部重复增强；Tenant 插入到 `$geoNear/$search/$vectorSearch` 之前及 Logic 追加到 `$out/$merge` 之后的 Driver/Server 准确异常。
@@ -63,6 +71,7 @@
 | Solon `@MongoDs` 注册与能力边界 | 待验证 | 实现类只读方法注解，无类级/SpEL/handler；但 `XPluginAuto` 只为 `@MongoTransactional` 调用 `beanInterceptorAdd`，对 `@MongoDs` 仅创建 Bean，未见 `MongoDs.class` 到拦截器的绑定 | 需确认 Solon 是否存在仅凭 Bean 类型生效的约定；在注册链未确认前，不能把实现类分支当成已运行路由能力，也不能判定为缺陷 | 启动 Solon，先断言带 `@MongoDs` 方法是否进入拦截器，再覆盖方法/类/无注解/SpEL/handler/异常并记录返回值和清理行为 | `features/MULTI_DATASOURCE.md`、`architecture/STARTUP_LIFECYCLE.md` | Solon `MongoDataSourceAspect.java`；`XPluginAuto.java`；`MongoPlusConfiguration.java` | Solon plugin |
 
 ## 执行与兼容
+
 
 | 问题 | 状态 | 源码观察 | 暂不能下结论的原因 | 需要执行的验证 | 相关知识文档 | 源码位置 | 可能影响模块 |
 |---|---|---|---|---|---|---|---|

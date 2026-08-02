@@ -39,9 +39,13 @@
 | 普通/高级拦截器、Listener、Handler 的分类与各自顺序 | [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) | CRUD 汇合点补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
 | Spring Boot 3/4 启动集成 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 版本矩阵补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
 | Solon 启动集成 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 多数据源差异补读 [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) |
+| 自动索引、索引注解、已有索引冲突、手工索引 API | [features/INDEX_AND_TIMESERIES.md](features/INDEX_AND_TIMESERIES.md) | 启动顺序补读 [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) |
+| 动态集合索引、时序集合及其初始化 | [features/INDEX_AND_TIMESERIES.md](features/INDEX_AND_TIMESERIES.md) | 动态 namespace 补读 [features/DYNAMIC_COLLECTION.md](features/DYNAMIC_COLLECTION.md)；多数据源补读 [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) |
+| 分片策略、数据源分片、集合分片边界、查询结果合并 | [features/SHARDING.md](features/SHARDING.md) | 执行链补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md)；聚合补读 [architecture/AGGREGATION.md](architecture/AGGREGATION.md) |
+| 分片事务及其与普通事务组合 | [features/SHARDING.md](features/SHARDING.md) | 普通事务补读 [features/TRANSACTION.md](features/TRANSACTION.md)；多数据源补读 [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) |
 | MongoDB Driver 与版本兼容 | [CURRENT_STATE.md](CURRENT_STATE.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | `integrations/MONGODB_DRIVER.md`（待生成） |
-| 聚合、索引/时序集合、加密/脱敏、敏感词 | [PROJECT.md](PROJECT.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | 对应 `features/` 专题待生成 |
+| 加密/脱敏、敏感词 | [PROJECT.md](PROJECT.md) + [ARCHITECTURE.md](ARCHITECTURE.md) | 对应 `features/` 专题待生成 |
 
 ## 路径状态
 
-当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md`、`architecture/ENTITY_MAPPING.md`、`architecture/STARTUP_LIFECYCLE.md`、`architecture/AGGREGATION.md`、`features/MULTI_DATASOURCE.md`、`features/TRANSACTION.md`、`features/DYNAMIC_COLLECTION.md`、`features/TENANT.md`、`features/LOGIC_DELETE.md`、`features/AUTO_FILL.md` 和 `features/OPTIMISTIC_LOCK.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。
+当前已完成审计的全局保障文件为 `TESTING.md`、`COMPATIBILITY.md`、`OPEN_QUESTIONS.md`；已完成审计的专题为 `architecture/CRUD_EXECUTION.md`、`architecture/EXTENSION_PIPELINE.md`、`architecture/QUERY_WRAPPER.md`、`architecture/ENTITY_MAPPING.md`、`architecture/STARTUP_LIFECYCLE.md`、`architecture/AGGREGATION.md`、`features/MULTI_DATASOURCE.md`、`features/TRANSACTION.md`、`features/DYNAMIC_COLLECTION.md`、`features/TENANT.md`、`features/LOGIC_DELETE.md`、`features/AUTO_FILL.md`、`features/OPTIMISTIC_LOCK.md`、`features/INDEX_AND_TIMESERIES.md` 和 `features/SHARDING.md`。其余专题仍为待生成，创建并完成审计后才能改成链接。
