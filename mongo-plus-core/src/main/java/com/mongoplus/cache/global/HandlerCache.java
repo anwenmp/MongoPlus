@@ -4,9 +4,7 @@ import com.mongoplus.handlers.*;
 import com.mongoplus.handlers.condition.ConditionHandler;
 import com.mongoplus.handlers.condition.EncryptorConditionHandler;
 import com.mongoplus.handlers.field.DBRefHandler;
-import com.mongoplus.handlers.field.EncryptFieldHandler;
 import com.mongoplus.handlers.field.ObjectIdHandler;
-import com.mongoplus.handlers.field.TypeHandlerFieldHandler;
 import com.mongoplus.handlers.read.DesensitizationHandlerApply;
 import com.mongoplus.handlers.read.FieldEncryptApply;
 
@@ -47,9 +45,10 @@ public class HandlerCache {
     public static TransactionHandler transactionHandler = new TransactionHandler();
 
     /**
-     * 字段处理器
+     * 字段处理器兼容入口，新代码请直接使用 {@link FieldHandlerChain}。
      */
-    public static List<FieldHandler> fieldHandlers = new ArrayList<>();
+    @Deprecated
+    public static List<FieldHandler> fieldHandlers = FieldHandlerChain.getInstance();
 
     static {
         readHandlerList.add(new FieldEncryptApply());
@@ -58,8 +57,6 @@ public class HandlerCache {
         conditionHandlerList.add(new EncryptorConditionHandler());
         conditionHandlerList.add(new DBRefHandler());
         conditionHandlerList.add(new ObjectIdHandler());
-        // 初始化字段处理器
-        initFieldHandler();
     }
 
     /**
@@ -109,12 +106,6 @@ public class HandlerCache {
         readHandlerList = readHandlerList.stream()
                 .sorted(Comparator.comparingInt(ReadHandler::order))
                 .collect(Collectors.toList());
-    }
-
-    static void initFieldHandler() {
-        fieldHandlers.add(new TypeHandlerFieldHandler());
-        fieldHandlers.add(new EncryptFieldHandler());
-        fieldHandlers.add(new DBRefHandler());
     }
 
 }

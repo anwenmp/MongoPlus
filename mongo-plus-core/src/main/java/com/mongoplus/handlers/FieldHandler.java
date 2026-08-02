@@ -4,6 +4,10 @@ import com.mongoplus.mapping.FieldInformation;
 
 import java.util.function.Function;
 
+/**
+ * Field conversion node registered through {@link FieldHandlerChain#register(FieldHandler)}.
+ * The chain is sorted when nodes are registered, not during field conversion.
+ */
 public interface FieldHandler {
 
     /**

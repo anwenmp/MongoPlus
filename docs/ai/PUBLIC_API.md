@@ -114,7 +114,7 @@ classDiagram
 | 扩展 | 阶段与注册 |
 |---|---|
 | `Interceptor` / `AdvancedInterceptor` | Driver 执行周围；容器 Bean 或编程式注册，按 `order()` 排序 |
-| `FieldHandler` / `TypeHandler` / `MappingStrategy` / `ConversionStrategy` / `ReadHandler` | 实体写入或读取。FieldHandler 默认 `order=0`，双参数方法接收前序最新值，旧单参数实现继续兼容；ReadHandler 按既有 order 处理读取值。策略按泛型目标缓存，同 key 后写可覆盖 |
+| `FieldHandler` / `TypeHandler` / `MappingStrategy` / `ConversionStrategy` / `ReadHandler` | 实体写入或读取。FieldHandler 默认 `order=0`，通过 `FieldHandlerChain.getInstance().register/registerAll` 注册，责任链在注册后稳定排序，转换时直接遍历；`HandlerCache.fieldHandlers` 仅为过渡兼容别名。双参数方法接收前序最新值，旧单参数实现继续兼容。ReadHandler 按既有 order 处理读取值。策略按泛型目标缓存，同 key 后写可覆盖 |
 | `MetaObjectHandler` | 实体转换时 insert/update fill；wrapper-only BSON 不触发 |
 | Tenant/Collection/DataSource Handler | 普通拦截或 AOP 上下文阶段 |
 | Listener / Recorder / Async handler | Driver 命令、审计或镜像写；重复注册和异步生命周期分别见专题 |

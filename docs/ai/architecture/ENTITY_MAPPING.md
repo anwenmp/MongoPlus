@@ -81,7 +81,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 1. 字段名、忽略字段、顶层 ID 过滤先确定。
 2. `@CollectionField.isObjectId` 可先给 `obj` 赋值。
-3. 每次 `processFields` 先按 `FieldHandler.order()` 从小到大稳定排序，再运行所有激活 Handler。精确内置顺序为 LOCAL Sensitive Word `Integer.MIN_VALUE` → TypeHandler/默认自定义 Handler `0` → Encrypt `Integer.MAX_VALUE - 1` → DBRef `Integer.MAX_VALUE`；同 order 保持 `HandlerCache.fieldHandlers` 中的原相对顺序。
+3. `FieldHandlerChain` 自己持有并初始化全局责任链，通过 `getInstance().register/registerAll` 注册，并在单个或整批注册完成后按 `FieldHandler.order()` 从小到大稳定排序；`HandlerCache.fieldHandlers` 只保留为过渡兼容别名，不再负责内置 FieldHandler 初始化。`processFields` 直接依赖并遍历责任链，不在每次字段映射时重新排序。精确内置顺序为 LOCAL Sensitive Word `Integer.MIN_VALUE` → TypeHandler/默认自定义 Handler `0` → Encrypt `Integer.MAX_VALUE - 1` → DBRef `Integer.MAX_VALUE`；同 order 保持注册时的原相对顺序。
 4. 调用方以原字段值（或已完成的 `isObjectId` 值）初始化 `currentValue`，调用双参数 `handler(fieldInformation, currentValue)`；非 null 返回值同时更新累计 `obj` 与下一个 Handler 的 `currentValue`，null 表示不替换。旧实现只实现单参数方法时，由默认双参数方法委托旧方法，保持源码/二进制兼容。
 5. LOCAL Sensitive Word 在最前检查明文且未拒绝时返回 null；TypeHandler 的结果可继续交给 Encrypt。Encrypt 与 DBRef 都是终端序列化处理，DBRef 排在最后以避免关系字段被加密成字符串；同一字段同时声明 Encrypt 与 DBRef 的产品契约仍未定义，不应由 order 推断为受支持组合。
 6. 最终 `obj != null` 时直接写 BSON，跳过 MappingStrategy 和默认递归；所有 Handler 均未提供非 null 结果时继续默认分支。
@@ -135,6 +135,6 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 ## 关键源码
 
 - `mongo-plus-core`: `mapping/MongoConverter.java`、`EntityRead.java`、`AbstractMongoConverter.java`、`MappingMongoConverter.java`、`TypeInformation.java`、`FieldInformation.java`
-- `mongo-plus-core`: `handlers/field/TypeHandlerFieldHandler.java`、`EncryptFieldHandler.java`、`handlers/read/FieldEncryptApply.java`、`cache/global/HandlerCache.java`、`MappingCache.java`、`ConversionCache.java`
+- `mongo-plus-core`: `handlers/FieldHandlerChain.java`、`handlers/field/TypeHandlerFieldHandler.java`、`EncryptFieldHandler.java`、`handlers/read/FieldEncryptApply.java`、`cache/global/HandlerCache.java`、`MappingCache.java`、`ConversionCache.java`
 - `mongo-plus-core`: `strategy/mapping/**`、`strategy/conversion/**`、`handlers/auto/**`、`handlers/collection/AnnotationOperate.java`、`registry/MongoEntityMappingRegistry.java`、`conn/CollectionManager.java`
 - `mongo-plus-annotation`: `annotation/ID.java`、`annotation/collection/CollectionField.java`、`CollectionName.java`、`annotation/comm/FieldEncrypt.java`

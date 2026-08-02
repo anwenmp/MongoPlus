@@ -2,12 +2,12 @@ package com.mongoplus.mapping;
 
 import com.mongoplus.annotation.collection.CollectionField;
 import com.mongoplus.cache.global.ConversionCache;
-import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.cache.global.PropertyCache;
 import com.mongoplus.cache.global.SimpleCache;
 import com.mongoplus.conditions.interfaces.update.field.operations.Holder;
 import com.mongoplus.domain.MongoPlusWriteException;
 import com.mongoplus.handlers.FieldHandler;
+import com.mongoplus.handlers.FieldHandlerChain;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.strategy.conversion.ConversionStrategy;
@@ -25,7 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 将对象映射为Document
@@ -78,9 +77,6 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param filterId 是否过滤掉 ID 字段
      */
     private void processFields(List<FieldInformation> fields, Bson bson, boolean filterId) {
-        List<FieldHandler> fieldHandlers = HandlerCache.fieldHandlers.stream()
-                .sorted(Comparator.comparingInt(FieldHandler::order))
-                .collect(Collectors.toList());
         fields.stream()
                 .filter(fieldInformation -> !fieldInformation.isSkipCheckField() && (!filterId || !fieldInformation.isId()))
                 .forEach(fieldInformation -> {
@@ -98,7 +94,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                         obj = ObjectIdUtil.getObjectIdValue(fieldInformation.getValue());
                     }
                     Object currentValue = obj == null ? fieldInformation.getValue() : obj;
-                    for (FieldHandler fieldHandler : fieldHandlers) {
+                    for (FieldHandler fieldHandler : FieldHandlerChain.getInstance()) {
                         if (fieldHandler.activate().apply(fieldInformation)) {
                             Object handlerResult = fieldHandler.handler(fieldInformation, currentValue);
                             if (handlerResult != null) {

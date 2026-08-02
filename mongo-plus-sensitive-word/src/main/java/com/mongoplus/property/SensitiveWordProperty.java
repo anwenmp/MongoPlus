@@ -4,10 +4,10 @@ import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import com.github.houbb.sensitive.word.support.allow.WordAllows;
 import com.github.houbb.sensitive.word.support.deny.WordDenys;
 import com.github.houbb.sensitive.word.support.ignore.SensitiveWordCharIgnores;
-import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.enums.SensitiveType;
 import com.mongoplus.handler.LoadExtraWord;
 import com.mongoplus.handler.SensitiveWordFieldHandler;
+import com.mongoplus.handlers.FieldHandlerChain;
 import com.mongoplus.interceptor.InterceptorChain;
 import com.mongoplus.interceptor.SensitiveWordInterceptor;
 
@@ -124,7 +124,7 @@ public class SensitiveWordProperty {
             InterceptorChain.addInterceptor(new SensitiveWordInterceptor());
         } else if (sensitiveType == SensitiveType.LOCAL) {
             // 如果是局部，需要注册处理器
-            HandlerCache.fieldHandlers.add(new SensitiveWordFieldHandler());
+            FieldHandlerChain.getInstance().register(new SensitiveWordFieldHandler());
         }
     }
 

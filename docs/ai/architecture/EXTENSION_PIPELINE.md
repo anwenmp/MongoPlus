@@ -55,7 +55,7 @@ sequenceDiagram
 
 | 机制 | 分类 | 可改变内容 | 关键源码 |
 |---|---|---|---|
-| `FieldHandler` / `TypeHandler` | 映射扩展，不是执行拦截器 | 写侧按 `FieldHandler.order()` 稳定排序并向双参数 handler 传递最新值；旧单参数实现由默认方法兼容。`TypeHandler.setParameter` 改写入值，`TypeHandler.getResult` 参与实体字段读取 | `handlers/FieldHandler.java`、`handlers/TypeHandler.java`、`handlers/field/TypeHandlerFieldHandler.java`、`mapping/AbstractMongoConverter.java`、`MappingMongoConverter.java` |
+| `FieldHandler` / `TypeHandler` | 映射扩展，不是执行拦截器 | 写侧由 `FieldHandlerChain` 自持全局责任链并负责注册、稳定排序；字段映射直接依赖并遍历责任链，向双参数 handler 传递最新值。`HandlerCache.fieldHandlers` 仅为过渡兼容别名。旧单参数实现由默认方法兼容。`TypeHandler.setParameter` 改写入值，`TypeHandler.getResult` 参与实体字段读取 | `handlers/FieldHandler.java`、`handlers/FieldHandlerChain.java`、`handlers/TypeHandler.java`、`handlers/field/TypeHandlerFieldHandler.java`、`mapping/AbstractMongoConverter.java`、`MappingMongoConverter.java` |
 | `MappingStrategy` / `ConversionStrategy` | 映射扩展 | 写方向复杂值映射、读方向目标值转换 | `strategy/mapping/MappingStrategy.java`、`strategy/conversion/ConversionStrategy.java` |
 | `MetaObjectHandler` / AutoFillHandler | 元数据扩展、写入生命周期回调，不是执行拦截器 | 插入/更新 Document 的填充字段；位于两类执行代理外 | `handlers/MetaObjectHandler.java`、`handlers/auto/AbstractAutoFillHandler.java`、`mapping/AbstractMongoConverter.java` |
 | `TenantHandler` | 策略 Handler，不是拦截器 | 提供租户值、列名、忽略规则；普通 `TenantInterceptor` 才实际改参数 | `handlers/TenantHandler.java`、`interceptor/business/TenantInterceptor.java` |
