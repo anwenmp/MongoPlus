@@ -21,13 +21,13 @@
 - `mvn -version`、`java -version`、`where.exe java`、`where.exe mvn`、`mvn help:active-profiles` 和 `mvn validate` 的本机结果已执行核对；具体工具版本和 profile 输出属于本机快照，不扩张为兼容性保证。
 - 本次对允许修改的 Markdown 执行了相对链接、重复标题/anchor、尾随空白和 `git diff --check` 检查。
 
-未执行或未形成已验证结论：全 reactor `compile`、`test`、`package`、`verify`、`install`、`deploy`，独立 BOM 的 `verify/deploy`，MongoDB 集成测试，以及 Boot 3、Boot 4、Solon 启动测试。推荐命令见 [BUILD_AND_RELEASE.md](BUILD_AND_RELEASE.md) 和 [TESTING.md](TESTING.md)，不能据此写成已成功。
+已执行 sensitive-word 定向回归，当前 9 个转换器级测试覆盖 FieldHandler order、最新值传递、旧实现兼容、TypeHandler→Encrypt 与 LOCAL 组合。所属模块完整 test 的最终结果见 [TESTING.md](TESTING.md)。未执行或未形成已验证结论：全 reactor `compile`、`test`、`package`、`verify`、`install`、`deploy`，独立 BOM 的 `verify/deploy`，MongoDB 集成测试，以及 Boot 3、Boot 4、Solon 启动测试。
 
 ## 当前仓库边界
 
 - 根 reactor 是 1 个根聚合项目加 8 个 JAR 模块；“8 个模块”与 Maven reactor 的 9 个 project 不冲突。
 - `mongo-plus-bom` 是无 parent 的独立 Maven project，不在根 reactor。
-- `mongo-plus-test` 当前是未跟踪目录且不在根 reactor；其中测试源码没有在本次运行。
+- `mongo-plus-sensitive-word` 现有正式 tracked JUnit 4 转换器级回归；`mongo-plus-test` 仍是未跟踪目录且不在根 reactor，其中测试源码没有在本次运行。
 - 仓库内未发现 CI、Maven Wrapper、Maven Enforcer 或 toolchains；这不证明外部平台不存在 CI。
 - Boot 4 模块显式 target 17；其他模块主要沿用根 target 8。Boot 3/4 应用运行至少需要 Java 17；target 8 不表示 Boot 3 可在 Java 8 运行。
 - core/Solon 在 Java 8 上的真实运行能力尚未执行验证。

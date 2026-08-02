@@ -1,20 +1,12 @@
 # 构建与测试策略
 
-> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；历史记录包含 core 及其 reactor 依赖的编译，本轮新增全 reactor `validate`，仍未执行测试、打包或完整校验。编译/validate 成功不作为行为或兼容性通过证据。
+> 审计日期：2026-08-02。测试结构来自定向目录检查和 POM；已新增并执行 sensitive-word 转换器级回归，但仍未执行全 reactor 测试、打包或完整校验。局部测试成功不作为全部行为或兼容性通过证据。
 
 ## 当前测试事实
 
-根 reactor 的 8 个模块中，仅 `mongo-plus-core/src/test` 目录真实存在，但目录为空；其余 7 个模块均没有 `src/test`：
+根 reactor 当前只有 `mongo-plus-sensitive-word` 包含 tracked 测试源码：`SensitiveWordFieldHandlerTest` 使用 JUnit 4.13.2，以 `MappingMongoConverter` 生成的 `Document` 验证 FieldHandler order、最新值传递、旧实现兼容、TypeHandler→Encrypt，以及 LOCAL 与 Encrypt/TypeHandler/DBRef 的组合，不需要真实 MongoDB。`mongo-plus-core/src/test` 目录为空，其余模块没有正式测试源码。
 
-- `mongo-plus-annotation`
-- `mongo-plus-boot-starter`
-- `mongo-plus-boot4-starter`
-- `mongo-plus-solon-plugin`
-- `mongo-plus-sharding`
-- `mongo-plus-sharding-boot-starter`
-- `mongo-plus-sensitive-word`
-
-仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `BuildConditionRegexTest.java` 和 `BuildConditionNotTest.java`，POM 声明 JUnit 4.13.2，并有本机 surefire 输出。它不是 reactor 测试保障，状态变化后应重新确认。根及 reactor 模块 POM未声明 JUnit、TestNG 或专用测试插件；多个集成/扩展模块还声明了 `maven.test.skip=true`。
+仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在 `BuildConditionRegexTest.java` 和 `BuildConditionNotTest.java`，POM 声明 JUnit 4.13.2，并有本机 surefire 输出。它不是 reactor 测试保障，状态变化后应重新确认。除 `mongo-plus-sensitive-word` 的 test-scope JUnit 4.13.2 外，根及其他 reactor 模块 POM 未声明 JUnit、TestNG 或专用测试插件；多个其他集成/扩展模块仍声明 `maven.test.skip=true`。
 
 ## Maven 命令
 
@@ -23,7 +15,7 @@
 | 目的 | 建议命令 | 说明 |
 |---|---|---|
 | reactor 编译 | `mvn -DskipTests compile` | 编译 8 个 reactor 模块；不验证行为 |
-| reactor 测试 | `mvn test` | 当前 reactor 没有可执行测试；带 `maven.test.skip=true` 的模块不会提供测试保障 |
+| reactor 测试 | `mvn test` | 会执行 sensitive-word 的 tracked 测试；带 `maven.test.skip=true` 的其他模块仍不会提供测试保障 |
 | reactor 完整校验 | `mvn verify` | 仍不自动等于行为正确；发布 profile 默认激活，执行前留意插件与环境 |
 | 单模块及依赖 | `mvn -pl mongo-plus-core -am test` | 将模块名替换为目标模块；`-am` 同时构建项目内依赖 |
 | 独立测试工程 | `mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false test` | 仅当该未跟踪工程仍存在且所需 2.2.0 构件可解析时使用；必须显式覆盖其跳过属性 |
@@ -38,8 +30,10 @@ reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `c
 - `mvn validate`：根与 8 个 JAR 模块全部成功；只覆盖 validate 阶段。
 - `mvn -pl mongo-plus-core -am -DskipTests compile`：根聚合项目、annotation、core 编译成功；编译 58 个 annotation 源文件和 441 个 core 源文件，并出现 deprecated/unchecked 提示。
 - `mvn -pl mongo-plus-boot-starter,mongo-plus-boot4-starter -am dependency:tree "-Dincludes=org.springframework:*,org.springframework.boot:*"`：依赖树解析成功；这是依赖解析证据，不是两个 starter 的编译、启动或行为测试。
+- `mvn -pl mongo-plus-sensitive-word -am "-Dtest=SensitiveWordFieldHandlerTest" "-Dsurefire.failIfNoSpecifiedTests=false" test`：管线改造前 8 个测试中新增的 order 与最新值 2 个断言失败；改造后扩展为 9 个测试并全部通过。期间一次修复后构建因遗漏 `Collectors` import 在 core 编译失败，补齐后成功。
+- `mvn -pl mongo-plus-sensitive-word -am test`：根、annotation、core、sensitive-word 均成功；sensitive-word 9 个测试通过。
 
-**本轮没有执行 `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。历史 compile 成功只覆盖当前 JDK 17 下 core 及 annotation 的编译；本轮 validate 只覆盖模型/validate 阶段，均不扩张为行为正确、JDK 8 可用、Driver 兼容或全 reactor 编译通过。**
+**本轮没有执行全 reactor `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。sensitive-word 局部测试只固定当前 JDK 17 下转换器级 LOCAL 行为，不扩张为 JDK 8、Driver、MongoDB、GLOBAL 或框架启动兼容结论。**
 
 ## 修改区域的最低验证
 

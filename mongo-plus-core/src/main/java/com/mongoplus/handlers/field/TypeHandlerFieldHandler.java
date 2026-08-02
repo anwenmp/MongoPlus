@@ -21,10 +21,15 @@ public class TypeHandlerFieldHandler implements FieldHandler {
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public Object handler(FieldInformation fieldInformation) {
+        return handler(fieldInformation, fieldInformation.getValue());
+    }
+
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public Object handler(FieldInformation fieldInformation, Object currentValue) {
         TypeHandler typeHandler = (TypeHandler) ClassTypeUtil.getInstanceByClass(fieldInformation.getCollectionField()
                 .typeHandler());
-        return typeHandler.setParameter(fieldInformation.getName(), fieldInformation.getValue());
+        return typeHandler.setParameter(fieldInformation.getName(), currentValue);
     }
 }

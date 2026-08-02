@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 将对象映射为Document
@@ -77,6 +78,9 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      * @param filterId 是否过滤掉 ID 字段
      */
     private void processFields(List<FieldInformation> fields, Bson bson, boolean filterId) {
+        List<FieldHandler> fieldHandlers = HandlerCache.fieldHandlers.stream()
+                .sorted(Comparator.comparingInt(FieldHandler::order))
+                .collect(Collectors.toList());
         fields.stream()
                 .filter(fieldInformation -> !fieldInformation.isSkipCheckField() && (!filterId || !fieldInformation.isId()))
                 .forEach(fieldInformation -> {
@@ -93,12 +97,17 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                     if (collectionField != null && collectionField.isObjectId()) {
                         obj = ObjectIdUtil.getObjectIdValue(fieldInformation.getValue());
                     }
-                    for (FieldHandler fieldHandler : HandlerCache.fieldHandlers) {
+                    Object currentValue = obj == null ? fieldInformation.getValue() : obj;
+                    for (FieldHandler fieldHandler : fieldHandlers) {
                         if (fieldHandler.activate().apply(fieldInformation)) {
-                            obj = fieldHandler.handler(fieldInformation);
+                            Object handlerResult = fieldHandler.handler(fieldInformation, currentValue);
+                            if (handlerResult != null) {
+                                obj = handlerResult;
+                                currentValue = handlerResult;
+                            }
                         }
                     }
-                    //如果类型处理器返回null，则继续走默认处理
+                    // 如果字段处理器均未返回非null结果，则继续走默认处理
                     if (obj != null) {
                         BsonUtil.addToMap(bson, fieldName, obj);
                     } else {

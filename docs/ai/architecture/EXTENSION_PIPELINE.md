@@ -55,7 +55,7 @@ sequenceDiagram
 
 | 机制 | 分类 | 可改变内容 | 关键源码 |
 |---|---|---|---|
-| `FieldHandler` / `TypeHandler` | 映射扩展，不是执行拦截器 | `FieldHandler` 参与写字段循环；`TypeHandler.setParameter` 改写入值，`TypeHandler.getResult` 参与实体字段读取 | `handlers/FieldHandler.java`、`handlers/TypeHandler.java`、`handlers/field/TypeHandlerFieldHandler.java`、`mapping/AbstractMongoConverter.java`、`MappingMongoConverter.java` |
+| `FieldHandler` / `TypeHandler` | 映射扩展，不是执行拦截器 | 写侧按 `FieldHandler.order()` 稳定排序并向双参数 handler 传递最新值；旧单参数实现由默认方法兼容。`TypeHandler.setParameter` 改写入值，`TypeHandler.getResult` 参与实体字段读取 | `handlers/FieldHandler.java`、`handlers/TypeHandler.java`、`handlers/field/TypeHandlerFieldHandler.java`、`mapping/AbstractMongoConverter.java`、`MappingMongoConverter.java` |
 | `MappingStrategy` / `ConversionStrategy` | 映射扩展 | 写方向复杂值映射、读方向目标值转换 | `strategy/mapping/MappingStrategy.java`、`strategy/conversion/ConversionStrategy.java` |
 | `MetaObjectHandler` / AutoFillHandler | 元数据扩展、写入生命周期回调，不是执行拦截器 | 插入/更新 Document 的填充字段；位于两类执行代理外 | `handlers/MetaObjectHandler.java`、`handlers/auto/AbstractAutoFillHandler.java`、`mapping/AbstractMongoConverter.java` |
 | `TenantHandler` | 策略 Handler，不是拦截器 | 提供租户值、列名、忽略规则；普通 `TenantInterceptor` 才实际改参数 | `handlers/TenantHandler.java`、`interceptor/business/TenantInterceptor.java` |
@@ -93,4 +93,4 @@ sequenceDiagram
 
 ## 测试证据与缺口
 
-仓库当前没有 `src/test` 文件；CodeGraph 对 `ExecutorProxy`、`ExecutorFactory`、`MetaObjectHandler`、`TenantHandler`、`TypeHandler` 等均报告无覆盖测试。缺口：普通 before→参数策略→after 与异常；高级 order/嵌套、短路/discontinue；两链组合；动态集合+租户+逻辑删除；转换边界；Listener 三阶段/异常；事务、异步、分片、多数据源组合。
+仓库已在 `mongo-plus-sensitive-word` 增加 FieldHandler 转换器级测试，覆盖 order、最新值传递、旧实现兼容及敏感词组合。ExecutorProxy、MetaObjectHandler、TenantHandler 等仍无覆盖测试。缺口：普通 before→参数策略→after 与异常；高级 order/嵌套、短路/discontinue；两链组合；动态集合+租户+逻辑删除；其他转换边界；Listener 三阶段/异常；事务、异步、分片、多数据源组合。

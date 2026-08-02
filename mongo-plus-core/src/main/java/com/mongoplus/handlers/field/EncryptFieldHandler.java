@@ -14,12 +14,22 @@ import java.util.function.Function;
 public class EncryptFieldHandler implements FieldHandler {
 
     @Override
+    public Integer order() {
+        return Integer.MAX_VALUE - 1;
+    }
+
+    @Override
     public Function<FieldInformation, Boolean> activate() {
         return (fieldInformation -> fieldInformation.isAnnotation(FieldEncrypt.class));
     }
 
     @Override
     public Object handler(FieldInformation fieldInformation) {
-        return EncryptorUtil.encrypt(fieldInformation.getAnnotation(FieldEncrypt.class),fieldInformation.getValue());
+        return handler(fieldInformation, fieldInformation.getValue());
+    }
+
+    @Override
+    public Object handler(FieldInformation fieldInformation, Object currentValue) {
+        return EncryptorUtil.encrypt(fieldInformation.getAnnotation(FieldEncrypt.class), currentValue);
     }
 }

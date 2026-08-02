@@ -81,11 +81,13 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 1. 字段名、忽略字段、顶层 ID 过滤先确定。
 2. `@CollectionField.isObjectId` 可先给 `obj` 赋值。
-3. 依 `HandlerCache.fieldHandlers` 当前顺序运行所有激活 Handler：core 初始为 `TypeHandlerFieldHandler` → `EncryptFieldHandler` → `DBRefHandler`；安装 sensitive-word 且选择 LOCAL 后，会在尾部追加 `SensitiveWordFieldHandler`。后运行且激活的 Handler 会覆盖前一个 `obj`；没有“命中即停止”。LOCAL Handler 无显式 activate，所有字段都会调用，但只有带 `@SensitiveWord` 且值非 null 时检查，随后无论是否带注解都返回原字段值，因而会覆盖任一前序非 null 处理结果。
-4. 最终 `obj != null` 时直接写 BSON，跳过 MappingStrategy 和默认递归；Handler 返回 null 则继续默认分支。
-5. 默认分支中，`MappingStrategy` 最优先；命中后直接返回。未命中才依次判断 simple/Mongo type、集合/数组、Map、嵌套对象。
+3. 每次 `processFields` 先按 `FieldHandler.order()` 从小到大稳定排序，再运行所有激活 Handler。精确内置顺序为 LOCAL Sensitive Word `Integer.MIN_VALUE` → TypeHandler/默认自定义 Handler `0` → Encrypt `Integer.MAX_VALUE - 1` → DBRef `Integer.MAX_VALUE`；同 order 保持 `HandlerCache.fieldHandlers` 中的原相对顺序。
+4. 调用方以原字段值（或已完成的 `isObjectId` 值）初始化 `currentValue`，调用双参数 `handler(fieldInformation, currentValue)`；非 null 返回值同时更新累计 `obj` 与下一个 Handler 的 `currentValue`，null 表示不替换。旧实现只实现单参数方法时，由默认双参数方法委托旧方法，保持源码/二进制兼容。
+5. LOCAL Sensitive Word 在最前检查明文且未拒绝时返回 null；TypeHandler 的结果可继续交给 Encrypt。Encrypt 与 DBRef 都是终端序列化处理，DBRef 排在最后以避免关系字段被加密成字符串；同一字段同时声明 Encrypt 与 DBRef 的产品契约仍未定义，不应由 order 推断为受支持组合。
+6. 最终 `obj != null` 时直接写 BSON，跳过 MappingStrategy 和默认递归；所有 Handler 均未提供非 null 结果时继续默认分支。
+7. 默认分支中，`MappingStrategy` 最优先；命中后直接返回。未命中才依次判断 simple/Mongo type、集合/数组、Map、嵌套对象。
 
-因此仅在没有后续 Handler 覆盖且 TypeHandler 返回非 null 时，TypeHandler 高于 MappingStrategy；加密/DBRef 可覆盖 TypeHandler，启用 LOCAL sensitive-word 后其尾部 Handler 又会把字段恢复为原 Java 值。MappingStrategy 也只按精确 class 查缓存（enum 归一到 `Enum.class`），不是 assignable 匹配。
+因此 TypeHandler 返回非 null 时高于 MappingStrategy，并可作为后续 Encrypt/DBRef 的输入；后续终端 Handler 的非 null 结果成为最终 BSON 值。LOCAL sensitive-word 只检查/拒绝而不改写累计结果。MappingStrategy 只按精确 class 查缓存（enum 归一到 `Enum.class`），不是 assignable 匹配。
 
 ### 读方向
 
@@ -109,7 +111,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 - 自动填充发生在普通字段映射之后、执行代理之前，只用于实体保存/更新；Map 写入提前返回，不执行实体自动填充。
 - 写字段加密是 `EncryptFieldHandler`，位于字段 Handler 链；查询 Lambda 条件的加密由 `EncryptorConditionHandler`，纯字符串字段缺少反射注解信息；读取解密由 `FieldEncryptApply`。
-- 若字段同时配置 TypeHandler、加密或 DBRef，写侧后 Handler 覆盖前 Handler，读侧 TypeHandler 非 null 结果优先于解密后的局部值，组合行为高风险且无回归测试。
+- 写侧 TypeHandler 的非 null 结果会传给后续 Encrypt；LOCAL sensitive-word 不覆盖结果。DBRef 是最后的关系字段终端处理。读侧顺序未改，仍为解密 `0` → 脱敏 `1` → DBRef `Integer.MAX_VALUE`，且 TypeHandler 非 null 结果最终优先于 ReadHandler 局部值；其他组合仍需运行验证。
 
 ## 实体模式与无实体 Map 模式
 
@@ -128,7 +130,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 修改映射逻辑至少验证：save/update/batch 与 id 回填；实体、Map、Document；顶层/嵌套 ID；字段重命名/下划线/null；ObjectId；TypeHandler+加密+DBRef；MappingStrategy+ConversionStrategy；枚举/时间/数字；集合/Map/多层泛型；自动填充；逻辑删除/租户/乐观锁通过 registry 的实体识别；事务与 Driver codec。
 
-CodeGraph 对 `MappingMongoConverter`、`MappingStrategy` 等报告无覆盖测试，知识库此前确认仓库没有 `src/test`。尤其缺少策略优先级、Handler 返回 null、多个 Handler 同时激活、顶层/嵌套读取差异、裸/复杂泛型、Map 模式、跨数据源同名 collection registry/cache、Driver 升级的回归证据。
+`mongo-plus-sensitive-word` 已增加转换器级 JUnit 4 回归，覆盖 FieldHandler order、最新值传递、旧单参数实现兼容、TypeHandler→Encrypt、LOCAL 与 Encrypt/TypeHandler/DBRef 以及 null 合并语义。仍缺少 Encrypt+DBRef 同字段契约、MappingStrategy 优先级、其他多 Handler 组合、顶层/嵌套读取差异、裸/复杂泛型、Map 模式、跨数据源同名 collection registry/cache、Driver 升级的回归证据。
 
 ## 关键源码
 

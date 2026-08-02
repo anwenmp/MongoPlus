@@ -44,6 +44,11 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
     protected boolean dbRefValueIsNull = false;
 
     @Override
+    public Integer order() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public Function<FieldInformation, Boolean> activate() {
         return fieldInformation ->
                 dbRefFieldCache.computeIfAbsent(fieldInformation.getField(), k ->
@@ -58,8 +63,12 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
 
     @Override
     public Object handler(FieldInformation fieldInformation) {
-        Object fieldValue = fieldInformation.getValue();
-        if (fieldValue == null) {
+        return handler(fieldInformation, fieldInformation.getValue());
+    }
+
+    @Override
+    public Object handler(FieldInformation fieldInformation, Object currentValue) {
+        if (currentValue == null) {
             return null;
         }
         Class<?> typeClass = fieldInformation.getTypeClass();
@@ -69,7 +78,7 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
         if (annotationField == null) {
             throw new MongoPlusFieldException("@ID is null");
         }
-        Object value = annotationField.getValue(fieldValue);
+        Object value = annotationField.getValue(currentValue);
         return getDBRef(typeClass,dbRefAnnotation,value);
     }
 

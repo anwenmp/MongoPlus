@@ -2,13 +2,13 @@
 
 > 收口日期：2026-08-02。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
 
-## A. 已确认缺陷（11）
+## A. 已确认缺陷（10 个未修复，1 个已修复）
 
 1. **事务结束未关闭 session：** 正常 commit/abort 后 `hasActiveTransaction()` 为 false，清理只移除上下文而不调用 `ClientSession.close()`；影响 core 自有事务。[事务](features/TRANSACTION.md)
 2. **Spring TransactionManager 泄漏两套 session：** `doGetTransaction` 创建的 session A 未交给 `doBegin` 且无关闭路径；session B 正常结束也受上一缺陷影响。影响 Boot 3/4。[事务](features/TRANSACTION.md)
 3. **`@IgnoreLogic` update 漏检：** `CollectionLogiceInterceptor.executeUpdate` 未检查 ignore，影响实体、Wrapper、BSON 的单条和多 pair update；bulk 和高级删除转换走独立分支。[Logic Delete](features/LOGIC_DELETE.md)
 4. **Tenant `UpdateManyModel` filter 未写回：** bulk 分支只修改临时 pair，未重建或修改原 model；InsertOne 会原地修改，其余 model 尚需运行覆盖。[Tenant](features/TENANT.md)
-5. **LOCAL Sensitive Word 覆盖其他字段处理：** 默认全激活且无条件返回原字段值，会覆盖无注解字段的 TypeHandler、Encrypt、DBRef 结果；启用 LOCAL 时加密字段被重新写入明文。[Sensitive Word](features/SENSITIVE_WORD.md)
+5. **已修复：LOCAL Sensitive Word 覆盖其他字段处理：** 2026-08-02 在 core FieldHandler 契约、`MappingMongoConverter.processFields` 与 sensitive-word Handler 范围内修复：写 Handler 按 order 执行并传递最新值，null 不替换累计值，LOCAL 最先检查且未拒绝时返回 null。回归测试位于 `mongo-plus-sensitive-word/src/test/java/com/mongoplus/handler/SensitiveWordFieldHandlerTest.java`，覆盖 order、最新值、旧实现兼容、TypeHandler→Encrypt、DBRef、拒绝和明文检查。[Sensitive Word](features/SENSITIVE_WORD.md)
 6. **RSA/SM2 private key 接线错误：** decrypt 传入注解 `publicKey`，空值又回退全局 `publicKey`，内置解密路径不读取 `privateKey`。[Encryption](features/FIELD_ENCRYPTION.md)
 7. **PBE 空 key 回退不一致：** encrypt 可回退全局 key，decrypt 的空 key 不回退。[Encryption](features/FIELD_ENCRYPTION.md)
 8. **Map 读取无限递归：** `Class<Map>` 与 `TypeReference<Map<...>>` 进入 Map 分支后以 raw Map 再次递归，没有终止条件；影响 Mapper 查询及聚合结果映射。[Entity Mapping](architecture/ENTITY_MAPPING.md) / [Aggregate](architecture/AGGREGATION.md)

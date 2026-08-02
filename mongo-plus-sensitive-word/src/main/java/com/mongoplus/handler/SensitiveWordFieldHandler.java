@@ -22,12 +22,21 @@ public class SensitiveWordFieldHandler implements FieldHandler {
     }
 
     @Override
+    public Integer order() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
     public Object handler(FieldInformation fieldInformation) {
+        return handler(fieldInformation, fieldInformation.getValue());
+    }
+
+    @Override
+    public Object handler(FieldInformation fieldInformation, Object currentValue) {
         SensitiveWord sensitiveWord = fieldInformation.getAnnotation(SensitiveWord.class);
-        Object value = fieldInformation.getValue();
-        if (sensitiveWord != null && value != null) {
-            sensitiveWordManager.handler(fieldInformation);
+        if (sensitiveWord != null && currentValue != null) {
+            sensitiveWordManager.handler(fieldInformation.getName(), String.valueOf(currentValue));
         }
-        return value;
+        return null;
     }
 }
