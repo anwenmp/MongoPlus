@@ -95,6 +95,15 @@
 | Driver internal API 跨版本风险 | 待验证 | `FillField` 继承 `com.mongodb.internal.client.model.AbstractConstructibleBsonElement` | internal API 无稳定承诺，尚未在 Driver 4.x/多个 5.x 编译运行 | 建立 Driver 版本矩阵，编译并执行 `$fill` BSON/服务器行为测试 | `COMPATIBILITY.md`、`TESTING.md` | `aggregate/pipeline/FillField.java:3-17` | core |
 | 核心执行路径缺少回归测试 | 待验证 | CodeGraph 对 Execute、CRUD、转换、拦截器等大量入口报告 no covering tests；reactor 测试目录为空 | 未检查外部 CI/外部测试仓库，不能断言项目完全无测试 | 将 CRUD、Wrapper、mapping、两类拦截器、事务的最小测试纳入 reactor 并在 CI 执行 | `TESTING.md`、`architecture/CRUD_EXECUTION.md` | `mapper/AbstractBaseMapper.java`；`execute/`；`mapping/`；`interceptor/` | 全部模块 |
 
+## 异步多写与备份恢复（2026-08-02）
+
+- **待验证：** 异步任务在默认池、CallerRuns 拒绝分支和用户池中的 DataSourceNameCache/事务/分片/MDC/Tenant 上下文，线程复用污染、JVM 退出和多个应用上下文静态重复注册；同时固定 `_id` 生成时机、可变 Document/BSON/WriteModel 竞态及主失败/镜像成功命令顺序。
+- **待验证：** 常规逻辑删除先由 `LogicRemoveInterceptor(Integer.MAX_VALUE - 1)` 转成 UPDATE，再进入默认 order 为 `Integer.MAX_VALUE` 的 Async；需运行固定源/目标元数据不同、ignore、动态集合、分片与 Recorder/Command Listener 事件数，以及重复目标、包含主源和多 Async 拦截器的实际放大结果。
+- **已确认缺陷：** Async 在主 Driver 写前提交、无 afterCommit/取消/重试/结果通道；Future 被丢弃、默认 executor 无 shutdown且目标不去重。**已确认设计风险：** 参数无深拷贝并共享可变引用；错误结果是否出现仍需并发测试。运行测试用于固定外观和影响，不再用于判断这些控制流是否存在。
+- **已确认缺陷：** Backup 非最后分页 JSON 会在数组末文档后保留尾逗号；恢复只 drop ZIP 第一个 entry 对应 collection；导出平台默认编码而恢复固定 UTF-8；导出 IOException 后仍可能返回半成品 ZIP，恢复 IOException 丢失 cause。
+- **待验证：** Backup 的 ObjectId/Date/Decimal128/Binary/UUID/Regex/Timestamp/DBRef/MinKey/MaxKey/大整数往返、磁盘不足/损坏文件/大 entry 内存，以及 skip/limit 期间并发修改导致的重复或遗漏。同名 ZIP 被 `FileOutputStream` 截断覆盖、额外 entry 不筛选和默认目标列表为构造时快照已由源码确认。
+- **待验证：** restore 经 ExecutorFactory 触发 Tenant/Logic/Dynamic/Async/Recorder 的最终 BSON、drop 不带 session 而 insert 可带外部 session 的事务外观、duplicate `_id` ordered 部分成功及 A 源文件导入 B 源；Boot 3/4/Solon core 行为应一致，但容器静态链注册和关闭差异仍需集成测试。
+
 ## 命令监听与数据变更记录
 
 | 问题 | 状态 | 源码观察 | 暂不能下结论的原因 | 需要执行的验证 | 相关知识文档 | 源码位置 | 可能影响模块 |
