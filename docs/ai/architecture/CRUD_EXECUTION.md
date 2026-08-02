@@ -9,7 +9,7 @@
 | `BaseMapper` | 无实体绑定的 CRUD、聚合、索引公共 API；重载最终汇入显式命名空间和 BSON/Wrapper 实现 | `mapper/BaseMapper.java` |
 | 用户 Mapper / `MongoMapper<T>` | `MapperProxy` 创建 JDK 代理；普通方法反射调用绑定实体类型的 `MongoMapperImpl<T>`，default 方法用 `MethodHandle` 在代理上执行 | `mapper/MongoMapper.java`、`mapper/MongoMapperImpl.java`、`proxy/MapperProxy.java` |
 | `DefaultBaseMapperImpl` / `AbstractBaseMapper` | 前者解析实体命名空间并委托；后者构造 BSON、转换数据、调用执行器、读取结果 | `mapper/DefaultBaseMapperImpl.java`、`mapper/AbstractBaseMapper.java` |
-| `IRepository<T>` / `IService<T>` | `RepositoryImpl` 继承 `MongoMapperImpl`；`ServiceImpl` 仅继承 `RepositoryImpl`，最终都委托 `baseMapper`。不存在名为 `Repository` 的公开契约 | `repository/IRepository.java`、`repository/impl/RepositoryImpl.java`、`service/IService.java`、`service/impl/ServiceImpl.java` |
+| `IRepository<T>` / `IService<T>` | `IRepository` 继承 `MongoMapper` 并另声明实体索引、collection 和 chain 方法；`IService` 继承 `IRepository`。`RepositoryImpl` 继承 `MongoMapperImpl`；`ServiceImpl` 仅继承 `RepositoryImpl`，最终都委托 `baseMapper`。普通 `MongoMapper` 不继承 `BaseMapper`/`BaseIndex`，也不存在名为 `Repository` 的公开契约 | `repository/IRepository.java`、`repository/impl/RepositoryImpl.java`、`service/IService.java`、`service/impl/ServiceImpl.java` |
 | `ChainWrappers` 与 Query/Update/Aggregate chain | 链对象持有 `BaseMapper` 和实体类型；终结方法调用 Mapper。Repository 的链式入口由 `ChainWrappers` 创建 | `toolkit/ChainWrappers.java`、`conditions/query/QueryChainWrapper.java`、`conditions/update/UpdateChainWrapper.java`、`aggregate/AggregateChainWrapper.java` |
 
 ## 已确认的常规 CRUD 主链

@@ -20,6 +20,8 @@ AbstractChainWrapper<T, Children>
 - `UpdateChainWrapper` 继承全部查询条件能力，另持有更新操作元对象和自定义更新 BSON。因此更新 Wrapper 的左侧仍是查询 filter，右侧才是 `$set/$inc/...` 更新文档。
 - `UpdateWrapper` 是可直接实例化的更新 Wrapper。当前源码不存在独立的非 Chain `LambdaUpdateWrapper`；`LambdaUpdateChainWrapper` 才是可执行的 Lambda 更新链。
 - `QueryWrapper.lambdaQuery()` 与 `UpdateWrapper.lambdaUpdate()` 调用 `ChainWrappers` 创建新的 chain，并不把当前 Wrapper 已积累的状态转换或复制过去。返回声明也仍是基类 `QueryChainWrapper` / `UpdateChainWrapper`。
+- Query/Update 的终结方法不自动清理状态。`AbstractChainWrapper.clear()` 显式清 condition、order、projection、custom query BSON；`UpdateChainWrapper.clear()` 还清 update 元对象和 custom update BSON。聚合 wrapper 没有对应 clear/reset，pipeline、options 和 `isSkip` 会继续保留。
+- `conditionMetaObjects`/update 列表使用 `CopyOnWriteArrayList`，但 order、projection、custom query BSON 使用普通 `ArrayList`，构建与终结操作也没有统一同步。因此这些 Wrapper/Chain 不是线程安全的共享对象；`clear()` 的 `synchronized` 不能形成完整线程安全契约。
 
 ## 条件如何成为 BSON
 

@@ -13,6 +13,8 @@
 | 全局分层、CRUD 总体路径、启动入口 | [ARCHITECTURE.md](ARCHITECTURE.md) | [MODULES.md](MODULES.md) |
 | 当前版本、分支、依赖快照、待验证项 | [CURRENT_STATE.md](CURRENT_STATE.md) | [MODULES.md](MODULES.md) |
 | 开发/API 约定 | `CONVENTIONS.md`（待生成） | — |
+| 选择公开 CRUD、Service、Repository、Chain 或无实体入口 | [PUBLIC_API.md](PUBLIC_API.md) | 按链接补读一个实现专题 |
+| 查询配置 key、默认值、消费者或集成差异 | [CONFIGURATION.md](CONFIGURATION.md) | 启动细节补读 [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) |
 | 修改代码前确定验证方式 | [TESTING.md](TESTING.md) | 按兼容矩阵需要补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
 | 升级 Java、Boot、Driver 或 Solon | [COMPATIBILITY.md](COMPATIBILITY.md) | 验证命令补读 [TESTING.md](TESTING.md) |
 | 调查潜在缺陷或边界行为 | [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) | 按问题链接补读对应架构专题 |
@@ -23,6 +25,10 @@
 | 任务 | 当前先读 | 专题状态 |
 |---|---|---|
 | CRUD、BaseMapper、IService、Repository、Mapper 代理 | [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) | 扩展顺序补读 [architecture/EXTENSION_PIPELINE.md](architecture/EXTENSION_PIPELINE.md) |
+| 选择 BaseMapper、IService 或 IRepository；调查公开 CRUD API | [PUBLIC_API.md](PUBLIC_API.md) | 深入链路再读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
+| Wrapper、Chain、DTO 或无实体 Map/Document 入口 | [PUBLIC_API.md](PUBLIC_API.md) | 条件细节补读 [architecture/QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md) |
+| 配置单/多数据源、Mapper 扫描、自动索引/时序或查询 key 默认值 | [CONFIGURATION.md](CONFIGURATION.md) | 对应运行链按文内链接补读一个专题 |
+| 对比 Boot 3、Boot 4、Solon 配置；调查声明但未消费字段 | [CONFIGURATION.md](CONFIGURATION.md) | 版本要求补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
 | 自动配置、启动流程、MongoClient 初始化、Mapper 扫描或注册 | [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md) | 框架版本差异补读 [COMPATIBILITY.md](COMPATIBILITY.md) |
 | 多数据源、`@MongoDs`、SpEL、上下文、动态数据源 | [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md) | 启动注册补读 [architecture/STARTUP_LIFECYCLE.md](architecture/STARTUP_LIFECYCLE.md)；运行未决组合补读 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) |
 | MongoPlus/Spring/Solon/分片事务、ClientSession、SessionExecute | [features/TRANSACTION.md](features/TRANSACTION.md) | 数据源切换补读 [features/MULTI_DATASOURCE.md](features/MULTI_DATASOURCE.md)；执行器补读 [architecture/CRUD_EXECUTION.md](architecture/CRUD_EXECUTION.md) |
