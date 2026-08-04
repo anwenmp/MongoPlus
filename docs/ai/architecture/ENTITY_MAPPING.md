@@ -111,6 +111,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 - 自动填充发生在普通字段映射之后、执行代理之前，只用于实体保存/更新；Map 写入提前返回，不执行实体自动填充。
 - 写字段加密是 `EncryptFieldHandler`，位于字段 Handler 链；查询 Lambda 条件的加密由 `EncryptorConditionHandler`，纯字符串字段缺少反射注解信息；读取解密由 `FieldEncryptApply`。
+- 读取解密把 `@FieldEncrypt.privateKey` 传给解密器；RSA/SM2 未配置字段私钥时回退全局 privateKey。该参数接线和两种算法的全局回退已有独立单测，真实 MongoDB 与多 JDK/provider 往返仍未验证。
 - 写侧 TypeHandler 的非 null 结果会传给后续 Encrypt；LOCAL sensitive-word 不覆盖结果。DBRef 是最后的关系字段终端处理。读侧顺序未改，仍为解密 `0` → 脱敏 `1` → DBRef `Integer.MAX_VALUE`，且 TypeHandler 非 null 结果最终优先于 ReadHandler 局部值；其他组合仍需运行验证。
 
 ## 实体模式与无实体 Map 模式

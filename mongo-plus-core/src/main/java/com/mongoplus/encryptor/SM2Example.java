@@ -66,7 +66,7 @@ public class SM2Example implements Encryptor {
     @Override
     public String decrypt(String data, String key, String privateKey) throws Exception {
         if (StringUtils.isBlank(privateKey)){
-            privateKey = PropertyCache.publicKey;
+            privateKey = PropertyCache.privateKey;
         }
         return decrypt(data,EncryptorUtil.getPrivateKeyFromString(privateKey,ALGORITHM,BouncyCastleProvider.PROVIDER_NAME));
     }

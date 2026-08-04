@@ -147,15 +147,21 @@ public class TenantInterceptor implements Interceptor {
                 executeSave(insertDocumentList, collection);
             }
 
-            List<MutablePair<Bson, Bson>> updatePairList = writeModelList.stream()
-                    .filter(writeModel -> writeModel instanceof UpdateManyModel)
-                    .map(writeModel -> new MutablePair<>(((UpdateManyModel<Document>) writeModel).getFilter(),
-                            ((UpdateManyModel<Document>) writeModel).getUpdate()))
-                    .collect(Collectors.toList());
-
-            if (CollUtil.isNotEmpty(updatePairList)) {
-                executeUpdate(updatePairList, collection);
-            }
+            writeModelList = writeModelList.stream().map(writeModel -> {
+                if (writeModel instanceof UpdateManyModel) {
+                    UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
+                    Bson filter = appendTenantFilter(updateManyModel.getFilter(), collection);
+                    if (updateManyModel.getUpdatePipeline() != null) {
+                        return new UpdateManyModel<Document>(filter, updateManyModel.getUpdatePipeline(),
+                                updateManyModel.getOptions());
+                    }
+                    if (updateManyModel.getUpdate() != null) {
+                        return new UpdateManyModel<Document>(filter, updateManyModel.getUpdate(),
+                                updateManyModel.getOptions());
+                    }
+                }
+                return writeModel;
+            }).collect(Collectors.toList());
         }
         return writeModelList;
     }
@@ -168,7 +174,7 @@ public class TenantInterceptor implements Interceptor {
         if (!isTenantIgnored(collection, tenantHandler)) {
             BsonDocument filterDoc = BsonUtil.asBsonDocument(filter);
             if (!filterDoc.containsKey(tenantHandler.getTenantIdColumn())) {
-                BsonUtil.addToMap(filter, tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
+                filter = (T) BsonUtil.addToMap(filter, tenantHandler.getTenantIdColumn(), tenantHandler.getTenantId());
             }
         }
         return filter;

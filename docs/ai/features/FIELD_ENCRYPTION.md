@@ -1,6 +1,6 @@
 # 字段加密
 
-> 审计日期：2026-08-02。本文基于当前 `mongo-plus-annotation` 与 `mongo-plus-core` 源码；BASE64 是编码，MD5/SM3 是不可逆摘要。映射总链见 [ENTITY_MAPPING.md](../architecture/ENTITY_MAPPING.md)，未运行项见 [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md)。
+> 审计日期：2026-08-04。本文基于当前 `mongo-plus-annotation` 与 `mongo-plus-core` 源码；BASE64 是编码，MD5/SM3 是不可逆摘要。映射总链见 [ENTITY_MAPPING.md](../architecture/ENTITY_MAPPING.md)，未运行项见 [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md)。
 
 ## 入口、注册和全局状态
 
@@ -18,8 +18,8 @@ core 的静态 `HandlerCache` 固定注册写 `TypeHandlerFieldHandler → Encry
 | `MD5_16` | `MD5Example(16)`；MD5 hex 的 `[8,24)`，16 个小写 hex 字符 | 不用 key，无 salt/IV | 不可逆摘要；确定，可等值查询但有碰撞且不适合密码保护；读取原样返回摘要 |
 | `MD5_32` | `MD5Example()`；32 个小写 hex 字符 | 不用 key，无 salt/IV | 不可逆摘要；确定，可等值查询但有碰撞且不适合密码保护；读取原样返回摘要 |
 | `AES` | `AESExample`；password 的平台字符经 SHA-256 后取 16 bytes，密文小写 hex | 注解 key 空时回退 `PropertyCache.key`；代码不提供 IV，`Cipher("AES")` 的实际模式由 provider 决定 | 可逆；当前 provider 下是否稳定及 transformation 需运行确认，不能作为跨 provider 查询契约 |
-| `RSA` | `RSAExample`；X.509 hex 公钥加密，密文小写 hex；预期 PKCS#8 hex 私钥解密 | 注解 publicKey 空时回退全局 publicKey；无显式 salt/IV/分段 | 算法可逆，但框架解密接线缺陷见下；padding、随机性、长度均由 `Cipher("RSA")` provider 决定，未运行前不承诺确定性查询 |
-| `SM2` | `SM2Example`；BC `Cipher("SM2")`，X.509/PKCS#8 EC key，密文 hex | 注解 publicKey 空时回退全局 publicKey；无显式 salt/IV | 算法可逆，但框架解密接线缺陷见下；provider 内部随机性未测试，不承诺确定性查询 |
+| `RSA` | `RSAExample`；X.509 hex 公钥加密，密文小写 hex；PKCS#8 hex 私钥解密 | 注解 publicKey/privateKey 为空时分别回退全局 publicKey/privateKey；无显式 salt/IV/分段 | 算法可逆；padding、随机性、长度均由 `Cipher("RSA")` provider 决定，未运行完整矩阵前不承诺确定性查询 |
+| `SM2` | `SM2Example`；BC `Cipher("SM2")`，X.509/PKCS#8 EC key，密文 hex | 注解 publicKey/privateKey 为空时分别回退全局 publicKey/privateKey；无显式 salt/IV | 算法可逆；provider 内部随机性未测试，不承诺确定性查询 |
 | `SM3` | `SM3Example`；BC SM3，64 个小写 hex 字符 | 不用 key，无 salt/IV | 不可逆摘要；确定，可等值查询但有碰撞语义；读取原样返回摘要 |
 | `SM4` | `SM4Example`；BC `SM4/ECB/PKCS5Padding`，hex key、hex 密文 | 注解 key 空时错误回退 `PropertyCache.publicKey`；ECB，无 IV | 可逆且从代码结构看同 key/明文确定，但 provider 可用性和 key 长度需测试后才作为查询契约 |
 | `PBEWithMD5AndDES` | `PBEExample`；JCE 同名算法，salt+cipher 小写 hex | 注解 key 空时加密回退全局 key；每次随机 8-byte salt，1000 次，无独立 IV | 可逆；随机 salt 使同明文密文不稳定，不能用重新加密值做等值查询 |
@@ -27,10 +27,9 @@ core 的静态 `HandlerCache` 固定注册写 `TypeHandlerFieldHandler → Encry
 | `PBEWithSHA1AndDESede` | 同上 | 同上 | 同上；具体 JDK/provider 可用性待测试 |
 | `PBEWithSHA1AndRC2_40` | 同上 | 同上 | 同上；具体 JDK/provider 可用性待测试 |
 
-### 已确认密钥缺陷
+### 密钥接线状态与剩余缺陷
 
-- `EncryptorUtil.decrypt` 将 `fieldEncrypt.publicKey()` 作为 `Encryptor.decrypt` 第三个参数，完全不读取注解 `privateKey()`。
-- RSA/SM2 decrypt 收到空值时又回退 `PropertyCache.publicKey`，并把它按 PKCS#8 私钥解析；全局 `PropertyCache.privateKey` 也没有进入该内置调用链。正常的“公钥加密、匹配私钥解密”配置无法闭合，这是已确认缺陷；不能简化成“公钥可反向解密”。
+- **已修复：** `EncryptorUtil.decrypt` 现在把注解 `privateKey()` 作为第三个参数；RSA/SM2 收到空私钥时回退 `PropertyCache.privateKey`。公钥加密、匹配私钥解密的三处接线由独立测试分别覆盖，不能简化成“公钥可反向解密”。
 - PBE encrypt 的空注解 key 回退 `PropertyCache.key`，decrypt 没有相同回退，直接 `key.toCharArray()`；因此仅配置全局 key 时，加密可成功而读取进入异常回退，这是已确认缺陷。
 - SM4 的空 key 回退 `PropertyCache.publicKey` 而非 `PropertyCache.key`。这是已确认配置接线缺陷；是否恰好能工作取决于该值是否是合法 SM4 key。
 
@@ -77,6 +76,6 @@ Document raw value
 
 ## 验证清单与关键源码
 
-覆盖全部算法、null/空/非 String/嵌套集合、TypeHandler/DBRef/Auto Fill、各 CRUD、Wrapper/BSON/bulk/upsert、Lambda/字符串条件、坏 key/密文、DTO/聚合/Map/Document、多上下文/并发。尤其固定异常吞掉、private-key、PBE 空 key、provider 与长度行为。
+独立 `mongo-plus-test` 已在 JDK 17 下覆盖注解 privateKey 传递、RSA 全局私钥回退和 BC SM2 全局私钥回退，3 项均通过；这不是 MongoDB 集成或 Java 8/17/21 provider 兼容矩阵证据。后续仍需覆盖全部算法、null/空/非 String/嵌套集合、TypeHandler/DBRef/Auto Fill、各 CRUD、Wrapper/BSON/bulk/upsert、Lambda/字符串条件、坏 key/密文、DTO/聚合/Map/Document、多上下文/并发，尤其固定异常吞掉、PBE 空 key、provider 与长度行为。
 
 关键源码：`FieldEncrypt.java`、`AlgorithmEnum.java`；`EncryptFieldHandler`、`FieldEncryptApply`、`EncryptorConditionHandler`；`EncryptorUtil`、`encryptor/*Example`、`PropertyCache`、`HandlerCache`；三集成的 `MongoEncryptorProperty`。

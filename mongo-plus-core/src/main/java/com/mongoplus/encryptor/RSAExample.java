@@ -58,7 +58,7 @@ public class RSAExample implements Encryptor {
     @Override
     public String decrypt(String encryptedData, String key, String privateKey) throws Exception {
         if (StringUtils.isBlank(privateKey)){
-            privateKey = PropertyCache.publicKey;
+            privateKey = PropertyCache.privateKey;
         }
         return decrypt(encryptedData,getPrivateKeyFromString(privateKey,ALGORITHM));
     }

@@ -1,6 +1,6 @@
 # 多租户
 
-> 审计日期：2026-08-02。结论来自当前 `mongo-plus-core`、Boot 3/4 starter 与 Solon plugin 源码。执行代理见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)，条件构造见 [QUERY_WRAPPER.md](../architecture/QUERY_WRAPPER.md)。
+> 审计日期：2026-08-04。结论来自当前 `mongo-plus-core`、Boot 3/4 starter 与 Solon plugin 源码。执行代理见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)，条件构造见 [QUERY_WRAPPER.md](../architecture/QUERY_WRAPPER.md)。
 
 ## 公开入口与注册
 
@@ -22,10 +22,10 @@ Boot 3、Boot 4 都用 `ApplicationContext.getBean(TenantHandler.class)`，Solon
 | remove/delete | 增强 delete filter；若逻辑删除启用，增强后的 filter 随后在高级链转 update。 |
 | count | 增强 filter；`estimatedDocumentCount` 没有参数策略且 Mapper 在有租户拦截器时禁止走快速估算。 |
 | aggregate | 已有 `$match` 时给每一个 match document `putIfAbsent` 租户 key；否则在 pipeline 首位插入 match。 |
-| bulkWrite | InsertOne 会原地增强其 Document。UpdateMany 只把 filter/update 复制到临时 pair 并修改 pair，既不修改原 model 也不重建返回列表，因此 **Tenant filter 实际不会回写**；UpdateOne/DeleteOne/DeleteMany/ReplaceOne 也不处理。 |
+| bulkWrite | InsertOne 原地增强其 Document。UpdateMany 对 BSON update 与 pipeline update 都重建 model，把增强后的 filter 写入返回列表，并保留原顺序、update/pipeline 引用和 options；UpdateOne/DeleteOne/DeleteMany/ReplaceOne 仍不处理。 |
 | replace、index | 没有租户专用证据；索引不进入普通参数策略。 |
 
-`appendTenantFilter` 只检查 BSON 文档顶层是否已有租户 key。用户显式顶层条件优先，框架既不覆盖也不校验值；租户条件藏在 `$and`、`$or`、`$not`、`$expr` 内时仍会再追加顶层条件，因此最终语义是与整个用户表达式做隐式 AND，而不是改写内部节点。重复经过拦截器时，首次顶层 key 会阻止再次追加；多个不同 `TenantInterceptor` 使用不同列则都会追加。
+`appendTenantFilter` 只检查 BSON 文档顶层是否已有租户 key。用户显式顶层条件优先，框架既不覆盖也不校验值；租户条件藏在 `$and`、`$or`、`$not`、`$expr` 内时仍会再追加顶层条件，因此最终语义是与整个用户表达式做隐式 AND，而不是改写内部节点。重复经过拦截器时，首次顶层 key 会阻止再次追加；多个不同 `TenantInterceptor` 使用不同列则都会追加。对于非 `Document/BSONObject` 的 Driver BSON，`BsonUtil.addToMap` 会产生新的 `BasicDBObject`，当前实现会接住并返回该对象，不再丢失转换结果。
 
 Handler 在每次受支持操作的普通参数策略阶段调用。`getTenantId()` 返回 Java null 时，insert 的 `Document.putIfAbsent` 可保存 null；filter/aggregate 路径要求 `BsonValue`，后续 BSON 构造或编码的准确失败点需运行验证。Handler 抛异常直接中止，普通 after 不运行。字段名 null 时 Document/BsonDocument 路径可能失败，空字符串则继续下传；框架没有统一校验，准确异常需按操作与 Driver 版本测试。
 
@@ -47,7 +47,9 @@ Map/Document 插入没有实体 Auto Fill/字段注解，但 Tenant 仍可对最
 
 ## 风险与最低测试
 
-已确认缺口：bulk insert 仅覆盖 InsertOne，UpdateMany 的临时 pair 修改不回写 model，其余 model 不覆盖；batch insert 以首文档决定全部是否跳过；update 可主动修改租户列；无租户值/列校验；ThreadLocal 忽略不支持嵌套恢复；全局链重复注册不去重。
+已确认缺口：bulk insert 仅覆盖 InsertOne，bulk update 仅覆盖 UpdateMany，其余 model 不覆盖；batch insert 以首文档决定全部是否跳过；update 可主动修改租户列；无租户值/列校验；ThreadLocal 忽略不支持嵌套恢复；全局链重复注册不去重。UpdateMany filter 未写回已于 2026-08-04 修复。
+
+独立 `mongo-plus-test` 的 `TenantInterceptorBulkWriteTest` 覆盖 BSON update 与 pipeline update：确认重建后的 model 带 tenant filter，并保持混合 model 顺序、原 update/pipeline 和 `UpdateOptions`；2 项已运行通过。测试直接调用拦截器且不连接 MongoDB，ExecutorProxy 参数回写、Default/Session Driver 命令和其他 bulk model 仍属于集成验证范围。
 
 至少验证 query、insert/batch、update/delete/count/aggregate、upsert/replace、各种 bulk model、显式租户条件及 AND/OR/NOT/EXPR、null Handler、IgnoreTenant 代理边界/嵌套/并发、Map/Document、动态集合、多数据源、事务、分片，以及 Boot 3/4/Solon 多 Bean和重复初始化。测试策略见 [TESTING.md](../TESTING.md)，未决项见 [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md)。
 

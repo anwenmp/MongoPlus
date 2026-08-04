@@ -53,7 +53,7 @@ public class EncryptorUtil {
         if (value != null) {
             try {
                 Encryptor encryptor = getEncryptor(fieldEncrypt);
-                value = encryptor.decrypt(String.valueOf(value), fieldEncrypt.key(), fieldEncrypt.publicKey());
+                value = encryptor.decrypt(String.valueOf(value), fieldEncrypt.key(), fieldEncrypt.privateKey());
             } catch (Exception e) {
                 log.error(fieldEncrypt.algorithm().name() + " decryption failed due to: {}", e.getMessage(), e);
             }
