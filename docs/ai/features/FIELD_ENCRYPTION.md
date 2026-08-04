@@ -30,7 +30,7 @@ core 的静态 `HandlerCache` 固定注册写 `TypeHandlerFieldHandler → Encry
 ### 密钥接线状态与剩余缺陷
 
 - **已修复：** `EncryptorUtil.decrypt` 现在把注解 `privateKey()` 作为第三个参数；RSA/SM2 收到空私钥时回退 `PropertyCache.privateKey`。公钥加密、匹配私钥解密的三处接线由独立测试分别覆盖，不能简化成“公钥可反向解密”。
-- PBE encrypt 的空注解 key 回退 `PropertyCache.key`，decrypt 没有相同回退，直接 `key.toCharArray()`；因此仅配置全局 key 时，加密可成功而读取进入异常回退，这是已确认缺陷。
+- **已修复：** PBE encrypt/decrypt 在注解 key 为空时均回退 `PropertyCache.key`；仅配置全局 key 的 `PBEWithMD5AndDES` 加解密往返由独立回归测试覆盖。
 - SM4 的空 key 回退 `PropertyCache.publicKey` 而非 `PropertyCache.key`。这是已确认配置接线缺陷；是否恰好能工作取决于该值是否是合法 SM4 key。
 
 null 不调用算法；空字符串会调用。数字、日期、byte[]、集合/Map/对象若字段本身带注解，会整体字符串化，不逐元素处理。嵌套实体自己的注解仅在默认递归映射实际进入该实体时生效；给容器字段本身加注解不会递归逐项加密。
@@ -76,6 +76,6 @@ Document raw value
 
 ## 验证清单与关键源码
 
-独立 `mongo-plus-test` 已在 JDK 17 下覆盖注解 privateKey 传递、RSA 全局私钥回退和 BC SM2 全局私钥回退，3 项均通过；这不是 MongoDB 集成或 Java 8/17/21 provider 兼容矩阵证据。后续仍需覆盖全部算法、null/空/非 String/嵌套集合、TypeHandler/DBRef/Auto Fill、各 CRUD、Wrapper/BSON/bulk/upsert、Lambda/字符串条件、坏 key/密文、DTO/聚合/Map/Document、多上下文/并发，尤其固定异常吞掉、PBE 空 key、provider 与长度行为。
+独立 `mongo-plus-test` 已在 JDK 17 下覆盖注解 privateKey 传递、RSA 全局私钥回退、BC SM2 全局私钥回退以及 PBE 全局 key 回退，4 项均通过；这不是 MongoDB 集成或 Java 8/17/21 provider 兼容矩阵证据。后续仍需覆盖全部算法、null/空/非 String/嵌套集合、TypeHandler/DBRef/Auto Fill、各 CRUD、Wrapper/BSON/bulk/upsert、Lambda/字符串条件、坏 key/密文、DTO/聚合/Map/Document、多上下文/并发，尤其固定异常吞掉、PBE provider 与长度行为。
 
 关键源码：`FieldEncrypt.java`、`AlgorithmEnum.java`；`EncryptFieldHandler`、`FieldEncryptApply`、`EncryptorConditionHandler`；`EncryptorUtil`、`encryptor/*Example`、`PropertyCache`、`HandlerCache`；三集成的 `MongoEncryptorProperty`。
