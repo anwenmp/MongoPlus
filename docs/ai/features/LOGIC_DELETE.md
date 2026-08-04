@@ -1,6 +1,6 @@
 # 逻辑删除
 
-> 审计日期：2026-08-02。查询增强、删除转换与默认值填充是三段实现，不能概括为单个拦截器。执行链见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)。
+> 审计日期：2026-08-04。查询增强、删除转换与默认值填充是三段实现，不能概括为单个拦截器。执行链见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)。
 
 ## 元数据与注册
 
@@ -35,9 +35,9 @@ SessionExecute 与普通路径共享外层代理和高级转换；`LogicRemove` 
 
 Solon 的 `MongoLogicIgnoreAspect` 实现也只读取 `inv.method()` 的方法注解，但 `XPluginAuto.start` 只 `beanMake(MongoLogicIgnoreAspect.class)`，没有像事务注解那样调用 `beanInterceptorAdd(IgnoreLogic.class, ...)`。仅凭当前仓库源码不能确认该 Interceptor Bean 会自动绑定到 `@IgnoreLogic`；所以不能写成 Boot 3、Boot 4、Solon 已确认一致，Solon 是否实际进入该拦截器必须运行启动测试。其实现还在无方法注解时返回 `Optional.empty()`、有注解时用 `Optional.map` 包装结果，并把被调用异常包成 `RuntimeException`；若它被全局挂接，返回/异常语义也需测试。
 
-Spring Logic aspect `@Order(0)`，Tenant aspect `@Order(1)`；同时标注时 Logic 外层先设上下文，Tenant 内层再设。两者相互独立。已确认缺陷：`executeUpdate(MutablePair)` 未检查 Ignore，list update 逐项调用它，所以所有进入普通 update 参数策略的入口（updateById、Entity + Wrapper、纯 Wrapper/BSON 的 update one/many，以及直接 Execute list/single update）仍会追加未删除条件。bulkWrite 有独立 Ignore 检查，不受此缺陷影响。
+Spring Logic aspect `@Order(0)`，Tenant aspect `@Order(1)`；同时标注时 Logic 外层先设上下文，Tenant 内层再设。两者相互独立。`executeUpdate(MutablePair)` 现与 query/count/remove/aggregate/bulk 一样先检查 Ignore；list update 逐项委托该入口，因此 updateById、Entity + Wrapper、纯 Wrapper/BSON 的 update one/many，以及直接 Execute list/single update 在 ignore 状态下都会原样保留 filter。bulkWrite 的独立 Ignore 分支保持不变。
 
-该缺陷只影响 **update 的逻辑删除过滤**。query/count/aggregate/bulk/remove 普通分支都检查 Ignore；高级 `LogicRemove.logic` 也检查 Ignore，Ignore 为 true 时继续原 delete，因此已生效的 `@IgnoreLogic`/`withoutLogic` 删除路径会物理删除，而不是仍被转换为逻辑 update。Boot 3/4 可由切面绑定和控制流确认；Solon 要先验证切面是否实际绑定。
+本次修复只改变 **update 的逻辑删除过滤**。query/count/aggregate/bulk/remove 普通分支原本就检查 Ignore；高级 `LogicRemove.logic` 也检查 Ignore，Ignore 为 true 时继续原 delete，因此已生效的 `@IgnoreLogic`/`withoutLogic` 删除路径仍会物理删除，而不是被转换为逻辑 update。Boot 3/4 可由切面绑定和控制流确认；Solon 要先验证切面是否实际绑定。
 
 ## Registry、动态集合与无实体模式
 
@@ -47,7 +47,9 @@ Spring Logic aspect `@Order(0)`，Tenant aspect `@Order(1)`；同时标注时 Lo
 
 ## 风险与测试
 
-已确认缺陷/边界：IgnoreLogic 不作用于普通 update 分支；aggregate 无 match 时过滤放末尾，可能改变 `$group` 等 pipeline 的语义甚至字段可用性；bulk 只覆盖 UpdateMany；逻辑删除不触发 updateFill；静态 HashMap/全局开关、多上下文污染；Boot 3/4 类级 Ignore 注解不被切面匹配。Solon Ignore 的注解绑定未在启动源码中找到，保持待运行验证，不与 Spring 结论合并。
+已确认边界：aggregate 无 match 时过滤放末尾，可能改变 `$group` 等 pipeline 的语义甚至字段可用性；bulk 只覆盖 UpdateMany；逻辑删除不触发 updateFill；静态 HashMap/全局开关、多上下文污染；Boot 3/4 类级 Ignore 注解不被切面匹配。Solon Ignore 的注解绑定未在启动源码中找到，保持待运行验证，不与 Spring 结论合并。普通 update 的 Ignore 漏检已于 2026-08-04 修复。
+
+独立 `mongo-plus-test` 的 `CollectionLogiceInterceptorIgnoreUpdateTest` 使用会在元数据访问时失败的 collection 代理，确认 ignore 状态下单 pair 与多 pair update 均在读取 namespace 前短路，且 filter 对象保持原样；2 项回归已运行通过。该测试不连接 MongoDB，实体/Wrapper/BSON 上层入口及真实 Driver 命令仍属于集成验证范围。
 
 至少验证字段类型/默认值/多个字段、query/page/count/aggregate、update 已删除记录、逻辑与物理删除、重复删除和返回数、IgnoreLogic 方法/类/内部调用、Tenant 顺序、所有 bulk model、动态集合/跨数据源 registry、Map/Document、事务、乐观锁、唯一索引和分片。测试策略见 [TESTING.md](../TESTING.md)，未决项见 [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md)。
 

@@ -157,6 +157,9 @@ public class CollectionLogiceInterceptor implements Interceptor {
 
     @Override
     public MutablePair<Bson, Bson> executeUpdate(MutablePair<Bson, Bson> updatePair, MongoCollection<Document> collection) {
+        if (LogicManager.isIgnoreLogic()) {
+            return updatePair;
+        }
         Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
         if (LogicDeleteHandler.close() || Objects.isNull(clazz)) {
             return updatePair;

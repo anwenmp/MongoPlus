@@ -93,4 +93,4 @@ sequenceDiagram
 
 ## 测试证据与缺口
 
-仓库已在 `mongo-plus-sensitive-word` 增加 FieldHandler 转换器级测试，覆盖 order、最新值传递、旧实现兼容及敏感词组合。ExecutorProxy、MetaObjectHandler、TenantHandler 等仍无覆盖测试。缺口：普通 before→参数策略→after 与异常；高级 order/嵌套、短路/discontinue；两链组合；动态集合+租户+逻辑删除；其他转换边界；Listener 三阶段/异常；事务、异步、分片、多数据源组合。
+仓库已在 `mongo-plus-sensitive-word` 增加 FieldHandler 转换器级测试；reactor 外 `mongo-plus-test` 还以 2 项单元回归覆盖 `CollectionLogiceInterceptor` 在 ignore 状态下的单 pair/多 pair update 早期短路。ExecutorProxy 全链、MetaObjectHandler、TenantHandler 等仍无完整覆盖。缺口：普通 before→参数策略→after 与异常；高级 order/嵌套、短路/discontinue；两链组合；动态集合+租户+逻辑删除；其他转换边界；Listener 三阶段/异常；事务、异步、分片、多数据源组合。

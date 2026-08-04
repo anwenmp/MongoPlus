@@ -1,12 +1,12 @@
 # 开放问题
 
-> 收口日期：2026-08-02。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
+> 收口日期：2026-08-04。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
 
-## A. 已确认缺陷（8 个未修复，3 个已修复）
+## A. 已确认缺陷（7 个未修复，4 个已修复）
 
 1. **已修复：事务结束未关闭 session：** 2026-08-02 将最外层 cleanup 改为正常 commit/abort 后也无条件 `ClientSession.close()`；参与式内层不提前清理。[事务](features/TRANSACTION.md)
 2. **已修复：Spring TransactionManager 泄漏两套 session：** 2026-08-02 改为 Spring transaction object、resource binding 和执行器上下文共享同一 status/session，并补充 `REQUIRED` rollback-only 与 `REQUIRES_NEW` 回归测试。[事务](features/TRANSACTION.md)
-3. **`@IgnoreLogic` update 漏检：** `CollectionLogiceInterceptor.executeUpdate` 未检查 ignore，影响实体、Wrapper、BSON 的单条和多 pair update；bulk 和高级删除转换走独立分支。[Logic Delete](features/LOGIC_DELETE.md)
+3. **已修复：`@IgnoreLogic` update 漏检：** 2026-08-04 在 `CollectionLogiceInterceptor.executeUpdate(MutablePair)` 访问 collection 元数据前增加 ignore 短路，单 pair 与委托它的多 pair update 均不再追加逻辑未删除条件；bulk 和高级删除转换仍按各自既有分支处理。独立 `mongo-plus-test` 新增 2 项回归。[Logic Delete](features/LOGIC_DELETE.md)
 4. **Tenant `UpdateManyModel` filter 未写回：** bulk 分支只修改临时 pair，未重建或修改原 model；InsertOne 会原地修改，其余 model 尚需运行覆盖。[Tenant](features/TENANT.md)
 5. **已修复：LOCAL Sensitive Word 覆盖其他字段处理：** 2026-08-02 在 core FieldHandler 契约、`MappingMongoConverter.processFields` 与 sensitive-word Handler 范围内修复：写 Handler 按 order 执行并传递最新值，null 不替换累计值，LOCAL 最先检查且未拒绝时返回 null。回归测试位于 `mongo-plus-sensitive-word/src/test/java/com/mongoplus/handler/SensitiveWordFieldHandlerTest.java`，覆盖 order、最新值、旧实现兼容、TypeHandler→Encrypt、DBRef、拒绝和明文检查。[Sensitive Word](features/SENSITIVE_WORD.md)
 6. **RSA/SM2 private key 接线错误：** decrypt 传入注解 `publicKey`，空值又回退全局 `publicKey`，内置解密路径不读取 `privateKey`。[Encryption](features/FIELD_ENCRYPTION.md)
