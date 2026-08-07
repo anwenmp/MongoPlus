@@ -103,7 +103,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 - 枚举写：MappingCache 内置 `EnumMappingStrategy` 优先于 simple fallback；查询条件另由 `AbstractCondition` 使用 `@EnumValue(valueStore=true)` 字段，否则 enum name。读由 `EnumConversionStrategy`。三处行为必须组合测试。
 - 时间/数字：读缓存显式包含整数、浮点、BigDecimal/BigInteger、Date、Instant、LocalDate/Time/DateTime 等 ConversionStrategy；写侧除 BigInteger MappingStrategy 外主要依赖 simple type holder/Driver codec。不能由读缓存反推写格式。
 - 集合/数组：写递归处理元素；byte[] 作为简单写特例保留。读集合按泛型递归，接口目标默认 `ArrayList`。
-- Map：实体字段 Map 按 value 泛型转换。直接调用 `MongoConverter.read/readDocument(..., Class<Map>)` 才会经 `convertDocument` 走 key 驼峰捷径；Mapper 的 Class 重载通常先包装成 `TypeReference`，聚合入口明确如此，并不走该捷径。`readInternal` 对 Map 又递归改用 `TypeReference<Map<String,Object>>`，仍命中 Map 分支且没有终止条件，所以 Mapper 的 `Class<Map>` 与显式 `TypeReference<Map<...>>` 读取均存在无限递归/`StackOverflowError` 缺陷。`Document.class` 在此分支前直接返回。
+- Map：实体字段 Map 按 value 泛型转换。直接调用 `MongoConverter.read/readDocument(..., Class<Map>)` 会经 `convertDocument` 走 key 驼峰捷径；Mapper 的 Class 重载通常先包装成 `TypeReference`，聚合入口明确如此。`AbstractMongoConverter` 的 Document 三参数 Map 分支调用的是两参数 `readInternal(Object, TypeReference)`，运行时分派到 `MappingMongoConverter`，再经 `handleMapType`/`convertMap` 完成转换；`Class<Map>` 与 `TypeReference<Map<...>>` 均不因此无限递归。`Document.class` 在该分支前直接返回原对象。
 - 泛型：`TypeReference` 保留参数化类型；裸类型退化为 Object。通配符、TypeVariable、GenericArrayType 在 `getRawClass` 中没有分支，标记为待验证/可能不支持。
 - ObjectId：保存 ID、字段注解、Lambda 查询 `_id` 以及 ConditionHandler 是不同转换点；修改其中之一需验证四条路径一致。
 
@@ -118,7 +118,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 实体模式由 `DefaultBaseMapperImpl`/`MongoMapperImpl` 解析类对应 namespace，使用 TypeInformation、字段注解、ID、自动填充、加密和泛型映射。Map 保存直接 `writeMapInternal`：无实体 ID 生成、自动填充或字段注解；插入后只在缺少 `_id` 时向 Map 回填 Driver 生成值。
 
-显式 collection 的无实体模式由 `CollectionManager` 关联 `UnClassCollection`。逻辑删除和乐观锁等依赖 registry 反查真实实体的能力可能跳过或不可用。只有直接 converter 的 Class 重载能对 Map 调用 `convertKeysToCamelCase`；Mapper 将 Class 包装成 TypeReference 的入口与显式 TypeReference 都会进入上述递归缺陷。直接返回原始 `Document` 则可用。
+显式 collection 的无实体模式由 `CollectionManager` 关联 `UnClassCollection`。逻辑删除和乐观锁等依赖 registry 反查真实实体的能力可能跳过或不可用。直接 converter 的 Class 重载会对 Map 调用 `convertKeysToCamelCase`；Mapper 的 Class/TypeReference Map 入口改由 `MappingMongoConverter` 的 Map 转换逻辑处理。直接返回原始 `Document` 则可用。
 
 ## Driver 兼容代码与风险
 

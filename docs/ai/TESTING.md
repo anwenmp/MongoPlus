@@ -4,7 +4,7 @@
 
 ## 当前测试事实
 
-根 reactor 当前只有 `mongo-plus-sensitive-word` 包含 tracked 测试源码：`SensitiveWordFieldHandlerTest` 使用 JUnit 4.13.2，以 `MappingMongoConverter` 生成的 `Document` 验证 FieldHandler order、最新值传递、旧实现兼容、TypeHandler→Encrypt，以及 LOCAL 与 Encrypt/TypeHandler/DBRef 的组合，不需要真实 MongoDB。`mongo-plus-core/src/test` 目录为空，其余模块没有正式测试源码。
+根 reactor 的 `mongo-plus-sensitive-word` 包含 `SensitiveWordFieldHandlerTest`；`mongo-plus-core` 也包含 JUnit 4.13.2 转换器/乐观锁回归：`MappingMongoConverterMapReadTest` 与 `OptimisticLockerInterceptorTest`。后者以 BSON 结构验证 `$inc` 合并、版本增量覆盖和无版本跳过，不需要真实 MongoDB；其余模块没有正式测试源码。
 
 仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在六个测试类：两个 Wrapper BSON 测试、事务测试、Logic Ignore update 测试、Tenant bulk UpdateMany 测试和加密私钥接线测试。加密测试覆盖注解 privateKey 传递、RSA/SM2 全局 privateKey 回退；BC Provider 仅作为该独立工程的 test 依赖，主 reactor 未引入测试依赖。它不是 reactor 测试保障，状态变化后应重新确认。
 
@@ -34,6 +34,7 @@ reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `c
 - `mvn -pl mongo-plus-boot-starter,mongo-plus-boot4-starter -am dependency:tree "-Dincludes=org.springframework:*,org.springframework.boot:*"`：依赖树解析成功；这是依赖解析证据，不是两个 starter 的编译、启动或行为测试。
 - `mvn -pl mongo-plus-sensitive-word -am "-Dtest=SensitiveWordFieldHandlerTest" "-Dsurefire.failIfNoSpecifiedTests=false" test`：管线改造前 8 个测试中新增的 order 与最新值 2 个断言失败；改造后扩展为 9 个测试并全部通过。期间一次修复后构建因遗漏 `Collectors` import 在 core 编译失败，补齐后成功。
 - `mvn -pl mongo-plus-sensitive-word -am test`：根、annotation、core、sensitive-word 均成功；sensitive-word 9 个测试通过。
+- `mvn -pl mongo-plus-core -am "-Dtest=OptimisticLockerInterceptorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test`：2026-08-05 执行，4 项乐观锁 BSON 回归通过；随后 `mvn -pl mongo-plus-core -am test` 执行，core 共 7 项测试通过。
 
 **本轮没有执行全 reactor `test`、`package`、`verify`、Boot/Solon 启动或真实 MongoDB 行为验证。sensitive-word 局部测试只固定当前 JDK 17 下转换器级 LOCAL 行为，不扩张为 JDK 8、Driver、MongoDB、GLOBAL 或框架启动兼容结论。**
 

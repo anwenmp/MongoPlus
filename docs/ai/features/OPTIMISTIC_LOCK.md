@@ -35,7 +35,7 @@
  -> 只从 update.$set 读取当前版本
  -> filter 加 version = 当前版本
  -> 从 $set 删除 version
- -> update 顶层 putAll {$inc: {version: autoInc}}
+ -> 合并 $inc 内部字段并写入 {version: autoInc}
  -> DefaultExecute/SessionExecute -> Driver
  -> 可选 retry / updateFailException
  -> Mapper 将 UpdateResult 转为自身公开返回语义
@@ -43,7 +43,7 @@
 
 实体 `updateById` 先构建 `_id` Wrapper，再由 `writeByUpdate` 把实体当前版本写入 `$set`，因此可被乐观锁取得。Entity + Wrapper 同理。纯 Wrapper update、原始 BSON、逻辑删除转 update 若未在 `$set` 明确携带版本，首次执行 `autoVersion=false`：默认只记录 debug 并**不加版本条件、不加 `$inc`**；配置 `versionIsNullException` 才抛错。`$setOnInsert`、用户预置 `$inc.version`、filter 中已有版本都不是首次版本来源；replace 不在 `hitLock` 范围。
 
-改写不是安全的深合并。`BsonUtil.addAllToMap(updateBson, {$inc:{version:autoInc}})` 对常见 `Document`/`BasicDBObject` 是顶层 `putAll`，会用新的 `$inc` 整体覆盖用户原有 `$inc`，其中其他字段增量也会丢失。对既非 `Document` 也非 `BSONObject` 的原始 Bson，工具方法在局部新建 `BasicDBObject` 却不把替代对象写回 pair，filter/update 改写可能不生效；准确覆盖哪些 Driver Bson 实现需参数化测试。retry 在没有 `$set` 时即使能从 filter 推版本，随后 `removeFrom(setDocument, ...)` 仍会因 `setDocument == null` 失败。
+**已修复：** 2026-08-05 乐观锁不再以顶层 `putAll` 覆盖 `$inc`。它先保留已有 `$inc`，再向其内部写入当前 `autoInc` 的 version；没有 `$inc` 时新建，用户已有 `$inc.version` 时由乐观锁值覆盖，而其他增量、`$set` 其他字段和 `$unset`/`$push` 等顶层 operator 保留。`Document`/`BSONObject` 可原地改写；内嵌 `BsonDocument` 会转换为可写 BSON 后重新挂回可写父 update。对既非 `Document` 也非 `BSONObject` 的根 Bson，现有工具仍可能只在局部新建 `BasicDBObject` 而无法写回 pair，此边界未在本次扩展；准确覆盖哪些 Driver Bson 实现需参数化测试。retry 在没有 `$set` 时即使能从 filter 推版本，随后 `removeFrom(setDocument, ...)` 仍会因 `setDocument == null` 失败。
 
 `hitLock` 只覆盖 SAVE、SAVE_ONE、UPDATE、UPDATE_ONE、BULK_WRITE。replace/物理 remove 不命中；saveOrUpdate 最终走到的实际 save/update 分支决定。BulkWrite 仅处理 `InsertOneModel` 与 `UpdateManyModel`；`UpdateOneModel`、replace/delete model 不处理。Sharding 是否复用取决于最终请求是否仍经过这一全局高级链，分片结果与 retry 的组合无专门实现。
 
@@ -74,7 +74,7 @@
 
 ## 已确认缺陷、设计选择与运行风险
 
-已确认缺陷/高风险行为：只用 `getInteger`；缺少版本时默认静默绕过；冲突只用 `modifiedCount` 判断；实体版本不回写；已有 `$inc` 被整体覆盖；非 Map 型 Bson 改写可能丢失；bulk 只覆盖两种 model；动态集合 registry 可能使锁静默跳过；默认逻辑删除因不携带版本而绕过锁。
+已确认缺陷/高风险行为：只用 `getInteger`；缺少版本时默认静默绕过；冲突只用 `modifiedCount` 判断；实体版本不回写；非 Map 型 Bson 改写可能丢失；bulk 只覆盖两种 model；动态集合 registry 可能使锁静默跳过；默认逻辑删除因不携带版本而绕过锁。
 
 当前设计选择：默认手工注册；初始版本 0；版本以 `$inc` 增长；允许用户配置增量、异常和 Retry；没有专用 Ignore。
 
@@ -82,7 +82,9 @@
 
 ## 测试清单
 
-至少补：updateById 成功及实体不回写；版本冲突；null/Long/Short/BigInteger；重命名版本字段；用户显式版本；updateFill/TypeHandler/加密；matched=0 与 modified=0；Driver 异常；Tenant/Logic/Dynamic；事务回滚；Map/Document；BulkWrite 的 InsertOne/UpdateMany/UpdateOne；replace/remove；retry；Sharding；Boot 3/4/Solon 注册、重复注册和同 order。
+`../../../mongo-plus-test/src/test/java/com/mongoplus/mongoplus/interceptor/business/OptimisticLockerInterceptorTest.java` 已以 BSON 结构断言覆盖：保留用户 `$inc`、缺省 `$inc` 创建、用户 `$inc.version` 覆盖、保留 `$set` 其他字段及 `$unset`/`$push`、缺少 `$set.version` 时跳过。2026-08-05 实际执行 `mvn -pl mongo-plus-core -am "-Dtest=OptimisticLockerInterceptorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test` 通过。
+
+仍至少补：updateById 成功及实体不回写；版本冲突；null/Long/Short/BigInteger；重命名版本字段；用户显式版本；updateFill/TypeHandler/加密；matched=0 与 modified=0；Driver 异常；Tenant/Logic/Dynamic；事务回滚；Map/Document；BulkWrite 的 InsertOne/UpdateMany/UpdateOne；replace/remove；retry；Sharding；Boot 3/4/Solon 注册、重复注册和同 order。
 
 ## 关键源码
 

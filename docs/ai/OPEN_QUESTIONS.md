@@ -2,7 +2,7 @@
 
 > 收口日期：2026-08-04。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
 
-## A. 已确认缺陷（4 个未修复，7 个已修复）
+## A. 已确认缺陷（2 个未修复，8 个已修复）
 
 1. **已修复：事务结束未关闭 session：** 2026-08-02 将最外层 cleanup 改为正常 commit/abort 后也无条件 `ClientSession.close()`；参与式内层不提前清理。[事务](features/TRANSACTION.md)
 2. **已修复：Spring TransactionManager 泄漏两套 session：** 2026-08-02 改为 Spring transaction object、resource binding 和执行器上下文共享同一 status/session，并补充 `REQUIRED` rollback-only 与 `REQUIRES_NEW` 回归测试。[事务](features/TRANSACTION.md)
@@ -11,10 +11,9 @@
 5. **已修复：LOCAL Sensitive Word 覆盖其他字段处理：** 2026-08-02 在 core FieldHandler 契约、`MappingMongoConverter.processFields` 与 sensitive-word Handler 范围内修复：写 Handler 按 order 执行并传递最新值，null 不替换累计值，LOCAL 最先检查且未拒绝时返回 null。回归测试位于 `mongo-plus-sensitive-word/src/test/java/com/mongoplus/handler/SensitiveWordFieldHandlerTest.java`，覆盖 order、最新值、旧实现兼容、TypeHandler→Encrypt、DBRef、拒绝和明文检查。[Sensitive Word](features/SENSITIVE_WORD.md)
 6. **已修复：RSA/SM2 private key 接线错误：** 2026-08-04 将注解解密参数改为 `privateKey`，并将 RSA/SM2 空私钥回退改为全局 `PropertyCache.privateKey`；公钥仍只用于加密。独立 `mongo-plus-test` 新增注解参数、RSA 与 SM2 共 3 项回归；JDK/provider 兼容矩阵仍归 C6 运行验证。[Encryption](features/FIELD_ENCRYPTION.md)
 7. **已修复：PBE 空 key 回退不一致：** 2026-08-04 为 `PBEExample.decrypt` 补齐与 encrypt 相同的全局 `PropertyCache.key` 回退；仅配置全局 key 的 `PBEWithMD5AndDES` 加解密往返回归已加入独立 `mongo-plus-test`。[Encryption](features/FIELD_ENCRYPTION.md)
-8. **Map 读取无限递归：** `Class<Map>` 与 `TypeReference<Map<...>>` 进入 Map 分支后以 raw Map 再次递归，没有终止条件；影响 Mapper 查询及聚合结果映射。[Entity Mapping](architecture/ENTITY_MAPPING.md) / [Aggregate](architecture/AGGREGATION.md)
-9. **Optimistic Lock 覆盖用户 `$inc`：** 拦截器向 update 顶层写入新的 `$inc`，覆盖整个原 `$inc`；部分非 Document/BSONObject Bson 的局部改写也未写回 pair。[Optimistic Lock](features/OPTIMISTIC_LOCK.md)
-10. **Backup 多页 JSON 尾逗号：** 非最后分页在数组末文档后保留逗号，生成非法 JSON；另有恢复只处理首个 entry、导出/恢复编码不一致等闭合缺口。[Backup / Restore](features/BACKUP_AND_RESTORE.md)
-11. **Recorder 上下文与 namespace 恢复缺陷：** 保存时改写 datasource/namespace 后不恢复；ThreadLocal 只在保存成功后移除，失败会残留；用户覆盖忽略列表还可破坏默认递归保护。[Data Change Recorder](features/DATA_CHANGE_RECORDER.md)
+8. **已修复：Optimistic Lock 覆盖用户 `$inc`：** 2026-08-05 不再以顶层 `$inc` `putAll` 覆盖原操作符，改为合并 `$inc` 内部字段并以当前 `autoInc` 覆盖用户的 version 增量；保留其他增量、`$set` 字段和其他 update operator。回归位于 `../../mongo-plus-test/src/test/java/com/mongoplus/mongoplus/interceptor/business/OptimisticLockerInterceptorTest.java`；实际执行 `mvn -pl mongo-plus-core -am "-Dtest=OptimisticLockerInterceptorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test` 通过。非 Document/BSONObject 根 Bson 的写回边界仍未解决。[Optimistic Lock](features/OPTIMISTIC_LOCK.md)
+9. **Backup 多页 JSON 尾逗号：** 非最后分页在数组末文档后保留逗号，生成非法 JSON；另有恢复只处理首个 entry、导出/恢复编码不一致等闭合缺口。[Backup / Restore](features/BACKUP_AND_RESTORE.md)
+10. **Recorder 上下文与 namespace 恢复缺陷：** 保存时改写 datasource/namespace 后不恢复；ThreadLocal 只在保存成功后移除，失败会残留；用户覆盖忽略列表还可破坏默认递归保护。[Data Change Recorder](features/DATA_CHANGE_RECORDER.md)
 
 这些缺陷的外部异常类型、资源增长、数据库最终命令或并发后果仍须用测试固定；静态证据不等于所有环境下已有相同运行外观。
 

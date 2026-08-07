@@ -18,6 +18,8 @@
 截至本次收口，只把实际执行结果记为已验证：
 
 - `codegraph status`：603 files、10,908 nodes、22,786 edges，`[OK] Index is up to date`。
+- 2026-08-04 在 `mongo-plus-core` 增加顶层 `Class<Map>`、`TypeReference<Map<String,Object>>` 与 `Document.class` 的转换器级回归；三参数 Document Map 分支会动态分派到 `MappingMongoConverter` 的实际 Map 转换逻辑，先前的无限递归记录已从开放问题移除。
+- 2026-08-05 修复乐观锁顶层 `$inc` 覆盖：`OptimisticLockerInterceptor` 改为合并 `$inc` 内部字段，`mongo-plus-core` 的 4 项定向乐观锁回归及该模块全部 7 项测试均通过；非 Document/BSONObject 根 Bson 的写回边界仍保留为未解决风险。
 - `mvn -version`、`java -version`、`where.exe java`、`where.exe mvn`、`mvn help:active-profiles` 和 `mvn validate` 的本机结果已执行核对；具体工具版本和 profile 输出属于本机快照，不扩张为兼容性保证。
 - 本次对允许修改的 Markdown 执行了相对链接、重复标题/anchor、尾随空白和 `git diff --check` 检查。
 

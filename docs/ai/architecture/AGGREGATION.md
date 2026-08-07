@@ -65,7 +65,7 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 
 执行器固定请求 `AggregateIterable<Document>`。`aggregateList` 调用 `MongoConverter.read(iterable, TypeReference)`；`aggregateOne` 调用 `readDocument`。实体/DTO 字段读取依次涉及 TypeHandler、ReadHandler（解密、脱敏、DBRef）及 ConversionStrategy；`_id`、嵌套对象、泛型集合、Map 规则与普通查询相同，详见 [ENTITY_MAPPING.md](ENTITY_MAPPING.md)。DTO 不要求登记 namespace；registry 用于 collection 相关增强，不用于目标 DTO 的实例化。
 
-聚合的 `Class<R>` 重载先统一包装成 `TypeReference<R>`，因此 `Class<Map>` 不会进入 `MongoConverter.read(MongoIterable, Class)` 的 key 驼峰捷径。`AbstractMongoConverter.readInternal` 对 Map raw type 又递归调用 `readInternal(document, new TypeReference<Map<String,Object>>())`，新引用仍解析为 Map，源码控制流没有终止条件；`Class<Map>` 与 `TypeReference<Map<...>>` 聚合入口都存在无限递归/`StackOverflowError` 缺陷，而不是两种可用但不同的映射语义。`Document.class` 在 Map 判断前直接返回原 Document，不受此缺陷影响。group 后字段名不匹配目标字段时不会自动推断；应 project/alias 或使用匹配 DTO。lookup 数组依赖目标字段的泛型信息。
+聚合的 `Class<R>` 重载先统一包装成 `TypeReference<R>`，因此 `Class<Map>` 不会进入 `MongoConverter.read(MongoIterable, Class)` 的 key 驼峰捷径。随后 `AbstractMongoConverter` 的 Document 三参数 Map 分支调用两参数 `readInternal(Object, TypeReference)`；该调用运行时分派到 `MappingMongoConverter` 的 Map 转换实现，再经 `handleMapType`/`convertMap` 返回结果。故 `Class<Map>`、`TypeReference<Map<...>>` 均可完成顶层 Map 转换，不存在此前记录的无限递归；`Document.class` 在 Map 判断前直接返回原 Document。group 后字段名不匹配目标字段时不会自动推断；应 project/alias 或使用匹配 DTO。lookup 数组依赖目标字段的泛型信息。
 
 Driver 返回 iterable 是惰性的，但 Mapper 在返回前立即通过 converter 消费；`out/merge` 通过 `toCollection()` 消费。源码没有显式 cursor close；异常直接传播。事务仅使 `SessionExecute` 调用带 `ClientSession` 的 aggregate，其他流程相同，见 [TRANSACTION.md](../features/TRANSACTION.md)。
 

@@ -59,7 +59,7 @@
 - 最小影响面：Aggregate Wrapper/stage → 可变 pipeline/options → Mapper → `DefaultExecute`/`SessionExecute` → `AggregateIterable<Document>` → DTO/Document/TypeReference 映射。
 - Tenant 在顶层插入 `$match`，Logic Delete 在顶层追加 `$match`；不要扩张为 lookup/facet/union 子 pipeline 自动增强。
 - Dynamic Collection 只替换主 collection；外部 collection、跨库/跨数据源 lookup 需单独设计和验证。
-- 同时覆盖 stage 顺序、wrapper 复用、session/非 session、DTO、`Document`、Map。当前 `Class<Map>`/`TypeReference<Map<...>>` 是已确认递归缺陷，见 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md)。
+- 同时覆盖 stage 顺序、wrapper 复用、session/非 session、DTO、`Document`、Map。`Class<Map>` 与 `TypeReference<Map<...>>` 的顶层转换应以 converter 级回归固定，不能将其描述为递归缺陷。
 
 ## 新增或修改普通 Interceptor
 

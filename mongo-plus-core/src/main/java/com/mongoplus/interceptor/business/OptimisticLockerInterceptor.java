@@ -401,7 +401,6 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
      * @author anwen
      */
     void updateParamHandler(String fieldName, Bson filterBson, Bson updateBson, boolean autoVersion) {
-        Document valueDocument = new Document(INC.getCondition(), new Document(fieldName, autoInc));
         Document document = BsonUtil.asDocument(updateBson);
         Document setDocument = document.get(UpdateConditionEnum.SET.getCondition(), Document.class);
         Integer versionValue;
@@ -421,7 +420,16 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         }
         BsonUtil.addToMap(filterBson,fieldName,versionValue);
         BsonUtil.removeFrom(setDocument,fieldName);
-        BsonUtil.addAllToMap(updateBson, valueDocument);
+        Object increment = BsonUtil.get(updateBson, INC.getCondition());
+        if (increment instanceof Bson) {
+            Bson incrementBson = (Bson) increment;
+            Bson mergedIncrementBson = BsonUtil.addToMap(incrementBson, fieldName, autoInc);
+            if (mergedIncrementBson != incrementBson) {
+                BsonUtil.addToMap(updateBson, INC.getCondition(), mergedIncrementBson);
+            }
+        } else {
+            BsonUtil.addToMap(updateBson, INC.getCondition(), new Document(fieldName, autoInc));
+        }
     }
 
     /**

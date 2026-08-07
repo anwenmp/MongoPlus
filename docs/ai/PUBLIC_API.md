@@ -49,7 +49,7 @@ classDiagram
 
 - `list` 无结果返回空列表；`one` 无结果返回 `null`。单条入口不提供“多结果即异常”的唯一性契约。
 - 实体类决定 namespace，返回类可另指定 DTO；DTO 不要求 `@CollectionName`，也不因作为结果类型自动登记 namespace。
-- 普通 DTO/实体/`Document` 使用 `Class<R>`；嵌套泛型使用 `TypeReference<R>`。当前 `Class<Map>` 与 `TypeReference<Map<...>>` 存在转换递归风险，不能写成稳定保证，见 [AGGREGATION.md](architecture/AGGREGATION.md)。
+- 普通 DTO/实体/`Document` 使用 `Class<R>`；嵌套泛型使用 `TypeReference<R>`。`Class<Map>` 与 `TypeReference<Map<...>>` 由 `MappingMongoConverter` 的 Map 转换逻辑处理；聚合入口说明见 [AGGREGATION.md](architecture/AGGREGATION.md)。
 - projection、sort、skip、limit 在 wrapper/iterable 阶段应用；Tenant、Logic Delete、Dynamic Collection 在执行阶段增强 namespace/filter，详见 [QUERY_WRAPPER.md](architecture/QUERY_WRAPPER.md)。
 
 ### Update
@@ -86,19 +86,19 @@ classDiagram
 
 ## 无实体 Map/Document 模式
 
-无实体占位类型是 `UnClassCollection`。`BaseMapper` 显式 database/collection 重载可操作 `Document`/BSON；Map 目标仍受当前转换递归风险影响。
+无实体占位类型是 `UnClassCollection`。`BaseMapper` 显式 database/collection 重载可操作 `Document`/BSON；Map 目标经 converter 的 Map 转换逻辑读取。
 
 | 能力 | 边界 |
 |---|---|
 | CRUD / query / update | `Document`/原始 BSON 和显式 database/collection 可用；wrapper-only update 不做实体 fill/字段加密。`Map` 作为写入值与 `Map` 作为读取目标不是同一条转换路径 |
 | namespace/registry | 无实体 `CollectionManager#getCollection` 以 `UnClassCollection.class` 登记显式 namespace；`putIfAbsent` 使其与以后实体首次登记存在顺序风险 |
-| 结果 DTO / `Document` / `Map` | DTO 的 `Class<R>`/`TypeReference<R>` 不要求 `@CollectionName`，也不登记为 namespace 实体；`Document` 走原生结果；当前 Map 递归缺陷位于 converter 的 Map 目标映射，不能扩大成所有 Map 写入或 BSON API 均不可用 |
+| 结果 DTO / `Document` / `Map` | DTO 的 `Class<R>`/`TypeReference<R>` 不要求 `@CollectionName`，也不登记为 namespace 实体；`Document` 走原生结果；顶层 Map 由 converter 的 Map 转换逻辑读取，Map 写入与 BSON API 仍是独立路径 |
 | Tenant / Sensitive Word GLOBAL | 两者在最终执行/BSON 层静态可达，不要求实体 registry；与无实体、批量 model 的组合仍需运行测试 |
 | Logic Delete / Optimistic Lock | 依赖 namespace 对应实体类及其逻辑/版本元数据；登记为 `UnClassCollection` 时不能承诺这些实体能力 |
 | Auto Fill / 字段 Handler | 原始 `Document`/BSON 不做实体转换，因而绕过实体 fill、字段注解写处理；指定 DTO 读取仍按读取转换链分别判断 |
 | Encryption/Desensitization | 原始写 BSON 不自动实体加密；读 DTO/实体时才可能进入解密、ReadHandler/脱敏等读取处理 |
 | Dynamic Collection | handler 可替换集合名；registry 风险见 [DYNAMIC_COLLECTION.md](features/DYNAMIC_COLLECTION.md) |
-| Aggregate / Index / Transaction | 均有显式 namespace/执行入口；聚合 Map 目标受上述递归缺陷影响；动态集合不自动扩展索引，session 取决于当前事务上下文 |
+| Aggregate / Index / Transaction | 均有显式 namespace/执行入口；聚合 Map 目标经同一 converter 路径读取；动态集合不自动扩展索引，session 取决于当前事务上下文 |
 | Multi Datasource / Recorder / Async / Backup | 数据源选择不以实体为前提；Recorder、异步多写和备份恢复均有底层入口，但无实体组合、镜像一致性和恢复语义不是已运行验证的稳定保证 |
 
 以上“静态可达”不能写成未经运行测试的稳定组合保证。
@@ -138,4 +138,4 @@ classDiagram
 
 ## 高风险入口
 
-`Class<Map>`/Map 泛型递归、wrapper-only update 绕过 fill/encryption、ClientSession 生命周期、动态 registry 首次登记、异步多写非原子性、备份恢复非一致性、IgnoreLogic update 缺口和乐观锁 BSON 改写边界统一跟踪于 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md)。
+wrapper-only update 绕过 fill/encryption、ClientSession 生命周期、动态 registry 首次登记、异步多写非原子性、备份恢复非一致性、IgnoreLogic update 缺口和乐观锁 BSON 改写边界统一跟踪于 [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md)。
