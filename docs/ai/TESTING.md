@@ -25,7 +25,7 @@ reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `c
 
 2026-08-02 的已运行记录：
 
-- 独立 `mongo-plus-test`：事务修改时通过 Maven 执行 17 项；2026-08-04 core 安装因本地仓库 JAR 替换失败，改以 `mongo-plus-core/target/classes` 优先于旧 JAR 直接运行 JUnitCore。IgnoreLogic 修复后 19 项、Tenant bulk 修复后 21 项、RSA/SM2 privateKey 接线修复后 24 项通过。后者在 JDK 17 下使用 BC Provider；代理/拦截器/算法单测不等价于真实 MongoDB、Java 8/多 JDK 矩阵或 Boot/Solon 启动测试。
+- 独立 `mongo-plus-test`：事务修改时通过 Maven 执行 17 项；2026-08-04 core 安装因本地仓库 JAR 替换失败，改以 `mongo-plus-core/target/classes` 优先于旧 JAR 直接运行 JUnitCore。IgnoreLogic 修复后 19 项、Tenant bulk 修复后 21 项、RSA/SM2 privateKey 接线修复后 24 项通过。2026-08-07 A.9 以同一方式单独编译并运行 `BackupManagerPaginationTest`，6 项分页 JSON entry 回归通过；`mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false -Dtest=BackupManagerPaginationTest test` 仍在 testCompile 阶段被无关的 `business/OptimisticLockerInterceptorTest` 缺少 import 阻断。后者在 JDK 17 下使用 BC Provider；代理/拦截器/算法单测不等价于真实 MongoDB、Java 8/多 JDK 矩阵或 Boot/Solon 启动测试。
 
 - `mvn -version`：Maven 3.9.2，运行 JDK 17.0.16。
 - `mvn help:active-profiles`：首次因沙箱不能写本地仓库跟踪文件失败，授权后成功；当前项目 `release` profile 默认活动，settings 另有同名外部 profile。

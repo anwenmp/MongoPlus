@@ -1,5 +1,6 @@
 package com.mongoplus.business;
 
+import com.mongoplus.interceptor.business.OptimisticLockerInterceptor;
 import org.bson.Document;
 import org.junit.Test;
 

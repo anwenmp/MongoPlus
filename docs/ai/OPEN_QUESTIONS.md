@@ -2,7 +2,7 @@
 
 > 收口日期：2026-08-04。每个问题只归入一类。“已确认缺陷”要求当前源码控制流闭合；“高风险设计”不是缺陷结论；“运行验证”不得在测试前写成必现外部行为。已解决观察不再保留。
 
-## A. 已确认缺陷（2 个未修复，8 个已修复）
+## A. 已确认缺陷（1 个未修复，9 个已修复）
 
 1. **已修复：事务结束未关闭 session：** 2026-08-02 将最外层 cleanup 改为正常 commit/abort 后也无条件 `ClientSession.close()`；参与式内层不提前清理。[事务](features/TRANSACTION.md)
 2. **已修复：Spring TransactionManager 泄漏两套 session：** 2026-08-02 改为 Spring transaction object、resource binding 和执行器上下文共享同一 status/session，并补充 `REQUIRED` rollback-only 与 `REQUIRES_NEW` 回归测试。[事务](features/TRANSACTION.md)
@@ -12,7 +12,7 @@
 6. **已修复：RSA/SM2 private key 接线错误：** 2026-08-04 将注解解密参数改为 `privateKey`，并将 RSA/SM2 空私钥回退改为全局 `PropertyCache.privateKey`；公钥仍只用于加密。独立 `mongo-plus-test` 新增注解参数、RSA 与 SM2 共 3 项回归；JDK/provider 兼容矩阵仍归 C6 运行验证。[Encryption](features/FIELD_ENCRYPTION.md)
 7. **已修复：PBE 空 key 回退不一致：** 2026-08-04 为 `PBEExample.decrypt` 补齐与 encrypt 相同的全局 `PropertyCache.key` 回退；仅配置全局 key 的 `PBEWithMD5AndDES` 加解密往返回归已加入独立 `mongo-plus-test`。[Encryption](features/FIELD_ENCRYPTION.md)
 8. **已修复：Optimistic Lock 覆盖用户 `$inc`：** 2026-08-05 不再以顶层 `$inc` `putAll` 覆盖原操作符，改为合并 `$inc` 内部字段并以当前 `autoInc` 覆盖用户的 version 增量；保留其他增量、`$set` 字段和其他 update operator。回归位于 `../../mongo-plus-test/src/test/java/com/mongoplus/mongoplus/interceptor/business/OptimisticLockerInterceptorTest.java`；实际执行 `mvn -pl mongo-plus-core -am "-Dtest=OptimisticLockerInterceptorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test` 通过。非 Document/BSONObject 根 Bson 的写回边界仍未解决。[Optimistic Lock](features/OPTIMISTIC_LOCK.md)
-9. **Backup 多页 JSON 尾逗号：** 非最后分页在数组末文档后保留逗号，生成非法 JSON；另有恢复只处理首个 entry、导出/恢复编码不一致等闭合缺口。[Backup / Restore](features/BACKUP_AND_RESTORE.md)
+9. **已修复：Backup 多页 JSON 尾逗号：** 2026-08-07 原实现以跨页累计的 `count < totalDocuments` 决定分页 entry 内的逗号，非末页最后一条后会留下逗号。现改为按当前页局部 `firstDocument` 决定文档前分隔符；回归位于 `../../mongo-plus-test/src/test/java/com/mongoplus/manager/BackupManagerPaginationTest.java`，覆盖 3/2、2/2、1/2、4/2、5/2 和空集合。实际以当前 core classes 单独运行 JUnitCore，6 项通过；独立 Maven test 仍被无关的 `business/OptimisticLockerInterceptorTest` 源码编译错误阻断。恢复只处理首个 entry、导出/恢复编码不一致等问题仍未解决。[Backup / Restore](features/BACKUP_AND_RESTORE.md)
 10. **Recorder 上下文与 namespace 恢复缺陷：** 保存时改写 datasource/namespace 后不恢复；ThreadLocal 只在保存成功后移除，失败会残留；用户覆盖忽略列表还可破坏默认递归保护。[Data Change Recorder](features/DATA_CHANGE_RECORDER.md)
 
 这些缺陷的外部异常类型、资源增长、数据库最终命令或并发后果仍须用测试固定；静态证据不等于所有环境下已有相同运行外观。

@@ -252,6 +252,7 @@ public class BackupManager {
                         continue;
                     }
 
+                    boolean firstDocument = true;
                     // 逐条处理 Mongo 数据
                     while (cursor.hasNext()) {
                         count++;
@@ -260,12 +261,11 @@ public class BackupManager {
                             backupListeners.forEach(backupListener ->
                                     backupListener.export(finalPath,collectionName,document));
                         }
-                        writer.write(document.toJson(MapCodecCache.getDefaultCodec()));
-
-                        // 不是最后一条数据时加逗号
-                        if (count < totalDocuments) {
+                        if (!firstDocument) {
                             writer.write(",\n");
                         }
+                        writer.write(document.toJson(MapCodecCache.getDefaultCodec()));
+                        firstDocument = false;
                         hasMore = count < totalDocuments;
                     }
                 }

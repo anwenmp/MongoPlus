@@ -35,9 +35,9 @@ BackupManager.export
  -> 递归删除临时目录
 ```
 
-这是原生 `MongoCollection` 读取，绕过 Mapper、Tenant、Logic Delete、Dynamic Collection、Entity Mapping 和事务 `SessionExecute`。因此会读取当前 collection 中包含逻辑删除/所有 tenant 的文档；没有 ClientSession、snapshot readConcern 或多 collection 同一时点保证。分页用 skip/limit，备份期间插入/删除可能造成重复或遗漏；`estimatedDocumentCount` 又用于终止和逗号判断，不能称为一致性快照。
+这是原生 `MongoCollection` 读取，绕过 Mapper、Tenant、Logic Delete、Dynamic Collection、Entity Mapping 和事务 `SessionExecute`。因此会读取当前 collection 中包含逻辑删除/所有 tenant 的文档；没有 ClientSession、snapshot readConcern 或多 collection 同一时点保证。分页用 skip/limit，备份期间插入/删除可能造成重复或遗漏；`estimatedDocumentCount` 用于终止分页，不能称为一致性快照。
 
-输出是每 collection 一个 ZIP，内部每页一个 `.json` entry；entry 遍历顺序来自 `DirectoryStream`，源码未排序。每页是 JSON 数组，首元素形如 `{"information":{...}}`，实际只包含 `origin`、`version`、`homepage`、`data_source`、`database`、`collection_name`、`date_time`、`time_stamp`，没有 count/page size/file name 字段；随后是文档。扩展名由 `getFileName` 生成，ZIP 名使用秒级时间戳。没有 checksum、签名、加密、兼容 schema 或独立 manifest。
+输出是每 collection 一个 ZIP，内部每页一个 `.json` entry；entry 遍历顺序来自 `DirectoryStream`，源码未排序。每页是 JSON 数组，首元素形如 `{"information":{...}}`，实际只包含 `origin`、`version`、`homepage`、`data_source`、`database`、`collection_name`、`date_time`、`time_stamp`，没有 count/page size/file name 字段；随后是文档。2026-08-07 已将文档之间的分隔符改为按当前页的局部位置写入，单个 entry 的最后一条文档后不再写逗号。扩展名由 `getFileName` 生成，ZIP 名使用秒级时间戳。没有 checksum、签名、加密、兼容 schema 或独立 manifest。
 
 `FileWriter` 使用平台默认字符集和平台换行语义；恢复固定按 UTF-8 解码，非 UTF-8 默认平台存在不兼容风险。`ZipUtil` 使用默认 `ZipOutputStream` 压缩设置；没有压缩级别/算法选择。路径通过字符串拼接，构造器只补 `/`；`setPath` 不补分隔符。父级根目录不会显式创建，只尝试创建 `path + collectionName`。同名 ZIP 由 `FileOutputStream` 截断覆盖；没有临时 ZIP + 原子移动、路径净化、权限设置或 `../` 防护。压缩失败时可能留下部分 ZIP 和临时 JSON；压缩成功但临时目录删除失败时方法抛异常，成品 ZIP 仍可能保留。
 
@@ -80,7 +80,6 @@ metadata 中 `data_source` 被读取到局部变量但完全未使用；因此�
 
 ## 已确认缺陷
 
-- **分页 JSON 缺陷：** metadata 后固定写逗号是为了连接首条数据；真正缺陷是 `count` 为全 collection 累计值，所有非最后页的最后一条文档仍写逗号后立即 `]`。因此仅当文档数大于 `limit` 时会稳定产生至少一个尾逗号 entry；单页（包括恰好等于 `limit`）不触发。`BsonArray.parse` 的准确异常类型待运行固定。
 - **恢复 drop 缺陷：** 只按 ZIP 的全局 `num == 0` drop 第一个 entry 的 collection，而不是每个 collection；格式意外含多 collection 时覆盖规则错误。
 - **编码缺陷：** 导出用平台默认编码，恢复强制 UTF-8。
 - **错误表达缺陷：** 导出遇 IOException 后仍可能压缩/返回半成品；恢复 IOException 丢弃 cause；两边均无结构化部分成功结果。
@@ -88,7 +87,7 @@ metadata 中 `data_source` 被读取到局部变量但完全未使用；因此�
 
 ## 待运行验证
 
-全部 BSON 特殊类型往返；多页 JSON 具体解析异常及并发增删时的计数/格式；非 UTF-8 平台；文件损坏、磁盘不足和中断；duplicate `_id` 与 ordered 部分成功；外部事务、Tenant/Logic/Dynamic/Recorder/Async 组合；同 database/collection 不同 client；大 entry 内存；Windows/Linux 特殊 collection 名和路径穿越。空 collection 返回 null、同名 ZIP 截断覆盖和未筛选 entry 已由控制流确认。
+全部 BSON 特殊类型往返；并发增删时的计数/格式；非 UTF-8 平台；文件损坏、磁盘不足和中断；duplicate `_id` 与 ordered 部分成功；外部事务、Tenant/Logic/Dynamic/Recorder/Async 组合；同 database/collection 不同 client；大 entry 内存；Windows/Linux 特殊 collection 名和路径穿越。空 collection 返回 null、分页 entry 的尾逗号修复、同名 ZIP 截断覆盖和未筛选 entry 已由控制流确认。
 
 ## 最低测试清单
 
