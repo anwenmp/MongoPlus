@@ -6,7 +6,7 @@
 
 根 reactor 的 `mongo-plus-sensitive-word` 包含 `SensitiveWordFieldHandlerTest`；`mongo-plus-core` 也包含 JUnit 4.13.2 转换器/乐观锁回归：`MappingMongoConverterMapReadTest` 与 `OptimisticLockerInterceptorTest`。后者以 BSON 结构验证 `$inc` 合并、版本增量覆盖和无版本跳过，不需要真实 MongoDB；其余模块没有正式测试源码。
 
-仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。其中存在六个测试类：两个 Wrapper BSON 测试、事务测试、Logic Ignore update 测试、Tenant bulk UpdateMany 测试和加密私钥接线测试。加密测试覆盖注解 privateKey 传递、RSA/SM2 全局 privateKey 回退；BC Provider 仅作为该独立工程的 test 依赖，主 reactor 未引入测试依赖。它不是 reactor 测试保障，状态变化后应重新确认。
+仓库根目录当前还有未被 Git 跟踪、未被根 `<modules>` 聚合的独立工程 `mongo-plus-test`。当前工作树包含 Wrapper BSON、事务、Logic Ignore update、Tenant bulk UpdateMany、加密私钥接线、Map 映射、Backup 分页和 Recorder 上下文测试。Recorder 的 6 项回归覆盖正常/异常 datasource 恢复、原值未设置、正常/异常 ThreadLocal 清理及连续调用。BC Provider 仅作为该独立工程的 test 依赖，主 reactor 未引入测试依赖。它不是 reactor 测试保障，状态变化后应重新确认。
 
 ## Maven 命令
 
@@ -25,7 +25,8 @@ reactor 各模块均可用 `mvn -pl <模块> -am test`（或把 `test` 换成 `c
 
 2026-08-02 的已运行记录：
 
-- 独立 `mongo-plus-test`：事务修改时通过 Maven 执行 17 项；2026-08-04 core 安装因本地仓库 JAR 替换失败，改以 `mongo-plus-core/target/classes` 优先于旧 JAR 直接运行 JUnitCore。IgnoreLogic 修复后 19 项、Tenant bulk 修复后 21 项、RSA/SM2 privateKey 接线修复后 24 项通过。2026-08-07 A.9 以同一方式单独编译并运行 `BackupManagerPaginationTest`，6 项分页 JSON entry 回归通过；`mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false -Dtest=BackupManagerPaginationTest test` 仍在 testCompile 阶段被无关的 `business/OptimisticLockerInterceptorTest` 缺少 import 阻断。后者在 JDK 17 下使用 BC Provider；代理/拦截器/算法单测不等价于真实 MongoDB、Java 8/多 JDK 矩阵或 Boot/Solon 启动测试。
+- 独立 `mongo-plus-test`：事务修改时通过 Maven 执行 17 项；2026-08-04 core 安装因本地仓库 JAR 替换失败，改以 `mongo-plus-core/target/classes` 优先于旧 JAR 直接运行 JUnitCore。IgnoreLogic 修复后 19 项、Tenant bulk 修复后 21 项、RSA/SM2 privateKey 接线修复后 24 项通过。2026-08-07 A.9 以同一方式单独编译并运行 `BackupManagerPaginationTest`，6 项分页 JSON entry 回归通过；当时 Maven testCompile 被无关的 `business/OptimisticLockerInterceptorTest` 缺少 import 阻断。后者在 JDK 17 下使用 BC Provider；代理/拦截器/算法单测不等价于真实 MongoDB、Java 8/多 JDK 矩阵或 Boot/Solon 启动测试。
+- 2026-08-08 A.10：修复前 `DataChangeRecorderInnerInterceptorTest` 2 项分别以 datasource 实际为 `audit-datasource`、异常后 ThreadLocal 仍有 `OperationResult` 失败。修复后 `mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false -Dtest=DataChangeRecorderInnerInterceptorTest clean test` 的 6 项通过；安装当前 core 构件后，`mvn -f mongo-plus-test/pom.xml -Dmaven.test.skip=false test` 在当前工作树执行 41 项，全部通过。代理级测试不等价于真实 MongoDB、事务提交、嵌套 Recorder、Java 8/多 JDK 或 Boot/Solon 启动证据。
 
 - `mvn -version`：Maven 3.9.2，运行 JDK 17.0.16。
 - `mvn help:active-profiles`：首次因沙箱不能写本地仓库跟踪文件失败，授权后成功；当前项目 `release` profile 默认活动，settings 另有同名外部 profile。

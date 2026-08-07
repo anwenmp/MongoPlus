@@ -60,6 +60,10 @@ public class DataSourceNameCache {
         return ds;
     }
 
+    public static String getDataSourceOrNull(){
+        return dataSource.get();
+    }
+
     public static void clear(){
         dataSource.remove();
     }

@@ -131,11 +131,20 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         }
 
         if (enableSaveDatabase) {
-            String datasource = determineDatasource();
-            DataSourceNameCache.setDataSource(datasource);
-            String databaseName = determineDatabaseName();
-            baseMapper.save(databaseName, collectionName, operationResultThreadLocal.get());
-            operationResultThreadLocal.remove();
+            String previousDatasource = DataSourceNameCache.getDataSourceOrNull();
+            try {
+                String datasource = determineDatasource();
+                DataSourceNameCache.setDataSource(datasource);
+                String databaseName = determineDatabaseName();
+                baseMapper.save(databaseName, collectionName, operationResultThreadLocal.get());
+            } finally {
+                operationResultThreadLocal.remove();
+                if (previousDatasource == null) {
+                    DataSourceNameCache.clear();
+                } else {
+                    DataSourceNameCache.setDataSource(previousDatasource);
+                }
+            }
         }
     }
 

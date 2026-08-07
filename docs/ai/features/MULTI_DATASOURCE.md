@@ -100,6 +100,7 @@ Mapper/DefaultBaseMapperImpl
 - 同一次实体 CRUD 中，数据库/集合解析和 collection 获取发生在 `ExecutorFactory.getExecute()`/Driver 调用前；动态集合普通拦截器可在执行代理内再次替换 collection。
 - 租户、逻辑删除、自动填充不选择数据源；它们作用于选定 collection 的参数或实体转换。Mapper 代理/`MongoPlusClient` 通常为单例，隔离依赖 ThreadLocal 与 manager 外层 key，而不是每数据源一套 Mapper。
 - 普通/高级拦截器为全局静态链，跨数据源共享；高级异步多写和 sharding 的完整上下文/事务组合尚待验证。
+- Recorder 保存审计记录时会临时切到配置的 datasource；2026-08-08 起它通过 `DataSourceNameCache.getDataSourceOrNull()` 保存原始 nullable 状态，并在 finally 中恢复原值或清空。该修复只覆盖 Recorder 局部保存，不改变 `@MongoDs` 嵌套上下文仍非栈式的事实。
 - Boot 3 sharding starter 依赖普通 Boot 3 starter；Boot 4 没有对应 sharding starter。Solon 未发现分片集成入口。
 
 ## 公开用法（已由源码确认）

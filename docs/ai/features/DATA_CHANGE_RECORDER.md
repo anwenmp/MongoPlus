@@ -1,6 +1,6 @@
 # 数据变更记录拦截器
 
-> 审计日期：2026-08-02。`DataChangeRecorderInnerInterceptor` 记录 MongoPlus 普通执行链的请求参数；它不是 Change Stream、Driver `CommandListener`，也没有真实 before/after 文档快照。
+> 审计日期：2026-08-08。`DataChangeRecorderInnerInterceptor` 记录 MongoPlus 普通执行链的请求参数；它不是 Change Stream、Driver `CommandListener`，也没有真实 before/after 文档快照。
 
 ## 入口、注册与结构
 
@@ -66,8 +66,8 @@ Recorder 不查变更前/后数据，没有 before/after 快照、同 session �
 - 阈值/BSON 转换异常在 Driver 前阻止业务操作。
 - Driver/高级链失败时普通 after 不执行，也无失败记录。
 - 保存失败发生在业务 Driver 已成功后，异常传播且无补偿。
-- `ThreadLocal.remove()` 只在保存成功后执行，且不在 `finally`；Driver/高级链失败、after 中选源/选库失败或保存失败都会残留，这是已确认清理缺口。
-- after 调用 `DataSourceNameCache.setDataSource` 后不恢复原 datasource。事务内还可能造成 session 与新 client/collection 不一致；提交/回滚结果需实测。
+- 2026-08-08 已将审计选源、选库和 `BaseMapper.save` 放入局部 `try/finally`：正常或异常返回都会移除本次 `OperationResult`；保存异常仍原样传播。Driver/高级链在进入 after 前失败时，普通 after 不执行，其记录失败语义仍未改变。
+- 2026-08-08 已在保存前读取 nullable datasource 上下文，finally 中有原值则恢复、原来未设置则 `clear`，审计 datasource 不再污染同线程的下一次业务调用。事务内审计保存本身发生在提交前，session/client 组合结果仍需实测。
 - 单槽 `ThreadLocal` 不是栈：同线程在外层 before 与 after 之间发生另一条被记录 CRUD，会覆盖外层值；内层成功保存并 remove 后，外层甚至可能保存 `null`。它只提供线程间槽位隔离，不传播到新线程；插件链、忽略列表和实例配置仍是共享可变状态。
 
 ## 安全、批量与资源
@@ -90,7 +90,7 @@ Tenant 条件确定已加入；Auto Fill 与字段映射也已发生。加密通
 
 ## 测试与证据
 
-当前仓库未发现 Recorder 回归测试。至少覆盖 save/update/remove、逻辑删除、乐观锁、replace/upsert 上层入口、各种 bulk model/部分成功、阈值、大文档、动态集合、多源、分片、事务提交回滚、保存/Driver 异常、递归嵌套、ThreadLocal、并发、加密/敏感词及三种集成。
+独立 `mongo-plus-test` 的 `DataChangeRecorderInnerInterceptorTest` 有 6 项回归，覆盖正常/异常保存后的 datasource 恢复、原 datasource 未设置、正常/异常 ThreadLocal 清理及同线程连续调用；2026-08-08 定向 Maven 测试 6 项通过，当前独立工程全量 41 项通过。仍需覆盖 save/update/remove 全入口、逻辑删除、乐观锁、replace/upsert 上层入口、各种 bulk model/部分成功、阈值、大文档、动态集合、多源、分片、事务提交回滚、Driver 异常、递归嵌套、并发、加密/敏感词及三种集成。
 
 关键源码：`DataChangeRecorderInnerInterceptor.java`、`OperationResult.java`、`Interceptor.java`、`InterceptorChain.java`、`ExecutorProxy.java`、`Configuration.java` 及三个集成模块的 `MongoPlusAutoConfiguration.java`。
 
