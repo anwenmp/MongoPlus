@@ -12,7 +12,7 @@
 | `AnnotationOperate` | 从 `@CollectionName` 解析 database/collection；无显式 collection 时按配置由类名转换 | 字段映射、Document 转换 |
 | `MongoEntityMappingRegistry` | 线程安全地保存 `MongoCollection.getNamespace().getFullName()` → entity class，供逻辑删除、乐观锁等按集合反查实体 | 实体字段元数据、序列化 |
 
-`CollectionManager` 首次创建并缓存 collection 时登记 namespace→class；显式无实体模式登记 `UnClassCollection`。其缓存键当前仅是 `collectionName`，而方法接受 `dsName`，跨数据源同名集合复用的准确隔离语义属于待验证兼容风险。
+`CollectionManager` 首次创建并缓存 collection 时登记 namespace→class；显式无实体模式登记 `UnClassCollection`。其缓存键当前仅是 `collectionName`，但正常入口先按 datasource/database 选择独立 manager；同 namespace 跨 datasource 共用实体 metadata 是预期设计，实际访问由 client/manager/collection 隔离。只有调用方直接取得一个 manager 后再传入另一 datasource 的越界用法仍需单独验证。
 
 ## 实体到 Document
 
@@ -131,7 +131,7 @@ AbstractBaseMapper 收到 Driver MongoIterable<Document>
 
 修改映射逻辑至少验证：save/update/batch 与 id 回填；实体、Map、Document；顶层/嵌套 ID；字段重命名/下划线/null；ObjectId；TypeHandler+加密+DBRef；MappingStrategy+ConversionStrategy；枚举/时间/数字；集合/Map/多层泛型；自动填充；逻辑删除/租户/乐观锁通过 registry 的实体识别；事务与 Driver codec。
 
-`mongo-plus-sensitive-word` 已增加转换器级 JUnit 4 回归，覆盖 FieldHandler order、最新值传递、旧单参数实现兼容、TypeHandler→Encrypt、LOCAL 与 Encrypt/TypeHandler/DBRef 以及 null 合并语义。仍缺少 Encrypt+DBRef 同字段契约、MappingStrategy 优先级、其他多 Handler 组合、顶层/嵌套读取差异、裸/复杂泛型、Map 模式、跨数据源同名 collection registry/cache、Driver 升级的回归证据。
+`mongo-plus-sensitive-word` 已增加转换器级 JUnit 4 回归，覆盖 FieldHandler order、最新值传递、旧单参数实现兼容、TypeHandler→Encrypt、LOCAL 与 Encrypt/TypeHandler/DBRef 以及 null 合并语义。仍缺少 Encrypt+DBRef 同字段契约、MappingStrategy 优先级、其他多 Handler 组合、顶层/嵌套读取差异、裸/复杂泛型、Map 模式、跨数据源同名 collection 的 client/manager 路由隔离、Driver 升级的回归证据。
 
 ## 关键源码
 

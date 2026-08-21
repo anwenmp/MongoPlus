@@ -87,7 +87,7 @@ Mapper/DefaultBaseMapperImpl
 
 仍有必须保留的边界：`MongoPlusClient.getCollection(dataSource,database,collection)` 最终显式把 ds 传给 manager；若调用方取得某个 manager 后直接以另一 ds 调用其公开 `getCollection(dsName, collectionName)`，同名缓存会返回首次 client 的 collection。分片/动态集合是否形成这种跨边界复用尚未完成行为验证，因此不判定为缺陷，见 [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md)。
 
-动态集合拦截器发生在 Mapper 已取得原 collection 之后，通过普通执行代理替换 collection 参数；新动态名称由 `MongoPlusClient` 再取 collection，仍走上述缓存。`MongoEntityMappingRegistry` 的 key 是 `mongoCollection.getNamespace().getFullName()`，即 `database.collection`，不含 datasource/client；两个数据源同 database、同 collection 的实体映射会共享 key，且 `putIfAbsent` 保留首次实体。无实体重载也会以 `UnClassCollection.class` 参与首次登记，因此不是“Map 模式跳过 registry”；实际影响仍列为待验证，不判定为缺陷。
+动态集合拦截器发生在 Mapper 已取得原 collection 之后，通过普通执行代理替换 collection 参数；新动态名称由 `MongoPlusClient` 再取 collection，仍走上述缓存。`MongoEntityMappingRegistry` 的 key 是 `mongoCollection.getNamespace().getFullName()`，即 `database.collection`，不含 datasource/client，且 `putIfAbsent` 保留首次实体。正常多数据源模型下同 namespace 共用实体 metadata 是预期设计；实际数据访问由 datasource 对应的 client/manager/collection 隔离，因此不把 registry key 不含 datasource 视为实体串源问题。无实体重载仍会以 `UnClassCollection.class` 参与首次登记，因此不是“Map 模式跳过 registry”。
 
 所有 collection/registry cache 都没有按数据源替换或关闭自动失效的代码。client 被覆盖后，既有 `MongoCollection` 仍指向旧 client。
 
@@ -127,4 +127,4 @@ Boot 3/4 的切面源码支持非空方法级、类级和参数 SpEL；默认数
 
 主要风险：非栈式上下文导致嵌套后回退默认；手动切换或子线程造成泄漏；异步不传播；同名 namespace/manager 越界复用；动态覆盖后旧 client/collection 残留；事务 session 与 collection 跨 client；SpEL 删除 `#` 后的解析失败；普通 HashMap 配置注册和动态 manager map 的并发；配置属性向后兼容；Solon 类级/无注解/异常包装差异。
 
-最低回归矩阵：默认数据源、两个静态数据源、Boot 方法级覆盖类级、空方法值回退类级、Solon 方法级差异、嵌套 A→B→A（当前预期不会恢复）、异常清理、多线程隔离、线程池与子线程、两个数据源同 database/collection 隔离、直接 manager 越界、动态添加/重复/覆盖/创建失败、Lazy 当前未生效、事务 session 绑定与禁止跨源、动态集合组合、registry 同 namespace、Boot 3/Boot 4/Solon。测试策略见 [TESTING.md](../TESTING.md)。
+最低回归矩阵：默认数据源、两个静态数据源、Boot 方法级覆盖类级、空方法值回退类级、Solon 方法级差异、嵌套 A→B→A（当前预期不会恢复）、异常清理、多线程隔离、线程池与子线程、两个数据源同 database/collection 的 client/collection 路由隔离、直接 manager 越界、动态添加/重复/覆盖/创建失败、Lazy 当前未生效、事务 session 绑定与禁止跨源、动态集合组合、Boot 3/Boot 4/Solon。测试策略见 [TESTING.md](../TESTING.md)。
