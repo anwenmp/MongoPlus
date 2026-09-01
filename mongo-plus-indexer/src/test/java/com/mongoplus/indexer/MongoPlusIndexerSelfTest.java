@@ -4,9 +4,11 @@ import com.mongoplus.indexer.json.JsonWriter;
 import com.mongoplus.indexer.model.MongoPlusApiIndex;
 
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,12 +29,17 @@ public final class MongoPlusIndexerSelfTest {
             MongoPlusApiIndex index = indexer.generate();
             assertFamily(index, "eq", 4);
             assertFamily(index, "like", 8);
+            assertFamily(index, "combine", 4);
             assertLikeMetadata(index);
             assertOperator(index, "eq", "$eq");
             assertOperator(index, "gte", "$gte");
             assertOperator(index, "in", "$in");
+            assertOperator(index, "and", "$and");
             assertOperator(index, "or", "$or");
             assertOperator(index, "like", "$regex");
+            assertCombineComposition(index);
+            assertOrdinaryFamiliesHaveNoComposition(index);
+            assertGenericCompositionTagAggregation();
             assertFieldChainMethods(index);
             assertSFunctionSemantics(index);
             assertWrapperConstructors(index);
@@ -106,6 +113,75 @@ public final class MongoPlusIndexerSelfTest {
         Map<String, Object> family = findNamed(index.getMethodFamilies(), familyName);
         require(((List<Object>) family.get("mongoOperators")).contains(operator),
                 familyName + " 缺少操作符 " + operator);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertCombineComposition(MongoPlusApiIndex index) {
+        Map<String, Object> combine = findNamed(index.getMethodFamilies(), "combine");
+        List<Object> semantics = (List<Object>) combine.get("compositionSemantics");
+        require(semantics.equals(Arrays.<Object>asList("LOGICAL_SAME_FIELD_CONDITIONS")),
+                "combine 组合语义聚合或去重错误: " + semantics);
+        require(((List<Object>) combine.get("mongoOperators")).isEmpty(),
+                "combine 不应生成 MongoDB 操作符");
+        require(!((List<Object>) combine.get("mongoOperators")).contains("$combine"),
+                "combine 不得生成虚假的 $combine");
+        String description = (String) combine.get("description");
+        require(description.contains("同一个对象"), "combine Javadoc 正文丢失");
+        require(!description.contains("mongoComposition"), "自定义 Tag 不应混入 description");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertOrdinaryFamiliesHaveNoComposition(MongoPlusApiIndex index) {
+        for (String name : Arrays.asList("gte", "lt", "eq", "in", "regex")) {
+            Map<String, Object> family = findNamed(index.getMethodFamilies(), name);
+            List<Object> semantics = (List<Object>) family.get("compositionSemantics");
+            require(semantics != null && semantics.isEmpty(), name + " 不应包含组合语义");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertGenericCompositionTagAggregation() throws Exception {
+        Path directory = Files.createTempDirectory("mongo-plus-composition-tags-");
+        Path sourceRoot = directory.resolve("src");
+        Path packageDirectory = sourceRoot.resolve("example/conditions");
+        Path source = packageDirectory.resolve("CompositionFixture.java");
+        try {
+            Files.createDirectories(packageDirectory);
+            Files.write(source, Arrays.asList(
+                    "package example.conditions;",
+                    "public interface CompositionFixture {",
+                    "    /**",
+                    "     * @mongoComposition ZETA",
+                    "     * @mongoComposition ALPHA",
+                    "     * @mongoComposition ZETA",
+                    "     */",
+                    "    void tagged(String value);",
+                    "    /** @mongoComposition ALPHA */",
+                    "    void tagged(int value);",
+                    "    /** 方法名本身不能触发组合语义。 */",
+                    "    void combine();",
+                    "}"
+            ), StandardCharsets.UTF_8);
+            MongoPlusIndexerConfig config = MongoPlusIndexerConfig.builder()
+                    .addSourceRoot(sourceRoot)
+                    .addPrimaryPackage("example.conditions")
+                    .mongoPlusVersion("test")
+                    .build();
+            MongoPlusApiIndex index = new MongoPlusIndexer(config).generate();
+            Map<String, Object> tagged = findNamed(index.getMethodFamilies(), "tagged");
+            require(((List<Object>) tagged.get("compositionSemantics"))
+                            .equals(Arrays.<Object>asList("ALPHA", "ZETA")),
+                    "多个 @mongoComposition 值应稳定排序并去重");
+            Map<String, Object> combine = findNamed(index.getMethodFamilies(), "combine");
+            require(((List<Object>) combine.get("compositionSemantics")).isEmpty(),
+                    "不能根据 combine 方法名推断组合语义");
+        } finally {
+            Files.deleteIfExists(source);
+            Files.deleteIfExists(packageDirectory);
+            Files.deleteIfExists(packageDirectory.getParent());
+            Files.deleteIfExists(sourceRoot);
+            Files.deleteIfExists(directory);
+        }
     }
 
     @SuppressWarnings("unchecked")

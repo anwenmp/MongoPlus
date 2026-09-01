@@ -269,18 +269,22 @@ public final class SourceScanner {
         Map<String, Object> family = object(); family.put("name", name);
         Set<String> descriptions = new LinkedHashSet<String>();
         Set<String> operators = new java.util.TreeSet<String>();
+        Set<String> compositionSemantics = new java.util.TreeSet<String>();
         Set<String> aliases = new java.util.TreeSet<String>();
         List<Object> overloads = new ArrayList<Object>();
         for (MethodRecord record : records) {
             if (!record.method.doc.description.isEmpty()) { descriptions.add(record.method.doc.description); }
             operators.addAll(record.type.tags.getOrDefault("mongodbOperator", Collections.<String>emptyList()));
             operators.addAll(record.method.tags.getOrDefault("mongodbOperator", Collections.<String>emptyList()));
+            compositionSemantics.addAll(record.method.tags.getOrDefault(
+                    "mongoComposition", Collections.<String>emptyList()));
             aliases.addAll(record.type.tags.getOrDefault("aiAlias", Collections.<String>emptyList()));
             aliases.addAll(record.method.tags.getOrDefault("aiAlias", Collections.<String>emptyList()));
             overloads.add(overload(record, types));
         }
         family.put("description", descriptions.isEmpty() ? "" : descriptions.iterator().next());
         family.put("mongoOperators", new ArrayList<Object>(operators));
+        family.put("compositionSemantics", new ArrayList<Object>(compositionSemantics));
         family.put("aliases", new ArrayList<Object>(aliases));
         family.put("overloads", overloads);
         return family;

@@ -29,6 +29,7 @@ public interface Logic<T, Children> extends
      *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
      * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
      * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @mongoComposition LOGICAL_SAME_FIELD_CONDITIONS
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
      * @param function 需要合并的链式查询函数
      * @return {@link Children}
@@ -48,6 +49,7 @@ public interface Logic<T, Children> extends
      *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
      * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
      * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @mongoComposition LOGICAL_SAME_FIELD_CONDITIONS
      * @param function 需要合并的链式查询函数
      * @return {@link Children}
      * @author anwen
@@ -66,6 +68,7 @@ public interface Logic<T, Children> extends
      *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
      * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
      * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @mongoComposition LOGICAL_SAME_FIELD_CONDITIONS
      * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}
      * @author anwen
@@ -84,6 +87,7 @@ public interface Logic<T, Children> extends
      *     customWrapper.eq(User::getUserName,"张三").like(User::getUserName,"1")))}</p>
      * <p>则对应语句为：{@code {or:[{userName:{"eq":"张三","like":"1"}}]}}</p>
      * <p style='color: red'>在使用{@link #combine}方法时，请保证{@code combine}中条件的字段名一致</p>
+     * @mongoComposition LOGICAL_SAME_FIELD_CONDITIONS
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
      * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}

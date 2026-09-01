@@ -28,6 +28,10 @@ Schema `1.1` 为每个 Wrapper 记录 `kind`、`abstractType` 和源码派生的
 包含签名、可见性、是否为 Java 隐式构造器，以及真实参数名、类型和 varargs 标记；没有显式构造器的
 public class 会按 Java 语言规则生成一条 `implicit=true` 的 public 无参构造证据。
 
+方法 Javadoc 可通过重复声明 `@mongoComposition <value>` 提供源码级组合语义。Indexer 只读取该
+自定义 Tag，不根据方法名或 description 推断，并在 MethodFamily 的 `compositionSemantics` 数组中
+按稳定顺序聚合、去重；未声明组合语义的方法族保留空数组。`mongoOperators` 仍只表示 MongoDB Operator。
+
 默认项目内生成位置：
 
 ```text
