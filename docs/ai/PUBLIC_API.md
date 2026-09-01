@@ -78,6 +78,7 @@ classDiagram
 
 真实类型包括 `QueryWrapper`、`UpdateWrapper`、`LambdaQueryChainWrapper`、`LambdaUpdateChainWrapper`、`AggregateWrapper`/`LambdaAggregateWrapper`、`LambdaAggregateChainWrapper`。不存在独立的 `LambdaQueryWrapper` 或 `LambdaUpdateWrapper`；Lambda 字段重载来自共享条件接口。`QueryChainWrapper` 是抽象公共基类，不是独立终结入口；`UpdateChainWrapper` 可直接构造但只有绑定 `BaseMapper` 的 `LambdaUpdateChainWrapper` 才提供终结执行。
 
+- Mapper 查询、分页、计数、存在性判断、实体更新，以及聚合 `match`、嵌套逻辑条件等接收查询条件的入口统一使用 `Wrapper<?>`；`QueryWrapper`、Query Chain 和 Update Wrapper 均可作为实参。函数式条件入口统一声明为 `SFunction<Wrapper<T>, Wrapper<T>>`。
 - Repository 提供绑定自身实体和 Mapper 的 chain；`ChainWrappers.lambda*Chain(baseMapper, clazz)` 显式创建绑定 chain。无 Mapper 参数的工厂只构造条件。
 - query/update chain 保存可变状态，条件原地累积；终结操作不会自动调用 `clear()`。显式 `clear()` 会清 query filter、sort、projection 和 custom BSON；`UpdateChainWrapper.clear()` 还清 update 元对象和 custom update BSON。聚合 wrapper 没有 clear/reset，pipeline、aggregate options 与 `isSkip` 都会保留。
 - `CopyOnWriteArrayList` 只覆盖部分列表；sort/projection/custom query BSON 仍是普通 `ArrayList`，add/build/terminal 也没有统一同步或线程隔离。因此所有 Wrapper/Chain 都应按非线程安全、单次请求局部对象使用；持有的 `BaseMapper` 可是容器单例，不使 Wrapper 本身线程安全。

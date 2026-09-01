@@ -6,7 +6,7 @@ import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.annotation.ID;
 import com.mongoplus.cache.global.DataSourceNameCache;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.constant.SqlOperationConstant;
@@ -126,10 +126,10 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public Boolean saveOrUpdateWrapper(T entity, QueryChainWrapper<T, ?> queryChainWrapper) {
-        long count = count(queryChainWrapper);
+    public Boolean saveOrUpdateWrapper(T entity, Wrapper<T> queryWrapper) {
+        long count = count(queryWrapper);
         if (count > 0) {
-            return baseMapper.update(entity, queryChainWrapper);
+            return baseMapper.update(entity, queryWrapper);
         }
         return save(entity);
     }
@@ -223,16 +223,16 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public Boolean saveOrUpdateBatchWrapper(Collection<T> entityList, QueryChainWrapper<T, ?> queryChainWrapper) {
+    public Boolean saveOrUpdateBatchWrapper(Collection<T> entityList, Wrapper<T> queryWrapper) {
         Class<?> clazz = entityList.stream().findFirst().orElseThrow(() ->
                 new MongoPlusException("entityList is null")).getClass();
         List<WriteModel<Document>> writeModelList = new ArrayList<>();
-        long count = baseMapper.count(queryChainWrapper, clazz);
+        long count = baseMapper.count(queryWrapper, clazz);
         entityList.forEach(entity -> {
             if (count > 0) {
                 MutablePair<BasicDBObject, BasicDBObject> updatePair = ConditionUtil.
                         getUpdateCondition(
-                                queryChainWrapper.getConditionMetaObjects(),
+                                queryWrapper.getConditionMetaObjects(),
                                 entity,
                                 baseMapper.getMongoConverter()
                         );
@@ -306,8 +306,8 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
-        return baseMapper.update(entity, queryChainWrapper,options);
+    public Boolean update(T entity, Wrapper<T> queryWrapper,UpdateOptions options) {
+        return baseMapper.update(entity, queryWrapper,options);
     }
 
     @Override
@@ -348,18 +348,18 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public T one(QueryChainWrapper<T, ?> queryChainWrapper) {
-        return one(queryChainWrapper, clazz);
+    public T one(Wrapper<T> queryWrapper) {
+        return one(queryWrapper, clazz);
     }
 
     @Override
-    public <R> R one(QueryChainWrapper<T, ?> queryChainWrapper, Class<R> rClazz) {
-        return baseMapper.one(queryChainWrapper, clazz, rClazz);
+    public <R> R one(Wrapper<T> queryWrapper, Class<R> rClazz) {
+        return baseMapper.one(queryWrapper, clazz, rClazz);
     }
 
     @Override
-    public <R> R one(QueryChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
-        return baseMapper.one(queryChainWrapper, clazz, typeReference);
+    public <R> R one(Wrapper<T> queryWrapper, TypeReference<R> typeReference) {
+        return baseMapper.one(queryWrapper, clazz, typeReference);
     }
 
     @Override
@@ -393,18 +393,18 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public List<T> list(QueryChainWrapper<T, ?> queryChainWrapper) {
-        return list(queryChainWrapper, clazz);
+    public List<T> list(Wrapper<T> queryWrapper) {
+        return list(queryWrapper, clazz);
     }
 
     @Override
-    public <R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, Class<R> rClazz) {
-        return baseMapper.list(queryChainWrapper, clazz, rClazz);
+    public <R> List<R> list(Wrapper<T> queryWrapper, Class<R> rClazz) {
+        return baseMapper.list(queryWrapper, clazz, rClazz);
     }
 
     @Override
-    public <R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, TypeReference<R> typeReference) {
-        return baseMapper.list(queryChainWrapper, clazz, typeReference);
+    public <R> List<R> list(Wrapper<T> queryWrapper, TypeReference<R> typeReference) {
+        return baseMapper.list(queryWrapper, clazz, typeReference);
     }
 
     @Override
@@ -413,29 +413,29 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public long count(QueryChainWrapper<T, ?> queryChainWrapper) {
-        return baseMapper.count(queryChainWrapper, clazz);
+    public long count(Wrapper<T> queryWrapper) {
+        return baseMapper.count(queryWrapper, clazz);
     }
 
     @Override
-    public PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize) {
-        return page(queryChainWrapper, pageNum, pageSize, clazz);
+    public PageResult<T> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize) {
+        return page(queryWrapper, pageNum, pageSize, clazz);
     }
 
     @Override
-    public PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam) {
-        return page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize());
+    public PageResult<T> page(Wrapper<T> queryWrapper, PageParam pageParam) {
+        return page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize());
     }
 
     @Override
-    public PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,
+    public PageResult<T> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,
                               Integer recentPageNum) {
-        return page(queryChainWrapper, pageNum, pageSize, recentPageNum, clazz);
+        return page(queryWrapper, pageNum, pageSize, recentPageNum, clazz);
     }
 
     @Override
-    public PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum) {
-        return page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(), recentPageNum);
+    public PageResult<T> page(Wrapper<T> queryWrapper, PageParam pageParam, Integer recentPageNum) {
+        return page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(), recentPageNum);
     }
 
     @Override
@@ -450,50 +450,50 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz) {
-        return baseMapper.page(queryChainWrapper, pageNum, pageSize, clazz, rClazz);
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz) {
+        return baseMapper.page(queryWrapper, pageNum, pageSize, clazz, rClazz);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,
                                   TypeReference<R> typeReference) {
-        return baseMapper.page(queryChainWrapper, pageNum, pageSize, clazz, typeReference);
+        return baseMapper.page(queryWrapper, pageNum, pageSize, clazz, typeReference);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Class<R> rClazz) {
-        return baseMapper.page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, rClazz);
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam, Class<R> rClazz) {
+        return baseMapper.page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, rClazz);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam,
                                   TypeReference<R> typeReference) {
-        return baseMapper.page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, typeReference);
+        return baseMapper.page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, typeReference);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,
                                   Integer recentPageNum, Class<R> rClazz) {
-        return baseMapper.page(queryChainWrapper, pageNum, pageSize, recentPageNum, clazz, rClazz);
+        return baseMapper.page(queryWrapper, pageNum, pageSize, recentPageNum, clazz, rClazz);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,
                                   Integer recentPageNum, TypeReference<R> typeReference) {
-        return baseMapper.page(queryChainWrapper, pageNum, pageSize, recentPageNum, clazz, typeReference);
+        return baseMapper.page(queryWrapper, pageNum, pageSize, recentPageNum, clazz, typeReference);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam,
                                   Integer recentPageNum, Class<R> rClazz) {
-        return baseMapper.page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(),
+        return baseMapper.page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(),
                 recentPageNum, clazz, rClazz);
     }
 
     @Override
-    public <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,
+    public <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam,
                                   Integer recentPageNum, TypeReference<R> typeReference) {
-        return baseMapper.page(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(),
+        return baseMapper.page(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(),
                 recentPageNum, clazz, typeReference);
     }
 
@@ -528,37 +528,37 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize) {
-        return pageList(queryChainWrapper, pageNum, pageSize, clazz);
+    public List<T> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize) {
+        return pageList(queryWrapper, pageNum, pageSize, clazz);
     }
 
     @Override
-    public <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum,
+    public <R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum,
                                 Integer pageSize, Class<R> rClazz) {
-        return baseMapper.pageList(queryChainWrapper, pageNum, pageSize, clazz, rClazz);
+        return baseMapper.pageList(queryWrapper, pageNum, pageSize, clazz, rClazz);
     }
 
     @Override
-    public <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum,
+    public <R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum,
                                 Integer pageSize, TypeReference<R> typeReference) {
-        return baseMapper.pageList(queryChainWrapper, pageNum, pageSize, clazz, typeReference);
+        return baseMapper.pageList(queryWrapper, pageNum, pageSize, clazz, typeReference);
     }
 
     @Override
-    public List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam) {
-        return pageList(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz);
+    public List<T> pageList(Wrapper<T> queryWrapper, PageParam pageParam) {
+        return pageList(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz);
     }
 
     @Override
-    public <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper,
+    public <R> List<R> pageList(Wrapper<T> queryWrapper,
                                 PageParam pageParam, Class<R> rClazz) {
-        return baseMapper.pageList(queryChainWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, rClazz);
+        return baseMapper.pageList(queryWrapper, pageParam.getPageNum(), pageParam.getPageSize(), clazz, rClazz);
     }
 
     @Override
-    public <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper,
+    public <R> List<R> pageList(Wrapper<T> queryWrapper,
                                 PageParam pageParam, TypeReference<R> typeReference) {
-        return baseMapper.pageList(queryChainWrapper, pageParam.getPageNum(),
+        return baseMapper.pageList(queryWrapper, pageParam.getPageNum(),
                 pageParam.getPageSize(), clazz, typeReference);
     }
 
@@ -693,8 +693,8 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
-    public Boolean exist(QueryChainWrapper<T, ?> queryChainWrapper) {
-        return baseMapper.isExist(queryChainWrapper, clazz);
+    public Boolean exist(Wrapper<T> queryWrapper) {
+        return baseMapper.isExist(queryWrapper, clazz);
     }
 
 }

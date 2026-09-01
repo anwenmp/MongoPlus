@@ -7,6 +7,7 @@ import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongoplus.aggregate.AggregateWrapper;
 import com.mongoplus.cache.codec.MapCodecCache;
+import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.enums.AggregateEnum;
 import com.mongoplus.interceptor.Interceptor;
 import com.mongoplus.logic.LogicDeleteHandler;
@@ -147,8 +148,9 @@ public class CollectionLogiceInterceptor implements Interceptor {
                     })
                     .collect(Collectors.toList());
         } else {
-            Bson matchBson = new AggregateWrapper().match(matchWrapper ->
-                            matchWrapper.eq(result.getColumn(), result.getLogicNotDeleteValue()))
+            QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq(result.getColumn(), result.getLogicNotDeleteValue());
+            Bson matchBson = new AggregateWrapper().match(queryWrapper)
                     .getAggregateConditionList().get(0);
             aggregateConditionList.add(matchBson);
         }

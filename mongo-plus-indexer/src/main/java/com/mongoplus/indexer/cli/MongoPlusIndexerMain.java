@@ -4,36 +4,50 @@ import com.mongoplus.indexer.MongoPlusIndexer;
 import com.mongoplus.indexer.MongoPlusIndexerConfig;
 import com.mongoplus.indexer.model.MongoPlusApiIndex;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /** MongoPlus API Index 命令行入口。 */
 public final class MongoPlusIndexerMain {
-    private MongoPlusIndexerMain() {}
+    private MongoPlusIndexerMain() {
+    }
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 2 && "--project-root".equals(args[0])) {
-            MongoPlusIndexerConfig config = MongoPlusIndexerConfig.forMongoPlusProject(Paths.get(args[1])).build();
-            MongoPlusApiIndex index = new MongoPlusIndexer(config).generateAndWrite();
-            System.out.println("MongoPlus API Index: " + config.getOutput().toAbsolutePath().normalize());
-            System.out.println("Method Families: " + index.getMethodFamilies().size());
-            return;
+        Path currentDir = Paths.get(System.getProperty("user.dir"))
+                .toAbsolutePath()
+                .normalize();
+
+        Path projectRoot;
+
+        // IDEA Working Directory 是 MongoPlus 项目根目录
+        if (Files.isDirectory(currentDir.resolve("mongo-plus-core"))
+                && Files.isDirectory(currentDir.resolve("mongo-plus-indexer"))) {
+            projectRoot = currentDir;
         }
-        if (args.length < 3) {
-            System.err.println("用法: MongoPlusIndexerMain --project-root <root>");
-            System.err.println("   或: MongoPlusIndexerMain <version> <output> <sourceRoot> [sourceRoot...]");
-            System.exit(2);
+        // IDEA Working Directory 是 mongo-plus-indexer 模块目录
+        else if ("mongo-plus-indexer".equals(currentDir.getFileName().toString())) {
+            projectRoot = currentDir.getParent();
+        } else {
+            throw new IllegalStateException(
+                    "无法识别 MongoPlus 项目根目录，当前目录: " + currentDir
+            );
         }
-        MongoPlusIndexerConfig.Builder builder = MongoPlusIndexerConfig.builder()
-                .mongoPlusVersion(args[0])
-                .output(Paths.get(args[1]))
-                .addPrimaryPackage(MongoPlusIndexerConfig.DEFAULT_PRIMARY_PACKAGE);
-        for (int i = 2; i < args.length; i++) { builder.addSourceRoot(Paths.get(args[i])); }
-        MongoPlusIndexerConfig builtConfig = builder.build();
-        MongoPlusIndexer indexer = new MongoPlusIndexer(builtConfig);
-        MongoPlusApiIndex index = indexer.generateAndWrite();
-        Path output = builtConfig.getOutput().toAbsolutePath().normalize();
+
+        Path output = projectRoot
+                .resolve("mongo-plus-indexer")
+                .resolve("target")
+                .resolve("generated-sources")
+                .resolve("mongo-plus-api-aggregate-index.json");
+
+        MongoPlusIndexerConfig config = MongoPlusIndexerConfig
+                .forMongoPlusProject(projectRoot)
+                .output(output)
+                .build();
+
+        MongoPlusApiIndex index = new MongoPlusIndexer(config)
+                .generateAndWrite();
+
         System.out.println("MongoPlus API Index: " + output);
-        System.out.println("Method Families: " + index.getMethodFamilies().size());
     }
 }

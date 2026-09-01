@@ -1,7 +1,7 @@
 package com.mongoplus.conditions.interfaces.update.array.operations;
 
 import com.mongoplus.conditions.interfaces.update.BaseUpdateCondition;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
@@ -38,12 +38,12 @@ public interface Pull<T, Children> extends BaseUpdateCondition<T, Children> {
     /**
      * 删除数组中符合条件或符合指定值的实例
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
-     * @param wrapper 值 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(boolean condition, QueryChainWrapper<?,?> wrapper) {
-        return condition ? pull(wrapper) : typeThis();
+    default Children pull(boolean condition, Wrapper<?> queryWrapper) {
+        return condition ? pull(queryWrapper) : typeThis();
     }
 
     /**
@@ -53,18 +53,18 @@ public interface Pull<T, Children> extends BaseUpdateCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(boolean condition,SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function) {
+    default Children pull(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
         return condition ? pull(function) : typeThis();
     }
 
     /**
      * 删除数组中符合条件或符合指定值的实例
-     * @param wrapper 值 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(QueryChainWrapper<?,?> wrapper) {
-        return addUpdateCondition(getBaseUpdateCompare(wrapper,true));
+    default Children pull(Wrapper<?> queryWrapper) {
+        return addUpdateCondition(getBaseUpdateCompare(queryWrapper,true));
     }
 
     /**
@@ -73,7 +73,7 @@ public interface Pull<T, Children> extends BaseUpdateCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function) {
+    default Children pull(SFunction<Wrapper<T>, Wrapper<T>> function) {
         return pull(function.apply(new QueryWrapper<>()));
     }
 

@@ -2,7 +2,7 @@ package com.mongoplus.conditions.interfaces.query.logic.operations;
 
 import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
@@ -42,20 +42,20 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
     /**
      * 查询不匹配的文档
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
-     * @param queryChainWrapper 条件构造器
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return Children
      */
-    default Children not(boolean condition, QueryChainWrapper<?,?> queryChainWrapper) {
-        return condition ? not(queryChainWrapper) : typeThis();
+    default Children not(boolean condition, Wrapper<?> queryWrapper) {
+        return condition ? not(queryWrapper) : typeThis();
     }
 
     /**
      * 查询不匹配的文档
-     * @param queryChainWrapper 条件构造器
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return Children
      */
-    default Children not(QueryChainWrapper<?,?> queryChainWrapper) {
-        return addCondition(getBaseCondition(queryChainWrapper));
+    default Children not(Wrapper<?> queryWrapper) {
+        return addCondition(getBaseCondition(queryWrapper));
     }
 
     /**
@@ -63,7 +63,7 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
      * @param function 条件构造器
      * @return Children
      */
-    default Children not(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children not(SFunction<Wrapper<T>, Wrapper<T>> function) {
         return not(function.apply(new QueryWrapper<>()));
     }
 
@@ -73,7 +73,7 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
      * @param function 条件构造器
      * @return Children
      */
-    default Children not(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children not(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
         return condition ? not(function) : typeThis();
     }
 

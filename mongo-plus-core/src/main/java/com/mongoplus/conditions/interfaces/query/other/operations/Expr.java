@@ -2,7 +2,7 @@ package com.mongoplus.conditions.interfaces.query.other.operations;
 
 import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
@@ -38,25 +38,27 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
 
     /**
      * 进行计算的表达式
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author anwen
      */
-    default Children expr(boolean condition, QueryChainWrapper<?,?> queryChainWrapper) {
-        return condition ? expr(queryChainWrapper) : typeThis();
+    default Children expr(boolean condition, Wrapper<?> queryWrapper) {
+        return condition ? expr(queryWrapper) : typeThis();
+    }
+
+    /**
+     * 进行计算的表达式
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
+     * @author anwen
+     */
+    default Children expr(Wrapper<?> queryWrapper) {
+        return addCondition(getBaseCondition(queryWrapper));
     }
 
     /**
      * 进行计算的表达式
      * @author anwen
      */
-    default Children expr(QueryChainWrapper<?,?> queryChainWrapper) {
-        return addCondition(getBaseCondition(queryChainWrapper));
-    }
-
-    /**
-     * 进行计算的表达式
-     * @author anwen
-     */
-    default Children expr(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children expr(SFunction<Wrapper<T>, Wrapper<T>> function) {
         return expr(function.apply(new QueryWrapper<>()));
     }
 
@@ -64,7 +66,7 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
      * 进行计算的表达式
      * @author anwen
      */
-    default Children expr(boolean condition,SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children expr(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
         return condition ? expr(function) : typeThis();
     }
 

@@ -3,7 +3,7 @@ package com.mongoplus.conditions.interfaces.query;
 import com.mongoplus.conditions.interfaces.BaseCondition;
 import com.mongoplus.model.Projection;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.model.Order;
 import com.mongoplus.support.SFunction;
@@ -118,11 +118,16 @@ public interface BaseQueryCondition<T, Children> extends BaseCondition<T, Childr
         );
     }
 
-    default ConditionMetaObject getBaseCondition(QueryChainWrapper<?,?> queryChainWrapper){
+    /**
+     * 构建 Wrapper 条件元对象
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
+     * @return 条件元对象
+     */
+    default ConditionMetaObject getBaseCondition(Wrapper<?> queryWrapper){
         return ConditionMetaObject
                 .builder()
                 .condition(Thread.currentThread().getStackTrace()[2].getMethodName())
-                .value(queryChainWrapper)
+                .value(queryWrapper)
                 .build();
     }
 

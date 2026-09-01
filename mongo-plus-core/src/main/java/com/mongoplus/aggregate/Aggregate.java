@@ -10,7 +10,7 @@ import com.mongodb.client.model.fill.FillOutputField;
 import com.mongoplus.aggregate.pipeline.Project;
 import com.mongoplus.aggregate.pipeline.UnwindOption;
 import com.mongoplus.annotation.comm.Nullable;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.model.aggregate.Field;
 import com.mongoplus.support.SFunction;
 import org.bson.Document;
@@ -377,11 +377,11 @@ public interface Aggregate<Children> extends Project<Children> {
 
     /**
      * $match阶段
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}
      * @author anwen
      */
-    Children match(final QueryChainWrapper<?, ?> queryChainWrapper);
+    Children match(final Wrapper<?> queryWrapper);
 
     /**
      * $match阶段
@@ -389,7 +389,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @return {@link Children}
      * @author anwen
      */
-    Children match(final SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function);
+    Children match(final SFunction<Wrapper<?>, Wrapper<?>> function);
 
     /**
      * $match阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson

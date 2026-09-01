@@ -7,7 +7,7 @@ import com.mongodb.client.model.search.SearchCollector;
 import com.mongodb.client.model.search.SearchCount;
 import com.mongodb.client.model.search.SearchOperator;
 import com.mongodb.client.model.search.SearchOptions;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.support.SFunction;
 import org.bson.*;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -216,12 +216,12 @@ public class Projections {
      * 创建一个投影，其中仅包含给定字段的与给定查询过滤器匹配的该字段的数组值的第一个元素。
      *
      * @param fieldName 字段名称
-     * @param queryChainWrapper    条件构造器
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return $project
      * @since mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
      */
-    public static Bson elemMatch(final String fieldName, final QueryChainWrapper<?, ?> queryChainWrapper) {
-        return elemMatch(fieldName, condition().queryCondition(queryChainWrapper).getCondition());
+    public static Bson elemMatch(final String fieldName, final Wrapper<?> queryWrapper) {
+        return elemMatch(fieldName, condition().queryCondition(queryWrapper).getCondition());
     }
 
     /**
@@ -240,12 +240,12 @@ public class Projections {
      * 创建一个投影，其中仅包含给定字段的与给定查询过滤器匹配的该字段的数组值的第一个元素。
      *
      * @param fieldName 字段名称
-     * @param queryChainWrapper    条件构造器
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return $project
      * @since mongodb.driver.manual reference/operator/projection/elemMatch elemMatch
      */
-    public static <T> Bson elemMatch(final SFunction<T,?> fieldName, final QueryChainWrapper<?, ?> queryChainWrapper) {
-        return elemMatch(fieldName.getFieldNameLine(),queryChainWrapper);
+    public static <T> Bson elemMatch(final SFunction<T,?> fieldName, final Wrapper<?> queryWrapper) {
+        return elemMatch(fieldName.getFieldNameLine(),queryWrapper);
     }
 
     /**

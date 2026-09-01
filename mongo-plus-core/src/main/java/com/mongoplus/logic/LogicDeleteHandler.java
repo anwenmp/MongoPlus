@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.config.Configuration;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.mongoplus.enums.QueryOperatorEnum.EQ;
 import static com.mongoplus.handlers.condition.BuildCondition.condition;
 
 /**
@@ -103,40 +105,44 @@ public interface LogicDeleteHandler {
      * @param <T>   文档类型
      * @return 添加逻辑未删除的条件集合
      */
-    @SuppressWarnings("all")
-    static List<ConditionMetaObject> doWrapperLogicDel(Class clazz) {
+    static <T> List<ConditionMetaObject> doWrapperLogicDel(Class<T> clazz) {
         return doWrapperLogicDel(null, clazz);
     }
 
     /**
      * 给 wrapper 对象添加逻辑未删除对象
      *
-     * @param queryChainWrapper wrapper 条件包裹对象
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param clazz             目标文档
      * @param <T>               文档类型
      * @return 添加逻辑未删除的条件集合
      */
-    @SuppressWarnings("unchecked")
-    static <T> List<ConditionMetaObject> doWrapperLogicDel(QueryChainWrapper<T, ?> queryChainWrapper, Class clazz) {
+    static <T> List<ConditionMetaObject> doWrapperLogicDel(Wrapper<T> queryWrapper, Class<T> clazz) {
 
         if (close()) {
-            if (Objects.isNull(queryChainWrapper)) {
+            if (Objects.isNull(queryWrapper)) {
                 return null;
             }
-            return queryChainWrapper.getConditionMetaObjects();
+            return queryWrapper.getConditionMetaObjects();
         }
         LogicDeleteResult result = LogicManager.logicDeleteResultHashMap.get(clazz);
         if (Objects.isNull(result)) {
-            if (Objects.isNull(queryChainWrapper)) {
+            if (Objects.isNull(queryWrapper)) {
                 return null;
             }
-            return queryChainWrapper.getConditionMetaObjects();
+            return queryWrapper.getConditionMetaObjects();
         }
-        if (Objects.isNull(queryChainWrapper)) {
-            queryChainWrapper = ChainWrappers.lambdaQueryChain(null, clazz);
+        if (Objects.isNull(queryWrapper)) {
+            queryWrapper = ChainWrappers.lambdaQueryChain(null, clazz);
         }
-        queryChainWrapper.eq(result.getColumn(), result.getLogicNotDeleteValue());
-        return queryChainWrapper.getConditionMetaObjects();
+        queryWrapper.addConditionMetaObject(new ConditionMetaObject(
+                EQ.getValue(),
+                result.getColumn(),
+                result.getLogicNotDeleteValue(),
+                Object.class,
+                null
+        ));
+        return queryWrapper.getConditionMetaObjects();
 
     }
 

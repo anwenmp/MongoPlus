@@ -3,7 +3,7 @@ package com.mongoplus.mapper;
 import com.mongodb.client.model.WriteModel;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.TypeReference;
@@ -55,10 +55,11 @@ public interface Mapper extends SuperMapper {
 
     /**
      * 根据queryWrapper修改entity
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author anwen
      */
-    default <T> Boolean update(String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
-        return update(EMPTY,collectionName,entity,queryChainWrapper);
+    default <T> Boolean update(String collectionName,T entity, Wrapper<T> queryWrapper){
+        return update(EMPTY,collectionName,entity,queryWrapper);
     }
 
     /**
@@ -73,12 +74,12 @@ public interface Mapper extends SuperMapper {
 
     /**
      * 根据条件查询是否存在
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link boolean}
      * @author anwen
      */
-    default boolean isExist(String collectionName,QueryChainWrapper<?,?> queryChainWrapper){
-        return isExist(EMPTY,collectionName,queryChainWrapper);
+    default boolean isExist(String collectionName,Wrapper<?> queryWrapper){
+        return isExist(EMPTY,collectionName,queryWrapper);
     }
 
     /**
@@ -111,12 +112,12 @@ public interface Mapper extends SuperMapper {
 
     /**
      * 根据条件查询总数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link long}
      * @author anwen
      */
-    default long count(String collectionName,QueryChainWrapper<?, ?> queryChainWrapper){
-        return count(EMPTY,collectionName,queryChainWrapper);
+    default long count(String collectionName,Wrapper<?> queryWrapper){
+        return count(EMPTY,collectionName,queryWrapper);
     }
 
     /**
@@ -150,22 +151,22 @@ public interface Mapper extends SuperMapper {
 
     /**
      * 根据条件查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link List<T>}
      * @author anwen
      */
-    default <T,R> List<R> list(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Class<R> rClazz){
-        return list(EMPTY,collectionName,queryChainWrapper,rClazz);
+    default <T,R> List<R> list(String collectionName,Wrapper<T> queryWrapper, Class<R> rClazz){
+        return list(EMPTY,collectionName,queryWrapper,rClazz);
     }
 
     /**
      * 根据条件查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link List<R>}
      * @author anwen
      */
-    default <T,R> List<R> list(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, TypeReference<R> typeReference){
-        return list(EMPTY,collectionName,queryChainWrapper,typeReference);
+    default <T,R> List<R> list(String collectionName,Wrapper<T> queryWrapper, TypeReference<R> typeReference){
+        return list(EMPTY,collectionName,queryWrapper,typeReference);
     }
 
     /**
@@ -190,96 +191,96 @@ public interface Mapper extends SuperMapper {
 
     /**
      * 根据条件查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link T}
      * @author anwen
      */
-    default <T,R> R one(String collectionName,QueryChainWrapper<T,?> queryChainWrapper,Class<R> rClazz){
-        return one(EMPTY,collectionName,queryChainWrapper,rClazz);
+    default <T,R> R one(String collectionName,Wrapper<T> queryWrapper,Class<R> rClazz){
+        return one(EMPTY,collectionName,queryWrapper,rClazz);
     }
 
     /**
      * 根据条件查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link T}
      * @author anwen
      */
-    default <T,R> R one(String collectionName,QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference){
-        return one(EMPTY,collectionName,queryChainWrapper,typeReference);
+    default <T,R> R one(String collectionName,Wrapper<T> queryWrapper,TypeReference<R> typeReference){
+        return one(EMPTY,collectionName,queryWrapper,typeReference);
     }
 
     /**
      * 分页查询，如果queryWrapper有条件，查询会慢，因为需要重新进行count查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
      */
-    default <T,R> PageResult<R> page(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz){
-        return page(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,rClazz);
+    default <T,R> PageResult<R> page(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz){
+        return page(EMPTY,collectionName,queryWrapper,pageNum,pageSize,rClazz);
     }
 
     /**
      * 分页查询，如果queryWrapper有条件，查询会慢，因为需要重新进行count查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
      */
-    default <T,R> PageResult<R> page(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference){
-        return page(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,typeReference);
+    default <T,R> PageResult<R> page(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference){
+        return page(EMPTY,collectionName,queryWrapper,pageNum,pageSize,typeReference);
     }
 
     /**
      * 分页查询，返回List，不进行count查询，比page查询效率高
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
      */
-    default <T,R> List<R> pageList(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz){
-        return pageList(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,rClazz);
+    default <T,R> List<R> pageList(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz){
+        return pageList(EMPTY,collectionName,queryWrapper,pageNum,pageSize,rClazz);
     }
 
     /**
      * 分页查询，返回List，不进行count查询，比page查询效率高
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
      */
-    default <T,R> List<R> pageList(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, TypeReference<R> typeReference){
-        return pageList(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,typeReference);
+    default <T,R> List<R> pageList(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, TypeReference<R> typeReference){
+        return pageList(EMPTY,collectionName,queryWrapper,pageNum,pageSize,typeReference);
     }
 
     /**
      * 分页查询，查询最近n页的数据
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
      */
-    default <T,R> PageResult<R> page(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz){
-        return page(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,recentPageNum,rClazz);
+    default <T,R> PageResult<R> page(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz){
+        return page(EMPTY,collectionName,queryWrapper,pageNum,pageSize,recentPageNum,rClazz);
     }
 
     /**
      * 分页查询，查询最近n页的数据
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
      */
-    default <T,R> PageResult<R> page(String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference){
-        return page(EMPTY,collectionName,queryChainWrapper,pageNum,pageSize,recentPageNum,typeReference);
+    default <T,R> PageResult<R> page(String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference){
+        return page(EMPTY,collectionName,queryWrapper,pageNum,pageSize,recentPageNum,typeReference);
     }
 
     /**

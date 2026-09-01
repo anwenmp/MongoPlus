@@ -3,6 +3,7 @@ package com.mongoplus.handlers.condition;
 import com.mongodb.BasicDBObject;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.AbstractChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.model.Projection;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -62,7 +63,7 @@ public interface Condition {
      * @return {@link BaseConditionResult}
      * @author anwen
      */
-    BaseConditionResult queryCondition(AbstractChainWrapper<?,?> wrapper);
+    BaseConditionResult queryCondition(Wrapper<?> wrapper);
 
     /**
      * wrapper是否为空

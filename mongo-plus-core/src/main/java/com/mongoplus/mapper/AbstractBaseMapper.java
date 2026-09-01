@@ -11,7 +11,7 @@ import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.enums.CommandOperate;
@@ -20,8 +20,6 @@ import com.mongoplus.execute.ExecutorFactory;
 import com.mongoplus.index.impl.DefaultBaseIndexImpl;
 import com.mongoplus.interceptor.InterceptorChain;
 import com.mongoplus.interceptor.business.TenantInterceptor;
-import com.mongoplus.logging.Log;
-import com.mongoplus.logging.LogFactory;
 import com.mongoplus.logic.LogicDeleteHandler;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.manager.TenantManager;
@@ -54,8 +52,6 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * @author anwen
  */
 public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements BaseMapper {
-
-    private final Log log = LogFactory.getLog(AbstractBaseMapper.class);
 
     private final MongoPlusClient mongoPlusClient;
 
@@ -140,9 +136,9 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T> Boolean updateOne(T entity,QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
+    public <T> Boolean updateOne(T entity,Wrapper<T> queryWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryChainWrapper.getConditionMetaObjects(), entity, mongoConverter);
+                ConditionUtil.getUpdateCondition(queryWrapper.getConditionMetaObjects(), entity, mongoConverter);
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
         return updateOne(namespace.getLeft(), namespace.getRight(), updatePair.getLeft(), updatePair.getRight(),options) > 0;
     }
@@ -158,9 +154,9 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
 
     @Override
     public <T> Boolean update(String database, String collectionName, T entity,
-                              QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
+                              Wrapper<T> queryWrapper,UpdateOptions options) {
         MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryChainWrapper.getConditionMetaObjects(), entity, mongoConverter);
+                ConditionUtil.getUpdateCondition(queryWrapper.getConditionMetaObjects(), entity, mongoConverter);
         return update(database, collectionName, updatePair.getLeft(), updatePair.getRight(),options) > 0;
     }
 
@@ -171,9 +167,9 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public boolean isExist(String database, String collectionName, QueryChainWrapper<?, ?> queryChainWrapper) {
+    public boolean isExist(String database, String collectionName, Wrapper<?> queryWrapper) {
         return factory.getExecute().executeCount(
-                condition().queryCondition(queryChainWrapper).getCondition(),
+                condition().queryCondition(queryWrapper).getCondition(),
                 null,
                 mongoPlusClient.getCollection(database, collectionName)) >= 1;
     }
@@ -221,15 +217,15 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public long count(String database, String collectionName, QueryChainWrapper<?, ?> queryChainWrapper) {
+    public long count(String database, String collectionName, Wrapper<?> queryWrapper) {
         Execute execute = factory.getExecute();
         MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
         long line;
-        if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
+        if (canEstimatedDocumentCount(collection, queryWrapper)) {
             line = execute.estimatedDocumentCount(collection);
         } else {
             line = execute.executeCount(
-                    condition().queryCondition(queryChainWrapper).getCondition(),
+                    condition().queryCondition(queryWrapper).getCondition(),
                     null,
                     collection
             );
@@ -239,12 +235,13 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
 
     /**
      * 判断是否可以使用 mongo  快速估计文档数量
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      */
     private boolean canEstimatedDocumentCount(MongoCollection<Document> collection,
-                                              QueryChainWrapper<?, ?> queryChainWrapper) {
+                                              Wrapper<?> queryWrapper) {
         // 忽略逻辑删除 + 条件为空 + 忽略多租户
         return LogicDeleteHandler.close(collection)
-                && (queryChainWrapper != null && !queryChainWrapper.isNotEmpty())
+                && (queryWrapper != null && !queryWrapper.isNotEmpty())
                 && (TenantManager.getIgnoreTenant() != null ||
                 InterceptorChain.getInterceptor(interceptor -> interceptor instanceof TenantInterceptor) == null);
     }
@@ -300,15 +297,15 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T, R> List<R> list(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> List<R> list(String database, String collectionName, Wrapper<T> queryWrapper,
                                Class<R> rClazz) {
-        return list(database, collectionName, queryChainWrapper, new TypeReference<R>(rClazz) {});
+        return list(database, collectionName, queryWrapper, new TypeReference<R>(rClazz) {});
     }
 
     @Override
-    public <T, R> List<R> list(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> List<R> list(String database, String collectionName, Wrapper<T> queryWrapper,
                                TypeReference<R> typeReference) {
-        BaseConditionResult baseConditionResult = queryChainWrapper.buildCondition();
+        BaseConditionResult baseConditionResult = queryWrapper.buildCondition();
         FindIterable<Document> documentFindIterable = factory.getExecute().executeQuery(
                 baseConditionResult.getCondition(),
                 baseConditionResult.getProjection(),
@@ -366,16 +363,16 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T, R> R one(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> R one(String database, String collectionName, Wrapper<T> queryWrapper,
                         Class<R> rClazz) {
-        return one(database, collectionName, queryChainWrapper, new TypeReference<R>(rClazz) {
+        return one(database, collectionName, queryWrapper, new TypeReference<R>(rClazz) {
         });
     }
 
     @Override
-    public <T, R> R one(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> R one(String database, String collectionName, Wrapper<T> queryWrapper,
                         TypeReference<R> typeReference) {
-        BaseConditionResult baseConditionResult = queryChainWrapper.buildCondition();
+        BaseConditionResult baseConditionResult = queryWrapper.buildCondition();
         return mongoConverter.readDocument(factory.getExecute().executeQuery(
                         baseConditionResult.getCondition(),
                         baseConditionResult.getProjection(),
@@ -387,22 +384,22 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T, R> PageResult<R> page(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> PageResult<R> page(String database, String collectionName, Wrapper<T> queryWrapper,
                                      Integer pageNum, Integer pageSize, Class<R> rClazz) {
-        return page(database, collectionName, queryChainWrapper, pageNum, pageSize, new TypeReference<R>(rClazz) {
+        return page(database, collectionName, queryWrapper, pageNum, pageSize, new TypeReference<R>(rClazz) {
         });
     }
 
     @Override
-    public <T, R> PageResult<R> page(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> PageResult<R> page(String database, String collectionName, Wrapper<T> queryWrapper,
                                      Integer pageNum, Integer pageSize, TypeReference<R> typeReference) {
-        BaseConditionResult baseConditionResult = queryChainWrapper.buildCondition();
+        BaseConditionResult baseConditionResult = queryWrapper.buildCondition();
         MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
         long count;
-        if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
+        if (canEstimatedDocumentCount(collection, queryWrapper)) {
             count = factory.getExecute().estimatedDocumentCount(collection);
         } else {
-            count = count(database, collectionName, queryChainWrapper);
+            count = count(database, collectionName, queryWrapper);
         }
         FindIterable<Document> iterable = factory.getExecute().executeQuery(
                 baseConditionResult.getCondition(),
@@ -421,16 +418,16 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T, R> List<R> pageList(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> List<R> pageList(String database, String collectionName, Wrapper<T> queryWrapper,
                                    Integer pageNum, Integer pageSize, Class<R> rClazz) {
-        return pageList(database, collectionName, queryChainWrapper, pageNum, pageSize, new TypeReference<R>(rClazz) {
+        return pageList(database, collectionName, queryWrapper, pageNum, pageSize, new TypeReference<R>(rClazz) {
         });
     }
 
     @Override
-    public <T, R> List<R> pageList(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> List<R> pageList(String database, String collectionName, Wrapper<T> queryWrapper,
                                    Integer pageNum, Integer pageSize, TypeReference<R> typeReference) {
-        BaseConditionResult baseConditionResult = queryChainWrapper.buildCondition();
+        BaseConditionResult baseConditionResult = queryWrapper.buildCondition();
         FindIterable<Document> iterable = factory.getExecute().executeQuery(
                 baseConditionResult.getCondition(),
                 baseConditionResult.getProjection(),
@@ -442,24 +439,24 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     }
 
     @Override
-    public <T, R> PageResult<R> page(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> PageResult<R> page(String database, String collectionName, Wrapper<T> queryWrapper,
                                      Integer pageNum, Integer pageSize, Integer recentPageNum, Class<R> rClazz) {
-        return page(database, collectionName, queryChainWrapper, pageNum, pageSize, recentPageNum,
+        return page(database, collectionName, queryWrapper, pageNum, pageSize, recentPageNum,
                 new TypeReference<R>(rClazz) {
                 }
         );
     }
 
     @Override
-    public <T, R> PageResult<R> page(String database, String collectionName, QueryChainWrapper<T, ?> queryChainWrapper,
+    public <T, R> PageResult<R> page(String database, String collectionName, Wrapper<T> queryWrapper,
                                      Integer pageNum, Integer pageSize, Integer recentPageNum, TypeReference<R> typeReference) {
-        BaseConditionResult baseConditionResult = queryChainWrapper.buildCondition();
+        BaseConditionResult baseConditionResult = queryWrapper.buildCondition();
         MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
         long count;
-        if (canEstimatedDocumentCount(collection, queryChainWrapper)) {
+        if (canEstimatedDocumentCount(collection, queryWrapper)) {
             count = factory.getExecute().estimatedDocumentCount(collection);
         } else {
-            count = recentPageCount(database, collectionName, queryChainWrapper.getConditionMetaObjects(), pageNum, pageSize, recentPageNum);
+            count = recentPageCount(database, collectionName, queryWrapper.getConditionMetaObjects(), pageNum, pageSize, recentPageNum);
         }
         FindIterable<Document> iterable = factory.getExecute().executeQuery(
                 baseConditionResult.getCondition(),

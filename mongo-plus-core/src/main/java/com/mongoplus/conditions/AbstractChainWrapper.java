@@ -13,84 +13,50 @@ import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 查询条件
  * @author JiaChaoYang
  */
-public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>>
+public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrapper<T, Children>> extends Wrapper<T>
         implements QueryCondition<T, Children> {
 
     @SuppressWarnings("unchecked")
     protected final Children typedThis = (Children) this;
 
     /**
-     * 构建条件对象
+     * 数据库表映射实体类
      */
-    private final List<ConditionMetaObject> conditionMetaObjects = new CopyOnWriteArrayList<>();
+    private T entity;
 
-    /**
-     * 构建排序对象
-     */
-    List<Order> orderList = new ArrayList<>();
+    public AbstractChainWrapper() {
+        super();
+    }
 
-    /**
-     * 构建显示字段
-     */
-    List<Projection> projectionList = new ArrayList<>();
-
-    /**
-     * 自定义条件语句
-     */
-    List<BasicDBObject> basicDBObjectList = new ArrayList<>();
+    @Override
+    public T getEntity() {
+        return entity;
+    }
 
     public Children getTypedThis() {
         return typedThis;
     }
 
-    public List<ConditionMetaObject> getConditionMetaObjects() {
-        return conditionMetaObjects;
-    }
-
-    public List<Order> getOrderList() {
-        return orderList;
-    }
-
-    public List<Projection> getProjectionList() {
-        return projectionList;
-    }
-
-    public List<BasicDBObject> getBasicDBObjectList() {
-        return basicDBObjectList;
-    }
-
-    /**
-     * 清空所有构建的条件
-     * @author anwen
-     */
-    public synchronized void clear() {
-        conditionMetaObjects.clear();
-        orderList.clear();
-        projectionList.clear();
-        basicDBObjectList.clear();
-    }
-
     @Override
     public Children addCondition(ConditionMetaObject conditionMetaObject) {
-        this.conditionMetaObjects.add(conditionMetaObject);
+        super.addConditionMetaObject(conditionMetaObject);
         return typedThis;
     }
 
     @Override
     public Children addCondition(List<Projection> projections) {
-        this.projectionList.addAll(projections);
+        super.addProjection(projections);
         return typedThis;
     }
 
     @Override
     public Children addCondition(Order order) {
-        this.orderList.add(order);
+        super.addOrder(order);
         return typedThis;
     }
 
@@ -101,13 +67,13 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
     }
     @Override
     public Children custom(BasicDBObject basicDBObject) {
-        this.basicDBObjectList.add(basicDBObject);
+        super.addBasicDBObject(basicDBObject);
         return typedThis;
     }
 
     @Override
     public Children custom(Bson bson) {
-        this.basicDBObjectList.add(BasicDBObject.parse(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toJson()));
+        super.addBasicDBObject(BasicDBObject.parse(bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry()).toJson()));
         return typedThis;
     }
 
@@ -118,13 +84,13 @@ public abstract class AbstractChainWrapper<T, Children extends AbstractChainWrap
 
     @Override
     public Children custom(MongoPlusBasicDBObject mongoPlusBasicDBObject) {
-        this.basicDBObjectList.add(mongoPlusBasicDBObject);
+        super.addBasicDBObject(mongoPlusBasicDBObject);
         return typedThis;
     }
 
     @Override
     public Children custom(List<BasicDBObject> basicDBObjectList) {
-        this.basicDBObjectList.addAll(basicDBObjectList);
+        super.addBasicDBObject(basicDBObjectList);
         return typedThis;
     }
 

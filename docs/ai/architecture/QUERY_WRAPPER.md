@@ -1,20 +1,21 @@
 # Query / Update Wrapper 与 BSON
 
-> 审计日期：2026-08-02。结论以 `mongo-plus-core` 当前源码为准。本文只描述条件构造、BSON 汇合及执行前增强；CRUD 总链见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md)，执行拦截顺序见 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)。
+> 审计日期：2026-09-01。结论以 `mongo-plus-core` 当前源码为准。本文只描述条件构造、BSON 汇合及执行前增强；CRUD 总链见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md)，执行拦截顺序见 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)。
 
 ## 类型关系与职责边界
 
 ```text
-AbstractChainWrapper<T, Children>
-├─ QueryChainWrapper<T, Children>
-│  ├─ QueryWrapper<T>
-│  └─ LambdaQueryChainWrapper<T>  （增加 list/one/page/count 终结操作）
-└─ UpdateChainWrapper<T, Children>
-   ├─ UpdateWrapper<T>
-   └─ LambdaUpdateChainWrapper<T> （增加 update/remove 终结操作）
+Wrapper<T>
+└─ AbstractChainWrapper<T, Children>
+   ├─ QueryChainWrapper<T, Children>
+   │  ├─ QueryWrapper<T>
+   │  └─ LambdaQueryChainWrapper<T>  （增加 list/one/page/count 终结操作）
+   └─ UpdateChainWrapper<T, Children>
+      ├─ UpdateWrapper<T>
+      └─ LambdaUpdateChainWrapper<T> （增加 update/remove 终结操作）
 ```
 
-- `AbstractChainWrapper` 实现 `QueryCondition`，持有查询条件、排序、投影和自定义 BSON 四组状态。
+- `Wrapper` 通过 `ConditionModel` 持有查询条件、排序、投影和自定义 BSON 四组状态；`AbstractChainWrapper` 继承这些状态并实现 `QueryCondition`。
 - `QueryChainWrapper` 只增加查询条件的构建实现；`QueryWrapper` 是可直接实例化的普通查询 Wrapper。
 - 当前源码不存在独立的 `LambdaQueryWrapper` 类。所谓 Lambda 查询通过同一套 Wrapper 上接收 `SFunction` 的重载完成；带终结操作的具体类型是 `LambdaQueryChainWrapper`。
 - `UpdateChainWrapper` 继承全部查询条件能力，另持有更新操作元对象和自定义更新 BSON。因此更新 Wrapper 的左侧仍是查询 filter，右侧才是 `$set/$inc/...` 更新文档。
@@ -30,7 +31,7 @@ AbstractChainWrapper<T, Children>
 ```text
 eq/ne/.../and/or/not
   -> BaseQueryCondition.getBaseCondition(...)
-  -> AbstractChainWrapper.conditionMetaObjects
+  -> Wrapper.conditionModel.conditionMetaObjects
   -> QueryChainWrapper.buildCondition()
   -> BuildCondition.condition().queryCondition(wrapper)
   -> AbstractCondition.queryCondition(List<ConditionMetaObject>)
@@ -64,7 +65,7 @@ eq/ne/.../and/or/not
 | `UpdateWrapper<T>` | 是 | 继承 | 继承 | 作为更新 filter 可传递 |
 | `LambdaUpdateChainWrapper<T>` | 是，由 `ChainWrappers`/Repository 创建 | 继承 | 继承 | 作为更新 filter 可传递 |
 
-未发现其他继承 `AbstractChainWrapper`、`QueryChainWrapper` 或 `UpdateChainWrapper` 的 Wrapper；也不存在独立的 `LambdaQueryWrapper` 或 `LambdaUpdateWrapper`。聚合 Wrapper 不继承这套条件接口，其 `match` 接收已构造的 `QueryChainWrapper`，不属于新的 regex/like 公开入口。
+未发现其他继承 `AbstractChainWrapper`、`QueryChainWrapper` 或 `UpdateChainWrapper` 的 Wrapper；也不存在独立的 `LambdaQueryWrapper` 或 `LambdaUpdateWrapper`。聚合 Wrapper 不继承这套条件接口，但其 `match` 接收已构造的 `Wrapper<?>`，因此可消费这些查询/更新 Wrapper 的查询条件。
 
 需要区分四个阶段：
 
@@ -116,7 +117,7 @@ lambdaQueryChainWrapper.like(Entity::getName, "mongo")
 ## AND、OR、NOT 与分组语义
 
 - 顶层连续普通条件写入同一个 `MongoPlusBasicDBObject`，表现为 MongoDB 文档的隐式 AND；相同字段/键的覆盖行为取决于 `MongoPlusBasicDBObject.put`，不应把重复键当作稳定的显式分组 API。
-- `and/or/nor(wrapper|function)` 保存一个子 `QueryChainWrapper`。构建时递归转换子 Wrapper 中的条件和自定义 BSON，再交给 `Filters.and/or/nor`，形成显式逻辑数组。
+- `and/or/nor(wrapper|function)` 保存一个子 `Wrapper<?>`；函数式重载声明为 `SFunction<Wrapper<T>, Wrapper<T>>`，并以 `QueryWrapper<T>` 作为初始 Wrapper。构建时递归转换子 Wrapper 中的条件和自定义 BSON，再交给 `Filters.and/or/nor`，形成显式逻辑数组。
 - function 重载创建新的 `QueryWrapper` 供回调填充，因此是实际的嵌套分组入口。
 - `not(...)` 把子 Wrapper 保存为条件 `not`，并在 `BuildCondition` 中与 `EXPR` 分支分开处理。空子 Wrapper 不生成 filter；单键子 filter 继续交给 `Filters.not(...)` 形成字段级 `$not`；多键子 filter 作为一个完整文档交给 `Filters.nor(...)`，形成 `{$nor: [{key1: ..., key2: ...}]}`，不会丢弃后续键。
 - `not(ConditionMetaObject)` 先把单条件构造成 BSON 列表再封装，最终同样进入上述 NOT 分支。`EXPR` 保持原有独立行为：从子 filter 取第一个键并调用 `Filters.expr(...)`。

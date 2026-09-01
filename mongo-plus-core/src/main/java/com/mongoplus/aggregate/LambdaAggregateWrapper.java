@@ -9,7 +9,7 @@ import com.mongodb.client.model.fill.FillOptions;
 import com.mongodb.client.model.fill.FillOutputField;
 import com.mongoplus.aggregate.pipeline.UnwindOption;
 import com.mongoplus.model.Projection;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.constant.AggregationOperators;
 import com.mongoplus.constant.SqlOperationConstant;
@@ -239,12 +239,12 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
-    public Children match(QueryChainWrapper<?, ?> queryChainWrapper) {
-        return custom(Aggregates.match(queryChainWrapper.buildCondition().getCondition()));
+    public Children match(Wrapper<?> queryWrapper) {
+        return custom(Aggregates.match(queryWrapper.buildCondition().getCondition()));
     }
 
     @Override
-    public Children match(final SFunction<QueryChainWrapper<?,?>,QueryChainWrapper<?,?>> function){
+    public Children match(final SFunction<Wrapper<?>, Wrapper<?>> function){
         return match(function.apply(new QueryWrapper<>()));
     }
 

@@ -1,6 +1,6 @@
 # 聚合执行链
 
-> 审计日期：2026-08-02。结论基于 `mongo-plus-core` 当前源码；MongoDB Driver 本身具备但 MongoPlus 未公开封装的能力不计为框架能力。普通查询条件见 [QUERY_WRAPPER.md](QUERY_WRAPPER.md)，执行代理见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md) 与 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)，结果转换见 [ENTITY_MAPPING.md](ENTITY_MAPPING.md)。
+> 审计日期：2026-09-01。结论基于 `mongo-plus-core` 当前源码；MongoDB Driver 本身具备但 MongoPlus 未公开封装的能力不计为框架能力。普通查询条件见 [QUERY_WRAPPER.md](QUERY_WRAPPER.md)，执行代理见 [CRUD_EXECUTION.md](CRUD_EXECUTION.md) 与 [EXTENSION_PIPELINE.md](EXTENSION_PIPELINE.md)，结果转换见 [ENTITY_MAPPING.md](ENTITY_MAPPING.md)。
 
 ## 公开 API 与对象关系
 
@@ -43,7 +43,7 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 
 ## Match、Tenant 与 Logic Delete
 
-`match(QueryChainWrapper)` 调用 `buildCondition().getCondition()` 后交给 Driver `Aggregates.match`，因此 eq/in/regex/AND/OR/NOT/EXPR 与普通查询共享 Query Wrapper 条件构建及其已知边界。多个用户 match 保持为多个 stage。
+`match(Wrapper<?>)` 调用 `buildCondition().getCondition()` 后交给 Driver `Aggregates.match`，因此 eq/in/regex/AND/OR/NOT/EXPR 与普通查询共享 Wrapper 条件构建及其已知边界。多个用户 match 保持为多个 stage；函数式重载声明为 `SFunction<Wrapper<T>, Wrapper<T>>`，内部以 `QueryWrapper<T>` 作为初始 Wrapper。
 
 聚合增强发生在 pipeline 已构建之后、Driver 调用之前的 `ExecutorProxy` 普通参数策略中：
 

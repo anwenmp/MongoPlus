@@ -1,7 +1,7 @@
 package com.mongoplus.conditions.interfaces.query.logic.operations;
 
 import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
@@ -15,22 +15,22 @@ public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
     /**
      * 查询的文档必须不符合所有条件
      * @param condition 判断如果为true，则加入此条件，可做判空，即不为空就加入这个条件
-     * @param queryChainWrapper 链式查询
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return Children
      * @author JiaChaoYang
      */
-    default Children nor(boolean condition , QueryChainWrapper<?,?> queryChainWrapper) {
-        return condition ? nor(queryChainWrapper) : typeThis();
+    default Children nor(boolean condition , Wrapper<?> queryWrapper) {
+        return condition ? nor(queryWrapper) : typeThis();
     }
 
     /**
      * 查询的文档必须不符合所有条件
-     * @param queryChainWrapper 链式查询
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return Children
      * @author JiaChaoYang
      */
-    default Children nor(QueryChainWrapper<?,?> queryChainWrapper) {
-        return addCondition(getBaseCondition(queryChainWrapper));
+    default Children nor(Wrapper<?> queryWrapper) {
+        return addCondition(getBaseCondition(queryWrapper));
     }
 
     /**
@@ -40,7 +40,7 @@ public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children nor(boolean condition, SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children nor(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
         return condition ? nor(function) : typeThis();
     }
 
@@ -51,7 +51,7 @@ public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children nor(SFunction<QueryChainWrapper<T,?>,QueryChainWrapper<T,?>> function) {
+    default Children nor(SFunction<Wrapper<T>, Wrapper<T>> function) {
         return nor(function.apply(new QueryWrapper<>()));
     }
 

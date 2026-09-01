@@ -10,14 +10,10 @@ import com.mongoplus.conditions.interfaces.query.geo.GeoSpatial;
 import com.mongoplus.conditions.interfaces.query.logic.Logic;
 import com.mongoplus.conditions.interfaces.query.other.Other;
 import com.mongoplus.conditions.interfaces.query.text.Text;
-import com.mongoplus.handlers.condition.Condition;
-import com.mongoplus.model.BaseConditionResult;
 import com.mongoplus.support.SFunction;
 import org.bson.conversions.Bson;
 
 import java.util.List;
-
-import static com.mongoplus.handlers.condition.BuildCondition.condition;
 
 /**
  * 查询条件顶级接口
@@ -33,32 +29,6 @@ public interface QueryCondition<T, Children> extends
         Logic<T, Children>,
         Text<T, Children>,
         Other<T, Children> {
-
-    /**
-     * 构建条件
-     * @author anwen
-     */
-    default BaseConditionResult buildCondition(){
-        return buildCondition(condition());
-    }
-
-    /**
-     * 构建条件
-     * @author anwen
-     */
-    BaseConditionResult buildCondition(Condition condition);
-
-    /**
-     * 判断是否为空
-     */
-    default boolean isNotEmpty(){
-        return isNotEmpty(condition());
-    }
-
-    /**
-     * 判断是否为空
-     */
-    boolean isNotEmpty(Condition condition);
 
     /**
      * 自定义语句

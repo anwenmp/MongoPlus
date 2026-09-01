@@ -16,7 +16,7 @@ public final class TypeClassifier {
                            String declaringType, String parameterDescription) {
         String simple = simpleName(type);
         if ("SFunction".equals(simple)) {
-            if (type.contains("QueryChainWrapper")) { return "CONDITION_GROUP_LAMBDA"; }
+            if (type.contains("Wrapper<")) { return "CONDITION_GROUP_LAMBDA"; }
             if (type.contains("MongoPlusBasicDBObject")) { return "DOCUMENT_LAMBDA"; }
             if ("function".equals(parameterName)
                     && ("and".equals(methodName) || "or".equals(methodName) || "nor".equals(methodName)

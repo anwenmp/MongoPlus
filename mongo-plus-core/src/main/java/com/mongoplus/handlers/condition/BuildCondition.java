@@ -7,11 +7,11 @@ import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.cache.global.HandlerCache;
 import com.mongoplus.conditions.AbstractChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.options.PushOptions;
 import com.mongoplus.options.TextSearchOptions;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.model.Order;
-import com.mongoplus.conditions.query.QueryChainWrapper;
 import com.mongoplus.domain.MongoPlusException;
 import com.mongoplus.enums.*;
 import com.mongoplus.model.BaseConditionResult;
@@ -115,13 +115,13 @@ public class BuildCondition extends AbstractCondition {
                         (Collection<?>) conditionMetaObject.getValue()));
                 break;
             case AND:
-                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::and);
+                logic((Wrapper<?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::and);
                 break;
             case OR:
-                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::or);
+                logic((Wrapper<?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::or);
                 break;
             case NOR:
-                logic((QueryChainWrapper<?, ?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::nor);
+                logic((Wrapper<?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::nor);
                 break;
             case TYPE:
                 Object typeValue = conditionMetaObject.getValue();
@@ -140,7 +140,7 @@ public class BuildCondition extends AbstractCondition {
                         (Boolean) conditionMetaObject.getValue()));
                 break;
             case NOT:
-                QueryChainWrapper<?, ?> notWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
+                Wrapper<?> notWrapper = (Wrapper<?>) conditionMetaObject.getValue();
                 BasicDBObject notBasicDBObject = notWrapper.buildCondition().getCondition();
                 if (CollUtil.isNotEmpty(notBasicDBObject)) {
                     mongoPlusBasicDBObject.put(notBasicDBObject.size() == 1
@@ -149,7 +149,7 @@ public class BuildCondition extends AbstractCondition {
                 }
                 break;
             case EXPR:
-                QueryChainWrapper<?, ?> exprWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
+                Wrapper<?> exprWrapper = (Wrapper<?>) conditionMetaObject.getValue();
                 BaseConditionResult baseConditionResult = exprWrapper.buildCondition();
                 BasicDBObject exprBasicDBObject = baseConditionResult.getCondition();
                 Optional<String> exprOptional = exprBasicDBObject.keySet().stream().findFirst();
@@ -165,7 +165,7 @@ public class BuildCondition extends AbstractCondition {
                 mongoPlusBasicDBObject.put(Filters.mod(conditionMetaObject.getColumn(), modList.get(0), modList.get(1)));
                 break;
             case ELEM_MATCH:
-                QueryChainWrapper<?, ?> elemMatchWrapper = (QueryChainWrapper<?, ?>) conditionMetaObject.getValue();
+                Wrapper<?> elemMatchWrapper = (Wrapper<?>) conditionMetaObject.getValue();
                 BasicDBObject elemMatchBasicDBObject = queryCondition(elemMatchWrapper).getCondition();
                 Bson elemMatchBson = Filters.elemMatch(conditionMetaObject.getColumn(), elemMatchBasicDBObject);
                 if (CollUtil.isNotEmpty(elemMatchWrapper.getBasicDBObjectList())) {
@@ -354,7 +354,7 @@ public class BuildCondition extends AbstractCondition {
         ConditionMetaObject currentConditionMetaObject = buildUpdate.getCurrentCompareCondition();
         BasicDBObject updateBasicDBObject = buildUpdate.getUpdateBasicDBObject();
         if (currentConditionMetaObject.getExtraValue(Boolean.class)) {
-            QueryChainWrapper<?, ?> wrapper = currentConditionMetaObject.getValue(QueryChainWrapper.class);
+            Wrapper<?> wrapper = currentConditionMetaObject.getValue(Wrapper.class);
             BasicDBObject queriedCondition = queryCondition(wrapper).getCondition();
             if (CollUtil.isNotEmpty(wrapper.getBasicDBObjectList())) {
                 wrapper.getBasicDBObjectList().forEach(basicDBObject -> queriedCondition.putAll(
@@ -372,7 +372,7 @@ public class BuildCondition extends AbstractCondition {
     }
 
     @Override
-    public BaseConditionResult queryCondition(AbstractChainWrapper<?, ?> wrapper) {
+    public BaseConditionResult queryCondition(Wrapper<?> wrapper) {
         List<BasicDBObject> basicDBObjectList = wrapper.getBasicDBObjectList();
         List<Order> orderList = wrapper.getOrderList();
         BasicDBObject sortCond = new BasicDBObject();
@@ -392,19 +392,25 @@ public class BuildCondition extends AbstractCondition {
         );
     }
 
-    public void logic(QueryChainWrapper<?, ?> queryChainWrapper, MongoPlusBasicDBObject basicDBObject, Function<List<Bson>, Bson> function) {
+    /**
+     * 构建逻辑查询条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
+     * @param basicDBObject BSON 条件对象
+     * @param function 逻辑操作构建函数
+     */
+    public void logic(Wrapper<?> queryWrapper, MongoPlusBasicDBObject basicDBObject, Function<List<Bson>, Bson> function) {
         List<Bson> bsonList = new ArrayList<>();
-        queryChainWrapper.getConditionMetaObjects().forEach(compareCondition -> {
+        queryWrapper.getConditionMetaObjects().forEach(compareCondition -> {
             if (Objects.equals(COMBINE.getValue(), compareCondition.getCondition())) {
                 bsonList.add(queryCondition(
-                        ((QueryChainWrapper<?, ?>) compareCondition.getValue())
+                        ((Wrapper<?>) compareCondition.getValue())
                                 .getConditionMetaObjects()
                 ));
             } else {
                 bsonList.add(queryCondition(compareCondition));
             }
         });
-        bsonList.addAll(queryChainWrapper.getBasicDBObjectList());
+        bsonList.addAll(queryWrapper.getBasicDBObjectList());
         basicDBObject.put(function.apply(bsonList));
     }
 

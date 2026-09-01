@@ -4,7 +4,7 @@ import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.index.BaseIndex;
@@ -100,24 +100,27 @@ public interface SuperMapper extends BaseIndex {
 
     /**
      * 根据queryWrapper修改entity
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author anwen
      */
-    default <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper){
-        return update(database,collectionName,entity,queryChainWrapper,null);
+    default <T> Boolean update(String database,String collectionName,T entity, Wrapper<T> queryWrapper){
+        return update(database,collectionName,entity,queryWrapper,null);
     }
 
     /**
      * 根据queryWrapper修改entity
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author anwen
      */
-    <T> Boolean update(String database,String collectionName,T entity, QueryChainWrapper<T,?> queryChainWrapper,
+    <T> Boolean update(String database,String collectionName,T entity, Wrapper<T> queryWrapper,
                        UpdateOptions options);
 
     /**
      * 根据queryWrapper修改entity
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author anwen
      */
-    <T> Boolean updateOne(T entity, QueryChainWrapper<T,?> queryChainWrapper,
+    <T> Boolean updateOne(T entity, Wrapper<T> queryWrapper,
                           UpdateOptions options);
 
     /**
@@ -170,11 +173,11 @@ public interface SuperMapper extends BaseIndex {
 
     /**
      * 根据条件查询是否存在
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link boolean}
      * @author anwen
      */
-    boolean isExist(String database,String collectionName,QueryChainWrapper<?,?> queryChainWrapper);
+    boolean isExist(String database,String collectionName,Wrapper<?> queryWrapper);
 
 
     /**
@@ -253,11 +256,11 @@ public interface SuperMapper extends BaseIndex {
 
     /**
      * 根据条件查询总数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link long}
      * @author anwen
      */
-    long count(String database,String collectionName,QueryChainWrapper<?, ?> queryChainWrapper);
+    long count(String database,String collectionName,Wrapper<?> queryWrapper);
 
     /**
      * 返回第N页
@@ -284,19 +287,19 @@ public interface SuperMapper extends BaseIndex {
 
     /**
      * 根据条件查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link List<T>}
      * @author anwen
      */
-    <T,R> List<R> list(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Class<R> rClazz);
+    <T,R> List<R> list(String database,String collectionName,Wrapper<T> queryWrapper, Class<R> rClazz);
 
     /**
      * 根据条件查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link List<R>}
      * @author anwen
      */
-    <T,R> List<R> list(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, TypeReference<R> typeReference);
+    <T,R> List<R> list(String database,String collectionName,Wrapper<T> queryWrapper, TypeReference<R> typeReference);
 
     /**
      * 管道查询
@@ -332,81 +335,81 @@ public interface SuperMapper extends BaseIndex {
 
     /**
      * 根据条件查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link T}
      * @author anwen
      */
-    <T,R> R one(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
+    <T,R> R one(String database,String collectionName,Wrapper<T> queryWrapper,Class<R> rClazz);
 
     /**
      * 根据条件查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link T}
      * @author anwen
      */
-    <T,R> R one(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
+    <T,R> R one(String database,String collectionName,Wrapper<T> queryWrapper,TypeReference<R> typeReference);
 
     /**
      * 分页查询，如果queryWrapper有条件，查询会慢，因为需要重新进行count查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
      */
-    <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
+    <T,R> PageResult<R> page(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
     /**
      * 分页查询，如果queryWrapper有条件，查询会慢，因为需要重新进行count查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link PageResult <T>}
      * @author anwen
      */
-    <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
+    <T,R> PageResult<R> page(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
     /**
      * 分页查询，返回List，不进行count查询，比page查询效率高
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
      */
-    <T,R> List<R> pageList(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz);
+    <T,R> List<R> pageList(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<R> rClazz);
 
     /**
      * 分页查询，返回List，不进行count查询，比page查询效率高
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link List<T>}
      * @author anwen
      */
-    <T,R> List<R> pageList(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, TypeReference<R> typeReference);
+    <T,R> List<R> pageList(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, TypeReference<R> typeReference);
 
     /**
      * 分页查询，查询最近n页的数据
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
      */
-    <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
+    <T,R> PageResult<R> page(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
 
     /**
      * 分页查询，查询最近n页的数据
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近N页的数据
      * @return {@link PageResult<T>}
      * @author anwen
      */
-    <T,R> PageResult<R> page(String database,String collectionName,QueryChainWrapper<T,?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
+    <T,R> PageResult<R> page(String database,String collectionName,Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
 
     /**
      * 根据多个id查询

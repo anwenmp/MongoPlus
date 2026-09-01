@@ -3,7 +3,7 @@ package com.mongoplus.mapper;
 import com.mongodb.client.model.*;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.execute.ExecutorFactory;
@@ -64,9 +64,9 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public <T> Boolean update(T entity, QueryChainWrapper<T, ?> queryChainWrapper,UpdateOptions options) {
+    public <T> Boolean update(T entity, Wrapper<T> queryWrapper,UpdateOptions options) {
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
-        return update(namespace.left, namespace.right, entity, queryChainWrapper,options);
+        return update(namespace.left, namespace.right, entity, queryWrapper,options);
     }
 
     /**
@@ -90,15 +90,15 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public <T, R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, Class<R> rClazz) {
+    public <T, R> List<R> list(Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return list(namespace.left, namespace.right, queryChainWrapper, rClazz);
+        return list(namespace.left, namespace.right, queryWrapper, rClazz);
     }
 
     @Override
-    public <T, R> List<R> list(QueryChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference) {
+    public <T, R> List<R> list(Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return list(namespace.left, namespace.right, queryChainWrapper, typeReference);
+        return list(namespace.left, namespace.right, queryWrapper, typeReference);
     }
 
     @Override
@@ -126,15 +126,15 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public <T, R> R one(QueryChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, Class<R> rClazz) {
+    public <T, R> R one(Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return one(namespace.left, namespace.right, queryChainWrapper, rClazz);
+        return one(namespace.left, namespace.right, queryWrapper, rClazz);
     }
 
     @Override
-    public <T, R> R one(QueryChainWrapper<T, ?> queryChainWrapper, Class<T> clazz, TypeReference<R> typeReference) {
+    public <T, R> R one(Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return one(namespace.left, namespace.right, queryChainWrapper, typeReference);
+        return one(namespace.left, namespace.right, queryWrapper, typeReference);
     }
 
     @Override
@@ -143,39 +143,39 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public <T, R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, Class<R> rClazz) {
+    public <T, R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return page(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, rClazz);
+        return page(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, rClazz);
     }
 
     @Override
-    public <T, R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, TypeReference<R> typeReference) {
+    public <T, R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return page(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, typeReference);
+        return page(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, typeReference);
     }
 
     @Override
-    public <T, R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, Class<R> rClazz) {
+    public <T, R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return pageList(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, rClazz);
+        return pageList(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, rClazz);
     }
 
     @Override
-    public <T, R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, TypeReference<R> typeReference) {
+    public <T, R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return pageList(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, typeReference);
+        return pageList(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, typeReference);
     }
 
     @Override
-    public <T, R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum, Class<T> clazz, Class<R> rClazz) {
+    public <T, R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return page(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, recentPageNum, rClazz);
+        return page(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, recentPageNum, rClazz);
     }
 
     @Override
-    public <T, R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum, Class<T> clazz, TypeReference<R> typeReference) {
+    public <T, R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum, Class<T> clazz, TypeReference<R> typeReference) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return page(namespace.left, namespace.right, queryChainWrapper, pageNum, pageSize, recentPageNum, typeReference);
+        return page(namespace.left, namespace.right, queryWrapper, pageNum, pageSize, recentPageNum, typeReference);
     }
 
     @Override
@@ -197,9 +197,9 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public boolean isExist(QueryChainWrapper<?, ?> queryChainWrapper, Class<?> clazz) {
+    public boolean isExist(Wrapper<?> queryWrapper, Class<?> clazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return isExist(namespace.left, namespace.right, queryChainWrapper);
+        return isExist(namespace.left, namespace.right, queryWrapper);
     }
 
     @Override
@@ -251,9 +251,9 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
-    public long count(QueryChainWrapper<?, ?> queryChainWrapper, Class<?> clazz) {
+    public long count(Wrapper<?> queryWrapper, Class<?> clazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
-        return count(namespace.left, namespace.right, queryChainWrapper);
+        return count(namespace.left, namespace.right, queryWrapper);
     }
 
     /**

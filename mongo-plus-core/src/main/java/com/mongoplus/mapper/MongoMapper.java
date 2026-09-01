@@ -6,7 +6,7 @@ import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongoplus.aggregate.Aggregate;
-import com.mongoplus.conditions.query.QueryChainWrapper;
+import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageParam;
@@ -109,11 +109,11 @@ public interface MongoMapper<T> {
     /**
      * 根据传入wrapper条件判断添加修改，传递_id并不会修改
      * @param entity 对象
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return java.lang.Boolean
      * @author JiaChaoYang
      */
-    Boolean saveOrUpdateWrapper(T entity, QueryChainWrapper<T ,?> queryChainWrapper);
+    Boolean saveOrUpdateWrapper(T entity, Wrapper<T> queryWrapper);
 
     /**
      * 批量添加或修改
@@ -136,11 +136,12 @@ public interface MongoMapper<T> {
     /**
      * 根据传入wrapper条件判断批量添加修改，传递_id并不会修改
      * @param entityList 对象集合
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return java.lang.Boolean
      * @author JiaChaoYang
      * @since 2023/2/9 13:57
      */
-    Boolean saveOrUpdateBatchWrapper(Collection<T> entityList,QueryChainWrapper<T,?> queryChainWrapper);
+    Boolean saveOrUpdateBatchWrapper(Collection<T> entityList,Wrapper<T> queryWrapper);
 
     /**
      * 修改
@@ -250,17 +251,19 @@ public interface MongoMapper<T> {
 
     /**
      * 根据条件修改
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author JiaChaoYang
      */
-    default Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper){
-        return update(entity,queryChainWrapper,null);
+    default Boolean update(T entity,Wrapper<T> queryWrapper){
+        return update(entity,queryWrapper,null);
     }
 
     /**
      * 根据条件修改
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @author JiaChaoYang
      */
-    Boolean update(T entity,QueryChainWrapper<T,?> queryChainWrapper,UpdateOptions options);
+    Boolean update(T entity,Wrapper<T> queryWrapper,UpdateOptions options);
 
     /**
      * 根据id删除
@@ -395,29 +398,29 @@ public interface MongoMapper<T> {
 
     /**
      * 查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link T}
      * @author anwen
      */
-    T one(QueryChainWrapper<T,?> queryChainWrapper);
+    T one(Wrapper<T> queryWrapper);
 
     /**
      * 查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param rClazz 返回值类型
      * @return {@link R}
      * @author anwen
      */
-    <R> R one(QueryChainWrapper<T,?> queryChainWrapper,Class<R> rClazz);
+    <R> R one(Wrapper<T> queryWrapper,Class<R> rClazz);
 
     /**
      * 查询单个
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param typeReference 返回值类型
      * @return {@link R}
      * @author anwen
      */
-    <R> R one(QueryChainWrapper<T,?> queryChainWrapper,TypeReference<R> typeReference);
+    <R> R one(Wrapper<T> queryWrapper,TypeReference<R> typeReference);
 
     /**
      * 查询单个
@@ -447,29 +450,29 @@ public interface MongoMapper<T> {
 
     /**
      * 查询列表
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    List<T> list(QueryChainWrapper<T ,?> queryChainWrapper);
+    List<T> list(Wrapper<T> queryWrapper);
 
     /**
      * 查询列表
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param rClazz 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
      */
-    <R> List<R> list(QueryChainWrapper<T ,?> queryChainWrapper,Class<R> rClazz);
+    <R> List<R> list(Wrapper<T> queryWrapper,Class<R> rClazz);
 
     /**
      * 查询列表
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param typeReference 返回值类型
      * @return {@link java.util.List<R>}
      * @author anwen
      */
-    <R> List<R> list(QueryChainWrapper<T ,?> queryChainWrapper,TypeReference<R> typeReference);
+    <R> List<R> list(Wrapper<T> queryWrapper,TypeReference<R> typeReference);
 
     /**
      * 获取总数
@@ -480,11 +483,11 @@ public interface MongoMapper<T> {
 
     /**
      * 获取总数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link long}
      * @author anwen
      */
-    long count(QueryChainWrapper<T,?> queryChainWrapper);
+    long count(Wrapper<T> queryWrapper);
 
     /**
      * 分页查询
@@ -584,41 +587,41 @@ public interface MongoMapper<T> {
      * 分页查询
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
      */
-    PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize);
+    PageResult<T> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam);
+    PageResult<T> page(Wrapper<T> queryWrapper, PageParam pageParam);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum);
+    PageResult<T> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    PageResult<T> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum);
+    PageResult<T> page(Wrapper<T> queryWrapper, PageParam pageParam, Integer recentPageNum);
 
     /**
      * 分页查询
@@ -646,47 +649,47 @@ public interface MongoMapper<T> {
      * 分页查询
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param rClazz 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
     /**
      * 分页查询
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param typeReference 返回值类型
      * @return com.mongoplus.sql.model.PageResult<T>
      * @author JiaChaoYang
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,Class<R> rClazz);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam,Class<R> rClazz);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,TypeReference<R> typeReference);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam,TypeReference<R> typeReference);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
@@ -694,11 +697,11 @@ public interface MongoMapper<T> {
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,Class<R> rClazz);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
@@ -706,29 +709,29 @@ public interface MongoMapper<T> {
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize, Integer recentPageNum,TypeReference<R> typeReference);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @param rClazz 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum,Class<R> rClazz);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam, Integer recentPageNum,Class<R> rClazz);
 
     /**
      * 分页查询
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param recentPageNum 查询最近n页的数据  {参数=null 表示仅查询当前页数据}  {参数取值[5-50] 表示查询最近[5-50]页的数据 建议recentPageNum等于10 参考 百度分页检索}
      * @param typeReference 返回值类型
      * @return {@link com.mongoplus.model.PageResult<T>}
      * @author anwen
      */
-    <R> PageResult<R> page(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam, Integer recentPageNum,TypeReference<R> typeReference);
+    <R> PageResult<R> page(Wrapper<T> queryWrapper, PageParam pageParam, Integer recentPageNum,TypeReference<R> typeReference);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
@@ -787,64 +790,64 @@ public interface MongoMapper<T> {
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize);
+    List<T> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
+    <R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,Class<R> rClazz);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageNum 当前页
      * @param pageSize 每页显示行数
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
+    <R> List<R> pageList(Wrapper<T> queryWrapper, Integer pageNum, Integer pageSize,TypeReference<R> typeReference);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    List<T> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam);
+    List<T> pageList(Wrapper<T> queryWrapper, PageParam pageParam);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param rClazz 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,Class<R> rClazz);
+    <R> List<R> pageList(Wrapper<T> queryWrapper, PageParam pageParam,Class<R> rClazz);
 
     /**
      * 返回List的page，无需进行count查询，速度会比较快
-     * @param queryChainWrapper 条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @param pageParam 分页参数对象
      * @param typeReference 返回值类型
      * @return {@link java.util.List<T>}
      * @author anwen
      */
-    <R> List<R> pageList(QueryChainWrapper<T, ?> queryChainWrapper, PageParam pageParam,TypeReference<R> typeReference);
+    <R> List<R> pageList(Wrapper<T> queryWrapper, PageParam pageParam,TypeReference<R> typeReference);
 
     /**
      * 根据id查询单个
@@ -982,10 +985,10 @@ public interface MongoMapper<T> {
 
     /**
      * 是否存在
-     * @param queryChainWrapper wrapper条件
+     * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return java.lang.Boolean
      * @author JiaChaoYang
      */
-    Boolean exist(QueryChainWrapper<T,?> queryChainWrapper);
+    Boolean exist(Wrapper<T> queryWrapper);
 
 }

@@ -145,7 +145,7 @@ public final class MongoPlusIndexerSelfTest {
                 "eq(SFunction...) 未识别为字段 Lambda");
         Map<String, Object> or = findNamed(index.getMethodFamilies(), "or");
         require(hasSemanticType((List<Object>) or.get("overloads"), "CONDITION_GROUP_LAMBDA"),
-                "or(SFunction<QueryChainWrapper...>) 未识别为条件分组 Lambda");
+                "or(SFunction<Wrapper...>) 未识别为条件分组 Lambda");
     }
 
     @SuppressWarnings("unchecked")
