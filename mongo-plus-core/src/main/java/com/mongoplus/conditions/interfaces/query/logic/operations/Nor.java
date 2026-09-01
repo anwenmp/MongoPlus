@@ -8,6 +8,7 @@ import com.mongoplus.support.SFunction;
 /**
  * nor逻辑
  * @author anwen
+ * @mongodbOperator $nor
  */
 public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
 

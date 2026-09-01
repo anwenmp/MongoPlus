@@ -7,6 +7,7 @@ import com.mongoplus.support.SFunction;
  * bitsAllSet操作
  *
  * @author anwen
+ * @mongodbOperator $bitsAllSet
  */
 public interface BitsAllSet<T, Children> extends BaseQueryCondition<T, Children> {
 

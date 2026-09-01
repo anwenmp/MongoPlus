@@ -11,6 +11,7 @@ import org.bson.conversions.Bson;
 /**
  * near操作
  * @author anwen
+ * @mongodbOperator $near
  */
 public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
 

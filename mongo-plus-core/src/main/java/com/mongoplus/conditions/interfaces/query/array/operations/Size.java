@@ -7,6 +7,7 @@ import com.mongoplus.support.SFunction;
  * size操作
  *
  * @author anwen
+ * @mongodbOperator $size
  */
 public interface Size<T, Children> extends BaseQueryCondition<T, Children> {
 

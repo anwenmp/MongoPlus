@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mongoplus</groupId>
+        <artifactId>mongo-plus</artifactId>
+        <version>2.2.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mongo-plus-indexer</artifactId>
+    <packaging>jar</packaging>
+    <name>mongo-plus-indexer</name>
+    <description>MongoPlus API Index 生成器</description>
+    <url>https://mongoplus.com</url>
+    <inceptionYear>2025</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>anwen</id>
+            <name>anwen</name>
+            <email>mongoplus.cn@gmail.com</email>
+            <roles><role>Project Manager</role></roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>https://gitee.com/aizuda/mongo-plus.git</connection>
+        <developerConnection>https://gitee.com/aizuda/mongo-plus.git</developerConnection>
+        <url>https://gitee.com/aizuda/mongo-plus</url>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

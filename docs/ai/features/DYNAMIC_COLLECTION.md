@@ -1,6 +1,6 @@
 # 动态集合
 
-> 审计日期：2026-08-02。结论来自当前源码。映射见 [ENTITY_MAPPING.md](../architecture/ENTITY_MAPPING.md)，执行器见 [CRUD_EXECUTION.md](../architecture/CRUD_EXECUTION.md)，代理见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)，事务组合见 [TRANSACTION.md](TRANSACTION.md)。
+> 审计日期：2026-08-08。结论来自当前源码；缓存基数和应用关闭行为另有本轮已执行的无 Server characterization test。映射见 [ENTITY_MAPPING.md](../architecture/ENTITY_MAPPING.md)，执行器见 [CRUD_EXECUTION.md](../architecture/CRUD_EXECUTION.md)，代理见 [EXTENSION_PIPELINE.md](../architecture/EXTENSION_PIPELINE.md)，事务组合见 [TRANSACTION.md](TRANSACTION.md)。
 
 ## 公开入口和适用范围
 
@@ -44,7 +44,9 @@ Handler 返回值无校验/fallback：null 或空字符串直接进入 `MongoPlu
 
 结构是 `datasourceName -> databaseName -> CollectionManager -> collectionName -> MongoCollection<Document>`。最内层真实 key 仅 `collectionName`；正常入口通过 manager 实例隔离 ds/database。若直接取得一个 manager 却传另一 ds 名，同名 cache 仍可能复用首次 collection。
 
-每个动态名称形成独立 cache 项。没有单项删除、clear、容量或过期策略；大量租户/日期名称会持续增长。动态数据源覆盖/关闭不会清已有 wrapper，也不通知 registry。首次创建不是原子的。
+每个历史唯一动态名称形成一个强引用 cache 项；同名重复访问复用同一项和同一 `MongoCollection` 实例。没有单项删除、clear、容量上限、TTL、LRU、弱引用或后台清理；大量租户/日期名称会按唯一名称基数持续增长，而不是按请求次数增长。首次创建不是原子的。
+
+动态数据源同名覆盖会在 `MongoClientFactory` 中替换 client，并在 `MongoPlusClient.collectionManagers` 中用一组新 manager 替换旧 datasource 项；它不关闭旧 client，也不显式 clear 旧 manager。无其他引用时旧 manager/cache 可随 GC 回收，不能表述为覆盖后必然由全局 manager map 永久持有；但外部引用或并发中的旧 manager/collection 仍可能存活。框架没有 datasource remove API。应用整体关闭调用 `MongoClientFactory.close()` 只关闭工厂当前持有的 clients，不清 `MongoPlusClient` 的 manager/collection Map，也不清 registry；Driver client 关闭与 Java Map 清理是两个独立动作。
 
 ## MongoEntityMappingRegistry
 
@@ -56,6 +58,17 @@ registry 是进程级单例 `ConcurrentHashMap<String, Class<?>>`：
 - Map/Document 显式模式也登记 `UnClassCollection`，不是跳过 registry。
 - registry 有 public remove/clear，但当前仓库没有生产调用方；collection cache 也无对应清除。外部若直接调用删除，之后访问已缓存 collection不会重新触发首次登记，不能视为完整重建 API。
 - 数据源关闭/覆盖不自动清 registry。
+
+## 已固定的缓存基数行为
+
+`mongo-plus-test/src/test/java/com/mongoplus/cache/DynamicCollectionCacheLifecycleTest.java` 使用 Driver 接口代理，但真实经过 `DynamicCollectionNameInterceptor -> MongoPlusClient -> CollectionManager`：
+
+- `user_202608` 连续解析 100 次只调用一次 `MongoDatabase.getCollection`，cache 只有 1 项，并复用同一实例；registry 也只有该 namespace 的既有映射。
+- 100 个不同动态名称使当前 manager 的 collection cache 准确增加 100 项；100 个 namespace 均保留 `UnClassCollection` 映射。
+- registry 的 public `removeMappingRelation`/`clearMappingRelations` 能显式清 metadata；`CollectionManager` 没有对称 remove/clear API。
+- `MongoClientFactory.close()` 会调用当前 client 的 `close()`，但已填充的 collection cache 与 registry entry 仍存在。
+
+本测试不启动 MongoDB Server，不证明每项 wrapper 的实际内存占用、OOM、Driver 关闭后的网络外观、并发首建结果或数据源覆盖期间的请求行为。按月约增加 12 个、按天约 365 个、按 10000 租户约 10000 个、按 requestId 等高基数输入则按历史唯一名称继续增长；实际长期内存影响仍需压力测试。
 
 逻辑删除和乐观锁按 namespace 反查实体。通常路径中动态 collection 第一次由无实体重载创建并先登记 `UnClassCollection`；`putIfAbsent` 使后续 `LogicNamespaceAware` 或真实实体登记无法覆盖，因此该 namespace 在 registry 中继续是 `UnClassCollection`。但“动态 namespace 永远无法登记真实实体”不成立：若同 namespace 在动态拦截前已由实体入口首次登记，真实实体会保留。逻辑删除拿到 `UnClassCollection` 后会按该类初始化逻辑字段，静态源码可确认它不会取得原实体的逻辑删除元数据；最终 BSON/物理行为仍应以组合测试固定。乐观锁及跨数据源同 namespace 的实际影响同样待测。
 
@@ -72,12 +85,12 @@ registry 是进程级单例 `ConcurrentHashMap<String, Class<?>>`：
 | 分片 | 两种插件都可替换 Execute 最后一项；分片另含高级 session 处理。完整 order 和最终 client/namespace 待测。 |
 | Map 模式 | 显式 namespace 仍可被 Handler 覆盖；registry 为 UnClassCollection，读取差异见 [ENTITY_MAPPING.md](../architecture/ENTITY_MAPPING.md)。 |
 
-## 最低测试清单
+## 后续测试清单
 
 - 默认集合、一个 Handler、两个动态名称；null/空/抛异常。
 - Mapper、Service、Repository、Query/Update/Aggregate Chain、显式集合和索引不切换。
 - 并发首次访问、单例 Handler 可变状态、嵌套和异常。
-- 同名跨 database/datasource；同 namespace 不同实体和 registry 首次保留。
+- 同名跨 database/datasource；同 namespace 的 registry 首次保留（datasource metadata 隔离不是框架契约）。
 - 逻辑删除、多租户、自动填充、实体、Map/Document。
 - MongoPlus/Spring 事务和 session/client 一致性。
 - 索引、时序、分片、动态数据源关闭/覆盖。

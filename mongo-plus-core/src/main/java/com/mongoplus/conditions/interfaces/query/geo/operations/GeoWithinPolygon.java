@@ -9,6 +9,8 @@ import java.util.List;
  * geoWithinPolygon操作
  *
  * @author anwen
+ * @mongodbOperator $geoWithin
+ * @mongodbOperator $polygon
  */
 public interface GeoWithinPolygon<T, Children> extends BaseQueryCondition<T, Children> {
 

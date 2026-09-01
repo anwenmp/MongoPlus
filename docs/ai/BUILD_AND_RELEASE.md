@@ -4,12 +4,13 @@
 
 ## Maven 项目结构
 
-根 `com.mongoplus:mongo-plus:2.2.0` 是 `packaging=pom` 的父/聚合 POM。根 reactor 有 8 个 JAR 模块：
+根 `com.mongoplus:mongo-plus:2.2.0` 是 `packaging=pom` 的父/聚合 POM。根 reactor 有 9 个 JAR 模块：
 
 | 模块 | Java target | 直接项目内依赖 | 测试跳过属性 |
 |---|---:|---|---|
 | `mongo-plus-annotation` | 8 | — | — |
 | `mongo-plus-core` | 8 | annotation | — |
+| `mongo-plus-indexer` | 8 | — | — |
 | `mongo-plus-boot-starter` | 8 | core；sensitive-word `provided` | `maven.test.skip=true` |
 | `mongo-plus-boot4-starter` | 17 | core；sensitive-word `provided` | `maven.test.skip=true` |
 | `mongo-plus-solon-plugin` | 8 | core | — |
@@ -17,7 +18,7 @@
 | `mongo-plus-sharding-boot-starter` | 8 | Boot 3 starter、sharding | `maven.test.skip=true` |
 | `mongo-plus-sensitive-word` | 8 | core `provided` | `maven.test.skip=true` |
 
-`mongo-plus-bom:2.2.0` 是独立 `packaging=pom`，没有 parent，未列入根 `<modules>`。它管理上述 8 个公开构件；根 POM 又在 dependencyManagement 中导入该 BOM。
+`mongo-plus-bom:2.2.0` 是独立 `packaging=pom`，没有 parent，未列入根 `<modules>`。它管理上述 9 个公开构件；根 POM 又在 dependencyManagement 中导入该 BOM。
 
 ```mermaid
 flowchart LR
@@ -66,7 +67,7 @@ flowchart LR
 
 | 目的 | 命令 | 边界 |
 |---|---|---|
-| reactor validate | `mvn validate` | 8 个 reactor 模块；不含 BOM |
+| reactor validate | `mvn validate` | 9 个 reactor 模块；不含 BOM |
 | reactor compile | `mvn -DskipTests compile` | 编译，不验证行为 |
 | reactor test | `mvn test` | 当前 reactor 无可执行测试；部分模块强制 skip |
 | reactor package | `mvn package` | `release` profile 默认激活，可能执行 sources/javadoc 配置 |
@@ -88,7 +89,7 @@ flowchart LR
 
 ## 测试现状
 
-当前 8 个 reactor 模块中，仅 `mongo-plus-core/src/test` 存在且为空；其余模块没有 `src/test`。根与 reactor POM 未声明 JUnit/TestNG，未配置专用 surefire/failsafe 或集成测试 profile，也未发现 Testcontainers。
+当前 indexer 提供零测试依赖的 `MongoPlusIndexerSelfTest` 可执行自测，由命令行显式运行；它不会被 Surefire 自动发现。其余 reactor 模块仍无已确认的自动化发布门禁，根与 reactor POM 未声明 JUnit/TestNG，也未发现 Testcontainers。
 
 未跟踪、reactor 外的 `mongo-plus-test` 当前有六个 JUnit 4 测试源；新增 `EncryptorPrivateKeyTest` 覆盖注解 privateKey 传递和 RSA/SM2 全局 privateKey 回退，并仅在该独立工程声明 BC test 依赖。它们的目录状态可变化，不能当成仓库发布门禁。真实 MongoDB、Java 8/多 JDK provider 矩阵、Boot/Solon context 和分片仍没有 reactor 内自动化保障。
 
@@ -119,7 +120,7 @@ flowchart LR
 ## Dependency Management 与 BOM
 
 - 根 dependencyManagement 导入 MongoDB Driver BOM 5.4.0 和 `mongo-plus-bom:2.2.0`，并管理 Boot 3、Solon、AspectJ、Spring TX、日志、Bouncy Castle 等版本。
-- 独立 BOM 没有 parent；自己的 `${mongoplus.version}=2.2.0` 管理全部 8 个公开模块。
+- 独立 BOM 没有 parent；自己的 `${mongoplus.version}=2.2.0` 管理全部 9 个公开模块。
 - Boot 3/Core 等多数项目内依赖不写版本，由根导入的 BOM 管理；Boot 4 对 core/sensitive-word 显式写 `${mongoplus.version}`，并显式覆盖 Boot 4、Spring TX、AspectJ 版本。
 - 用户导入 BOM 的语义是 dependencyManagement 版本对齐，不会像 parent 一样继承 build/profile/plugin/properties，也不会自动引入依赖。
 

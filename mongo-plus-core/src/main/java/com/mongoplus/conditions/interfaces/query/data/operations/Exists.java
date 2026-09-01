@@ -7,6 +7,7 @@ import com.mongoplus.support.SFunction;
  * exists操作
  *
  * @author anwen
+ * @mongodbOperator $exists
  */
 public interface Exists<T, Children> extends BaseQueryCondition<T, Children> {
 

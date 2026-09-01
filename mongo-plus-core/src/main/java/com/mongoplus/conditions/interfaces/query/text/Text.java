@@ -7,6 +7,7 @@ import com.mongoplus.options.TextSearchOptions;
  * 文本查询
  *
  * @author anwen
+ * @mongodbOperator $text
  */
 public interface Text<T, Children> extends BaseQueryCondition<T, Children> {
 

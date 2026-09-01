@@ -8,6 +8,7 @@ import org.bson.conversions.Bson;
 /**
  * geoIntersects操作
  * @author anwen
+ * @mongodbOperator $geoIntersects
  */
 public interface GeoIntersects<T, Children> extends BaseQueryCondition<T, Children> {
 

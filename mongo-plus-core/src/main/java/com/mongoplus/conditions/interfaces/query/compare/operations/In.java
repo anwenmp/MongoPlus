@@ -10,6 +10,7 @@ import java.util.Collection;
 /**
  * in比较
  * @author anwen
+ * @mongodbOperator $in
  */
 public interface In<T,Children> extends BaseQueryCondition<T, Children> {
 

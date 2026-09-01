@@ -6,6 +6,7 @@ import com.mongoplus.support.SFunction;
 /**
  * lte比较
  * @author anwen
+ * @mongodbOperator $lte
  */
 public interface Lte<T,Children> extends BaseQueryCondition<T, Children> {
 

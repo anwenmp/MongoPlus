@@ -8,6 +8,7 @@ import com.mongoplus.support.SFunction;
 /**
  * or逻辑
  * @author anwen
+ * @mongodbOperator $or
  */
 public interface Or<T, Children> extends BaseQueryCondition<T, Children> {
 

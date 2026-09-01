@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  * regex操作
  *
  * @author anwen
+ * @mongodbOperator $regex
  */
 public interface Regex<T, Children> extends BaseQueryCondition<T, Children> {
 

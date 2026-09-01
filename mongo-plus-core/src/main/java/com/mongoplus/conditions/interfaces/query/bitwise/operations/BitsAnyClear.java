@@ -7,6 +7,7 @@ import com.mongoplus.support.SFunction;
  * bitsAnyClear操作
  *
  * @author anwen
+ * @mongodbOperator $bitsAnyClear
  */
 public interface BitsAnyClear<T, Children> extends BaseQueryCondition<T, Children> {
 

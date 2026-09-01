@@ -6,6 +6,7 @@ import com.mongoplus.support.SFunction;
 /**
  * ne比较
  * @author anwen
+ * @mongodbOperator $ne
  */
 public interface Ne<T,Children> extends BaseQueryCondition<T, Children> {
 

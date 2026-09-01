@@ -6,6 +6,7 @@ import com.mongoplus.support.SFunction;
 /**
  * eq比较
  * @author anwen
+ * @mongodbOperator $eq
  */
 public interface Eq<T,Children> extends BaseQueryCondition<T, Children> {
 

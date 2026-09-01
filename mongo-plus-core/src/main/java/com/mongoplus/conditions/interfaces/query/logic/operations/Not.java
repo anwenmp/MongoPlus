@@ -13,6 +13,8 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
 /**
  * not逻辑
  * @author anwen
+ * @mongodbOperator $not
+ * @mongodbOperator $nor
  */
 public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
 

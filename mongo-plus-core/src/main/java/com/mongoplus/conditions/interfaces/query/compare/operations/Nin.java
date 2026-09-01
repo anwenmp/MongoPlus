@@ -10,6 +10,7 @@ import java.util.Collection;
 /**
  * nin比较
  * @author anwen
+ * @mongodbOperator $nin
  */
 public interface Nin<T,Children> extends BaseQueryCondition<T, Children> {
 

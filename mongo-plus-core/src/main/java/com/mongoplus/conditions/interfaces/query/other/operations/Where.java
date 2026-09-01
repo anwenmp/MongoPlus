@@ -6,6 +6,7 @@ import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
  * where操作
  *
  * @author anwen
+ * @mongodbOperator $where
  */
 public interface Where<T, Children> extends BaseQueryCondition<T, Children> {
 

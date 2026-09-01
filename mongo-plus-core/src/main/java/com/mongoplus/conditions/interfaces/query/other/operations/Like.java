@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  * like操作
  *
  * @author anwen
+ * @mongodbOperator $regex
  */
 public interface Like<T, Children> extends BaseQueryCondition<T, Children> {
 
@@ -20,6 +21,9 @@ public interface Like<T, Children> extends BaseQueryCondition<T, Children> {
      * @param value 值
      * @return Children
      * @author JiaChaoYang
+     * @aiAlias 正则
+     * @aiAlias 正则表达式
+     * @aiAlias 模糊查询
      */
     default Children like(boolean condition, SFunction<T,Object> column, Object value) {
         return condition ? like(column,value) : typeThis();

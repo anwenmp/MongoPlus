@@ -7,6 +7,8 @@ import com.mongoplus.support.SFunction;
 /**
  * geoWithinBox操作
  * @author anwen
+ * @mongodbOperator $geoWithin
+ * @mongodbOperator $box
  */
 public interface GeoWithinBox<T, Children> extends BaseQueryCondition<T, Children> {
 

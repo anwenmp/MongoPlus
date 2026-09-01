@@ -10,6 +10,7 @@ import java.util.Collection;
  * mod操作
  *
  * @author anwen
+ * @mongodbOperator $mod
  */
 public interface Mod<T, Children> extends BaseQueryCondition<T, Children> {
 

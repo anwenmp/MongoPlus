@@ -17,10 +17,10 @@
 
 这些缺陷的外部异常类型、资源增长、数据库最终命令或并发后果仍须用测试固定；静态证据不等于所有环境下已有相同运行外观。
 
-## B. 已确认实现行为或高风险设计（10）
+## B. 已确认实现行为或高风险设计（9 项有效，1 项已排除）
 
-1. **Registry key 不含 datasource：** namespace→实体 key 只有 `database.collection` 且 `putIfAbsent`；跨 client 同 namespace 可能共享首个实体元数据，需评估隔离契约。[Multi Datasource](features/MULTI_DATASOURCE.md) / [Entity Mapping](architecture/ENTITY_MAPPING.md)
-2. **动态集合缓存无淘汰：** collection/registry 随动态名称增长，关闭或覆盖数据源不清理；需评估生命周期和上限。[Dynamic Collection](features/DYNAMIC_COLLECTION.md)
+1. **已排除（原 B1）：Registry key 不含 datasource。** MongoPlus 正常多数据源模型切换的是 `MongoClient`/`CollectionManager`/`MongoCollection`，不是同 namespace 的实体结构；跨 datasource 共用 `database.collection -> entity` 元数据是当前预期设计，datasource 隔离由 collection 层负责。因此不再把 key 不含 datasource 视为实体串源问题，也不继续建立 B1 缺陷测试。[Multi Datasource](features/MULTI_DATASOURCE.md) / [Entity Mapping](architecture/ENTITY_MAPPING.md)
+2. **动态集合缓存无淘汰（B2，高风险设计）：** 已执行 characterization test 确认同名访问复用，collection cache 与 registry retention 按历史唯一动态 namespace 基数增长；无 maxSize/TTL/LRU/弱引用/后台清理。registry 有显式 remove/clear，`CollectionManager` 无对应 API；应用 close 只关闭当前 clients，不清 Map。数据源覆盖会替换 manager 项但不显式 clear 旧 manager，并且不关闭旧 client。当前没有 bounded-cache 公开契约，故不升级为缺陷；需维护者决定是否接受以及是否增加生命周期清理。[Dynamic Collection](features/DYNAMIC_COLLECTION.md)
 3. **时序创建吞 `MongoCommandException`：** 启动可继续但最终结构未知；需决定是否保留 fail-open 以及如何可观测。[Index / Time Series](features/INDEX_AND_TIMESERIES.md)
 4. **分片并发共享普通 boolean：** `sessionIsNotNull` 位于 Boot 单例 Bean，无 ThreadLocal、同步或 finally，可能跨线程影响执行器选择；未运行前不标记必现缺陷。[Sharding](features/SHARDING.md)
 5. **分片事务逐项结束且非原子：** 多 session 的 commit/rollback/close 经 `HashMap.forEach` 逐项执行，异常会中断后续；无法提供跨数据源原子承诺。[Sharding](features/SHARDING.md) / [Transaction](features/TRANSACTION.md)
@@ -30,7 +30,7 @@
 9. **Auto Fill 位于实体映射后：** fill Map 不再经过字段 TypeHandler/Encrypt/DBRef，重命名字段可能形成双字段；需定义组合契约。[Auto Fill](features/AUTO_FILL.md)
 10. **Aggregate 只增强顶层 pipeline：** Tenant/Logic 不递归 lookup/facet/unionWith 子 pipeline，且无 match 时 Logic `$match` 追加到末尾；需评估 stage 合法性和安全边界。[Aggregate](architecture/AGGREGATION.md)
 
-## C. 运行验证问题（15）
+## C. 运行验证问题（14 项有效，1 项已排除）
 
 每项格式为“环境；最小验证；成功判定；专题”。
 
@@ -42,7 +42,7 @@
 6. **加密算法兼容：** JDK 8/17/21 与所需 provider；覆盖 AES/RSA/SM2/PBE、坏 key、长度边界和随机性；成功组合可往返、失败类型及 fail-open 外观被固定；[Encryption](features/FIELD_ENCRYPTION.md)。
 7. **ThreadLocal 在线程池污染：** 固定大小线程池 + 屏障；依次触发 Tenant、Logic、datasource、Recorder、Async 的成功/异常路径；后续无关任务看不到旧上下文；[Extension Pipeline](architecture/EXTENSION_PIPELINE.md)。
 8. **动态集合并发首次创建和增长：** Boot 3/4/Solon + 并发屏障；同名首次创建及大量唯一名称后检查 open/cache/registry；无错误绑定且资源增长符合选定策略；[Dynamic Collection](features/DYNAMIC_COLLECTION.md)。
-9. **跨 datasource 同 namespace：** 两个 client 使用相同 database/collection、不同实体；交替 CRUD 并检查 registry、逻辑删除和映射；最终实体/namespace 隔离符合契约；[Multi Datasource](features/MULTI_DATASOURCE.md)。
+9. **已排除（原 B1 的运行验证）：** 不再用“两个 datasource 的同一 namespace 对应不同实体”建立缺陷测试；正常多数据源模型共享实体 metadata，并由 client/manager/collection 隔离实际访问。[Multi Datasource](features/MULTI_DATASOURCE.md)。
 10. **Wrapper 与映射边界：** BSON 单测 + MongoDB；覆盖 null、空集合、重复字段、Wrapper 复用、RegexOptions、复杂 Type/集合及 Map 修复回归；构建 BSON、异常和往返结果有稳定断言；[Query Wrapper](architecture/QUERY_WRAPPER.md) / [Entity Mapping](architecture/ENTITY_MAPPING.md)。
 11. **聚合/乐观锁组合：** 多 MongoDB Server 版本；覆盖首 stage 限制、末尾 `$out/$merge`、重复执行、已有 `$inc`、matched/modified 差异；最终 pipeline/update 合法且冲突判定符合契约；[Aggregate](architecture/AGGREGATION.md) / [Optimistic Lock](features/OPTIMISTIC_LOCK.md)。
 12. **Boot/Solon 注解绑定：** Boot 2、Boot 3、Boot 4、Solon 最小应用；调用 `@MongoDs`、`@IgnoreLogic`、事务注解的类级/方法级/嵌套/异常路径；拦截器确实进入且返回包装和清理一致；[Startup](architecture/STARTUP_LIFECYCLE.md)。
@@ -64,7 +64,7 @@
 1. 加解密、时序创建、监听器和 Recorder 异常应 fail-open 还是 fail-closed？
 2. 是否支持动态集合自动索引，以及缓存/registry 是否需要上限、淘汰和关闭清理？
 3. Async 是否改为 afterCommit，是否提供结果、重试、取消、去重、深拷贝和 executor shutdown？
-4. namespace→实体 Registry key 是否加入 datasource/client，覆盖数据源时是否使旧 collection/registry 失效？
+4. 数据源覆盖时是否显式关闭旧 client，以及如何处理仍被外部引用或并发请求持有的旧 manager/collection？Registry key 加 datasource/client 的原 B1 议题已排除。
 5. Query/Update Chain 的 `clear` 与 Aggregate 缺少 `reset` 是否要统一为公开复用契约？
 6. Recorder 是否改为 afterCommit，并用栈式上下文和 finally 恢复 datasource/namespace？
 7. Tenant/Logic 聚合增强是否递归子 pipeline、如何处理必须首位/末位的 stage？

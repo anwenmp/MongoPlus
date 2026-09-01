@@ -6,6 +6,7 @@ import com.mongoplus.support.SFunction;
 /**
  * 大于等于比较
  * @author anwen
+ * @mongodbOperator $gte
  */
 public interface Gte<T,Children> extends BaseQueryCondition<T, Children> {
 

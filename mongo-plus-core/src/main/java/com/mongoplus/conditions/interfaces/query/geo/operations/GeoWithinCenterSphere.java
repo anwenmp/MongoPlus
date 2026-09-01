@@ -8,6 +8,8 @@ import com.mongoplus.support.SFunction;
  * geoWithinCenterSphere操作
  *
  * @author anwen
+ * @mongodbOperator $geoWithin
+ * @mongodbOperator $centerSphere
  */
 public interface GeoWithinCenterSphere<T, Children> extends BaseQueryCondition<T, Children> {
 

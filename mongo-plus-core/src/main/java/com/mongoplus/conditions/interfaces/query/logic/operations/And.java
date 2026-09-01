@@ -8,6 +8,7 @@ import com.mongoplus.support.SFunction;
 /**
  * and逻辑
  * @author anwen
+ * @mongodbOperator $and
  */
 public interface And<T, Children> extends BaseQueryCondition<T, Children> {
 

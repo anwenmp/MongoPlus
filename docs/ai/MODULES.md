@@ -1,15 +1,16 @@
 # Maven 模块
 
-> 审计日期：2026-08-01。模块与依赖以根 POM 和各模块 POM 为准；职责以公开入口源码为准。
+> 审计日期：2026-08-30。模块与依赖以根 POM 和各模块 POM 为准；职责以公开入口源码为准。
 
 ## Reactor 与仓库内发布构件
 
-根 [`pom.xml`](../../pom.xml) 是 `com.mongoplus:mongo-plus:2.2.0`、`packaging=pom` 的聚合父 POM，不是运行时库。其 `<modules>` 明确聚合 8 个模块：
+根 [`pom.xml`](../../pom.xml) 是 `com.mongoplus:mongo-plus:2.2.0`、`packaging=pom` 的聚合父 POM，不是运行时库。其 `<modules>` 明确聚合 9 个模块：
 
 | Reactor 模块 | 类型 | 直接项目内依赖 | 经源码确认的主要职责 |
 |---|---|---|---|
 | `mongo-plus-annotation` | JAR | 无 | 公共注解、枚举和注解相关基础类型 |
 | `mongo-plus-core` | JAR | `mongo-plus-annotation` | Mapper/Repository/Service、条件与聚合、映射转换、执行器、连接管理和扩展链 |
+| `mongo-plus-indexer` | JAR | 无 | 通过纯 JDK Compiler Tree API 扫描 conditions 公开源码并生成 MongoPlus API Index |
 | `mongo-plus-boot-starter` | JAR / Boot 3 适配 | `mongo-plus-core`；`mongo-plus-sensitive-word` 为 `provided` | Boot 自动配置、属性、Mapper 扫描与代理、事务和切面集成 |
 | `mongo-plus-boot4-starter` | JAR / Boot 4 适配 | `mongo-plus-core`；`mongo-plus-sensitive-word` 为 `provided` | 与 Boot 3 模块平行的 Boot 4 自动配置与 Mapper 集成 |
 | `mongo-plus-solon-plugin` | JAR / Solon 插件 | `mongo-plus-core` | Solon 插件启动、核心 Bean、切面和 Mapper 注入 |
@@ -17,7 +18,7 @@
 | `mongo-plus-sharding-boot-starter` | JAR / Boot 3 Starter | `mongo-plus-boot-starter`、`mongo-plus-sharding` | 将分片能力注册到 Boot 3 容器 |
 | `mongo-plus-sensitive-word` | JAR / 可选扩展 | `mongo-plus-core` 为 `provided` | 敏感词注解、字段处理器、拦截器与管理器 |
 
-仓库还包含 [`mongo-plus-bom/pom.xml`](../../mongo-plus-bom/pom.xml)。它是独立的 `packaging=pom` BOM，在 `dependencyManagement` 中锁定上述 8 个发布构件的版本；它不在根 `<modules>` 中，因此不是当前 reactor 的第 9 个模块。根 POM 反向导入了该 BOM。发布流程为何这样组织，待验证。
+仓库还包含 [`mongo-plus-bom/pom.xml`](../../mongo-plus-bom/pom.xml)。它是独立的 `packaging=pom` BOM，在 `dependencyManagement` 中锁定上述 9 个发布构件的版本；它不在根 `<modules>` 中，因此不是当前 reactor 的第 10 个模块。根 POM 反向导入了该 BOM。发布流程为何这样组织，待验证。
 
 ## 依赖方向
 

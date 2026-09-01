@@ -11,6 +11,7 @@ import org.bson.conversions.Bson;
 /**
  * nearSphere操作
  * @author anwen
+ * @mongodbOperator $nearSphere
  */
 public interface NearSphere<T, Children> extends BaseQueryCondition<T, Children> {
 

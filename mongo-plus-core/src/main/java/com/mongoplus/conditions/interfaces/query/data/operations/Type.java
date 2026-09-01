@@ -8,6 +8,7 @@ import com.mongoplus.support.SFunction;
  * type操作
  *
  * @author anwen
+ * @mongodbOperator $type
  */
 public interface Type<T, Children> extends BaseQueryCondition<T, Children> {
 

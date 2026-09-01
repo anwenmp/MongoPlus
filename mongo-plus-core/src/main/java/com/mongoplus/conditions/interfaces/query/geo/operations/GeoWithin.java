@@ -8,6 +8,7 @@ import org.bson.conversions.Bson;
 /**
  * geoWithin操作
  * @author anwen
+ * @mongodbOperator $geoWithin
  */
 public interface GeoWithin<T, Children> extends BaseQueryCondition<T, Children> {
 

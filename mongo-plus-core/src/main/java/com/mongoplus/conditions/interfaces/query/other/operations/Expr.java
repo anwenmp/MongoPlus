@@ -14,6 +14,7 @@ import static com.mongoplus.handlers.condition.BuildCondition.condition;
  * expr操作
  *
  * @author anwen
+ * @mongodbOperator $expr
  */
 public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
 

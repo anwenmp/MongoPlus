@@ -9,6 +9,7 @@ import java.util.Collection;
  * all操作
  *
  * @author anwen
+ * @mongodbOperator $all
  */
 public interface All<T, Children> extends BaseQueryCondition<T, Children> {
 

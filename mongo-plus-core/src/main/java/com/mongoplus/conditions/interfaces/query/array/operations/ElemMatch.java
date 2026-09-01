@@ -8,6 +8,7 @@ import com.mongoplus.support.SFunction;
  * elemMatch操作
  *
  * @author anwen
+ * @mongodbOperator $elemMatch
  */
 public interface ElemMatch<T, Children> extends BaseQueryCondition<T, Children> {
 

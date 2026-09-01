@@ -56,6 +56,11 @@
         <dependencies>
             <dependency>
                 <groupId>com.mongoplus</groupId>
+                <artifactId>mongo-plus-indexer</artifactId>
+                <version>${mongoplus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mongoplus</groupId>
                 <artifactId>mongo-plus-boot-starter</artifactId>
                 <version>${mongoplus.version}</version>
             </dependency>
