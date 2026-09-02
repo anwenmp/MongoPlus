@@ -11,6 +11,7 @@ import com.mongoplus.aggregate.pipeline.Project;
 import com.mongoplus.aggregate.pipeline.UnwindOption;
 import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.conditions.Wrapper;
+import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.model.aggregate.Field;
 import com.mongoplus.support.SFunction;
 import org.bson.Document;
@@ -389,7 +390,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @return {@link Children}
      * @author anwen
      */
-    Children match(final SFunction<Wrapper<?>, Wrapper<?>> function);
+    Children match(final SFunction<QueryWrapper<?>, QueryWrapper<?>> function);
 
     /**
      * $match阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson

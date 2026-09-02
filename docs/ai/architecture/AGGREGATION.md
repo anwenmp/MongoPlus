@@ -43,7 +43,7 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 
 ## Match、Tenant 与 Logic Delete
 
-`match(Wrapper<?>)` 调用 `buildCondition().getCondition()` 后交给 Driver `Aggregates.match`，因此 eq/in/regex/AND/OR/NOT/EXPR 与普通查询共享 Wrapper 条件构建及其已知边界。多个用户 match 保持为多个 stage；函数式重载声明为 `SFunction<Wrapper<T>, Wrapper<T>>`，内部以 `QueryWrapper<T>` 作为初始 Wrapper。
+`match(Wrapper<?>)` 调用 `buildCondition().getCondition()` 后交给 Driver `Aggregates.match`，因此 eq/in/regex/AND/OR/NOT/EXPR 与普通查询共享 Wrapper 条件构建及其已知边界。多个用户 match 保持为多个 stage；函数式重载声明为 `SFunction<QueryWrapper<?>, QueryWrapper<?>>`，内部以 `QueryWrapper<?>` 作为初始 Wrapper。
 
 聚合增强发生在 pipeline 已构建之后、Driver 调用之前的 `ExecutorProxy` 普通参数策略中：
 

@@ -35,7 +35,7 @@ public interface Logic<T, Children> extends
      * @return {@link Children}
      * @author anwen
      */
-    default Children combine(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children combine(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? combine(function) : typeThis();
     }
 
@@ -54,7 +54,7 @@ public interface Logic<T, Children> extends
      * @return {@link Children}
      * @author anwen
      */
-    default Children combine(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children combine(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return combine(function.apply(new QueryWrapper<>()));
     }
 

@@ -58,7 +58,7 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
      * 进行计算的表达式
      * @author anwen
      */
-    default Children expr(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children expr(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return expr(function.apply(new QueryWrapper<>()));
     }
 
@@ -66,7 +66,7 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
      * 进行计算的表达式
      * @author anwen
      */
-    default Children expr(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children expr(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? expr(function) : typeThis();
     }
 

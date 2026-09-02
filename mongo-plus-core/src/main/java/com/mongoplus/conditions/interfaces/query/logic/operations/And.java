@@ -40,7 +40,7 @@ public interface And<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children and(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children and(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? addCondition(getBaseCondition(function)) : typeThis();
     }
 
@@ -51,7 +51,7 @@ public interface And<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children and(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children and(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return and(function.apply(new QueryWrapper<>()));
     }
 

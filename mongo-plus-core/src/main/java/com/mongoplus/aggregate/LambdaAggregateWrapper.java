@@ -244,7 +244,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
     }
 
     @Override
-    public Children match(final SFunction<Wrapper<?>, Wrapper<?>> function){
+    public Children match(final SFunction<QueryWrapper<?>, QueryWrapper<?>> function){
         return match(function.apply(new QueryWrapper<>()));
     }
 

@@ -40,7 +40,7 @@ public interface Or<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children or(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children or(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? or(function) : typeThis();
     }
 
@@ -51,7 +51,7 @@ public interface Or<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children or(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children or(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return or(function.apply(new QueryWrapper<>()));
     }
 

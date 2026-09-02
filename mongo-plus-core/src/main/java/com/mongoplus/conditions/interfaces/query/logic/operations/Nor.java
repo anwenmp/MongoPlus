@@ -40,7 +40,7 @@ public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children nor(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children nor(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? nor(function) : typeThis();
     }
 
@@ -51,7 +51,7 @@ public interface Nor<T, Children> extends BaseQueryCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children nor(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children nor(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return nor(function.apply(new QueryWrapper<>()));
     }
 

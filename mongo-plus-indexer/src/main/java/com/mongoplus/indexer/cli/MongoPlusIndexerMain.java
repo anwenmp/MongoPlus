@@ -38,7 +38,7 @@ public final class MongoPlusIndexerMain {
                 .resolve("mongo-plus-indexer")
                 .resolve("target")
                 .resolve("generated-sources")
-                .resolve("mongo-plus-api-aggregate-index.json");
+                .resolve("mongo-plus-api-index.json");
 
         MongoPlusIndexerConfig config = MongoPlusIndexerConfig
                 .forMongoPlusProject(projectRoot)

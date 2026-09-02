@@ -117,7 +117,7 @@ lambdaQueryChainWrapper.like(Entity::getName, "mongo")
 ## AND、OR、NOT 与分组语义
 
 - 顶层连续普通条件写入同一个 `MongoPlusBasicDBObject`，表现为 MongoDB 文档的隐式 AND；相同字段/键的覆盖行为取决于 `MongoPlusBasicDBObject.put`，不应把重复键当作稳定的显式分组 API。
-- `and/or/nor(wrapper|function)` 保存一个子 `Wrapper<?>`；函数式重载声明为 `SFunction<Wrapper<T>, Wrapper<T>>`，并以 `QueryWrapper<T>` 作为初始 Wrapper。构建时递归转换子 Wrapper 中的条件和自定义 BSON，再交给 `Filters.and/or/nor`，形成显式逻辑数组。
+- `and/or/nor(wrapper|function)` 保存一个子 `Wrapper<?>`；函数式重载声明为 `SFunction<QueryWrapper<T>, QueryWrapper<T>>`，并以 `QueryWrapper<T>` 作为初始 Wrapper。构建时递归转换子 Wrapper 中的条件和自定义 BSON，再交给 `Filters.and/or/nor`，形成显式逻辑数组。
 - function 重载创建新的 `QueryWrapper` 供回调填充，因此是实际的嵌套分组入口。
 - `not(...)` 把子 Wrapper 保存为条件 `not`，并在 `BuildCondition` 中与 `EXPR` 分支分开处理。空子 Wrapper 不生成 filter；单键子 filter 继续交给 `Filters.not(...)` 形成字段级 `$not`；多键子 filter 作为一个完整文档交给 `Filters.nor(...)`，形成 `{$nor: [{key1: ..., key2: ...}]}`，不会丢弃后续键。
 - `not(ConditionMetaObject)` 先把单条件构造成 BSON 列表再封装，最终同样进入上述 NOT 分支。`EXPR` 保持原有独立行为：从子 filter 取第一个键并调用 `Filters.expr(...)`。

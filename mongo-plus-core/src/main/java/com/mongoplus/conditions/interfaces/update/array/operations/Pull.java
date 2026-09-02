@@ -53,7 +53,7 @@ public interface Pull<T, Children> extends BaseUpdateCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children pull(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? pull(function) : typeThis();
     }
 
@@ -73,7 +73,7 @@ public interface Pull<T, Children> extends BaseUpdateCondition<T, Children> {
      * @return {@link Children}
      * @author anwen
      */
-    default Children pull(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children pull(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return pull(function.apply(new QueryWrapper<>()));
     }
 

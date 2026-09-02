@@ -63,7 +63,7 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
      * @param function 条件构造器
      * @return Children
      */
-    default Children not(SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children not(SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return not(function.apply(new QueryWrapper<>()));
     }
 
@@ -73,7 +73,7 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
      * @param function 条件构造器
      * @return Children
      */
-    default Children not(boolean condition, SFunction<Wrapper<T>, Wrapper<T>> function) {
+    default Children not(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
         return condition ? not(function) : typeThis();
     }
 
