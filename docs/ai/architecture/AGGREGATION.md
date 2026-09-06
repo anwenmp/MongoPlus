@@ -37,9 +37,56 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 
 ## Stage 支持矩阵
 
+聚合专用机器索引由 `mongo-plus-indexer` 的 `MongoPlusPipelineIndexerMain` 生成，入口为
+`Aggregate`，详见 [Indexer 契约与生成方式](../../../mongo-plus-indexer/README.md)。索引映射仅接受
+源码 `@mongoStage` / `@mongoExpression` 块标签；下述人工源码审计的支持矩阵不能作为自动映射来源。
+2026-09-06 已按当前实现补充这两类标签；收录统计与边界见下方 Pipeline Javadoc evidence。
+
 以下均为当前 `Aggregate`/`LambdaAggregateWrapper` 已确认公开支持：`match`、`project`、`sort`、`skip`、`limit`、`group`、`unwind`、`lookup`、`addFields`、`set`、`unset`、`replaceRoot`、`replaceWith`、`count`、`facet`、`unionWith`、`bucket`、`bucketAuto`、`graphLookup`、`sample`、`out`、`merge`。此外还封装了 `sortByCount`、`setWindowFields`、`densify`、`fill` 等。
 
 多数 stage 同时提供字段/Lambda/Driver option/BSON 重载；BSON 重载并不总是补 stage 名，调用方必须按该方法实现传入完整 stage。`custom(Bson)` 可承载其他原生 stage，但这只表示透传入口，不表示 MongoPlus 为该 stage 提供语义、校验或兼容保证。
+
+## Pipeline Javadoc evidence
+
+本轮仅修改 Core Javadoc，不修改方法签名、业务逻辑或 Indexer 生成逻辑。标签逐方法声明，
+以 `LambdaAggregateWrapper` 的委托链、实际 BSON、Driver 5.4.0 源码及参数语义为依据；
+未使用类级标签将映射批量传播给所有方法。
+
+- `Aggregate` 和父接口 `pipeline.Project` 共 140 条 `@mongoStage`，覆盖 26 种 Stage；
+  Index 按 category + Java 方法名分为 33 个 `PIPELINE_STAGE` family。
+- `pipeline.Accumulators`、`AggregateOperator`、`Projections`、`Sorts`，以及现行和 deprecated
+  `ConditionOperators` 共 211 条 `@mongoExpression`，覆盖 42 种 Expression（49 个 Java 方法名）。
+- 表达式工厂通过 `Bson`、`BsonField` 等返回值供用户组合，但不在正式入口的签名依赖闭包内。
+  正式 Index 的 `PIPELINE_EXPRESSION` 为 0，`methodFamilies` 合计 33；不能把工厂标签总数
+  或测试夹具结果冒充正式 Index 收录数。扫描器不会反向枚举返回同一 Driver 类型的工厂。
+- Stage `Aggregate.count` 对应 `$count`；`Accumulators.count` 对应 `$count` accumulator，
+  `Accumulators.sum()` 实际构造 `{count: {$sum: 1}}`，仍标记 `$sum`。
+- `projectDisplay/projectNone` 对应 `$project`，`sortAsc/sortDesc` 及各自 Lambda 集合便利方法
+  对应 `$sort`，`unsetLambda` 对应 `$unset`。`condArray` 对应 `$cond`，`multiplyLambda`
+  对应 `$multiply`，带 Option 的 mergeObjects 字段便利方法对应 `$mergeObjects`。
+
+保守排除：
+
+- 仅 `custom(bson)` 的完整 BSON 透传 overload 不加 Stage 标签；`addFields/set/bucket/bucketAuto/
+  match/project(Bson)` 会包裹固定 Stage，可加标签。
+- `Aggregate.metaTextScore` 追加裸排序规范而未包裹 `$sort`，不标记；`Sorts` 的升降序及合并器、
+  `Projections` 的字段组合/包含/排除、`Field/Facet/Variable/UnwindOption` 等构建数据也不作为 Stage。
+  `Projections.meta*`、`Sorts.metaTextScore` 的 BSON 包含明确 `$meta` expression，标记为 Expression。
+- `Projections.elemMatch/slice` 是查询投影形态，`computed` 接受任意表达式，`computedSearchMeta`
+  使用 `$$SEARCH_META` 变量，均不能映射为同名聚合 Expression 或 `$project` Stage。
+- `FillField.value/locf/linear/of` 构造 fill 输出配置，不构造 `$fill` Stage 或 `$locf/$linearFill` Expression。
+  `AggregateOptions.let` 是命令选项；读取状态、执行 list/one 等方法也没有固定映射。
+- `addFields/set` 的 Collection 值重载生成可疑的 concatArrays 操作数结构；`SFunction,Object`
+  重载经 `Field.of` 为输出字段名添加 `$`。本轮不确认这些重载的完整语义，也不修复其实现。
+- `Accumulators.firstN(String,NExpression,SFunction...)` 委托时交换 n/input；
+  `topN(SFunction,Bson,NExpression,SFunction)` 未转换输出 Lambda；均不标记。
+- 两份 `ConditionOperators` 中，不带 Option 的 mergeObjects 字段 Lambda 路径、丢弃 timezone
+  的 dateFromString 两参数重载，以及描述为 each 更新修饰符而实际使用 MERGE_OBJECTS 常量的
+  each 系列，均不标记。这些是本轮排除依据，不表示已做服务器行为验证或业务修复。
+
+验证：现有 Query/Pipeline 可执行自测通过；Pipeline 自测覆盖移除真实入口标签后空映射、
+透传同名 overload 排除，以及测试夹具显式连接真实工厂后解析 211 条 Expression evidence。
+正式 CLI 连续三次输出按字节比较；本轮未执行真实 MongoDB、全 reactor 或发布验证。
 
 ## Match、Tenant 与 Logic Delete
 

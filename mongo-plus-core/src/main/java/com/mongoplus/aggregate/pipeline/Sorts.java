@@ -125,6 +125,8 @@ public class Sorts {
      * @return 排序规范
      * @see Filters#text(String, TextSearchOptions)
      * @since mongodb.driver.manual reference/operator/aggregation/meta/#text-score-metadata--meta---textscore- textScore
+     *
+     * @mongoExpression $meta
      */
     public static Bson metaTextScore(final String fieldName) {
         return new BsonDocument(fieldName, new BsonDocument("$meta", new BsonString("textScore")));
@@ -137,6 +139,8 @@ public class Sorts {
      * @return 排序规范
      * @see Filters#text(String, TextSearchOptions)
      * @since mongodb.driver.manual reference/operator/aggregation/meta/#text-score-metadata--meta---textscore- textScore
+     *
+     * @mongoExpression $meta
      */
     public static <T> Bson metaTextScore(final SFunction<T,?> fieldName) {
         return metaTextScore(fieldName.getFieldNameLine());

@@ -16,6 +16,8 @@ public interface Project<Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(SFunction<T,R>... column);
@@ -25,6 +27,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children projectDisplay(String... column);
 
@@ -33,6 +37,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(SFunction<T,R>... column);
@@ -42,6 +48,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children projectNone(String... column);
 
@@ -51,6 +59,8 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children project(boolean displayId, Projection... projection);
 
@@ -59,6 +69,8 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children project(Projection... projection);
 
@@ -68,6 +80,8 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children project(boolean displayId, Collection<? extends Projection> projection);
 
@@ -76,6 +90,8 @@ public interface Project<Children> {
      * @param projection 对象
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children project(Collection<? extends Projection> projection);
 
@@ -85,6 +101,8 @@ public interface Project<Children> {
      * @param column 列名，字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(boolean displayId,SFunction<T,R>... column);
@@ -95,6 +113,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children projectDisplay(boolean displayId,String... column);
 
@@ -104,6 +124,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(boolean displayId,SFunction<T,R>... column);
@@ -114,6 +136,8 @@ public interface Project<Children> {
      * @param column 列名、字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $project
      */
     Children projectNone(boolean displayId,String... column);
 

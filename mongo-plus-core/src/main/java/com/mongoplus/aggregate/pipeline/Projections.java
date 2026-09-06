@@ -259,6 +259,8 @@ public class Projections {
      * @see #metaTextScore(String)
      * @see #metaSearchScore(String)
      * @see #metaSearchHighlights(String)
+     *
+     * @mongoExpression $meta
      */
     public static Bson meta(final String fieldName, final String metaFieldName) {
         return new BsonDocument(fieldName, new BsonDocument("$meta", new BsonString(metaFieldName)));
@@ -275,6 +277,8 @@ public class Projections {
      * @see #metaTextScore(String)
      * @see #metaSearchScore(String)
      * @see #metaSearchHighlights(String)
+     *
+     * @mongoExpression $meta
      */
     public static <T> Bson meta(final SFunction<T,?> fieldName, final String metaFieldName) {
         return meta(fieldName.getFieldNameLine(),metaFieldName);
@@ -291,6 +295,8 @@ public class Projections {
      * @see #metaTextScore(String)
      * @see #metaSearchScore(String)
      * @see #metaSearchHighlights(String)
+     *
+     * @mongoExpression $meta
      */
     public static <T,R> Bson meta(final SFunction<T,?> fieldName, final SFunction<R,?> metaFieldName) {
         return meta(fieldName.getFieldNameLine(),metaFieldName.getFieldNameLine());
@@ -304,6 +310,8 @@ public class Projections {
      * @return $project
      * @see Filters#text(String, TextSearchOptions)
      * @since mongodb.driver.manual reference/operator/aggregation/meta/#text-score-metadata--meta---textscore- textScore
+     *
+     * @mongoExpression $meta
      */
     public static Bson metaTextScore(final String fieldName) {
         return meta(fieldName, "textScore");
@@ -317,6 +325,8 @@ public class Projections {
      * @return $project
      * @see Filters#text(String, TextSearchOptions)
      * @since mongodb.driver.manual reference/operator/aggregation/meta/#text-score-metadata--meta---textscore- textScore
+     *
+     * @mongoExpression $meta
      */
     public static <T> Bson metaTextScore(final SFunction<T,?> fieldName) {
         return meta(fieldName, "textScore");
@@ -331,6 +341,8 @@ public class Projections {
      * @return $project
      * @since mongodb.atlas.manual atlas-search/scoring/ Scoring
      * @since 4.7
+     *
+     * @mongoExpression $meta
      */
     public static Bson metaSearchScore(final String fieldName) {
         return meta(fieldName, "searchScore");
@@ -345,6 +357,8 @@ public class Projections {
      * @return $project
      * @since mongodb.atlas.manual atlas-search/scoring/ Scoring
      * @since 4.7
+     *
+     * @mongoExpression $meta
      */
     public static <T> Bson metaSearchScore(final SFunction<T,?> fieldName) {
         return meta(fieldName, "searchScore");
@@ -360,6 +374,8 @@ public class Projections {
      * @see com.mongodb.client.model.search.SearchHighlight
      * @since mongodb.atlas.manual atlas-search/highlighting/ Highlighting
      * @since 4.7
+     *
+     * @mongoExpression $meta
      */
     public static Bson metaSearchHighlights(final String fieldName) {
         return meta(fieldName, "searchHighlights");
@@ -375,6 +391,8 @@ public class Projections {
      * @see com.mongodb.client.model.search.SearchHighlight
      * @since mongodb.atlas.manual atlas-search/highlighting/ Highlighting
      * @since 4.7
+     *
+     * @mongoExpression $meta
      */
     public static <T> Bson metaSearchHighlights(final SFunction<T,?> fieldName) {
         return meta(fieldName, "searchHighlights");

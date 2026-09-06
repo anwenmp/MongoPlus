@@ -69,6 +69,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     Children addFields(final String field,final String value);
 
@@ -80,6 +82,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     <T> Children addFields(final SFunction<T,?> field,final String value);
 
@@ -91,6 +95,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段，嵌套文档请按照顺序传入，中间会自动拼接.
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     @SuppressWarnings("unchecked")
     <T> Children addFields(final String value,final SFunction<T,?>... field);
@@ -127,6 +133,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     Children addFields(final Field<?>... fields);
 
@@ -135,6 +143,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     Children addFields(final List<Field<?>> fields);
 
@@ -143,6 +153,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $addFields
      */
     Children addFields(final Bson bson);
 
@@ -160,6 +172,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     Children set(final String field,final String value);
 
@@ -171,6 +185,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     <T> Children set(final SFunction<T,?> field,final String value);
 
@@ -182,6 +198,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段，嵌套文档请按照顺序传入，中间会自动拼接.
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     @SuppressWarnings("unchecked")
     <T> Children set(final String value,final SFunction<T,?>... field);
@@ -218,6 +236,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     Children set(final Field<?>... fields);
 
@@ -226,6 +246,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 多个Field
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     Children set(final List<Field<?>> fields);
 
@@ -234,6 +256,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $set
      */
     Children set(final Bson bson);
 
@@ -249,6 +273,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param boundaries 桶边界
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucket
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy,final List<Boundary> boundaries);
 
@@ -258,6 +284,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param boundaries 桶边界
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucket
      */
     <Boundary> Children bucket(final Object groupBy,final List<Boundary> boundaries);
 
@@ -268,6 +296,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含default和output
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucket
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -278,6 +308,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含default和output
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucket
      */
     <Boundary> Children bucket(final Object groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -286,6 +318,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucket
      */
     Children bucket(final Bson bson);
 
@@ -301,6 +335,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param buckets 桶的数量
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucketAuto
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy,final Integer buckets);
 
@@ -310,6 +346,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param buckets 桶的数量
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucketAuto
      */
     Children bucketAuto(final Object groupBy,final Integer buckets);
 
@@ -320,6 +358,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含output和granularity
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucketAuto
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -330,6 +370,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 可选值，其中包含output和granularity
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucketAuto
      */
     Children bucketAuto(final Object groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -338,6 +380,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $bucketAuto
      */
     Children bucketAuto(final Bson bson);
 
@@ -351,6 +395,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * $count阶段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $count
      */
     Children count();
 
@@ -359,6 +405,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 输出字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $count
      */
     Children count(final String field);
 
@@ -367,6 +415,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 输出字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $count
      */
     <T> Children count(final SFunction<T,?> field);
 
@@ -381,6 +431,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param queryWrapper 实体对象封装操作类 {@link com.mongoplus.conditions.query.QueryWrapper}
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $match
      */
     Children match(final Wrapper<?> queryWrapper);
 
@@ -389,6 +441,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param function 函数
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $match
      */
     Children match(final SFunction<QueryWrapper<?>, QueryWrapper<?>> function);
 
@@ -396,6 +450,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * $match阶段，如果MongoPlus封装的条件未满足该阶段的需求，请自行构建Bson
      * @param bson bson
      * @author anwen
+     *
+     * @mongoStage $match
      */
     Children match(final Bson bson);
 
@@ -411,6 +467,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $project
      */
     Children project(final Bson bson);
 
@@ -426,6 +484,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sort(final String field, final Integer value);
 
@@ -435,6 +495,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     <T> Children sort(final SFunction<T,?> field,final Integer value);
 
@@ -443,6 +505,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     <T> Children sortAsc(final SFunction<T,?> field);
 
@@ -451,6 +515,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortAsc(final String field);
 
@@ -459,6 +525,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     @SuppressWarnings("unchecked")
     <T> Children sortAsc(final SFunction<T, ?>... field);
@@ -468,6 +536,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortAsc(final String... field);
 
@@ -476,6 +546,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     <T> Children sortAscLambda(final List<SFunction<T,?>> field);
 
@@ -484,6 +556,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortAsc(final List<String> field);
 
@@ -492,6 +566,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     <T> Children sortDesc(final SFunction<T,?> field);
 
@@ -500,6 +576,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortDesc(final String field);
 
@@ -508,6 +586,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     @SuppressWarnings("unchecked")
     <T> Children sortDesc(final SFunction<T, ?>... field);
@@ -517,6 +597,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortDesc(final String... field);
 
@@ -525,6 +607,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     <T> Children sortDescLambda(final List<SFunction<T,?>> field);
 
@@ -533,6 +617,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sort
      */
     Children sortDesc(final List<String> field);
 
@@ -571,6 +657,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sortByCount
      */
     Children sortByCount(final String field);
 
@@ -579,6 +667,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sortByCount
      */
     <T> Children sortByCount(final SFunction<T,?> field);
 
@@ -593,6 +683,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param skip 当前页
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $skip
      */
     Children skip(final long skip);
 
@@ -601,6 +693,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param skip 当前页
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $skip
      */
     Children skip(final int skip);
 
@@ -615,6 +709,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param limit 每页显示行数
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $limit
      */
     Children limit(final long limit);
 
@@ -623,6 +719,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param limit 每页显示行数
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $limit
      */
     Children limit(final int limit);
 
@@ -640,6 +738,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     Children lookup(final String from,final String localField,final String foreignField,final String as);
 
@@ -651,6 +751,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final String from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -662,6 +764,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     Children lookup(final Class<?> from,final String localField,final String foreignField,final String as);
 
@@ -673,6 +777,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final Class<?> from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -684,6 +790,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,R> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -696,6 +804,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,R,A> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -708,6 +818,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,R> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -720,6 +832,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,R,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -732,6 +846,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -743,6 +859,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,A> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -755,6 +873,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -766,6 +886,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -778,6 +900,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -789,6 +913,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,A> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -801,6 +927,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -812,6 +940,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $lookup
      */
     <T,A> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -824,6 +954,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <TExpression> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -836,6 +968,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <TExpression,T> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -848,6 +982,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <TExpression> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -860,6 +996,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <TExpression,T> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -871,6 +1009,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     Children lookup(final String from, final Aggregate<?> aggregate, final String as);
 
@@ -881,6 +1021,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final String from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -891,6 +1033,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     Children lookup(final Class<?> from, final Aggregate<?> aggregate, final String as);
 
@@ -901,6 +1045,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出结果中保存关联值的字段名
      * @return Children
      * @author JiaChaoYang
+     *
+     * @mongoStage $lookup
      */
     <T> Children lookup(final Class<?> from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -924,6 +1070,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param pipeline facet管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $facet
      */
     Children facet(final String name, final Bson... pipeline);
 
@@ -933,6 +1081,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param pipeline facet管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $facet
      */
     Children facet(final String name, final List<? extends Bson> pipeline);
 
@@ -942,6 +1092,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate facet管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $facet
      */
     Children facet(final String name, final Aggregate<?> aggregate);
 
@@ -950,6 +1102,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param facets facets，可以使用{@link com.mongoplus.aggregate.pipeline.Facet}进行构建
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $facet
      */
     Children facet(final Facet... facets);
 
@@ -958,6 +1112,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param facets facets，可以使用{@link com.mongoplus.aggregate.pipeline.Facet}进行构建
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $facet
      */
     Children facet(final List<Facet> facets);
 
@@ -984,6 +1140,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as);
@@ -997,6 +1155,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                          final SFunction<U,?> connectToField, final String as);
@@ -1010,6 +1170,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param as 输出文档中的字段名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as);
@@ -1029,6 +1191,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as, final GraphLookupOptions options);
@@ -1048,6 +1212,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                                final SFunction<U,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1067,6 +1233,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * </div>
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $graphLookup
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1090,6 +1258,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param _id group的_id表达式
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     Children group(final String _id);
 
@@ -1098,6 +1268,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param _id group的_id表达式
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     <T> Children group(final SFunction<T,?> _id);
 
@@ -1107,6 +1279,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     <TExpression> Children group(@Nullable final TExpression id, final BsonField... fieldAccumulators);
 
@@ -1116,6 +1290,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final BsonField... fieldAccumulators);
 
@@ -1125,6 +1301,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     <TExpression> Children group(@Nullable final TExpression id, final List<BsonField> fieldAccumulators);
 
@@ -1134,6 +1312,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldAccumulators 零个或多个字段累加器对，使用{@link com.mongoplus.aggregate.pipeline.Accumulators}构建
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoStage $group
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final List<BsonField> fieldAccumulators);
 
@@ -1157,6 +1337,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final String collectionName);
 
@@ -1166,6 +1348,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合类
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final Class<?> collection);
 
@@ -1175,6 +1359,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final String collectionName,final Aggregate<?> aggregate);
 
@@ -1184,6 +1370,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final String collectionName,final List<? extends Bson> aggregate);
 
@@ -1193,6 +1381,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final Class<?> collection,final Aggregate<?> aggregate);
 
@@ -1202,6 +1392,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param aggregate 应用于输入文档的聚合管道
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unionWith
      */
     Children unionWith(final Class<?> collection,final List<? extends Bson> aggregate);
 
@@ -1224,6 +1416,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 该字段名称必须以'$'符号为前缀
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unwind
      */
     Children unwind(final String fieldName);
 
@@ -1232,6 +1426,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unwind
      */
     <T> Children unwind(final SFunction<T,?> fieldName);
 
@@ -1240,6 +1436,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 该字段名称必须以'$'符号为前缀
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unwind
      */
     Children unwind(final String fieldName, final UnwindOption unwindOption);
 
@@ -1248,6 +1446,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unwind
      */
     <T> Children unwind(final SFunction<T,?> fieldName,final UnwindOption unwindOption);
 
@@ -1270,6 +1470,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $out
      */
     Children out(final String collectionName);
 
@@ -1278,6 +1480,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $out
      */
     Children out(final Class<?> collection);
 
@@ -1287,6 +1491,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 集合名称
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoStage $out
      */
     Children out(final String databaseName, final String collectionName);
 
@@ -1309,6 +1515,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collectionName 要合并的集合的名称
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final String collectionName);
 
@@ -1317,6 +1525,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param collection 集合
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final Class<?> collection);
 
@@ -1325,6 +1535,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param namespace 要合并到的命名空间
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final MongoNamespace namespace);
 
@@ -1334,6 +1546,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final String collectionName, final MergeOptions options);
 
@@ -1343,6 +1557,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final Class<?> collection, final MergeOptions options);
 
@@ -1352,6 +1568,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 合并选项
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $merge
      */
     Children merge(final MongoNamespace namespace, final MergeOptions options);
 
@@ -1374,6 +1592,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceRoot
      */
     <TExpression> Children replaceRoot(final TExpression fieldName);
 
@@ -1382,6 +1602,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceRoot
      */
     Children replaceRoot(final Document value);
 
@@ -1390,6 +1612,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceRoot
      */
     <T> Children replaceRoot(final SFunction<T,?> fieldName);
 
@@ -1412,6 +1636,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceWith
      */
     <TExpression> Children replaceWith(final TExpression fieldName);
 
@@ -1420,6 +1646,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param value 值
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceWith
      */
     Children replaceWith(final Document value);
 
@@ -1428,6 +1656,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $replaceWith
      */
     <T> Children replaceWith(final SFunction<T,?> fieldName);
 
@@ -1450,6 +1680,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param size 指定数量
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $sample
      */
     Children sample(final Number size);
 
@@ -1484,6 +1716,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param <TExpression> {@code partitionBy} 表达式类型.
      * @return {@code $setWindowFields} 管道阶段.
      * @author anwen
+     *
+     * @mongoStage $setWindowFields
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final WindowOutputField output, final WindowOutputField... moreOutput);
@@ -1504,6 +1738,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param <TExpression> {@code partitionBy} 表达式类型.
      * @return {@code $setWindowFields} 管道阶段.
      * @author anwen
+     *
+     * @mongoStage $setWindowFields
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final Iterable<? extends WindowOutputField> output);
@@ -1528,6 +1764,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param range 范围 指定如何密集化数据的对象
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $densify
      */
     Children densify(final String field, final DensifyRange range);
 
@@ -1537,6 +1775,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param range 范围 指定如何密集化数据的对象
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $densify
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range);
 
@@ -1547,6 +1787,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 表示聚合管道的$densify管道阶段的可选字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $densify
      */
     Children densify(final String field, final DensifyRange range, final DensifyOptions options);
 
@@ -1557,6 +1799,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param options 表示聚合管道的$densify管道阶段的可选字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $densify
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range, final DensifyOptions options);
 
@@ -1581,6 +1825,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param moreOutput {@link FillOutputField}，可以使用{@link com.mongoplus.aggregate.pipeline.FillField}
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $fill
      */
     Children fill(final FillOptions options, final FillOutputField output, final FillOutputField... moreOutput);
 
@@ -1590,6 +1836,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param output {@link FillOutputField}，可以使用{@link com.mongoplus.aggregate.pipeline.FillField}
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $fill
      */
     Children fill(final FillOptions options, final Iterable<? extends FillOutputField> output);
 
@@ -1612,6 +1860,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unset
      */
     Children unset(final String... field);
 
@@ -1620,6 +1870,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param field 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unset
      */
     @SuppressWarnings("unchecked")
     <T> Children unset(final SFunction<T,?>... field);
@@ -1629,6 +1881,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unset
      */
     Children unset(final List<String> fields);
 
@@ -1637,6 +1891,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param fields 字段
      * @return {@link Children}
      * @author anwen
+     *
+     * @mongoStage $unset
      */
     <T> Children unsetLambda(final List<SFunction<T,?>> fields);
 

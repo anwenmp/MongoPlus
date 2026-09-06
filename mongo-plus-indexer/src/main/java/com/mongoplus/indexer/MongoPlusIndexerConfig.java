@@ -16,18 +16,21 @@ public final class MongoPlusIndexerConfig {
 
     public static final String DEFAULT_PRIMARY_PACKAGE = "com.mongoplus.conditions";
     public static final String DEFAULT_OUTPUT_FILE = "mongo-plus-api-index.json";
+    public static final String PIPELINE_ENTRY_TYPE = "com.mongoplus.aggregate.Aggregate";
+    public static final String PIPELINE_OUTPUT_FILE = "mongo-plus-pipeline-api-index.json";
 
     private final List<Path> sourceRoots;
     private final List<String> primaryPackages;
     private final Path output;
     private final String mongoPlusVersion;
     private final boolean includeGeneratedAt;
+    private final boolean pipeline;
 
     private MongoPlusIndexerConfig(Builder builder) {
         if (builder.sourceRoots.isEmpty()) {
             throw new IllegalArgumentException("至少需要配置一个 sourceRoot");
         }
-        if (builder.primaryPackages.isEmpty()) {
+        if (builder.primaryPackages.isEmpty() && !builder.pipeline) {
             throw new IllegalArgumentException("至少需要配置一个 primaryPackage");
         }
         this.sourceRoots = Collections.unmodifiableList(new ArrayList<Path>(builder.sourceRoots));
@@ -35,6 +38,10 @@ public final class MongoPlusIndexerConfig {
         this.output = builder.output;
         this.mongoPlusVersion = builder.mongoPlusVersion;
         this.includeGeneratedAt = builder.includeGeneratedAt;
+        this.pipeline = builder.pipeline;
+        if (pipeline && includeGeneratedAt) {
+            throw new IllegalArgumentException("Pipeline Index 不允许非确定性的 generatedAt");
+        }
     }
 
     public static Builder builder() {
@@ -81,6 +88,13 @@ public final class MongoPlusIndexerConfig {
     public Path getOutput() { return output; }
     public String getMongoPlusVersion() { return mongoPlusVersion; }
     public boolean isIncludeGeneratedAt() { return includeGeneratedAt; }
+    public boolean isPipeline() { return pipeline; }
+
+    /** 创建聚合专用索引配置，复用项目版本和源码根。 */
+    public static Builder forPipelineProject(Path projectRoot) throws IOException {
+        return forMongoPlusProject(projectRoot).pipeline(true).output(projectRoot.toAbsolutePath().normalize()
+                .resolve("mongo-plus-indexer/target/generated-resources").resolve(PIPELINE_OUTPUT_FILE));
+    }
 
     /** 配置构建器。 */
     public static final class Builder {
@@ -89,6 +103,7 @@ public final class MongoPlusIndexerConfig {
         private Path output;
         private String mongoPlusVersion;
         private boolean includeGeneratedAt;
+        private boolean pipeline;
 
         public Builder addSourceRoot(Path sourceRoot) {
             if (sourceRoot == null) { throw new IllegalArgumentException("sourceRoot 不能为空"); }
@@ -107,6 +122,7 @@ public final class MongoPlusIndexerConfig {
         public Builder output(Path output) { this.output = output; return this; }
         public Builder mongoPlusVersion(String version) { this.mongoPlusVersion = version; return this; }
         public Builder includeGeneratedAt(boolean include) { this.includeGeneratedAt = include; return this; }
+        public Builder pipeline(boolean pipeline) { this.pipeline = pipeline; return this; }
         public MongoPlusIndexerConfig build() { return new MongoPlusIndexerConfig(this); }
     }
 }

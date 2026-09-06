@@ -25,6 +25,8 @@ public class ConditionOperators {
     /**
      * $cond操作符
      * @author anwen
+     *
+     * @mongoExpression $cond
      */
     public static Bson cond(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(),
@@ -38,6 +40,8 @@ public class ConditionOperators {
     /**
      * $cond操作符，数组写法
      * @author anwen
+     *
+     * @mongoExpression $cond
      */
     public static Bson condArray(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(), new ArrayList<Object>(){{
@@ -50,6 +54,8 @@ public class ConditionOperators {
     /**
      * $cond操作符
      * @author anwen
+     *
+     * @mongoExpression $cond
      */
     public static Bson cond(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
@@ -58,6 +64,8 @@ public class ConditionOperators {
     /**
      * $cond操作符，数组写法
      * @author anwen
+     *
+     * @mongoExpression $cond
      */
     public static Bson condArray(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
@@ -66,6 +74,8 @@ public class ConditionOperators {
     /**
      * $multiply操作符
      * @author anwen
+     *
+     * @mongoExpression $multiply
      */
     public static Bson multiply(Object... values) {
         return multiply(new ArrayList<>(Arrays.asList(values)));
@@ -74,6 +84,8 @@ public class ConditionOperators {
     /**
      * $multiply操作符
      * @author anwen
+     *
+     * @mongoExpression $multiply
      */
     public static Bson multiply(SFunction<?,?>... values) {
         return multiply(Arrays.stream(values).map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
@@ -82,6 +94,8 @@ public class ConditionOperators {
     /**
      * $multiply操作符
      * @author anwen
+     *
+     * @mongoExpression $multiply
      */
     public static Bson multiply(Collection<?> values) {
         return new Document("$multiply", values);
@@ -90,6 +104,8 @@ public class ConditionOperators {
     /**
      * $multiply操作符
      * @author anwen
+     *
+     * @mongoExpression $multiply
      */
     public static Bson multiplyLambda(Collection<SFunction<?,?>> values) {
         return new Document(MULTIPLY.getOperator(), values.stream().map(SFunction::getFieldNameLineOption).collect(Collectors.toList()));
@@ -98,6 +114,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static Bson dateToString(String date){
         return dateToString(null,date);
@@ -106,6 +124,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static <T> Bson dateToString(SFunction<T,?> date){
         return dateToString(null,date.getFieldNameLineOption());
@@ -114,6 +134,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static Bson dateToString(String format,String date){
         return dateToString(format,date,null);
@@ -122,6 +144,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date){
         return dateToString(format,date.getFieldNameLineOption(),null);
@@ -130,6 +154,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static Bson dateToString(String format,String date,String timezone){
         return dateToString(format,date,timezone,null);
@@ -138,6 +164,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date,String timezone){
         return dateToString(format,date.getFieldNameLineOption(),timezone,null);
@@ -146,6 +174,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static Bson dateToString(String format,String date,String timezone,Object onNull){
         return new Document(DATE_TO_STRING.getOperator(),new MongoPlusDocument(){{
@@ -159,6 +189,8 @@ public class ConditionOperators {
     /**
      * $dateToString操作符
      * @author anwen
+     *
+     * @mongoExpression $dateToString
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date,String timezone,Object onNull){
         return dateToString(format,date.getFieldNameLineOption(),timezone,onNull);
@@ -169,6 +201,8 @@ public class ConditionOperators {
      * @param value 值
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $mergeObjects
      */
     public static Document mergeObjects(String value){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),value);
@@ -189,6 +223,8 @@ public class ConditionOperators {
      * @param value 值，带$符
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <T> Document mergeObjectsOption(SFunction<T,?> value){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),value.getFieldNameLineOption());
@@ -199,6 +235,8 @@ public class ConditionOperators {
      * @param values 值
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $mergeObjects
      */
     public static Document mergeObjects(Collection<?> values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values);
@@ -220,6 +258,8 @@ public class ConditionOperators {
      * @param functions 值，带$符
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <T> Document mergeObjectsLambdaOption(Collection<? extends SFunction<T,?>> functions){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),functions.stream()
@@ -231,6 +271,8 @@ public class ConditionOperators {
      * @param values 值
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <T> Document mergeObjects(Object... values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
@@ -327,6 +369,8 @@ public class ConditionOperators {
     /**
      * $abs操作符
      * @author anwen
+     *
+     * @mongoExpression $abs
      */
     public static Bson abs(Number value){
         return new Document(CommonOperators.ABS.getOperator(),value);
@@ -337,6 +381,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toDate
      */
     public static <TExpression> Bson toDate(TExpression expression){
         return new Document(TO_DATE.getOperator(),expression);
@@ -347,6 +393,8 @@ public class ConditionOperators {
      * @param field 引用的字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toDate
      */
     public static Bson toDate(SFunction<?,?> field){
         return new Document(TO_DATE.getOperator(),field.getFieldNameLineOption());
@@ -361,6 +409,8 @@ public class ConditionOperators {
      * @param onNull 可选。如果为 $dateFromString 提供的 dateString 为 null 或缺失，则会输出所提供的onNull 表达式的结果值
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $dateFromString
      */
     public static Bson dateFromString(
             Object dateString, Object format, Object timezone, Object onError, Object onNull){
@@ -378,6 +428,8 @@ public class ConditionOperators {
      * @param dateString 要转换为日期对象的日期/时间字符串
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $dateFromString
      */
     public static Bson dateFromString(Object dateString){
         return dateFromString(dateString,null,null,null,null);
@@ -388,6 +440,8 @@ public class ConditionOperators {
      * @param field 文档字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $dateFromString
      */
     public static Bson dateFromString(SFunction<?,?> field){
         return dateFromString(field.getFieldNameLineOption());
@@ -420,6 +474,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toBool
      */
     public static <TExpression> Bson toBool(TExpression expression){
         return new Document(TO_BOOL.getOperator(),expression);
@@ -430,6 +486,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toBool
      */
     public static <T> Bson toBool(SFunction<T,Object> field){
         return toBool(field.getFieldNameLineOption());
@@ -440,6 +498,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toDecimal
      */
     public static <TExpression> Bson toDecimal(TExpression expression){
         return new Document(TO_DECIMAL.getOperator(),expression);
@@ -450,6 +510,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toDecimal
      */
     public static <T> Bson toDecimal(SFunction<T,Object> field){
         return toDecimal(field.getFieldNameLineOption());
@@ -460,6 +522,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toDouble
      */
     public static <TExpression> Bson toDouble(TExpression expression){
         return new Document(TO_DOUBLE.getOperator(),expression);
@@ -470,6 +534,8 @@ public class ConditionOperators {
      * @param key string to hash
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toHashedIndexKey
      */
     public static <T> Bson toHashedIndexKey(String key){
         return new Document(TO_HASHED_INDEX_KEY.getOperator(),key);
@@ -480,6 +546,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toHashedIndexKey
      */
     public static <T> Bson toHashedIndexKey(SFunction<T,Object> field){
         return toHashedIndexKey(field.getFieldNameLineOption());
@@ -490,6 +558,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoExpression $toInt
      */
     public static <TExpression> Bson toInt(TExpression expression){
         return new Document(TO_INT.getOperator(),expression);
@@ -500,6 +570,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toInt
      */
     public static <T> Bson toInt(SFunction<T,Object> field){
         return toInt(field.getFieldNameLineOption());
@@ -510,6 +582,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoExpression $toLong
      */
     public static <TExpression> Bson toLong(TExpression expression){
         return new Document(TO_LONG.getOperator(),expression);
@@ -520,6 +594,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toLong
      */
     public static <T> Bson toLong(SFunction<T,Object> field){
         return toLong(field.getFieldNameLineOption());
@@ -530,6 +606,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoExpression $toObjectId
      */
     public static <TExpression> Bson toObjectId(TExpression expression){
         return new Document(TO_OBJECT_ID.getOperator(),expression);
@@ -540,6 +618,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toObjectId
      */
     public static <T> Bson toObjectId(SFunction<T,Object> field){
         return toObjectId(field.getFieldNameLineOption());
@@ -550,6 +630,8 @@ public class ConditionOperators {
      * @param expression 表达式
      * @return {@link Bson}
      * @author anwen
+     *
+     * @mongoExpression $toString
      */
     public static <TExpression> Bson toString(TExpression expression){
         return new Document(TO_STRING.getOperator(),expression);
@@ -560,6 +642,8 @@ public class ConditionOperators {
      * @param field 字段
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $toString
      */
     public static <T> Bson toString(SFunction<T,Object> field){
         return toString(field.getFieldNameLineOption());
@@ -572,6 +656,8 @@ public class ConditionOperators {
      * @param count 字节数
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $substrBytes
      */
     public static <T> Bson substrBytes(SFunction<T,?> field,Number index,Number count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
@@ -584,6 +670,8 @@ public class ConditionOperators {
      * @param count 字节数
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $substrBytes
      */
     public static <TExpression> Bson substrBytes(TExpression expression,Number index,Number count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
@@ -596,6 +684,8 @@ public class ConditionOperators {
      * @param count 字节数
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $substrBytes
      */
     public static <TExpression> Bson substrBytes(TExpression expression,Object index,Object count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
@@ -608,6 +698,8 @@ public class ConditionOperators {
      * @param count 字节数
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $substrBytes
      */
     public static <T> Bson substrBytes(SFunction<T,?> field,Object index,Object count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
@@ -618,6 +710,8 @@ public class ConditionOperators {
      * @param inputExpressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $ifNull
      */
     public static Bson ifNull(List<?> inputExpressions){
         return new Document(IF_NULL.getOperator(),inputExpressions);
@@ -628,6 +722,8 @@ public class ConditionOperators {
      * @param inputExpressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $ifNull
      */
     public static Bson ifNull(Object... inputExpressions){
         return ifNull(Arrays.asList(inputExpressions));
@@ -639,6 +735,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $sum
      */
     @SuppressWarnings("unchecked")
     public static <TExpression> Bson sum(TExpression... expressions){
@@ -650,6 +748,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $sum
      */
     @SuppressWarnings("unchecked")
     public static <T> Bson sum(SFunction<T,?>... expressions){
@@ -662,6 +762,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $sum
      */
     public static Bson sum(List<?> expressions){
         return new Document(SUM.getOperator(),expressions);
@@ -672,6 +774,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $add
      */
     @SuppressWarnings("unchecked")
     public static <TExpression> Bson add(TExpression... expressions){
@@ -683,6 +787,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $add
      */
     @SuppressWarnings("unchecked")
     public static <T> Bson add(SFunction<T,?>... expressions){
@@ -695,6 +801,8 @@ public class ConditionOperators {
      * @param expressions 表达式
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $add
      */
     public static Bson add(List<?> expressions){
         return new Document(ADD.getOperator(),expressions);

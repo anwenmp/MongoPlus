@@ -31,6 +31,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $sum
      * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
+     *
+     * @mongoExpression $sum
      */
     public static <TExpression> BsonField sum(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$sum", fieldName, expression);
@@ -43,6 +45,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $sum
      * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
+     *
+     * @mongoExpression $sum
      */
     public static <TExpression> BsonField sum() {
         return accumulatorOperator("$sum", "count", 1);
@@ -56,6 +60,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $sum
      * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
+     *
+     * @mongoExpression $sum
      */
     public static <TExpression,T> BsonField sum(final SFunction<T,?> fieldName, final TExpression expression) {
         return sum(fieldName.getFieldNameLine(),expression);
@@ -66,6 +72,8 @@ public final class Accumulators {
      * @param fieldName 字段名称
      * @param expression 表达式
      * @author anwen
+     *
+     * @mongoExpression $count
      */
     public static <TExpression> BsonField count(final String fieldName,final TExpression expression){
         return accumulatorOperator("$count",fieldName,expression);
@@ -76,6 +84,8 @@ public final class Accumulators {
      * @param fieldName 字段名称
      * @param expression 表达式
      * @author anwen
+     *
+     * @mongoExpression $count
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName,final TExpression expression){
         return count(fieldName.getFieldNameLine(),expression);
@@ -86,6 +96,8 @@ public final class Accumulators {
      * 表达式默认为空对象
      * @param fieldName 字段名称
      * @author anwen
+     *
+     * @mongoExpression $count
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName){
         return count(fieldName.getFieldNameLine(),new Document());
@@ -96,6 +108,8 @@ public final class Accumulators {
      * 表达式默认为空对象
      * @param fieldName 字段名称
      * @author anwen
+     *
+     * @mongoExpression $count
      */
     public static <TExpression> BsonField count(final String fieldName){
         return count(fieldName,new Document());
@@ -109,6 +123,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $avg
      * @since mongodb.driver.manual reference/operator/aggregation/avg/ $avg
+     *
+     * @mongoExpression $avg
      */
     public static <TExpression> BsonField avg(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$avg", fieldName, expression);
@@ -122,6 +138,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $avg
      * @since mongodb.driver.manual reference/operator/aggregation/avg/ $avg
+     *
+     * @mongoExpression $avg
      */
     public static <TExpression,T> BsonField avg(final SFunction<T,?> fieldName, final TExpression expression) {
         return avg(fieldName.getFieldNameLine(),expression);
@@ -135,6 +153,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $first
      * @since mongodb.driver.manual reference/operator/aggregation/first/ $first
+     *
+     * @mongoExpression $first
      */
     public static <TExpression> BsonField first(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$first", fieldName, expression);
@@ -148,6 +168,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $first
      * @since mongodb.driver.manual reference/operator/aggregation/first/ $first
+     *
+     * @mongoExpression $first
      */
     public static <TExpression,T> BsonField first(final SFunction<T,?> fieldName, final TExpression expression) {
         return first(fieldName.getFieldNameLine(),expression);
@@ -165,6 +187,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/firstN/ $firstN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $firstN
      */
     public static <InExpression, NExpression> BsonField firstN(
             final String fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -184,6 +208,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/firstN/ $firstN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $firstN
      */
     public static <InExpression, NExpression,T> BsonField firstN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -201,6 +227,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/firstN/ $firstN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $firstN
      */
     public static <NExpression,T,R> BsonField firstN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?> inExpression) {
@@ -218,6 +246,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/firstN/ $firstN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $firstN
      */
     public static <NExpression,T> BsonField firstN(
             final String fieldName, final NExpression nExpression, final SFunction<T,?> inExpression) {
@@ -253,6 +283,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/firstN/ $firstN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $firstN
      */
     public static <NExpression> BsonField firstN(
             final String fieldName, final NExpression nExpression, final String... inExpression) {
@@ -270,6 +302,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/top/ $top
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $top
      */
     public static <OutExpression> BsonField top(final String fieldName, final Bson sortBy, final OutExpression outExpression) {
         return sortingPickAccumulator(notNull("fieldName", fieldName), "$top",
@@ -287,6 +321,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/top/ $top
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $top
      */
     public static <OutExpression,T> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final OutExpression outExpression) {
         return top(fieldName.getFieldNameLine(),sortBy,outExpression);
@@ -302,6 +338,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/top/ $top
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $top
      */
     @SafeVarargs
     public static <T,R> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
@@ -318,6 +356,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/top/ $top
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $top
      */
     public static <T> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final String... outExpression) {
         return top(fieldName.getFieldNameLine(),sortBy, Arrays.stream(outExpression).collect(toList()));
@@ -336,6 +376,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/topN/ $topN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $topN
      */
     public static <OutExpression, NExpression> BsonField topN(
             final String fieldName, final Bson sortBy, final NExpression nExpression, final OutExpression outExpression) {
@@ -356,6 +398,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/topN/ $topN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $topN
      */
     public static <OutExpression, NExpression,T> BsonField topN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final OutExpression outExpression) {
@@ -392,6 +436,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/topN/ $topN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $topN
      */
     @SafeVarargs
     public static <NExpression,T,R> BsonField topN(
@@ -411,6 +457,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/topN/ $topN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $topN
      */
     public static <NExpression,T> BsonField topN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final String... outExpression) {
@@ -424,6 +472,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return $last
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
+     *
+     * @mongoExpression $last
      */
     public static <TExpression> BsonField last(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$last", fieldName, expression);
@@ -436,6 +486,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return $last
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
+     *
+     * @mongoExpression $last
      */
     public static <T,R> BsonField last(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return last(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -449,6 +501,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $last
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
+     *
+     * @mongoExpression $last
      */
     public static <TExpression,T> BsonField last(final SFunction<T,?> fieldName, final TExpression expression) {
         return last(fieldName.getFieldNameLine(), expression);
@@ -461,6 +515,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return $last
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
+     *
+     * @mongoExpression $last
      */
     public static <T> BsonField last(final String fieldName, final SFunction<T,?> expression) {
         return last(fieldName, expression.getFieldNameLineOption());
@@ -478,6 +534,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/lastN/ $lastN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $lastN
      */
     public static <InExpression, NExpression> BsonField lastN(
             final String fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -497,6 +555,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/lastN/ $lastN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $lastN
      */
     public static <InExpression, NExpression,T> BsonField lastN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -514,6 +574,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/lastN/ $lastN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $lastN
      */
     public static <NExpression,T,R> BsonField lastN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?> inExpression) {
@@ -531,6 +593,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/lastN/ $lastN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $lastN
      */
     public static <NExpression,T> BsonField lastN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final String... inExpression) {
@@ -548,6 +612,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/lastN/ $lastN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $lastN
      */
     @SafeVarargs
     public static <NExpression,T,R> BsonField lastN(
@@ -568,6 +634,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottom/ $bottom
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottom
      */
     public static <OutExpression> BsonField bottom(final String fieldName, final Bson sortBy, final OutExpression outExpression) {
         return sortingPickAccumulator(notNull("fieldName", fieldName), "$bottom",
@@ -585,6 +653,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottom/ $bottom
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottom
      */
     public static <OutExpression,T> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final OutExpression outExpression) {
         return bottom(fieldName.getFieldNameLine(),sortBy,outExpression);
@@ -600,6 +670,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottom/ $bottom
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottom
      */
     public static <T,R> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?> outExpression) {
         return bottom(fieldName.getFieldNameLine(),sortBy,outExpression.getFieldNameLineOption());
@@ -615,6 +687,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottom/ $bottom
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottom
      */
     @SafeVarargs
     public static <T,R> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
@@ -631,6 +705,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottom/ $bottom
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottom
      */
     public static <T> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final String... outExpression) {
         return bottom(fieldName.getFieldNameLine(),sortBy, Arrays.stream(outExpression).collect(toList()));
@@ -652,6 +728,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottomN/ $bottomN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottomN
      */
     public static <OutExpression, NExpression> BsonField bottomN(
             final String fieldName, final Bson sortBy, final NExpression nExpression, final OutExpression outExpression) {
@@ -672,6 +750,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottomN/ $bottomN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottomN
      */
     public static <OutExpression, NExpression,T> BsonField bottomN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final OutExpression outExpression) {
@@ -690,6 +770,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottomN/ $bottomN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottomN
      */
     public static <NExpression,T,R> BsonField bottomN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final SFunction<R,?> outExpression) {
@@ -708,6 +790,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottomN/ $bottomN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottomN
      */
     @SafeVarargs
     public static <NExpression,T,R> BsonField bottomN(
@@ -727,6 +811,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/bottomN/ $bottomN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $bottomN
      */
     public static <NExpression,T> BsonField bottomN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final String... outExpression) {
@@ -742,6 +828,8 @@ public final class Accumulators {
      * @param <TExpression> the expression type
      * @return the field
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
+     *
+     * @mongoExpression $max
      */
     public static <TExpression> BsonField max(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$max", fieldName, expression);
@@ -755,6 +843,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return $max
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
+     *
+     * @mongoExpression $max
      */
     public static <TExpression,T> BsonField max(final SFunction<T,?> fieldName, final TExpression expression) {
         return max(fieldName.getFieldNameLine(),expression);
@@ -767,6 +857,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return $max
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
+     *
+     * @mongoExpression $max
      */
     public static <T,R> BsonField max(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return max(fieldName.getFieldNameLine(),expression.getFieldNameLineOption());
@@ -784,6 +876,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/maxN/ $maxN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $maxN
      */
     public static <InExpression, NExpression> BsonField maxN(
             final String fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -803,6 +897,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/maxN/ $maxN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $maxN
      */
     public static <InExpression, NExpression,T> BsonField maxN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -820,6 +916,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/maxN/ $maxN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $maxN
      */
     public static <NExpression,T,R> BsonField maxN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?> inExpression) {
@@ -837,6 +935,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/maxN/ $maxN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $maxN
      */
     @SafeVarargs
     public static <NExpression,T,R> BsonField maxN(
@@ -855,6 +955,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/maxN/ $maxN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $maxN
      */
     public static <NExpression,T> BsonField maxN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final String... inExpression) {
@@ -870,6 +972,8 @@ public final class Accumulators {
      * @param <TExpression> the expression type
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
+     *
+     * @mongoExpression $min
      */
     public static <TExpression> BsonField min(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$min", fieldName, expression);
@@ -883,6 +987,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
+     *
+     * @mongoExpression $min
      */
     public static <TExpression,T> BsonField min(final SFunction<T,?> fieldName, final TExpression expression) {
         return min(fieldName.getFieldNameLine(), expression);
@@ -895,6 +1001,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
+     *
+     * @mongoExpression $min
      */
     public static <T,R> BsonField min(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return min(fieldName.getFieldNameLine(),expression.getFieldNameLineOption());
@@ -912,6 +1020,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/minN/ $minN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $minN
      */
     public static <InExpression, NExpression> BsonField minN(
             final String fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -931,6 +1041,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/minN/ $minN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $minN
      */
     public static <InExpression, NExpression,T> BsonField minN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final InExpression inExpression) {
@@ -948,6 +1060,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/minN/ $minN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $minN
      */
     public static <NExpression,T,R> BsonField minN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final SFunction<R,?> inExpression) {
@@ -965,6 +1079,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/minN/ $minN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $minN
      */
     @SafeVarargs
     public static <NExpression,T,R> BsonField minN(
@@ -983,6 +1099,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/minN/ $minN
      * @since 4.7
      * @since mongodb.server.release 5.2
+     *
+     * @mongoExpression $minN
      */
     public static <NExpression,T> BsonField minN(
             final SFunction<T,?> fieldName, final NExpression nExpression, final String... inExpression) {
@@ -997,6 +1115,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
+     *
+     * @mongoExpression $push
      */
     public static <TExpression> BsonField push(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$push", fieldName, expression);
@@ -1010,6 +1130,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
+     *
+     * @mongoExpression $push
      */
     public static <TExpression,T> BsonField push(final SFunction<T,?> fieldName, final TExpression expression) {
         return push(fieldName.getFieldNameLine(), expression);
@@ -1022,6 +1144,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
+     *
+     * @mongoExpression $push
      */
     public static <T,R> BsonField push(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return push(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1034,6 +1158,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
+     *
+     * @mongoExpression $push
      */
     @SafeVarargs
     public static <T,R> BsonField push(final SFunction<T,?> fieldName, final SFunction<R,?>... expression) {
@@ -1053,6 +1179,8 @@ public final class Accumulators {
      * @param <TExpression> the expression type
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
+     *
+     * @mongoExpression $addToSet
      */
     public static <TExpression> BsonField addToSet(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$addToSet", fieldName, expression);
@@ -1066,6 +1194,8 @@ public final class Accumulators {
      * @param <TExpression> 表达式类型
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
+     *
+     * @mongoExpression $addToSet
      */
     public static <TExpression,T> BsonField addToSet(final SFunction<T,?> fieldName, final TExpression expression) {
         return addToSet(fieldName.getFieldNameLine(), expression);
@@ -1078,6 +1208,8 @@ public final class Accumulators {
      * @param expression 表达式
      * @return {@link BsonField}
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
+     *
+     * @mongoExpression $addToSet
      */
     public static <T,R> BsonField addToSet(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return addToSet(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1092,6 +1224,8 @@ public final class Accumulators {
      * @return {@link BsonField}
      * @since 4.4
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <TExpression> BsonField mergeObjects(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$mergeObjects", fieldName, expression);
@@ -1106,6 +1240,8 @@ public final class Accumulators {
      * @return {@link BsonField}
      * @since 4.4
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <TExpression,T> BsonField mergeObjects(final SFunction<T,?> fieldName, final TExpression expression) {
         return mergeObjects(fieldName.getFieldNameLine(), expression);
@@ -1119,6 +1255,8 @@ public final class Accumulators {
      * @return {@link BsonField}
      * @since 4.4
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
+     *
+     * @mongoExpression $mergeObjects
      */
     public static <T,R> BsonField mergeObjects(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return mergeObjects(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1135,6 +1273,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevPop/ $stdDevPop
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevPop
      */
     public static <TExpression> BsonField stdDevPop(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$stdDevPop", fieldName, expression);
@@ -1151,6 +1291,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevPop/ $stdDevPop
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevPop
      */
     public static <TExpression,T> BsonField stdDevPop(final SFunction<T,?> fieldName, final TExpression expression) {
         return stdDevPop(fieldName.getFieldNameLine(), expression);
@@ -1166,6 +1308,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevPop/ $stdDevPop
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevPop
      */
     public static <T,R> BsonField stdDevPop(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return stdDevPop(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1182,6 +1326,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevSamp/ $stdDevSamp
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevSamp
      */
     public static <TExpression> BsonField stdDevSamp(final String fieldName, final TExpression expression) {
         return accumulatorOperator("$stdDevSamp", fieldName, expression);
@@ -1198,6 +1344,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevSamp/ $stdDevSamp
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevSamp
      */
     public static <TExpression,T> BsonField stdDevSamp(final SFunction<T,?> fieldName, final TExpression expression) {
         return stdDevSamp(fieldName.getFieldNameLine(), expression);
@@ -1213,6 +1361,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/stdDevSamp/ $stdDevSamp
      * @since mongodb.server.release 3.2
      * @since 3.2
+     *
+     * @mongoExpression $stdDevSamp
      */
     public static <T,R> BsonField stdDevSamp(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return stdDevSamp(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1229,6 +1379,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction) {
@@ -1246,6 +1398,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction) {
@@ -1264,6 +1418,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction) {
@@ -1282,6 +1438,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction) {
@@ -1302,6 +1460,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, @Nullable final List<String> initArgs,
                                         final String accumulateFunction, @Nullable final List<String> accumulateArgs,
@@ -1323,6 +1483,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, @Nullable final List<String> initArgs,
                                         final String accumulateFunction, @Nullable final List<String> accumulateArgs,
@@ -1343,6 +1505,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction, final String lang) {
@@ -1362,6 +1526,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction, final String lang) {
@@ -1383,6 +1549,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, @Nullable final List<String> initArgs,
                                         final String accumulateFunction, @Nullable final List<String> accumulateArgs,
@@ -1414,6 +1582,8 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/accumulator/ $accumulator
      * @since mongodb.server.release 4.4
      * @since 4.1
+     *
+     * @mongoExpression $accumulator
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, @Nullable final List<String> initArgs,
                                         final String accumulateFunction, @Nullable final List<String> accumulateArgs,

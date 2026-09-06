@@ -48,6 +48,7 @@ public final class SourceScanner {
     public SourceScanner(MongoPlusIndexerConfig config) { this.config = config; }
 
     public MongoPlusApiIndex scan() throws IOException {
+        if (config.isPipeline()) { return new PipelineScan().scan(); }
         collectPrimaryFiles();
         if (primaryFiles.isEmpty()) { throw new IllegalArgumentException("Primary Scan Scope 中没有 Java 源码"); }
         List<SourceType> types = parse(new ArrayList<Path>(primaryFiles));
@@ -111,7 +112,9 @@ public final class SourceScanner {
         int separator = name.lastIndexOf('.');
         Path relative = packagePath(name.substring(0, separator))
                 .resolve(name.substring(separator + 1) + ".java");
-        for (Path root : config.getSourceRoots()) {
+        List<Path> roots = new ArrayList<Path>(config.getSourceRoots());
+        Collections.sort(roots);
+        for (Path root : roots) {
             Path candidate = root.resolve(relative);
             if (Files.isRegularFile(candidate)) { return candidate; }
         }
@@ -119,6 +122,8 @@ public final class SourceScanner {
     }
 
     private List<SourceType> parse(List<Path> files) throws IOException {
+        files = new ArrayList<Path>(files);
+        Collections.sort(files);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null) { throw new IllegalStateException("当前运行环境不是完整 JDK，无法获得 JavaCompiler"); }
         StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8);
@@ -139,7 +144,7 @@ public final class SourceScanner {
         Map<String, String> imports = new HashMap<String, String>();
         unit.getImports().forEach(item -> {
             String name = item.getQualifiedIdentifier().toString();
-            imports.put(name.substring(name.lastIndexOf('.') + 1), name);
+            imports.put(name.endsWith(".*") ? name : name.substring(name.lastIndexOf('.') + 1), name);
         });
         String packageName = unit.getPackageName() == null ? "" : unit.getPackageName().toString();
         for (Tree declaration : unit.getTypeDecls()) {
@@ -150,6 +155,8 @@ public final class SourceScanner {
                     classTree.getKind().name(), imports, documentation(docTrees, unit, classTree),
                     tags(docTrees, unit, classTree),
                     classTree.getModifiers().getFlags().contains(Modifier.ABSTRACT));
+            classTree.getTypeParameters().forEach(parameter -> type.typeParameters.add(parameter.toString()));
+            classTree.getModifiers().getAnnotations().forEach(annotation -> type.annotations.add(annotation.toString()));
             if (classTree.getExtendsClause() != null) { type.parents.add(simpleTree(classTree.getExtendsClause())); }
             for (Tree implemented : classTree.getImplementsClause()) { type.parents.add(simpleTree(implemented)); }
             boolean declaredConstructor = false;
@@ -194,7 +201,8 @@ public final class SourceScanner {
 
     private void addMethod(SourceType type, MethodTree method, CompilationUnitTree unit, DocTrees docs) {
         Set<Modifier> flags = method.getModifiers().getFlags();
-        if (!flags.contains(Modifier.PUBLIC) && type.kind.indexOf("INTERFACE") < 0) { return; }
+        if (flags.contains(Modifier.PRIVATE) || flags.contains(Modifier.PROTECTED)
+                || (!flags.contains(Modifier.PUBLIC) && type.kind.indexOf("INTERFACE") < 0)) { return; }
         if ("<init>".contentEquals(method.getName())) { return; }
         SourceMethod source = new SourceMethod(method.getName().toString(),
                 method.getReturnType() == null ? "" : method.getReturnType().toString());
@@ -490,11 +498,249 @@ public final class SourceScanner {
         return decoded.toString();
     }
 
+
+    /** 仅沿入口继承边和已选择 API 的公开签名收集依赖，不扫描包。 */
+    private final class PipelineScan {
+        private final Map<String, SourceType> loaded = new java.util.TreeMap<String, SourceType>();
+        private final Set<String> hierarchy = new java.util.TreeSet<String>();
+        private final Set<String> dependencies = new java.util.TreeSet<String>();
+        private final Set<String> external = new java.util.TreeSet<String>();
+        private final Map<String, List<MethodRecord>> families = new java.util.TreeMap<String, List<MethodRecord>>();
+
+        MongoPlusApiIndex scan() throws IOException {
+            String entry = MongoPlusIndexerConfig.PIPELINE_ENTRY_TYPE;
+            if (load(entry) == null) { throw new IOException("找不到聚合入口源码: " + entry); }
+            collectHierarchy(entry);
+            for (String name : hierarchy) {
+                SourceType type = loaded.get(name);
+                for (SourceMethod method : type.methods) {
+                    // 接口静态方法不通过子接口继承。
+                    if (!method.staticMethod || name.equals(entry)) { select(type, method); }
+                }
+            }
+            Set<String> processed = new java.util.TreeSet<String>();
+            while (!processed.containsAll(dependencies)) {
+                Set<String> pending = new java.util.TreeSet<String>(dependencies);
+                pending.removeAll(processed);
+                for (String name : pending) {
+                    processed.add(name);
+                    SourceType type = load(name);
+                    if (type == null) { continue; }
+                    for (String parent : type.parents) { references(type, parent); }
+                    for (String bound : type.typeParameters) { references(type, bound); }
+                    for (SourceConstructor constructor : type.constructors) {
+                        if (!"public".equals(constructor.visibility)) { continue; }
+                        for (SourceParameter parameter : constructor.parameters) { references(type, parameter.type); }
+                    }
+                    for (SourceMethod method : type.methods) {
+                        methodReferences(type, method);
+                        if (!hierarchy.contains(name)) { select(type, method); }
+                    }
+                }
+            }
+            MongoPlusApiIndex index = new MongoPlusApiIndex(config.getMongoPlusVersion());
+            index.asMap().put("entryType", entry);
+            index.list("primaryPackages").add("com.mongoplus.aggregate");
+            int overloadCount = 0;
+            int stages = 0;
+            int expressions = 0;
+            for (Map.Entry<String, List<MethodRecord>> item : families.entrySet()) {
+                List<MethodRecord> records = item.getValue();
+                records.sort(Comparator.comparing((MethodRecord r) -> qualified(r.type))
+                        .thenComparing(r -> r.method.signature()));
+                boolean stage = item.getKey().startsWith("PIPELINE_STAGE:");
+                Map<String, Object> value = family(records.get(0).method.name, records, Collections.<SourceType>emptyList());
+                value.put("apiCategory", stage ? "PIPELINE_STAGE" : "PIPELINE_EXPRESSION");
+                Set<String> mappings = new java.util.TreeSet<String>();
+                List<Object> overloads = new ArrayList<Object>();
+                for (MethodRecord record : records) {
+                    mappings.addAll(mapping(record.type, record.method, stage ? "mongoStage" : "mongoExpression"));
+                    overloads.add(evidence(record.type, record.method));
+                }
+                value.put("mongoStages", stage ? new ArrayList<String>(mappings) : Collections.emptyList());
+                value.put("mongoExpressions", stage ? Collections.emptyList() : new ArrayList<String>(mappings));
+                value.put("overloads", overloads);
+                index.getMethodFamilies().add(value);
+                overloadCount += records.size();
+                if (stage) { stages++; } else { expressions++; }
+            }
+            Set<String> included = new java.util.TreeSet<String>(hierarchy);
+            included.addAll(dependencies);
+            for (String name : included) {
+                SourceType type = loaded.get(name);
+                if (type == null) { continue; }
+                Map<String, Object> value = wrapper(type);
+                value.put("abstractType", type.abstractType || type.kind.contains("INTERFACE"));
+                value.put("description", type.doc.description);
+                value.put("typeParameters", new ArrayList<String>(type.typeParameters));
+                List<String> annotations = new ArrayList<String>(type.annotations);
+                Collections.sort(annotations);
+                value.put("annotations", annotations);
+                List<String> parents = new ArrayList<String>(type.parents);
+                Collections.sort(parents);
+                value.put("extendsOrImplements", parents);
+                value.put("imports", new java.util.TreeMap<String, String>(type.imports));
+                List<Object> methods = new ArrayList<Object>();
+                List<SourceMethod> sorted = new ArrayList<SourceMethod>(type.methods);
+                sorted.sort(Comparator.comparing(SourceMethod::signature));
+                for (SourceMethod method : sorted) {
+                    if (hierarchy.contains(name) && !dependencies.contains(name)
+                            && method.staticMethod && !name.equals(entry)) { continue; }
+                    if (dependencies.contains(name) || !mapping(type, method, "mongoStage").isEmpty()
+                            || !mapping(type, method, "mongoExpression").isEmpty()) {
+                        methods.add(evidence(type, method));
+                    }
+                }
+                value.put("publicMethods", methods);
+                if ("ENUM".equals(type.kind)) {
+                    List<Object> constants = new ArrayList<Object>(type.enumConstants);
+                    constants.sort(Comparator.comparing(c -> ((Map<?, ?>) c).get("name").toString()));
+                    value.put("constants", constants);
+                }
+                index.list("types").add(value);
+            }
+            // 只带入闭包实际引用的既有 special type / concept，不注入全局样例。
+            MongoPlusApiIndex special = new MongoPlusApiIndex(config.getMongoPlusVersion());
+            for (SourceType type : loaded.values()) {
+                type.methods.sort(Comparator.comparing(SourceMethod::signature));
+            }
+            addSpecialTypes(special, new ArrayList<SourceType>(loaded.values()));
+            for (Object item : special.list("specialTypes")) {
+                Map<?, ?> value = (Map<?, ?>) item;
+                for (String name : dependencies) {
+                    if (name.equals("com.mongoplus.support.SFunction") && "SFunction".equals(value.get("name"))
+                            || name.equals("com.mongoplus.function.FieldChain") && "FieldChain".equals(value.get("name"))) {
+                        index.list("specialTypes").add(item);
+                    }
+                }
+            }
+            if (dependencies.contains("com.mongoplus.function.FieldChain")) {
+                index.list("concepts").addAll(special.list("concepts"));
+            }
+            Map<String, Object> stats = index.object("scanStatistics");
+            stats.put("activelyScannedJavaTypes", hierarchy.size());
+            stats.put("referencedTypesParsed", loaded.size() - hierarchy.size());
+            stats.put("methodFamilyCount", families.size());
+            stats.put("overloadCount", overloadCount);
+            stats.put("pipelineStageCount", stages);
+            stats.put("pipelineExpressionCount", expressions);
+            stats.put("externalTypeReferences", new ArrayList<String>(external));
+            stats.put("fullProjectTraversal", false);
+            return index;
+        }
+
+        private void collectHierarchy(String name) throws IOException {
+            if (!hierarchy.add(name)) { return; }
+            SourceType type = load(name);
+            if (type == null) { hierarchy.remove(name); return; }
+            for (String parent : type.parents) {
+                String resolved = resolve(type, parent.replaceAll("<.*", ""));
+                if (resolved != null) { collectHierarchy(resolved); }
+            }
+        }
+
+        private void select(SourceType type, SourceMethod method) throws IOException {
+            for (String category : Arrays.asList("PIPELINE_STAGE", "PIPELINE_EXPRESSION")) {
+                String tag = "PIPELINE_STAGE".equals(category) ? "mongoStage" : "mongoExpression";
+                if (mapping(type, method, tag).isEmpty()) { continue; }
+                families.computeIfAbsent(category + ":" + method.name, key -> new ArrayList<MethodRecord>())
+                        .add(new MethodRecord(type, method));
+                for (String bound : type.typeParameters) { references(type, bound); }
+                methodReferences(type, method);
+            }
+        }
+
+        private Set<String> mapping(SourceType type, SourceMethod method, String tag) {
+            Set<String> values = new java.util.TreeSet<String>();
+            List<String> raw = new ArrayList<String>(type.tags.getOrDefault(tag, Collections.<String>emptyList()));
+            raw.addAll(method.tags.getOrDefault(tag, Collections.<String>emptyList()));
+            for (String value : raw) {
+                // 仅接受独立且完整的显式标记值，不从描述正文提取美元词。
+                if (value.matches("\\$[A-Za-z][A-Za-z0-9]*")) { values.add(value); }
+            }
+            return values;
+        }
+
+        private void methodReferences(SourceType owner, SourceMethod method) throws IOException {
+            references(owner, method.returnType);
+            for (String bound : method.typeParameters) { references(owner, bound); }
+            for (SourceParameter parameter : method.parameters) { references(owner, parameter.type); }
+        }
+
+        private void references(SourceType owner, String signatureType) throws IOException {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern
+                    .compile("[A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*)*").matcher(signatureType);
+            while (matcher.find()) {
+                String name = resolve(owner, matcher.group());
+                if (name != null && !hierarchy.contains(name)) { dependencies.add(name); }
+            }
+        }
+
+        private String resolve(SourceType owner, String token) throws IOException {
+            if (token.isEmpty() || !Character.isUpperCase(token.charAt(0)) && token.indexOf('.') < 0) { return null; }
+            Set<String> candidates = new java.util.TreeSet<String>();
+            if (token.indexOf('.') >= 0) { candidates.add(token); }
+            String imported = owner.imports.get(token);
+            if (imported != null) { candidates.add(imported); }
+            candidates.add(owner.packageName + "." + token);
+            for (String name : owner.imports.values()) {
+                if (name.endsWith(".*")) { candidates.add(name.substring(0, name.length() - 1) + token); }
+            }
+            String found = null;
+            for (String candidate : candidates) {
+                if (locateQualifiedName(candidate) != null) {
+                    if (found != null && !found.equals(candidate)) {
+                        throw new IOException("类型引用不明确: " + qualified(owner) + " -> " + token);
+                    }
+                    found = candidate;
+                }
+            }
+            if (found == null && imported != null && !imported.startsWith("java.")) { external.add(imported); }
+            return found;
+        }
+
+        private SourceType load(String name) throws IOException {
+            if (!loaded.containsKey(name)) {
+                Path path = locateQualifiedName(name);
+                if (path == null) { return null; }
+                for (SourceType type : parse(Collections.singletonList(path))) {
+                    loaded.put(qualified(type), type);
+                }
+            }
+            return loaded.get(name);
+        }
+
+        private Map<String, Object> evidence(SourceType owner, SourceMethod method) {
+            Map<String, Object> value = overload(new MethodRecord(owner, method), Collections.<SourceType>emptyList());
+            value.put("name", method.name);
+            Set<String> available = new java.util.TreeSet<String>();
+            available.add(qualified(owner));
+            if (hierarchy.contains(qualified(owner)) && !method.staticMethod) {
+                available.add(MongoPlusIndexerConfig.PIPELINE_ENTRY_TYPE);
+            }
+            value.put("availableIn", new ArrayList<String>(available));
+            List<String> parameterTypes = new ArrayList<String>();
+            for (SourceParameter parameter : method.parameters) { parameterTypes.add(parameter.type); }
+            value.put("parameterTypes", parameterTypes);
+            List<String> modifiers = new ArrayList<String>();
+            for (Modifier modifier : method.modifiers) { modifiers.add(modifier.toString()); }
+            Collections.sort(modifiers);
+            value.put("modifiers", modifiers);
+            value.put("mongoStages", new ArrayList<String>(mapping(owner, method, "mongoStage")));
+            value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
+            return value;
+        }
+
+        private String qualified(SourceType type) { return type.packageName + "." + type.name; }
+    }
+
     private static final class SourceType {
         final String packageName; final String name; final String kind; final Map<String, String> imports;
         final Documentation doc; final Map<String, List<String>> tags;
         final boolean abstractType;
         final List<String> parents = new ArrayList<String>();
+        final List<String> typeParameters = new ArrayList<String>();
+        final List<String> annotations = new ArrayList<String>();
         final List<SourceMethod> methods = new ArrayList<SourceMethod>();
         final List<SourceConstructor> constructors = new ArrayList<SourceConstructor>();
         final List<Object> enumConstants = new ArrayList<Object>();
@@ -517,7 +763,8 @@ public final class SourceScanner {
             for (int i = 0; i < parameters.size(); i++) {
                 if (i > 0) { value.append(", "); }
                 SourceParameter parameter = parameters.get(i);
-                value.append(parameter.type).append(parameter.varargs ? "... " : " ").append(parameter.name);
+                value.append(parameter.varargs ? parameter.type.replaceFirst("\\[\\]$", "...") : parameter.type)
+                        .append(' ').append(parameter.name);
             }
             return value.append(')').toString();
         }
@@ -535,7 +782,8 @@ public final class SourceScanner {
             for (int i = 0; i < parameters.size(); i++) {
                 if (i > 0) { value.append(", "); }
                 SourceParameter parameter = parameters.get(i);
-                value.append(parameter.type).append(parameter.varargs ? "... " : " ").append(parameter.name);
+                value.append(parameter.varargs ? parameter.type.replaceFirst("\\[\\]$", "...") : parameter.type)
+                        .append(' ').append(parameter.name);
             }
             return value.append(')').toString();
         }

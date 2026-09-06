@@ -22,6 +22,8 @@ public class AggregateOperator {
      * @param list 多个数组
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
+     *
+     * @mongoExpression $concatArrays
      */
     public static Bson concatArrays(List<?>... list) {
         return new Document(CONCAT_ARRAYS.getOperator(), Arrays.asList(list));
@@ -30,6 +32,8 @@ public class AggregateOperator {
     /**
      * $concat操作符
      * @author anwen
+     *
+     * @mongoExpression $concat
      */
     public static Bson concat(Object... expression) {
         return concat(Arrays.asList(expression));
@@ -38,6 +42,8 @@ public class AggregateOperator {
     /**
      * $concat操作符
      * @author anwen
+     *
+     * @mongoExpression $concat
      */
     public static Bson concat(List<?> expressions) {
         return new Document(CONCAT.getOperator(), expressions);
@@ -56,11 +62,18 @@ public class AggregateOperator {
      * @param startOfWeek 指定周开始的天，只有当单位是周时可用，缺省为Sunday，startOfWeek可以是一个表达式，但必须能够被解析为：monday (或 mon)、tuesday (或 tue)、wednesday (或 wed)、thursday (或 thu)、friday (或 fri)、saturday (或 sat)、sunday (或 sun)
      *                    <br>
      * @param timezone    执行操作的时区，<tzExpression>必须是能被解析为奥尔森时区标识符格式的字符串或UTC偏移量，如果timezone不指定，返回值显示为UTC
+     *
+     * @mongoExpression $dateTrunc
      */
     public static Bson dateTrunc(SFunction<?, ?> field, String unit, Integer binSize, String startOfWeek, String timezone) {
         return dateTrunc(field.getFieldNameLineOption(), unit, binSize, startOfWeek, timezone);
     }
 
+    /**
+     * 构建日期截断表达式。
+     *
+     * @mongoExpression $dateTrunc
+     */
     public static Bson dateTrunc(String field, String unit, Integer binSize, String startOfWeek, String timezone) {
         return new Document(DATE_TRUNC.getOperator(), new MongoPlusDocument() {{
             putIsNotNull("date", field);
@@ -71,10 +84,20 @@ public class AggregateOperator {
         }});
     }
 
+    /**
+     * 构建日期截断表达式。
+     *
+     * @mongoExpression $dateTrunc
+     */
     public static Bson dateTrunc(String field, String unit) {
         return dateTrunc(field, unit, null, null, null);
     }
 
+    /**
+     * 构建日期截断表达式。
+     *
+     * @mongoExpression $dateTrunc
+     */
     public static Bson dateTrunc(SFunction<?, ?> field, String unit) {
         return dateTrunc(field, unit, null, null, null);
     }
