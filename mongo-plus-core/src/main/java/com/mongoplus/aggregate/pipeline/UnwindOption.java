@@ -48,6 +48,7 @@ public class UnwindOption {
      *
      * @param arrayIndexFieldName 用于存储展开项的数组索引的字段
      * @return this
+     * @mongoParam arrayIndexFieldName OUTPUT_FIELD_NAME VALUE
      */
     public UnwindOption includeArrayIndex(@Nullable final String arrayIndexFieldName) {
         this.includeArrayIndex = arrayIndexFieldName;
@@ -59,6 +60,7 @@ public class UnwindOption {
      *
      * @param arrayIndexFieldName 用于存储展开项的数组索引的字段
      * @return this
+     * @mongoParam arrayIndexFieldName OUTPUT_FIELD_NAME VALUE
      */
     public <T> UnwindOption includeArrayIndex(@Nullable final SFunction<T,?> arrayIndexFieldName) {
         if (arrayIndexFieldName != null) {

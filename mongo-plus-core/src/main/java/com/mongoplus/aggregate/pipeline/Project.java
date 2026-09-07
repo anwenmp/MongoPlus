@@ -18,6 +18,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(SFunction<T,R>... column);
@@ -29,6 +30,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     Children projectDisplay(String... column);
 
@@ -39,6 +41,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(SFunction<T,R>... column);
@@ -50,6 +53,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     Children projectNone(String... column);
 
@@ -103,6 +107,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(boolean displayId,SFunction<T,R>... column);
@@ -115,6 +120,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     Children projectDisplay(boolean displayId,String... column);
 
@@ -126,6 +132,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(boolean displayId,SFunction<T,R>... column);
@@ -138,6 +145,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoParam column FIELD_NAME ELEMENT
      */
     Children projectNone(boolean displayId,String... column);
 

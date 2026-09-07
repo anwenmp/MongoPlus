@@ -71,6 +71,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     Children addFields(final String field,final String value);
 
@@ -84,6 +86,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     <T> Children addFields(final SFunction<T,?> field,final String value);
 
@@ -97,6 +101,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoParam field OUTPUT_FIELD_PATH_SEGMENT ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T> Children addFields(final String value,final SFunction<T,?>... field);
@@ -155,6 +161,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children addFields(final Bson bson);
 
@@ -174,6 +181,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     Children set(final String field,final String value);
 
@@ -187,6 +196,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     <T> Children set(final SFunction<T,?> field,final String value);
 
@@ -200,6 +211,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoParam field OUTPUT_FIELD_PATH_SEGMENT ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T> Children set(final String value,final SFunction<T,?>... field);
@@ -258,6 +271,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children set(final Bson bson);
 
@@ -275,6 +289,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
+     * @mongoParam groupBy FIELD_REFERENCE VALUE
+     * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy,final List<Boundary> boundaries);
 
@@ -286,6 +302,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
+     * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
+     * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
      */
     <Boundary> Children bucket(final Object groupBy,final List<Boundary> boundaries);
 
@@ -298,6 +316,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
+     * @mongoParam groupBy FIELD_REFERENCE VALUE
+     * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
      */
     <Boundary,T> Children bucket(final SFunction<T,?> groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -310,6 +330,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
+     * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
+     * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
      */
     <Boundary> Children bucket(final Object groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -320,6 +342,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children bucket(final Bson bson);
 
@@ -337,6 +360,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
+     * @mongoParam groupBy FIELD_REFERENCE VALUE
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy,final Integer buckets);
 
@@ -348,6 +372,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
+     * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
      */
     Children bucketAuto(final Object groupBy,final Integer buckets);
 
@@ -360,6 +385,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
+     * @mongoParam groupBy FIELD_REFERENCE VALUE
      */
     <T> Children bucketAuto(final SFunction<T,?> groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -372,6 +398,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
+     * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
      */
     Children bucketAuto(final Object groupBy, final Integer buckets, BucketAutoOptions options);
 
@@ -382,6 +409,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children bucketAuto(final Bson bson);
 
@@ -407,6 +435,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $count
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
      */
     Children count(final String field);
 
@@ -417,6 +446,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $count
+     * @mongoParam field OUTPUT_FIELD_NAME VALUE
      */
     <T> Children count(final SFunction<T,?> field);
 
@@ -452,6 +482,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $match
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children match(final Bson bson);
 
@@ -469,6 +500,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $project
+     * @mongoParam bson STAGE_DOCUMENT VALUE
      */
     Children project(final Bson bson);
 
@@ -486,6 +518,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     Children sort(final String field, final Integer value);
 
@@ -497,6 +530,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     <T> Children sort(final SFunction<T,?> field,final Integer value);
 
@@ -507,6 +541,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     <T> Children sortAsc(final SFunction<T,?> field);
 
@@ -517,6 +552,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     Children sortAsc(final String field);
 
@@ -527,6 +563,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T> Children sortAsc(final SFunction<T, ?>... field);
@@ -538,6 +575,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     Children sortAsc(final String... field);
 
@@ -548,6 +586,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     <T> Children sortAscLambda(final List<SFunction<T,?>> field);
 
@@ -558,6 +597,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     Children sortAsc(final List<String> field);
 
@@ -568,6 +608,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     <T> Children sortDesc(final SFunction<T,?> field);
 
@@ -578,6 +619,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME VALUE
      */
     Children sortDesc(final String field);
 
@@ -588,6 +630,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T> Children sortDesc(final SFunction<T, ?>... field);
@@ -599,6 +642,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     Children sortDesc(final String... field);
 
@@ -609,6 +653,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     <T> Children sortDescLambda(final List<SFunction<T,?>> field);
 
@@ -619,6 +664,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sort
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     Children sortDesc(final List<String> field);
 
@@ -659,6 +705,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sortByCount
+     * @mongoParam field PIPELINE_EXPRESSION VALUE
      */
     Children sortByCount(final String field);
 
@@ -669,6 +716,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $sortByCount
+     * @mongoParam field FIELD_REFERENCE VALUE
      */
     <T> Children sortByCount(final SFunction<T,?> field);
 
@@ -740,6 +788,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children lookup(final String from,final String localField,final String foreignField,final String as);
 
@@ -753,6 +805,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final String from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -766,6 +822,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children lookup(final Class<?> from,final String localField,final String foreignField,final String as);
 
@@ -779,6 +839,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final Class<?> from,final String localField,final String foreignField,final SFunction<T,?> as);
 
@@ -792,6 +856,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -806,6 +874,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R,A> Children lookup(final String from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -820,6 +892,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final String as);
@@ -834,6 +910,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final SFunction<R,?> foreignField,
                           final SFunction<A,?> as);
@@ -848,6 +928,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -861,6 +945,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,A> Children lookup(final String from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -875,6 +963,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,final String as);
 
@@ -888,6 +980,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,A> Children lookup(final Class<?> from,final SFunction<T,?> localField,final String foreignField,
                         final SFunction<A,?> as);
@@ -902,6 +998,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -915,6 +1015,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,A> Children lookup(final String from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -929,6 +1033,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,final String as);
 
@@ -942,6 +1050,10 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam localField LOCAL_FIELD_NAME VALUE
+     * @mongoParam foreignField FOREIGN_FIELD_NAME VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,A> Children lookup(final Class<?> from,final String localField,final SFunction<T,?> foreignField,
                         final SFunction<A,?> as);
@@ -956,6 +1068,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <TExpression> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -970,6 +1085,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <TExpression,T> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -984,6 +1102,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <TExpression> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -998,6 +1119,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <TExpression,T> Children lookup(final Class<?> from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final SFunction<T,?> as);
@@ -1011,6 +1135,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children lookup(final String from, final Aggregate<?> aggregate, final String as);
 
@@ -1023,6 +1150,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final String from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -1035,6 +1165,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children lookup(final Class<?> from, final Aggregate<?> aggregate, final String as);
 
@@ -1047,6 +1180,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $lookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T> Children lookup(final Class<?> from, final Aggregate<?> aggregate, final SFunction<T,?> as);
 
@@ -1072,6 +1208,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $facet
+     * @mongoParam name OUTPUT_FIELD_NAME VALUE
+     * @mongoParam pipeline PIPELINE_STAGE_DOCUMENT ELEMENT
      */
     Children facet(final String name, final Bson... pipeline);
 
@@ -1083,6 +1221,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $facet
+     * @mongoParam name OUTPUT_FIELD_NAME VALUE
+     * @mongoParam pipeline PIPELINE VALUE
      */
     Children facet(final String name, final List<? extends Bson> pipeline);
 
@@ -1094,6 +1234,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $facet
+     * @mongoParam name OUTPUT_FIELD_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
      */
     Children facet(final String name, final Aggregate<?> aggregate);
 
@@ -1142,6 +1284,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith PIPELINE_EXPRESSION VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as);
@@ -1157,6 +1304,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith FIELD_REFERENCE VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                          final SFunction<U,?> connectToField, final String as);
@@ -1172,6 +1324,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith PIPELINE_EXPRESSION VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as);
@@ -1193,6 +1350,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith PIPELINE_EXPRESSION VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as, final GraphLookupOptions options);
@@ -1214,6 +1376,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith FIELD_REFERENCE VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                                final SFunction<U,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1235,6 +1402,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $graphLookup
+     * @mongoParam from COLLECTION_NAME VALUE
+     * @mongoParam startWith PIPELINE_EXPRESSION VALUE
+     * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+     * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+     * @mongoParam as OUTPUT_FIELD_NAME VALUE
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1260,6 +1432,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam _id PIPELINE_EXPRESSION VALUE
      */
     Children group(final String _id);
 
@@ -1270,6 +1443,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam _id FIELD_REFERENCE VALUE
      */
     <T> Children group(final SFunction<T,?> _id);
 
@@ -1281,6 +1455,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam id PIPELINE_EXPRESSION VALUE
      */
     <TExpression> Children group(@Nullable final TExpression id, final BsonField... fieldAccumulators);
 
@@ -1292,6 +1467,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam id FIELD_REFERENCE VALUE
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final BsonField... fieldAccumulators);
 
@@ -1303,6 +1479,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam id PIPELINE_EXPRESSION VALUE
      */
     <TExpression> Children group(@Nullable final TExpression id, final List<BsonField> fieldAccumulators);
 
@@ -1314,6 +1491,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $group
+     * @mongoParam id FIELD_REFERENCE VALUE
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final List<BsonField> fieldAccumulators);
 
@@ -1339,6 +1517,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children unionWith(final String collectionName);
 
@@ -1350,6 +1529,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collection COLLECTION_NAME VALUE
      */
     Children unionWith(final Class<?> collection);
 
@@ -1361,6 +1541,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collectionName COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
      */
     Children unionWith(final String collectionName,final Aggregate<?> aggregate);
 
@@ -1372,6 +1554,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collectionName COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
      */
     Children unionWith(final String collectionName,final List<? extends Bson> aggregate);
 
@@ -1383,6 +1567,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collection COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
      */
     Children unionWith(final Class<?> collection,final Aggregate<?> aggregate);
 
@@ -1394,6 +1580,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unionWith
+     * @mongoParam collection COLLECTION_NAME VALUE
+     * @mongoParam aggregate PIPELINE VALUE
      */
     Children unionWith(final Class<?> collection,final List<? extends Bson> aggregate);
 
@@ -1418,6 +1606,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unwind
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     Children unwind(final String fieldName);
 
@@ -1428,6 +1617,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unwind
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     <T> Children unwind(final SFunction<T,?> fieldName);
 
@@ -1438,6 +1628,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unwind
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     Children unwind(final String fieldName, final UnwindOption unwindOption);
 
@@ -1448,6 +1639,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unwind
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     <T> Children unwind(final SFunction<T,?> fieldName,final UnwindOption unwindOption);
 
@@ -1472,6 +1664,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children out(final String collectionName);
 
@@ -1482,6 +1675,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoParam collection COLLECTION_NAME VALUE
      */
     Children out(final Class<?> collection);
 
@@ -1493,6 +1687,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoParam databaseName DATABASE_NAME VALUE
+     * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children out(final String databaseName, final String collectionName);
 
@@ -1517,6 +1713,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $merge
+     * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children merge(final String collectionName);
 
@@ -1527,6 +1724,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $merge
+     * @mongoParam collection COLLECTION_NAME VALUE
      */
     Children merge(final Class<?> collection);
 
@@ -1548,6 +1746,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $merge
+     * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children merge(final String collectionName, final MergeOptions options);
 
@@ -1559,6 +1758,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $merge
+     * @mongoParam collection COLLECTION_NAME VALUE
      */
     Children merge(final Class<?> collection, final MergeOptions options);
 
@@ -1594,6 +1794,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceRoot
+     * @mongoParam fieldName PIPELINE_EXPRESSION VALUE
      */
     <TExpression> Children replaceRoot(final TExpression fieldName);
 
@@ -1604,6 +1805,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceRoot
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     Children replaceRoot(final Document value);
 
@@ -1614,6 +1816,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceRoot
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     <T> Children replaceRoot(final SFunction<T,?> fieldName);
 
@@ -1638,6 +1841,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceWith
+     * @mongoParam fieldName PIPELINE_EXPRESSION VALUE
      */
     <TExpression> Children replaceWith(final TExpression fieldName);
 
@@ -1648,6 +1852,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceWith
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     Children replaceWith(final Document value);
 
@@ -1658,6 +1863,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $replaceWith
+     * @mongoParam fieldName FIELD_REFERENCE VALUE
      */
     <T> Children replaceWith(final SFunction<T,?> fieldName);
 
@@ -1718,6 +1924,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $setWindowFields
+     * @mongoParam partitionBy PIPELINE_EXPRESSION VALUE
+     * @mongoParam sortBy SORT_SPECIFICATION VALUE
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final WindowOutputField output, final WindowOutputField... moreOutput);
@@ -1740,6 +1948,8 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $setWindowFields
+     * @mongoParam partitionBy PIPELINE_EXPRESSION VALUE
+     * @mongoParam sortBy SORT_SPECIFICATION VALUE
      */
     <TExpression> Children setWindowFields(@Nullable final TExpression partitionBy, @Nullable final Bson sortBy,
                                                      final Iterable<? extends WindowOutputField> output);
@@ -1766,6 +1976,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $densify
+     * @mongoParam field FIELD_NAME VALUE
      */
     Children densify(final String field, final DensifyRange range);
 
@@ -1777,6 +1988,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $densify
+     * @mongoParam field FIELD_NAME VALUE
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range);
 
@@ -1789,6 +2001,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $densify
+     * @mongoParam field FIELD_NAME VALUE
      */
     Children densify(final String field, final DensifyRange range, final DensifyOptions options);
 
@@ -1801,6 +2014,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $densify
+     * @mongoParam field FIELD_NAME VALUE
      */
     <T> Children densify(final SFunction<T,?> field, final DensifyRange range, final DensifyOptions options);
 
@@ -1862,6 +2076,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unset
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     Children unset(final String... field);
 
@@ -1872,6 +2087,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unset
+     * @mongoParam field FIELD_NAME ELEMENT
      */
     @SuppressWarnings("unchecked")
     <T> Children unset(final SFunction<T,?>... field);
@@ -1883,6 +2099,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unset
+     * @mongoParam fields FIELD_NAME ELEMENT
      */
     Children unset(final List<String> fields);
 
@@ -1893,6 +2110,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $unset
+     * @mongoParam fields FIELD_NAME ELEMENT
      */
     <T> Children unsetLambda(final List<SFunction<T,?>> fields);
 

@@ -24,6 +24,7 @@ public class AggregateOperator {
      * @author anwen
      *
      * @mongoExpression $concatArrays
+     * @mongoParam list PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson concatArrays(List<?>... list) {
         return new Document(CONCAT_ARRAYS.getOperator(), Arrays.asList(list));
@@ -34,6 +35,7 @@ public class AggregateOperator {
      * @author anwen
      *
      * @mongoExpression $concat
+     * @mongoParam expression PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson concat(Object... expression) {
         return concat(Arrays.asList(expression));
@@ -44,6 +46,7 @@ public class AggregateOperator {
      * @author anwen
      *
      * @mongoExpression $concat
+     * @mongoParam expressions PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson concat(List<?> expressions) {
         return new Document(CONCAT.getOperator(), expressions);
@@ -64,6 +67,10 @@ public class AggregateOperator {
      * @param timezone    执行操作的时区，<tzExpression>必须是能被解析为奥尔森时区标识符格式的字符串或UTC偏移量，如果timezone不指定，返回值显示为UTC
      *
      * @mongoExpression $dateTrunc
+     * @mongoParam unit PIPELINE_EXPRESSION VALUE
+     * @mongoParam binSize PIPELINE_EXPRESSION VALUE
+     * @mongoParam startOfWeek PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateTrunc(SFunction<?, ?> field, String unit, Integer binSize, String startOfWeek, String timezone) {
         return dateTrunc(field.getFieldNameLineOption(), unit, binSize, startOfWeek, timezone);
@@ -73,6 +80,11 @@ public class AggregateOperator {
      * 构建日期截断表达式。
      *
      * @mongoExpression $dateTrunc
+     * @mongoParam field PIPELINE_EXPRESSION VALUE
+     * @mongoParam unit PIPELINE_EXPRESSION VALUE
+     * @mongoParam binSize PIPELINE_EXPRESSION VALUE
+     * @mongoParam startOfWeek PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateTrunc(String field, String unit, Integer binSize, String startOfWeek, String timezone) {
         return new Document(DATE_TRUNC.getOperator(), new MongoPlusDocument() {{
@@ -88,6 +100,8 @@ public class AggregateOperator {
      * 构建日期截断表达式。
      *
      * @mongoExpression $dateTrunc
+     * @mongoParam field PIPELINE_EXPRESSION VALUE
+     * @mongoParam unit PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateTrunc(String field, String unit) {
         return dateTrunc(field, unit, null, null, null);
@@ -97,6 +111,7 @@ public class AggregateOperator {
      * 构建日期截断表达式。
      *
      * @mongoExpression $dateTrunc
+     * @mongoParam unit PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateTrunc(SFunction<?, ?> field, String unit) {
         return dateTrunc(field, unit, null, null, null);

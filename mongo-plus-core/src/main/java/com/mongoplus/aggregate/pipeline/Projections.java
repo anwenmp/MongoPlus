@@ -38,6 +38,7 @@ public class Projections {
      * @return $project
      * @see #computedSearchMeta(String)
      * @see Aggregates#project(Bson)
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson computed(final String fieldName, final TExpression expression) {
         return new SimpleExpression<>(fieldName, expression);
@@ -52,6 +53,7 @@ public class Projections {
      * @return $project
      * @see #computedSearchMeta(String)
      * @see Aggregates#project(Bson)
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> Bson computed(final SFunction<T,?> fieldName, final TExpression expression) {
         return computed(fieldName.getFieldNameLine(), expression);

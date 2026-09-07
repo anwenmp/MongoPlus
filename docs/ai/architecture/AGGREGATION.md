@@ -38,7 +38,8 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 ## Stage 支持矩阵
 
 聚合专用机器索引由 `mongo-plus-indexer` 的 `MongoPlusPipelineIndexerMain` 生成，入口为
-`Aggregate`，详见 [Indexer 契约与生成方式](../../../mongo-plus-indexer/README.md)。索引映射仅接受
+Stage 根 `Aggregate` 加五个明确的 Expression 工厂根，详见
+[Indexer 契约与生成方式](../../../mongo-plus-indexer/README.md)。索引映射仅接受
 源码 `@mongoStage` / `@mongoExpression` 块标签；下述人工源码审计的支持矩阵不能作为自动映射来源。
 2026-09-06 已按当前实现补充这两类标签；收录统计与边界见下方 Pipeline Javadoc evidence。
 
@@ -48,7 +49,7 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 
 ## Pipeline Javadoc evidence
 
-本轮仅修改 Core Javadoc，不修改方法签名、业务逻辑或 Indexer 生成逻辑。标签逐方法声明，
+2026-09-06 的 evidence 补充仅修改 Core Javadoc，不修改方法签名、业务逻辑。标签逐方法声明，
 以 `LambdaAggregateWrapper` 的委托链、实际 BSON、Driver 5.4.0 源码及参数语义为依据；
 未使用类级标签将映射批量传播给所有方法。
 
@@ -56,9 +57,13 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
   Index 按 category + Java 方法名分为 33 个 `PIPELINE_STAGE` family。
 - `pipeline.Accumulators`、`AggregateOperator`、`Projections`、`Sorts`，以及现行和 deprecated
   `ConditionOperators` 共 211 条 `@mongoExpression`，覆盖 42 种 Expression（49 个 Java 方法名）。
-- 表达式工厂通过 `Bson`、`BsonField` 等返回值供用户组合，但不在正式入口的签名依赖闭包内。
-  正式 Index 的 `PIPELINE_EXPRESSION` 为 0，`methodFamilies` 合计 33；不能把工厂标签总数
-  或测试夹具结果冒充正式 Index 收录数。扫描器不会反向枚举返回同一 Driver 类型的工厂。
+- 2026-09-07 将 `Accumulators`、`AggregateOperator`、`Projections`、`Sorts` 和现行
+  `conditions.operation.ConditionOperators` 配置为明确的 Expression 根，继续执行现有类型、
+  public 构造器与 specialType 依赖闭包。正式 Index 为 33 个 Stage family（140 overload）和
+  49 个 Expression family（157 overload、42 种映射），合计 82 family、297 overload。
+  旧 `conditions.interfaces.ConditionOperators` 也是 class，与现行类无接口/实现关系；
+  它已 deprecated 且 Javadoc 指向现行类，故不选为根，排除其 54 条重复副本 evidence。
+  不扫描全项目或反向枚举返回同一 Driver 类型的工厂，内部实现也不因存在标签而成为根。
 - Stage `Aggregate.count` 对应 `$count`；`Accumulators.count` 对应 `$count` accumulator，
   `Accumulators.sum()` 实际构造 `{count: {$sum: 1}}`，仍标记 `$sum`。
 - `projectDisplay/projectNone` 对应 `$project`，`sortAsc/sortDesc` 及各自 Lambda 集合便利方法
@@ -84,9 +89,9 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
   的 dateFromString 两参数重载，以及描述为 each 更新修饰符而实际使用 MERGE_OBJECTS 常量的
   each 系列，均不标记。这些是本轮排除依据，不表示已做服务器行为验证或业务修复。
 
-验证：现有 Query/Pipeline 可执行自测通过；Pipeline 自测覆盖移除真实入口标签后空映射、
-透传同名 overload 排除，以及测试夹具显式连接真实工厂后解析 211 条 Expression evidence。
-正式 CLI 连续三次输出按字节比较；本轮未执行真实 MongoDB、全 reactor 或发布验证。
+验证：Query/Pipeline 可执行自测覆盖移除真实入口标签后空映射、透传同名 overload 排除、
+五个真实 Expression 根独立生成、旧包排除、重复根/依赖可达去重、依赖闭包及确定性。
+新增根前后的全部 Stage family/evidence 必须相等；实际运行结果见当次任务报告。
 
 ## Match、Tenant 与 Logic Delete
 
@@ -99,6 +104,39 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 - Collection Logic（默认最大 order）后运行，但 `ExecutorProxy` 传给普通专用策略的仍是进入代理时捕获的原 collection。若 pipeline 有 match，它给**每一个** match `putIfAbsent(logicColumn, {$eq: notDeleted})`；没有 match 时追加到 pipeline 尾部，而不是插到开头。
 
 这产生已确认结构风险：无用户 match 时，单独启用 Tenant 会把 match 放在用户首 stage 之前；若原首 stage 是 `$geoNear`、`$search`、`$vectorSearch` 等要求首位的 stage，框架最终发出的顺序可由源码确认，Driver/Server 的准确异常仍需集成测试。单独启用 Logic Delete 会把 match 放在尾部；若原末 stage 是 `$out`/`$merge`，框架会在其后追加 stage，准确失败同样由运行测试固定。对 project/group，尾部过滤还可能因字段已改变而产生错误语义。已有多个 match 时两个条件会注入每一个 match。Boot 3/4 方法级 Ignore 可影响 aggregate；Solon 的 `@IgnoreLogic` 绑定仍待启动测试，Ignore 注解都要求调用经过容器代理。动态 namespace 常登记为 `UnClassCollection`，但普通 Logic 本次仍观察原 collection；详见 [TENANT.md](../features/TENANT.md)、[LOGIC_DELETE.md](../features/LOGIC_DELETE.md) 与 [DYNAMIC_COLLECTION.md](../features/DYNAMIC_COLLECTION.md)。
+
+## Pipeline 表达式参数语义
+
+2026-09-07 的参数 evidence 仅增加逐方法 Javadoc `@mongoParam`，不修改业务实现或原有
+`@mongoStage`/`@mongoExpression`。Index 中显式标记的参数为 `semanticType=PIPELINE_EXPRESSION`，
+`semanticScope=VALUE|ELEMENT`，并关联 `PIPELINE_EXPRESSION_FIELD_REFERENCE` concept；
+类型名、参数名、方法名或描述不能自动触发分类。完整覆盖列表和 JSON 契约见
+[Indexer 参数 evidence](../../../mongo-plus-indexer/README.md#pipeline-表达式参数-evidence)。
+
+- `Accumulators` 的已核对 expression 参数经过 `accumulatorOperator` 保存到 `SimpleExpression`；
+  `SimpleExpression.encodeValue` 对 Bson 转 document，对其他非 null 值使用运行时 codec。
+- `LambdaAggregateWrapper.group` 的泛型 id 原样交给 Driver `Aggregates.group`；Driver 5.4.0
+  的 GroupStage 写 `_id` 时调用 BuildersHelper.encodeValue。默认 StringCodec 调用 writeString(value)。
+- `ConditionOperators` 的已核对泛型值直接进入 Document 或操作数数组。Lambda 便利方法使用
+  `SFunction.getFieldNameLineOption()`，其实现明确返回 `$` + 实际字段名，证明字符串字段引用表示。
+- `Projections.computed` 原样保存值，`computedSearchMeta` 明确传 `$$SEARCH_META`；
+  `AggregateOptions.let` 的源码契约还明确声明 `$$` 变量访问语法。变量是否已绑定不由 Index 保证。
+- `"amount"` 与 `"$amount"` 都原样编码；前者不自动加字段前缀，后者可作为已标记参数的字段引用。
+  当前未确认将 `$` 开头字符串强制解释为 literal 的专用 API，concept 记录 `NOT_ESTABLISHED`，
+  不增加 `$literal` 映射。此证据不宣称已执行服务端表达式求值。
+
+第一轮正式 methodFamilies 中增加 41 个参数标记，另有 Projections.computed 的 2 个参数仅进入既有
+type evidence。随后逐参数核查全部 49 个 Expression family、157 overload、372 个参数，
+在 74 个 overload 补充 127 个标签（100 VALUE、27 ELEMENT）。新增范围包含直接写入 BSON 的
+Object/泛型值、日期 expression 槽、N 类累加器的 n/input/output，以及真实操作数数组/集合。
+输出字段键、sortBy 排序规格、meta 选择符、函数源码/lang、count 占位和 getter 参数不赋予该语义；
+动态 cond 的 ifValue 由调用方选定操作符解释，也不保证每个元素是 expression。
+详见 [完整逐参数审计](../../../mongo-plus-indexer/EXPRESSION_PARAMETER_AUDIT.md)。
+
+ELEMENT 表示数组/varargs/集合的每个直接元素；VALUE 表示参数本身。标签不改变 Java 类型限制：
+Number 仅承载数值常量，String 仅承载字符串表示，List<String> 不因此接受嵌套 Bson。
+Indexer 仅补足数组和明确 java.util.List/Collection 的既有标签范围校验，concept 仍只关联显式标签。
+Stage/Expression 收录仍为 33/49，overload 总数 297；不新增根、内部实现或实例化规则。
 
 ## Lookup 与跨集合边界
 

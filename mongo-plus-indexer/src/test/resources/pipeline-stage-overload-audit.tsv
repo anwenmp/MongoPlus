@@ -1,0 +1,141 @@
+stage	family	overload	parameters	declaredIn
+$addFields	addFields	addFields(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$addFields	addFields	addFields(Field<?>... fields)	1	com.mongoplus.aggregate.Aggregate
+$addFields	addFields	addFields(List<Field<?>> fields)	1	com.mongoplus.aggregate.Aggregate
+$addFields	addFields	addFields(SFunction<T, ?> field, String value)	2	com.mongoplus.aggregate.Aggregate
+$addFields	addFields	addFields(String field, String value)	2	com.mongoplus.aggregate.Aggregate
+$addFields	addFields	addFields(String value, SFunction<T, ?>... field)	2	com.mongoplus.aggregate.Aggregate
+$bucket	bucket	bucket(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$bucket	bucket	bucket(Object groupBy, List<Boundary> boundaries)	2	com.mongoplus.aggregate.Aggregate
+$bucket	bucket	bucket(Object groupBy, List<Boundary> boundaries, BucketOptions options)	3	com.mongoplus.aggregate.Aggregate
+$bucket	bucket	bucket(SFunction<T, ?> groupBy, List<Boundary> boundaries)	2	com.mongoplus.aggregate.Aggregate
+$bucket	bucket	bucket(SFunction<T, ?> groupBy, List<Boundary> boundaries, BucketOptions options)	3	com.mongoplus.aggregate.Aggregate
+$bucketAuto	bucketAuto	bucketAuto(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$bucketAuto	bucketAuto	bucketAuto(Object groupBy, Integer buckets)	2	com.mongoplus.aggregate.Aggregate
+$bucketAuto	bucketAuto	bucketAuto(Object groupBy, Integer buckets, BucketAutoOptions options)	3	com.mongoplus.aggregate.Aggregate
+$bucketAuto	bucketAuto	bucketAuto(SFunction<T, ?> groupBy, Integer buckets)	2	com.mongoplus.aggregate.Aggregate
+$bucketAuto	bucketAuto	bucketAuto(SFunction<T, ?> groupBy, Integer buckets, BucketAutoOptions options)	3	com.mongoplus.aggregate.Aggregate
+$count	count	count()	0	com.mongoplus.aggregate.Aggregate
+$count	count	count(SFunction<T, ?> field)	1	com.mongoplus.aggregate.Aggregate
+$count	count	count(String field)	1	com.mongoplus.aggregate.Aggregate
+$densify	densify	densify(SFunction<T, ?> field, DensifyRange range)	2	com.mongoplus.aggregate.Aggregate
+$densify	densify	densify(SFunction<T, ?> field, DensifyRange range, DensifyOptions options)	3	com.mongoplus.aggregate.Aggregate
+$densify	densify	densify(String field, DensifyRange range)	2	com.mongoplus.aggregate.Aggregate
+$densify	densify	densify(String field, DensifyRange range, DensifyOptions options)	3	com.mongoplus.aggregate.Aggregate
+$facet	facet	facet(Facet... facets)	1	com.mongoplus.aggregate.Aggregate
+$facet	facet	facet(List<Facet> facets)	1	com.mongoplus.aggregate.Aggregate
+$facet	facet	facet(String name, Aggregate<?> aggregate)	2	com.mongoplus.aggregate.Aggregate
+$facet	facet	facet(String name, Bson... pipeline)	2	com.mongoplus.aggregate.Aggregate
+$facet	facet	facet(String name, List<? extends Bson> pipeline)	2	com.mongoplus.aggregate.Aggregate
+$fill	fill	fill(FillOptions options, FillOutputField output, FillOutputField... moreOutput)	3	com.mongoplus.aggregate.Aggregate
+$fill	fill	fill(FillOptions options, Iterable<? extends FillOutputField> output)	2	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, Object startWith, SFunction<T, ?> connectFromField, SFunction<R, ?> connectToField, String as)	5	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, Object startWith, SFunction<T, ?> connectFromField, SFunction<R, ?> connectToField, String as, GraphLookupOptions options)	6	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, Object startWith, String connectFromField, String connectToField, String as)	5	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, Object startWith, String connectFromField, String connectToField, String as, GraphLookupOptions options)	6	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, SFunction<T, ?> startWith, SFunction<R, ?> connectFromField, SFunction<U, ?> connectToField, String as)	5	com.mongoplus.aggregate.Aggregate
+$graphLookup	graphLookup	graphLookup(String from, SFunction<T, ?> startWith, SFunction<R, ?> connectFromField, SFunction<U, ?> connectToField, String as, GraphLookupOptions options)	6	com.mongoplus.aggregate.Aggregate
+$group	group	group(SFunction<T, ?> _id)	1	com.mongoplus.aggregate.Aggregate
+$group	group	group(SFunction<T, ?> id, BsonField... fieldAccumulators)	2	com.mongoplus.aggregate.Aggregate
+$group	group	group(SFunction<T, ?> id, List<BsonField> fieldAccumulators)	2	com.mongoplus.aggregate.Aggregate
+$group	group	group(String _id)	1	com.mongoplus.aggregate.Aggregate
+$group	group	group(TExpression id, BsonField... fieldAccumulators)	2	com.mongoplus.aggregate.Aggregate
+$group	group	group(TExpression id, List<BsonField> fieldAccumulators)	2	com.mongoplus.aggregate.Aggregate
+$limit	limit	limit(int limit)	1	com.mongoplus.aggregate.Aggregate
+$limit	limit	limit(long limit)	1	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, Aggregate<?> aggregate, SFunction<T, ?> as)	3	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, Aggregate<?> aggregate, String as)	3	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, List<Variable<TExpression>> letList, Aggregate<?> aggregate, SFunction<T, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, List<Variable<TExpression>> letList, Aggregate<?> aggregate, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, SFunction<T, ?> localField, String foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, SFunction<T, ?> localField, String foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, String localField, SFunction<T, ?> foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, String localField, SFunction<T, ?> foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, String localField, String foreignField, SFunction<T, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(Class<?> from, String localField, String foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, Aggregate<?> aggregate, SFunction<T, ?> as)	3	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, Aggregate<?> aggregate, String as)	3	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, List<Variable<TExpression>> letList, Aggregate<?> aggregate, SFunction<T, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, List<Variable<TExpression>> letList, Aggregate<?> aggregate, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, SFunction<T, ?> localField, SFunction<R, ?> foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, SFunction<T, ?> localField, String foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, SFunction<T, ?> localField, String foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, String localField, SFunction<T, ?> foreignField, SFunction<A, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, String localField, SFunction<T, ?> foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, String localField, String foreignField, SFunction<T, ?> as)	4	com.mongoplus.aggregate.Aggregate
+$lookup	lookup	lookup(String from, String localField, String foreignField, String as)	4	com.mongoplus.aggregate.Aggregate
+$match	match	match(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$match	match	match(SFunction<QueryWrapper<?>, QueryWrapper<?>> function)	1	com.mongoplus.aggregate.Aggregate
+$match	match	match(Wrapper<?> queryWrapper)	1	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(Class<?> collection)	1	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(Class<?> collection, MergeOptions options)	2	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(MongoNamespace namespace)	1	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(MongoNamespace namespace, MergeOptions options)	2	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(String collectionName)	1	com.mongoplus.aggregate.Aggregate
+$merge	merge	merge(String collectionName, MergeOptions options)	2	com.mongoplus.aggregate.Aggregate
+$out	out	out(Class<?> collection)	1	com.mongoplus.aggregate.Aggregate
+$out	out	out(String collectionName)	1	com.mongoplus.aggregate.Aggregate
+$out	out	out(String databaseName, String collectionName)	2	com.mongoplus.aggregate.Aggregate
+$project	project	project(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$project	project	project(Collection<? extends Projection> projection)	1	com.mongoplus.aggregate.pipeline.Project
+$project	project	project(Projection... projection)	1	com.mongoplus.aggregate.pipeline.Project
+$project	project	project(boolean displayId, Collection<? extends Projection> projection)	2	com.mongoplus.aggregate.pipeline.Project
+$project	project	project(boolean displayId, Projection... projection)	2	com.mongoplus.aggregate.pipeline.Project
+$project	projectDisplay	projectDisplay(SFunction<T, R>... column)	1	com.mongoplus.aggregate.pipeline.Project
+$project	projectDisplay	projectDisplay(String... column)	1	com.mongoplus.aggregate.pipeline.Project
+$project	projectDisplay	projectDisplay(boolean displayId, SFunction<T, R>... column)	2	com.mongoplus.aggregate.pipeline.Project
+$project	projectDisplay	projectDisplay(boolean displayId, String... column)	2	com.mongoplus.aggregate.pipeline.Project
+$project	projectNone	projectNone(SFunction<T, R>... column)	1	com.mongoplus.aggregate.pipeline.Project
+$project	projectNone	projectNone(String... column)	1	com.mongoplus.aggregate.pipeline.Project
+$project	projectNone	projectNone(boolean displayId, SFunction<T, R>... column)	2	com.mongoplus.aggregate.pipeline.Project
+$project	projectNone	projectNone(boolean displayId, String... column)	2	com.mongoplus.aggregate.pipeline.Project
+$replaceRoot	replaceRoot	replaceRoot(Document value)	1	com.mongoplus.aggregate.Aggregate
+$replaceRoot	replaceRoot	replaceRoot(SFunction<T, ?> fieldName)	1	com.mongoplus.aggregate.Aggregate
+$replaceRoot	replaceRoot	replaceRoot(TExpression fieldName)	1	com.mongoplus.aggregate.Aggregate
+$replaceWith	replaceWith	replaceWith(Document value)	1	com.mongoplus.aggregate.Aggregate
+$replaceWith	replaceWith	replaceWith(SFunction<T, ?> fieldName)	1	com.mongoplus.aggregate.Aggregate
+$replaceWith	replaceWith	replaceWith(TExpression fieldName)	1	com.mongoplus.aggregate.Aggregate
+$sample	sample	sample(Number size)	1	com.mongoplus.aggregate.Aggregate
+$set	set	set(Bson bson)	1	com.mongoplus.aggregate.Aggregate
+$set	set	set(Field<?>... fields)	1	com.mongoplus.aggregate.Aggregate
+$set	set	set(List<Field<?>> fields)	1	com.mongoplus.aggregate.Aggregate
+$set	set	set(SFunction<T, ?> field, String value)	2	com.mongoplus.aggregate.Aggregate
+$set	set	set(String field, String value)	2	com.mongoplus.aggregate.Aggregate
+$set	set	set(String value, SFunction<T, ?>... field)	2	com.mongoplus.aggregate.Aggregate
+$setWindowFields	setWindowFields	setWindowFields(TExpression partitionBy, Bson sortBy, Iterable<? extends WindowOutputField> output)	3	com.mongoplus.aggregate.Aggregate
+$setWindowFields	setWindowFields	setWindowFields(TExpression partitionBy, Bson sortBy, WindowOutputField output, WindowOutputField... moreOutput)	4	com.mongoplus.aggregate.Aggregate
+$skip	skip	skip(int skip)	1	com.mongoplus.aggregate.Aggregate
+$skip	skip	skip(long skip)	1	com.mongoplus.aggregate.Aggregate
+$sort	sort	sort(SFunction<T, ?> field, Integer value)	2	com.mongoplus.aggregate.Aggregate
+$sort	sort	sort(String field, Integer value)	2	com.mongoplus.aggregate.Aggregate
+$sort	sortAsc	sortAsc(List<String> field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortAsc	sortAsc(SFunction<T, ?> field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortAsc	sortAsc(SFunction<T, ?>... field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortAsc	sortAsc(String field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortAsc	sortAsc(String... field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortAscLambda	sortAscLambda(List<SFunction<T, ?>> field)	1	com.mongoplus.aggregate.Aggregate
+$sortByCount	sortByCount	sortByCount(SFunction<T, ?> field)	1	com.mongoplus.aggregate.Aggregate
+$sortByCount	sortByCount	sortByCount(String field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDesc	sortDesc(List<String> field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDesc	sortDesc(SFunction<T, ?> field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDesc	sortDesc(SFunction<T, ?>... field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDesc	sortDesc(String field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDesc	sortDesc(String... field)	1	com.mongoplus.aggregate.Aggregate
+$sort	sortDescLambda	sortDescLambda(List<SFunction<T, ?>> field)	1	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(Class<?> collection)	1	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(Class<?> collection, Aggregate<?> aggregate)	2	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(Class<?> collection, List<? extends Bson> aggregate)	2	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(String collectionName)	1	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(String collectionName, Aggregate<?> aggregate)	2	com.mongoplus.aggregate.Aggregate
+$unionWith	unionWith	unionWith(String collectionName, List<? extends Bson> aggregate)	2	com.mongoplus.aggregate.Aggregate
+$unset	unset	unset(List<String> fields)	1	com.mongoplus.aggregate.Aggregate
+$unset	unset	unset(SFunction<T, ?>... field)	1	com.mongoplus.aggregate.Aggregate
+$unset	unset	unset(String... field)	1	com.mongoplus.aggregate.Aggregate
+$unset	unsetLambda	unsetLambda(List<SFunction<T, ?>> fields)	1	com.mongoplus.aggregate.Aggregate
+$unwind	unwind	unwind(SFunction<T, ?> fieldName)	1	com.mongoplus.aggregate.Aggregate
+$unwind	unwind	unwind(SFunction<T, ?> fieldName, UnwindOption unwindOption)	2	com.mongoplus.aggregate.Aggregate
+$unwind	unwind	unwind(String fieldName)	1	com.mongoplus.aggregate.Aggregate
+$unwind	unwind	unwind(String fieldName, UnwindOption unwindOption)	2	com.mongoplus.aggregate.Aggregate

@@ -27,6 +27,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */
     public static Bson cond(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(),
@@ -42,6 +45,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */
     public static Bson condArray(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(), new ArrayList<Object>(){{
@@ -56,6 +62,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */
     public static Bson cond(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
@@ -66,6 +74,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
+     * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */
     public static Bson condArray(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue){
         return cond(new Document(ifCondition.startsWith("$") ? ifCondition : "$" + ifCondition, ifValue),thenValue,elseValue);
@@ -76,6 +86,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $multiply
+     * @mongoParam values PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson multiply(Object... values) {
         return multiply(new ArrayList<>(Arrays.asList(values)));
@@ -96,6 +107,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $multiply
+     * @mongoParam values PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson multiply(Collection<?> values) {
         return new Document("$multiply", values);
@@ -116,6 +128,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam date PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateToString(String date){
         return dateToString(null,date);
@@ -136,6 +149,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam date PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateToString(String format,String date){
         return dateToString(format,date,null);
@@ -146,6 +161,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date){
         return dateToString(format,date.getFieldNameLineOption(),null);
@@ -156,6 +172,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam date PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateToString(String format,String date,String timezone){
         return dateToString(format,date,timezone,null);
@@ -166,6 +185,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date,String timezone){
         return dateToString(format,date.getFieldNameLineOption(),timezone,null);
@@ -176,6 +197,10 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam date PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
+     * @mongoParam onNull PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateToString(String format,String date,String timezone,Object onNull){
         return new Document(DATE_TO_STRING.getOperator(),new MongoPlusDocument(){{
@@ -191,6 +216,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateToString
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
+     * @mongoParam onNull PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson dateToString(String format,SFunction<T,?> date,String timezone,Object onNull){
         return dateToString(format,date.getFieldNameLineOption(),timezone,onNull);
@@ -203,6 +231,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     public static Document mergeObjects(String value){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),value);
@@ -237,6 +266,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam values PIPELINE_EXPRESSION ELEMENT
      */
     public static Document mergeObjects(Collection<?> values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values);
@@ -273,6 +303,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam values PIPELINE_EXPRESSION ELEMENT
      */
     public static <T> Document mergeObjects(Object... values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
@@ -371,6 +402,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $abs
+     * @mongoParam value PIPELINE_EXPRESSION VALUE
      */
     public static Bson abs(Number value){
         return new Document(CommonOperators.ABS.getOperator(),value);
@@ -383,6 +415,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toDate
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toDate(TExpression expression){
         return new Document(TO_DATE.getOperator(),expression);
@@ -411,6 +444,11 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateFromString
+     * @mongoParam dateString PIPELINE_EXPRESSION VALUE
+     * @mongoParam format PIPELINE_EXPRESSION VALUE
+     * @mongoParam timezone PIPELINE_EXPRESSION VALUE
+     * @mongoParam onError PIPELINE_EXPRESSION VALUE
+     * @mongoParam onNull PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateFromString(
             Object dateString, Object format, Object timezone, Object onError, Object onNull){
@@ -430,6 +468,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $dateFromString
+     * @mongoParam dateString PIPELINE_EXPRESSION VALUE
      */
     public static Bson dateFromString(Object dateString){
         return dateFromString(dateString,null,null,null,null);
@@ -476,6 +515,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toBool
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toBool(TExpression expression){
         return new Document(TO_BOOL.getOperator(),expression);
@@ -500,6 +540,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toDecimal
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toDecimal(TExpression expression){
         return new Document(TO_DECIMAL.getOperator(),expression);
@@ -524,6 +565,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toDouble
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toDouble(TExpression expression){
         return new Document(TO_DOUBLE.getOperator(),expression);
@@ -536,6 +578,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toHashedIndexKey
+     * @mongoParam key PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson toHashedIndexKey(String key){
         return new Document(TO_HASHED_INDEX_KEY.getOperator(),key);
@@ -560,6 +603,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toInt
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toInt(TExpression expression){
         return new Document(TO_INT.getOperator(),expression);
@@ -584,6 +628,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toLong
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toLong(TExpression expression){
         return new Document(TO_LONG.getOperator(),expression);
@@ -608,6 +653,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toObjectId
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toObjectId(TExpression expression){
         return new Document(TO_OBJECT_ID.getOperator(),expression);
@@ -632,6 +678,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $toString
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson toString(TExpression expression){
         return new Document(TO_STRING.getOperator(),expression);
@@ -658,6 +705,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $substrBytes
+     * @mongoParam index PIPELINE_EXPRESSION VALUE
+     * @mongoParam count PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson substrBytes(SFunction<T,?> field,Number index,Number count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
@@ -672,6 +721,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $substrBytes
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoParam index PIPELINE_EXPRESSION VALUE
+     * @mongoParam count PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson substrBytes(TExpression expression,Number index,Number count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
@@ -686,6 +738,9 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $substrBytes
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoParam index PIPELINE_EXPRESSION VALUE
+     * @mongoParam count PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> Bson substrBytes(TExpression expression,Object index,Object count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(expression,index,count));
@@ -700,6 +755,8 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $substrBytes
+     * @mongoParam index PIPELINE_EXPRESSION VALUE
+     * @mongoParam count PIPELINE_EXPRESSION VALUE
      */
     public static <T> Bson substrBytes(SFunction<T,?> field,Object index,Object count){
         return new Document(SUBSTR_BYTES.getOperator(),Arrays.asList(field.getFieldNameLineOption(),index,count));
@@ -712,6 +769,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $ifNull
+     * @mongoParam inputExpressions PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson ifNull(List<?> inputExpressions){
         return new Document(IF_NULL.getOperator(),inputExpressions);
@@ -724,6 +782,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $ifNull
+     * @mongoParam inputExpressions PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson ifNull(Object... inputExpressions){
         return ifNull(Arrays.asList(inputExpressions));
@@ -737,6 +796,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $sum
+     * @mongoParam expressions PIPELINE_EXPRESSION ELEMENT
      */
     @SuppressWarnings("unchecked")
     public static <TExpression> Bson sum(TExpression... expressions){
@@ -764,6 +824,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $sum
+     * @mongoParam expressions PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson sum(List<?> expressions){
         return new Document(SUM.getOperator(),expressions);
@@ -776,6 +837,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $add
+     * @mongoParam expressions PIPELINE_EXPRESSION ELEMENT
      */
     @SuppressWarnings("unchecked")
     public static <TExpression> Bson add(TExpression... expressions){
@@ -803,6 +865,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $add
+     * @mongoParam expressions PIPELINE_EXPRESSION ELEMENT
      */
     public static Bson add(List<?> expressions){
         return new Document(ADD.getOperator(),expressions);

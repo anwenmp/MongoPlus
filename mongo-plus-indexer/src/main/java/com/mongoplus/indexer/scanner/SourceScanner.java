@@ -499,8 +499,13 @@ public final class SourceScanner {
     }
 
 
-    /** 仅沿入口继承边和已选择 API 的公开签名收集依赖，不扫描包。 */
+    /** 沿 Stage 继承链、显式 Expression 入口及公开签名收集依赖，不扫描包。 */
     private final class PipelineScan {
+        private static final String EXPRESSION_SEMANTIC = "PIPELINE_EXPRESSION";
+        private static final String FIELD_REFERENCE_CONCEPT = "PIPELINE_EXPRESSION_FIELD_REFERENCE";
+        private static final String PARAMETER_TAG = "mongoParam";
+        private boolean hasExpressionParameterEvidence;
+        private final Set<String> stageParameterSemantics = new java.util.TreeSet<String>();
         private final Map<String, SourceType> loaded = new java.util.TreeMap<String, SourceType>();
         private final Set<String> hierarchy = new java.util.TreeSet<String>();
         private final Set<String> dependencies = new java.util.TreeSet<String>();
@@ -517,6 +522,11 @@ public final class SourceScanner {
                     // 接口静态方法不通过子接口继承。
                     if (!method.staticMethod || name.equals(entry)) { select(type, method); }
                 }
+            }
+            for (String root : config.getExpressionRoots()) {
+                if (load(root) == null) { throw new IOException("找不到表达式入口源码: " + root); }
+                // 与签名依赖共用闭包，保留构造器、父类型和 special type；每个类型只处理一次。
+                dependencies.add(root);
             }
             Set<String> processed = new java.util.TreeSet<String>();
             while (!processed.containsAll(dependencies)) {
@@ -540,6 +550,7 @@ public final class SourceScanner {
             }
             MongoPlusApiIndex index = new MongoPlusApiIndex(config.getMongoPlusVersion());
             index.asMap().put("entryType", entry);
+            index.asMap().put("expressionRoots", config.getExpressionRoots());
             index.list("primaryPackages").add("com.mongoplus.aggregate");
             int overloadCount = 0;
             int stages = 0;
@@ -617,9 +628,15 @@ public final class SourceScanner {
             if (dependencies.contains("com.mongoplus.function.FieldChain")) {
                 index.list("concepts").addAll(special.list("concepts"));
             }
+            if (hasExpressionParameterEvidence) { index.list("concepts").add(expressionParameterConcept()); }
+            for (String semantic : stageParameterSemantics) {
+                index.list("concepts").add(StageParameterConcepts.concept(semantic));
+            }
             Map<String, Object> stats = index.object("scanStatistics");
-            stats.put("activelyScannedJavaTypes", hierarchy.size());
-            stats.put("referencedTypesParsed", loaded.size() - hierarchy.size());
+            Set<String> activeTypes = new java.util.TreeSet<String>(hierarchy);
+            activeTypes.addAll(config.getExpressionRoots());
+            stats.put("activelyScannedJavaTypes", activeTypes.size());
+            stats.put("referencedTypesParsed", loaded.size() - activeTypes.size());
             stats.put("methodFamilyCount", families.size());
             stats.put("overloadCount", overloadCount);
             stats.put("pipelineStageCount", stages);
@@ -728,7 +745,137 @@ public final class SourceScanner {
             value.put("modifiers", modifiers);
             value.put("mongoStages", new ArrayList<String>(mapping(owner, method, "mongoStage")));
             value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
+            parameterSemantics(owner, method, value);
             return value;
+        }
+
+        /** 仅消费逐参数显式声明；泛型名、参数名和描述均不能产生聚合语义。 */
+        @SuppressWarnings("unchecked")
+        private void parameterSemantics(SourceType owner, SourceMethod method, Map<String, Object> evidence) {
+            for (String raw : new java.util.TreeSet<String>(
+                    method.tags.getOrDefault(PARAMETER_TAG, Collections.<String>emptyList()))) {
+                String[] parts = raw.split(" ");
+                if ((parts.length != 3 && parts.length != 4)
+                        || !(EXPRESSION_SEMANTIC.equals(parts[1]) || StageParameterConcepts.contains(parts[1]))
+                        || !("VALUE".equals(parts[2]) || "ELEMENT".equals(parts[2]))) {
+                    throw new IllegalArgumentException("非法 @mongoParam: " + qualified(owner) + "#"
+                            + method.signature() + " -> " + raw);
+                }
+                Map<String, Object> target = null;
+                for (Object item : (List<?>) evidence.get("parameters")) {
+                    Map<String, Object> parameter = (Map<String, Object>) item;
+                    if (parts[0].equals(parameter.get("name"))) { target = parameter; break; }
+                }
+                if (target == null
+                        || ("ELEMENT".equals(parts[2]) && !isExpressionElementContainer(owner, target))
+                        || ("VALUE".equals(parts[2]) && Boolean.TRUE.equals(target.get("varargs")))) {
+                    throw new IllegalArgumentException("@mongoParam 参数或作用范围不匹配: " + qualified(owner)
+                            + "#" + method.signature() + " -> " + raw);
+                }
+                boolean expression = EXPRESSION_SEMANTIC.equals(parts[1]);
+                String conceptRef = expression ? FIELD_REFERENCE_CONCEPT
+                        : parts.length == 4 ? parts[3] : StageParameterConcepts.conceptId(parts[1]);
+                if (target.containsKey("semanticEvidence") || !expression
+                        && (!StageParameterConcepts.accepts(parts[1], (String) target.get("type"), parts[2])
+                        || !StageParameterConcepts.acceptsConcept(parts[1], conceptRef))
+                        || expression && parts.length != 3) {
+                    throw new IllegalArgumentException("@mongoParam 冲突或 Java 表示不匹配: " + qualified(owner)
+                            + "#" + method.signature() + " -> " + raw);
+                }
+                target.put("semanticType", parts[1]);
+                target.put("semanticScope", parts[2]);
+                target.put("conceptRef", conceptRef);
+                Map<String, Object> source = object();
+                source.put("source", "JAVADOC");
+                source.put("tag", PARAMETER_TAG);
+                source.put("value", raw);
+                target.put("semanticEvidence", source);
+                if (expression) { hasExpressionParameterEvidence = true; }
+                else { stageParameterSemantics.add(conceptRef); }
+            }
+        }
+
+        /** 只校验显式 ELEMENT 标签的容器结构；容器类型本身不产生任何语义。 */
+        private boolean isExpressionElementContainer(SourceType owner, Map<String, Object> parameter) {
+            String type = (String) parameter.get("type");
+            if (Boolean.TRUE.equals(parameter.get("varargs")) || type.endsWith("[]")) { return true; }
+            String raw = type.replaceAll("<.*", "");
+            String qualifiedType = raw.contains(".") ? raw : owner.imports.get(raw);
+            if (qualifiedType == null && owner.imports.containsKey("java.util.*")
+                    && locateQualifiedName(owner.packageName + "." + raw) == null) {
+                qualifiedType = "java.util." + raw;
+            }
+            return "java.util.List".equals(qualifiedType) || "java.util.Collection".equals(qualifiedType);
+        }
+
+        /** 固定的已审计表示契约；只随显式参数 evidence 输出，不增加任何扫描入口或映射。 */
+        private Map<String, Object> expressionParameterConcept() {
+            Map<String, Object> concept = object();
+            concept.put("id", FIELD_REFERENCE_CONCEPT);
+            concept.put("name", "聚合表达式参数的字段引用表示");
+            concept.put("semanticType", EXPRESSION_SEMANTIC);
+            concept.put("description", "已标记参数接收聚合表达式值；VALUE 指参数本身，ELEMENT 指数组、varargs 或集合的每个元素。"
+                    + "String 表示以默认 BSON String codec 为前提，不保证任意值满足具体操作符的服务端约束。");
+            Map<String, Object> field = object();
+            field.put("javaType", "java.lang.String");
+            field.put("prefix", "$");
+            field.put("excludedPrefix", "$$");
+            field.put("encoding", "UNCHANGED");
+            field.put("example", "$amount");
+            concept.put("fieldReference", field);
+            Map<String, Object> variable = object();
+            variable.put("javaType", "java.lang.String");
+            variable.put("prefix", "$$");
+            variable.put("encoding", "UNCHANGED");
+            variable.put("sourceExample", "$$SEARCH_META");
+            variable.put("bindingValidated", false);
+            concept.put("variableReference", variable);
+            Map<String, Object> literal = object();
+            literal.put("javaType", "java.lang.String");
+            literal.put("excludedPrefix", "$");
+            literal.put("encoding", "UNCHANGED");
+            literal.put("example", "amount");
+            literal.put("automaticFieldPrefix", false);
+            literal.put("automaticLiteralEscaping", false);
+            literal.put("dollarPrefixedLiteralConstruction", "NOT_ESTABLISHED");
+            concept.put("plainStringValue", literal);
+            concept.put("bsonValueHandling", "Bson 转为 BSON document；其他非 null 值使用运行时类型对应的 codec。");
+            List<Object> sources = new ArrayList<Object>();
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java",
+                    "group(TExpression,List<BsonField>); group(SFunction,BsonField...)",
+                    "泛型 id 原样交给 Aggregates.group；Lambda id 经 getFieldNameLineOption 后进入同一泛型路径。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Accumulators.java",
+                    "accumulatorOperator; sum; avg", "参数保存在 BsonField 的 SimpleExpression 中。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/SimpleExpression.java",
+                    "encodeValue", "null 写 BSON null；Bson 转 document；其余值委托运行时 codec。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/support/SFunction.java",
+                    "getFieldNameLineOption", "返回美元前缀加实际字段名。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java",
+                    "toDate; sum; add; substrBytes", "标记值直接放入 Document 或操作数数组；Lambda 路径使用美元前缀。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java",
+                    "computed; computedSearchMeta", "computed 原样接收 expression；computedSearchMeta 传入 $$SEARCH_META。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/AggregateOptions.java",
+                    "let", "契约明确使用双美元前缀访问聚合 let 变量。"));
+            Map<String, Object> driver = object();
+            driver.put("artifact", "org.mongodb:mongodb-driver-core:5.4.0");
+            driver.put("symbols", "com.mongodb.client.model.Aggregates.GroupStage; com.mongodb.client.model.BuildersHelper.encodeValue");
+            driver.put("mechanism", "GroupStage 将 id 编码到 $group._id；编码器按运行时类型委托 codec。");
+            sources.add(driver);
+            Map<String, Object> codec = object();
+            codec.put("artifact", "org.mongodb:bson:5.4.0");
+            codec.put("symbols", "org.bson.codecs.StringCodec.encode");
+            codec.put("mechanism", "默认 STRING representation 调用 writer.writeString(value)，保留字符串内容。");
+            sources.add(codec);
+            concept.put("sourceEvidence", sources);
+            return concept;
+        }
+
+        private Map<String, Object> semanticSource(String path, String symbols, String mechanism) {
+            Map<String, Object> source = object();
+            source.put("path", path);
+            source.put("symbols", symbols);
+            source.put("mechanism", mechanism);
+            return source;
         }
 
         private String qualified(SourceType type) { return type.packageName + "." + type.name; }

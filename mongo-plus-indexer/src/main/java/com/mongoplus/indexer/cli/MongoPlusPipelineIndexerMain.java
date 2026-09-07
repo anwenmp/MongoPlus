@@ -2,6 +2,7 @@ package com.mongoplus.indexer.cli;
 
 import com.mongoplus.indexer.MongoPlusIndexer;
 import com.mongoplus.indexer.MongoPlusIndexerConfig;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -13,9 +14,21 @@ public final class MongoPlusPipelineIndexerMain {
         if (args.length != 0 && (args.length != 2 || !"--project-root".equals(args[0]))) {
             throw new IllegalArgumentException("用法: MongoPlusPipelineIndexerMain [--project-root <目录>]");
         }
-        Path root = Paths.get(args.length == 0 ? "." : args[1]).toAbsolutePath().normalize();
-        if (args.length == 0 && "mongo-plus-indexer".equals(root.getFileName().toString())) {
-            root = root.getParent();
+        Path root;
+        if (args.length == 2) {
+            root = Paths.get(args[1]).toAbsolutePath().normalize();
+        } else {
+            Path currentDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
+            // 与 MongoPlusIndexerMain 一致，支持 IDEA 从项目根目录或 indexer 模块启动。
+            if (Files.isDirectory(currentDir.resolve("mongo-plus-core"))
+                    && Files.isDirectory(currentDir.resolve("mongo-plus-indexer"))) {
+                root = currentDir;
+            } else if (currentDir.getFileName() != null
+                    && "mongo-plus-indexer".equals(currentDir.getFileName().toString())) {
+                root = currentDir.getParent();
+            } else {
+                throw new IllegalStateException("无法识别 MongoPlus 项目根目录，当前目录: " + currentDir);
+            }
         }
         MongoPlusIndexerConfig config = MongoPlusIndexerConfig.forPipelineProject(root).build();
         new MongoPlusIndexer(config).generateAndWrite();
