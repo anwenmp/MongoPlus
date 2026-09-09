@@ -133,10 +133,38 @@ Object/泛型值、日期 expression 槽、N 类累加器的 n/input/output，�
 动态 cond 的 ifValue 由调用方选定操作符解释，也不保证每个元素是 expression。
 详见 [完整逐参数审计](../../../mongo-plus-indexer/EXPRESSION_PARAMETER_AUDIT.md)。
 
+2026-09-09 专项核查已收录 Accumulators 的 21 个 family、85 个 overload，为 84 个 BsonField
+输出名称槽（29 String、55 Lambda）补充 `@mongoParam fieldName OUTPUT_FIELD_NAME VALUE`。
+Lambda 输出名经 `getFieldNameLine()`；复用既有 `PIPELINE_PARAMETER_OUTPUT_FIELD_NAME`，
+无参 sum() 无参数可标记，其他 expression 参数证据不变。
+详见 [输出字段名专项审计](../../../mongo-plus-indexer/ACCUMULATOR_OUTPUT_FIELD_AUDIT.md)。
+
 ELEMENT 表示数组/varargs/集合的每个直接元素；VALUE 表示参数本身。标签不改变 Java 类型限制：
 Number 仅承载数值常量，String 仅承载字符串表示，List<String> 不因此接受嵌套 Bson。
 Indexer 仅补足数组和明确 java.util.List/Collection 的既有标签范围校验，concept 仍只关联显式标签。
 Stage/Expression 收录仍为 33/49，overload 总数 297；不新增根、内部实现或实例化规则。
+
+## Stage 参数结构化语义
+
+最终 Stage 审计覆盖 33 个 family、140 个 overload、291 个参数：新增 219 个参数 evidence，
+保留 7 个已有 expression evidence，65 个专用类型/标量/回调参数不增加语义标签；
+另补 UnwindOption.includeArrayIndex 的 String/getter 两个 publicMethods 参数。
+完整逐参数原因及验证记录见 [Stage 参数审计](../../../mongo-plus-indexer/STAGE_PARAMETER_AUDIT.md)。
+
+`@mongoParam` 沿用 semanticType、VALUE/ELEMENT、conceptRef 和 semanticEvidence，增加 13 种已审计的
+Stage 参数语义和 15 个 concept。可选第四段仅选择兼容的已注册 concept，当前用于区分 graphLookup
+两个 FOREIGN_FIELD_NAME 参数的遍历来源/目标；不按参数名推断。原表达式标签和 concept 保持不变。
+
+- unwind(String) 原样传递；带 options 的 String 路径直接写 path。只有 getter 路径明确加 `$`。
+- lookup 的集合名、localField、foreignField、输出 as 分别记录；Class 只解析集合名，不携带数据库。
+- project/addFields/set/bucket/bucketAuto/match 的 Bson 参数是被外包一次的 Stage body；
+  setWindowFields.sortBy 是排序 body；facet/lookup/unionWith 子管道由完整 Stage 组成。
+- addFields/set 的 `(String value,SFunction... field)` 将 getter 名按序点连接为一个输出路径，
+  不能当成多个独立输出字段。没有标签的同名 Object/Collection overload 不借用这些 evidence。
+
+本轮 Core 仅 Javadoc 变化，JDK 8 编译通过；5 个 Index 自测、5 个复杂 Pipeline 的真实 BSON 对比、
+表示/角色负向测试和连续生成确定性通过。未运行 MongoDB 服务端查询。
+最终 API surface 仍为 Stage 33、Expression 49、family 82、overload 297，扫描闭包未扩大。
 
 ## Lookup 与跨集合边界
 
@@ -170,7 +198,7 @@ Wrapper 已确认封装并由 `AggregateUtil` 应用：`allowDiskUse`、`batchSi
 
 ## 测试清单与已确认缺陷
 
-仓库当前无覆盖测试。至少补：基础 stage 顺序；空/null/custom pipeline；多个 match；Wrapper 重复执行；Tenant/Logic 有/无 match、Ignore 与用户同名字段；动态集合；lookup 基础/pipeline/let、子 pipeline 不增强；事务 SessionExecute；Map/Document/DTO/泛型/lookup 数组/_id；out/merge；所有执行选项；聚合 count 与无分页入口。
+上述 Index/参数/BSON 编码测试已覆盖部分基础 Stage 组合；本轮未验证数据库执行链。执行层后续仍需按任务覆盖：空/null/custom pipeline；多个 match；Wrapper 重复执行；Tenant/Logic 有/无 match、Ignore 与用户同名字段；动态集合；lookup 基础/pipeline/let、子 pipeline 不增强；事务 SessionExecute；Map/Document/DTO/泛型/lookup 数组/_id；out/merge；所有执行选项；聚合 count 与无分页入口。
 
 已确认缺陷/高风险行为：Logic Delete 在无 match 时把 `$match` 追加到尾部；Tenant/Logic 的无 match 分支会原地污染当前 List；顶层增强不递归子 pipeline。首/末 stage 约束的最终服务器异常、空/null pipeline 的准确 Driver 行为仍需运行验证。是否调整属于后续设计选择，本次不修改源码。
 

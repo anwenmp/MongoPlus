@@ -33,6 +33,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
      *
      * @mongoExpression $sum
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField sum(final String fieldName, final TExpression expression) {
@@ -63,6 +64,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/sum/ $sum
      *
      * @mongoExpression $sum
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField sum(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -76,6 +78,7 @@ public final class Accumulators {
      * @author anwen
      *
      * @mongoExpression $count
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <TExpression> BsonField count(final String fieldName,final TExpression expression){
         return accumulatorOperator("$count",fieldName,expression);
@@ -88,6 +91,7 @@ public final class Accumulators {
      * @author anwen
      *
      * @mongoExpression $count
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName,final TExpression expression){
         return count(fieldName.getFieldNameLine(),expression);
@@ -100,6 +104,7 @@ public final class Accumulators {
      * @author anwen
      *
      * @mongoExpression $count
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,TExpression> BsonField count(final SFunction<T,?> fieldName){
         return count(fieldName.getFieldNameLine(),new Document());
@@ -112,6 +117,7 @@ public final class Accumulators {
      * @author anwen
      *
      * @mongoExpression $count
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <TExpression> BsonField count(final String fieldName){
         return count(fieldName,new Document());
@@ -127,6 +133,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/avg/ $avg
      *
      * @mongoExpression $avg
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField avg(final String fieldName, final TExpression expression) {
@@ -143,6 +150,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/avg/ $avg
      *
      * @mongoExpression $avg
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField avg(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -159,6 +167,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/first/ $first
      *
      * @mongoExpression $first
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField first(final String fieldName, final TExpression expression) {
@@ -175,6 +184,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/first/ $first
      *
      * @mongoExpression $first
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField first(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -195,6 +205,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $firstN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -218,6 +229,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $firstN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -239,6 +251,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $firstN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T,R> BsonField firstN(
@@ -259,6 +272,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $firstN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T> BsonField firstN(
@@ -297,6 +311,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $firstN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -318,6 +333,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $top
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
     public static <OutExpression> BsonField top(final String fieldName, final Bson sortBy, final OutExpression outExpression) {
@@ -338,6 +354,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $top
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
     public static <OutExpression,T> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final OutExpression outExpression) {
@@ -356,6 +373,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $top
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     @SafeVarargs
     public static <T,R> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
@@ -374,6 +392,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $top
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION ELEMENT
      */
     public static <T> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final String... outExpression) {
@@ -395,6 +414,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $topN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
@@ -419,6 +439,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $topN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
@@ -459,6 +480,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $topN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     @SafeVarargs
@@ -481,6 +503,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $topN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -498,6 +521,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
      *
      * @mongoExpression $last
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField last(final String fieldName, final TExpression expression) {
@@ -513,6 +537,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
      *
      * @mongoExpression $last
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField last(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return last(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -528,6 +553,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
      *
      * @mongoExpression $last
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField last(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -543,6 +569,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/last/ $last
      *
      * @mongoExpression $last
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T> BsonField last(final String fieldName, final SFunction<T,?> expression) {
         return last(fieldName, expression.getFieldNameLineOption());
@@ -562,6 +589,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $lastN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -585,6 +613,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $lastN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -606,6 +635,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $lastN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T,R> BsonField lastN(
@@ -626,6 +656,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $lastN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -647,6 +678,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $lastN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     @SafeVarargs
@@ -670,6 +702,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottom
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
     public static <OutExpression> BsonField bottom(final String fieldName, final Bson sortBy, final OutExpression outExpression) {
@@ -690,6 +723,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottom
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
     public static <OutExpression,T> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final OutExpression outExpression) {
@@ -708,6 +742,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottom
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?> outExpression) {
         return bottom(fieldName.getFieldNameLine(),sortBy,outExpression.getFieldNameLineOption());
@@ -725,6 +760,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottom
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     @SafeVarargs
     public static <T,R> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final SFunction<R,?>... outExpression) {
@@ -743,6 +779,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottom
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION ELEMENT
      */
     public static <T> BsonField bottom(final SFunction<T,?> fieldName, final Bson sortBy, final String... outExpression) {
@@ -767,6 +804,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottomN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
@@ -791,6 +829,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottomN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION VALUE
      */
@@ -813,6 +852,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottomN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T,R> BsonField bottomN(
@@ -834,6 +874,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottomN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     @SafeVarargs
@@ -856,6 +897,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $bottomN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam outExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -875,6 +917,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
      *
      * @mongoExpression $max
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField max(final String fieldName, final TExpression expression) {
@@ -891,6 +934,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
      *
      * @mongoExpression $max
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField max(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -906,6 +950,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/max/ $max
      *
      * @mongoExpression $max
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField max(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return max(fieldName.getFieldNameLine(),expression.getFieldNameLineOption());
@@ -925,6 +970,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $maxN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -948,6 +994,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $maxN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -969,6 +1016,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $maxN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T,R> BsonField maxN(
@@ -989,6 +1037,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $maxN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     @SafeVarargs
@@ -1010,6 +1059,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $maxN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -1029,6 +1079,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
      *
      * @mongoExpression $min
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField min(final String fieldName, final TExpression expression) {
@@ -1045,6 +1096,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
      *
      * @mongoExpression $min
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField min(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1060,6 +1112,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/min/ $min
      *
      * @mongoExpression $min
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField min(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return min(fieldName.getFieldNameLine(),expression.getFieldNameLineOption());
@@ -1079,6 +1132,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $minN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -1102,6 +1156,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $minN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION VALUE
      */
@@ -1123,6 +1178,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $minN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     public static <NExpression,T,R> BsonField minN(
@@ -1143,6 +1199,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $minN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      */
     @SafeVarargs
@@ -1164,6 +1221,7 @@ public final class Accumulators {
      * @since mongodb.server.release 5.2
      *
      * @mongoExpression $minN
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam nExpression PIPELINE_EXPRESSION VALUE
      * @mongoParam inExpression PIPELINE_EXPRESSION ELEMENT
      */
@@ -1182,6 +1240,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
      *
      * @mongoExpression $push
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField push(final String fieldName, final TExpression expression) {
@@ -1198,6 +1257,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
      *
      * @mongoExpression $push
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField push(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1213,6 +1273,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
      *
      * @mongoExpression $push
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField push(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return push(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1227,6 +1288,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/push/ $push
      *
      * @mongoExpression $push
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     @SafeVarargs
     public static <T,R> BsonField push(final SFunction<T,?> fieldName, final SFunction<R,?>... expression) {
@@ -1248,6 +1310,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
      *
      * @mongoExpression $addToSet
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField addToSet(final String fieldName, final TExpression expression) {
@@ -1264,6 +1327,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
      *
      * @mongoExpression $addToSet
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField addToSet(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1279,6 +1343,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/addToSet/ $addToSet
      *
      * @mongoExpression $addToSet
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField addToSet(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return addToSet(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1295,6 +1360,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField mergeObjects(final String fieldName, final TExpression expression) {
@@ -1312,6 +1378,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField mergeObjects(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1328,6 +1395,7 @@ public final class Accumulators {
      * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
      *
      * @mongoExpression $mergeObjects
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField mergeObjects(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return mergeObjects(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1346,6 +1414,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevPop
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField stdDevPop(final String fieldName, final TExpression expression) {
@@ -1365,6 +1434,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevPop
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField stdDevPop(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1383,6 +1453,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevPop
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField stdDevPop(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return stdDevPop(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1401,6 +1472,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevSamp
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression> BsonField stdDevSamp(final String fieldName, final TExpression expression) {
@@ -1420,6 +1492,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevSamp
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      */
     public static <TExpression,T> BsonField stdDevSamp(final SFunction<T,?> fieldName, final TExpression expression) {
@@ -1438,6 +1511,7 @@ public final class Accumulators {
      * @since 3.2
      *
      * @mongoExpression $stdDevSamp
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T,R> BsonField stdDevSamp(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return stdDevSamp(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
@@ -1456,6 +1530,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction) {
@@ -1475,6 +1550,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction) {
@@ -1495,6 +1571,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction) {
@@ -1515,6 +1592,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction) {
@@ -1537,6 +1615,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam initArgs PIPELINE_EXPRESSION ELEMENT
      * @mongoParam accumulateArgs PIPELINE_EXPRESSION ELEMENT
      */
@@ -1562,6 +1641,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam initArgs PIPELINE_EXPRESSION ELEMENT
      * @mongoParam accumulateArgs PIPELINE_EXPRESSION ELEMENT
      */
@@ -1586,6 +1666,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static BsonField accumulator(final String fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction, final String lang) {
@@ -1607,6 +1688,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      */
     public static <T> BsonField accumulator(final SFunction<T,?> fieldName, final String initFunction, final String accumulateFunction,
                                         final String mergeFunction, @Nullable final String finalizeFunction, final String lang) {
@@ -1630,6 +1712,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam initArgs PIPELINE_EXPRESSION ELEMENT
      * @mongoParam accumulateArgs PIPELINE_EXPRESSION ELEMENT
      */
@@ -1665,6 +1748,7 @@ public final class Accumulators {
      * @since 4.1
      *
      * @mongoExpression $accumulator
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam initArgs PIPELINE_EXPRESSION ELEMENT
      * @mongoParam accumulateArgs PIPELINE_EXPRESSION ELEMENT
      */

@@ -1,6 +1,6 @@
 # Stage Parameter Semantic Audit
 
-审计日期：2026-09-07。基线来自本轮重新编译后生成的 Pipeline Index；保留工作区此前的 Expression 审计改动。
+审计开始：2026-09-07；最终验证：2026-09-09。基线来自本轮重新编译后生成的 Pipeline Index；保留此前的 Expression 审计成果。
 
 ## 第一阶段：修改前完整清单
 
@@ -9,7 +9,7 @@
 无参 count() 计入 overload，参数数量为 0。
 
 - [逐 overload 清单](src/test/resources/pipeline-stage-overload-audit.tsv)：包含全部 140 个声明，包括无参方法。
-- [逐参数完整审计](src/test/resources/pipeline-stage-parameter-audit.tsv)：291 行，包含 Stage、family、完整 overload、parameter、Java type、修改前 semanticType、目标语义、scope、是否足够、是否需要 evidence、实现原因、原 Javadoc、声明类型和实现定位。
+- [逐参数完整审计](src/test/resources/pipeline-stage-parameter-audit.tsv)：291 行，包含 Stage、family、完整 overload、parameter、Java type、修改前 semanticType、目标语义、scope、是否足够、是否需要 evidence、实现原因、原 Javadoc、声明类型、实现定位和最终 conceptRef。
 - `ADD`：219 个已确认参数槽缺口；`EXISTING`：7 个现有 expression evidence；`NO_CHANGE`：65 个无需新增标签的参数。每个 overload 独立判断，不按方法族继承。
 
 清单中的 `semantic` 对 ADD 行是审计拟议的结构化表达，`reason` 是实际代码语义。该清单在修改 Core/Indexer 前生成。
@@ -85,9 +85,22 @@ Driver 实现核对本机 `org.mongodb:mongodb-driver-core:5.4.0` sources.jar �
 
 ## 最小表达方案
 
-沿用 schemaVersion 1.1、三段式 `@mongoParam <parameter> <semanticType> VALUE|ELEMENT`、parameters、semanticScope、conceptRef、semanticEvidence 和 concepts。
+沿用 schemaVersion 1.1、parameters、semanticScope、conceptRef、semanticEvidence 和 concepts；JSON 顶层与参数字段结构不变。
+保留三段式 `@mongoParam <parameter> <semanticType> VALUE|ELEMENT`，Stage 语义允许追加可选的第四段 `<conceptRef>`。
 原实现只接受 PIPELINE_EXPRESSION，并固定引用一个 expression concept，无法表示名字/字段引用/完整管道/Stage 内部文档。
 只开放本次逐源码审计得到的有限语义词汇，不增加新的字段层级、扫描范围、反推规则或 Resolver 产品代码。
+
+第四段仅用于显式选择已注册、且与 semanticType 匹配的 concept；当前只有 graphLookup 的两个方向需要专用 concept。
+只写 FOREIGN_FIELD_NAME 无法区分遍历来源和匹配目标，又不应为这两个普通字段名各造一个 semanticType，故做此最小标签语法扩展：
+
+```java
+@mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
+@mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
+```
+
+两个 concept 分别记录 `fieldRole=TRAVERSAL_SOURCE/TRAVERSAL_TARGET` 和 `bsonSlot=connectFromField/connectToField`。
+不从参数名生成这些规则。未知语义、未知/错配 concept、非法范围、不兼容 Java 表示、同参数冲突标签均拒绝。
+原 PIPELINE_EXPRESSION 标签仍使用原三段格式和原 concept，没有修改其契约。
 
 | semanticType | 新增 Stage 参数槽 | 表示 |
 |---|---:|---|
@@ -104,9 +117,10 @@ Driver 实现核对本机 `org.mongodb:mongodb-driver-core:5.4.0` sources.jar �
 | PIPELINE_EXPRESSION | 17 | 复用现有 expression concept，无新表达式机制 |
 | PIPELINE_STAGE_DOCUMENT | 1 | varargs 的每个元素是一条完整 Stage |
 | SORT_SPECIFICATION | 2 | 内部排序文档 |
-| STAGE_DOCUMENT | 6 | 由该 overload 的显式 mongoStages 外包一次的内部文档 |
+| STAGE_BODY_DOCUMENT | 6 | 由该 overload 的显式 mongoStages 外包一次的内部文档 |
 
-新增 13 种 semanticType 和对应 13 个 concept；PIPELINE_EXPRESSION 复用。显式角色覆盖旧的通用分类，但 Java type/varargs 保留，getter 仍必须是 SFunction，Class 仍必须是 Class。
+新增 **13 种 semanticType、15 个 concept**；PIPELINE_EXPRESSION 复用。13 个默认 concept 的 id 为 `PIPELINE_PARAMETER_<semanticType>`；另 2 个是上面的 graphLookup 方向 concept。
+显式角色覆盖旧的通用分类，但 Java type/varargs 保留，getter 仍必须是 SFunction，Class 仍必须是 Class。
 FIELD_NAME、LOCAL_FIELD_NAME、FOREIGN_FIELD_NAME 共享普通字段名的编码方式，concept 单独记录字段所属上下文。
 这些概念不是新的 MongoDB 名称合法性校验器：名字槽中的美元字符不会被 Core 自动剥离或解释成引用；Resolver 必须先匹配调用者意图的语义角色，再应用表示证据。
 
@@ -115,4 +129,61 @@ FIELD_NAME、LOCAL_FIELD_NAME、FOREIGN_FIELD_NAME 共享普通字段名的编�
 
 ## 验证记录
 
-待第二阶段验证完成后填写。第一阶段未因方法名、description 或同名 overload 推导任何 Index evidence。
+第一阶段完整清单生成后，在尚未补标签的旧生成器/源码上运行新增校验，按预期因参数 evidence 缺失失败。
+随后补 219 个 Stage 标签（Aggregate 211、Project 8），另补 UnwindOption 两个 setter 标签。
+逐文件比较已确认这三个 Core 文件只有 `@mongoParam` 行变化，没有执行代码、签名或 Stage/Expression 映射变化。
+
+| 验证 | 2026-09-09 结果 |
+|---|---|
+| Core 及依赖模块 JDK 8 compile | PASS |
+| Indexer JDK 21 test-compile | PASS |
+| MongoPlusIndexerSelfTest | PASS |
+| MongoPlusPipelineIndexerSelfTest | PASS，包含重复生成和入口/继承/未标记 overload 边界 |
+| PipelineExpressionSemanticsSelfTest | PASS |
+| PipelineExpressionCoverageSelfTest | PASS，49 family / 157 overload / 372 参数及嵌套表达式场景 |
+| PipelineStageSemanticsSelfTest | PASS，逐参数及完整 overload 清单一致，type/overload 两份参数 evidence 一致 |
+| 字段引用 / 普通字段名 / 集合名 / 输出名交叉负向矩阵 | PASS，另覆盖 local/foreign、graph 方向、缺 evidence/concept、scope 错误、getter/String 类型不兼容及 Bson body 角色 |
+| `$group + accumulators` | 真实 Core/Driver BSON 对比 PASS |
+| `$ifNull → $multiply → $project` | 真实 Core/Driver BSON 对比 PASS |
+| `$cond → $project` | 真实 Core/Driver BSON 对比 PASS |
+| `$dateToString → $project` | 真实 Core/Driver BSON 对比 PASS |
+| `$lookup → $unwind → $group → $sort` | 真实 Core/Driver BSON 及 Stage 顺序对比 PASS |
+| String / getter / Class / 子管道 / body / options 编码探针 | PASS，包括 unwind 不自动补/删美元前缀、Document overload、graph 两方向、嵌套输出路径、unset 单/多元素 |
+| 与修改前 JSON 比较 | scanStatistics、Expression families、原 concepts 完全一致；其余变化仅参数 semantic 字段和新增 concepts |
+| Surface | PIPELINE_STAGE=33；PIPELINE_EXPRESSION=49；methodFamilies=82；overload=297（Stage 140 + Expression 157） |
+| 正式 CLI 连续生成两次 | SHA-256 完全一致，deterministic PASS |
+
+本轮最终 SHA-256：`fe0dec3c14098d858bbbdcece1b6ba93012ba349d24cc35383baeabcac978f2c`。
+正式输出：[mongo-plus-pipeline-api-index.json](target/generated-resources/mongo-plus-pipeline-api-index.json)。
+完整变化比较：[verification.json](target/stage-audit/verification.json)。target 为本地生成目录，不作为源码提交内容。
+
+验证边界：BSON 对比使用实际编译的 Core 和 Driver 5.4.0；没有连接数据库，不将这些结果描述为 MongoDB 服务端执行验证。
+Stage 自测是 Index evidence 消费/拒绝测试，不是新建的生产 Resolver，也未改 Wrapper converter、Validator 或其他 Index 功能。
+
+### 复跑
+
+从仓库根目录执行；本机 JDK 21 在 `D:/Java/java21`，Core 使用 `D:/Java/jdk8`：
+
+```powershell
+$env:JAVA_HOME='D:/Java/java21'
+mvn.cmd -pl mongo-plus-indexer -am '-Dgpg.skip=true' test-compile
+$stageCp='mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes'
+foreach ($stageTest in @('MongoPlusIndexerSelfTest','MongoPlusPipelineIndexerSelfTest','PipelineExpressionSemanticsSelfTest','PipelineExpressionCoverageSelfTest','PipelineStageSemanticsSelfTest')) {
+    & "$env:JAVA_HOME/bin/java.exe" '-Dfile.encoding=UTF-8' -cp $stageCp "com.mongoplus.indexer.$stageTest" .
+    if ($LASTEXITCODE -ne 0) { throw "$stageTest failed" }
+}
+& "$env:JAVA_HOME/bin/java.exe" -cp mongo-plus-indexer/target/classes com.mongoplus.indexer.cli.MongoPlusPipelineIndexerMain
+```
+
+独立编码探针放在 test resources，以便 Indexer 保持无 Core/Driver 运行时依赖：
+
+```powershell
+$env:JAVA_HOME='D:/Java/jdk8'
+mvn.cmd -pl mongo-plus-core -am '-DskipTests' '-Dgpg.skip=true' compile
+mvn.cmd -pl mongo-plus-core dependency:build-classpath '-Dmdep.outputFile=target/stage-audit-classpath.txt'
+$stageCp='mongo-plus-core/target/classes;mongo-plus-annotation/target/classes;'+[IO.File]::ReadAllText((Join-Path $PWD 'mongo-plus-core/target/stage-audit-classpath.txt'))
+New-Item -ItemType Directory -Force mongo-plus-indexer/target/stage-audit | Out-Null
+& "$env:JAVA_HOME/bin/javac.exe" -encoding UTF-8 -cp $stageCp -d mongo-plus-indexer/target/stage-audit mongo-plus-indexer/src/test/resources/PipelineStageEncodingProbe.java
+if ($LASTEXITCODE -ne 0) { throw 'Encoding probe compilation failed' }
+& "$env:JAVA_HOME/bin/java.exe" '-Dfile.encoding=UTF-8' -cp ('mongo-plus-indexer/target/stage-audit;'+$stageCp) PipelineStageEncodingProbe
+```

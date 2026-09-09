@@ -1,5 +1,10 @@
 # Expression 参数 semantic evidence 审计（2026-09-07）
 
+后续补充：2026-09-09 的 [Accumulators 输出字段名专项审计](ACCUMULATOR_OUTPUT_FIELD_AUDIT.md)
+为已收录 Accumulators 的 84 个输出名称参数补充 OUTPUT_FIELD_NAME，复用 Stage Audit concept。
+下文统计为原 expression 语义审计结果；TSV 中这 84 行现标为 VALUE / OUTPUT_NAME_ADDED，
+其余记录及原有 PIPELINE_EXPRESSION 语义保持不变。
+
 以本轮开始时的工作树及正式 Pipeline Index 为基线，检查全部 **49 个 Expression MethodFamily、157 个 overload、372 个参数**。逐参数回看真实声明、委托和 BSON 构造；没有改动方法签名、执行逻辑、Stage/Expression 标签或扫描入口。
 
 新增 **127 个 `@mongoParam`**，分布在 **74 个 overload**：**100 VALUE、27 ELEMENT**。原有 34 个 Expression 参数标签保留，当前 Expression 参数标签合计 161 个；其余 211 个参数保留原分类。无参 `Accumulators.sum()` 也已核查。
@@ -155,4 +160,3 @@
 | `substrBytes(TExpression expression, Object index, Object count)` | `index`, `count` | — |
 | `sum(List<?> expressions)` | — | `expressions` |
 | `toHashedIndexKey(String key)` | `key` | — |
-

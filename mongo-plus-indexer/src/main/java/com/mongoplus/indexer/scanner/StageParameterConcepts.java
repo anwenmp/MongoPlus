@@ -11,7 +11,7 @@ final class StageParameterConcepts {
     private static final List<String> SEMANTICS = Arrays.asList(
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
             "FOREIGN_FIELD_NAME", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
-            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_DOCUMENT");
+            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT");
 
     private StageParameterConcepts() { }
 
@@ -124,7 +124,7 @@ final class StageParameterConcepts {
                 mechanism = "facet 的 Bson varargs 是完整 Stage 元素，经 Arrays.asList 后由 Driver 按序编码。";
                 symbols = "facet(String,Bson...)";
                 break;
-            case "STAGE_DOCUMENT":
+            case "STAGE_BODY_DOCUMENT":
                 representations.add(bson("WRAP_WITH_DECLARED_STAGE"));
                 result.put("documentRole", "STAGE_BODY");
                 mechanism = "Core new BasicDBObject(Stage,bson) 只外包一次；Stage 取该 overload 显式 mongoStages。";

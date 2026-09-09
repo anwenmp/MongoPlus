@@ -19,9 +19,10 @@ public final class PipelineExpressionSemanticsSelfTest {
                 MongoPlusIndexerConfig.forPipelineProject(Paths.get(args[0])).build()).generate();
         // 用户输入管道的数据结构；解析/翻译 Java 调用不属于本次测试范围。
         List<Map<String, Object>> pipeline = List.of(
-                Map.of("$group", Map.of("_id", "$userId", "totalAmount", Map.of("$sum", "$amount"),
-                        "avgAmount", Map.of("$avg", "$amount"))),
-                Map.of("$sort", Map.of("totalAmount", -1)), Map.of("$limit", 10));
+                Map.of("$group", Map.of("_id", "$userId", "total", Map.of("$sum", "$amount"),
+                        "avg", Map.of("$avg", "$amount"), "max", Map.of("$max", "$amount"),
+                        "items", Map.of("$push", "$itemId"))),
+                Map.of("$sort", Map.of("total", -1)), Map.of("$limit", 10));
         Map<?, ?> concept = index.list("concepts").stream().map(item -> (Map<?, ?>) item)
                 .filter(item -> "PIPELINE_EXPRESSION_FIELD_REFERENCE".equals(item.get("id")))
                 .findFirst().orElseThrow(() -> new AssertionError("缺少字段引用 concept"));
@@ -47,8 +48,7 @@ public final class PipelineExpressionSemanticsSelfTest {
                     .filter(item -> "String".equals(parameters(item).get(0).get("type")))
                     .filter(item -> "PIPELINE_EXPRESSION".equals(parameters(item).get(1).get("semanticType")))
                     .findFirst().orElseThrow(() -> new AssertionError("缺少兼容累加器返回值和表达式参数的 evidence"));
-            require(!"PIPELINE_EXPRESSION".equals(parameters(accumulator).get(0).get("semanticType")),
-                    "输出字段名不能误标为表达式");
+            proveOutputFieldName(index, parameters(accumulator).get(0), output.getKey());
             proveFieldReference(parameters(accumulator).get(1), expression.get(operator), concept);
         }
         Map<?, ?> plainString = (Map<?, ?>) concept.get("plainStringValue");
@@ -148,7 +148,31 @@ public final class PipelineExpressionSemanticsSelfTest {
         }
     }
 
+    private static void proveOutputFieldName(MongoPlusApiIndex index, Map<?, ?> parameter, Object input) {
+        require(input instanceof String, "输出名称必须为 String");
+        require("OUTPUT_FIELD_NAME".equals(parameter.get("semanticType"))
+                && "VALUE".equals(parameter.get("semanticScope"))
+                && "PIPELINE_PARAMETER_OUTPUT_FIELD_NAME".equals(parameter.get("conceptRef")),
+                "缺少 accumulator 输出字段名语义: " + input);
+        Map<?, ?> evidence = (Map<?, ?>) parameter.get("semanticEvidence");
+        require(evidence != null && "JAVADOC".equals(evidence.get("source"))
+                && "mongoParam".equals(evidence.get("tag"))
+                && (parameter.get("name") + " OUTPUT_FIELD_NAME VALUE").equals(evidence.get("value")),
+                "输出字段名必须有当前参数的显式 mongoParam evidence");
+        Map<?, ?> concept = index.list("concepts").stream().map(item -> (Map<?, ?>) item)
+                .filter(item -> parameter.get("conceptRef").equals(item.get("id"))).findFirst().orElseThrow();
+        require("OUTPUT_DOCUMENT".equals(concept.get("fieldContext")), "输出名必须属于结果文档");
+        require(((List<?>) concept.get("representations")).stream().map(item -> (Map<?, ?>) item)
+                .anyMatch(item -> "java.lang.String".equals(item.get("javaType"))
+                        && "UNCHANGED".equals(item.get("encoding"))
+                        && Boolean.FALSE.equals(item.get("automaticFieldPrefix"))
+                        && Boolean.FALSE.equals(item.get("automaticPrefixRemoval"))),
+                "输出名必须有 String 原值表示，不能自动加删美元前缀");
+    }
+
     private static void proveFieldReference(Map<?, ?> parameter, Object input, Map<?, ?> concept) {
+        require("PIPELINE_EXPRESSION".equals(parameter.get("semanticType"))
+                && "VALUE".equals(parameter.get("semanticScope")), "expression 参数语义不得被输出名覆盖");
         require(concept.get("id").equals(parameter.get("conceptRef")), "参数缺少 concept 关联");
         require(parameter.get("semanticEvidence") instanceof Map, "参数缺少显式源码 evidence");
         Map<?, ?> representation = (Map<?, ?>) concept.get("fieldReference");

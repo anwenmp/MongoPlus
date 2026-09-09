@@ -26,6 +26,7 @@ public final class PipelineExpressionCoverageSelfTest {
             require(provePipeline(index, multiply, varargs), "multiply Pipeline FAIL, varargs=" + varargs);
             require(provePipeline(index, concat, varargs), "concat/ifNull Pipeline FAIL, varargs=" + varargs);
         }
+        verifyAccumulatorOutputFields(index);
         verifyAudit(index, root);
         verifyDeclaredTypeLimits(index);
         // 去掉单个操作符的参数证据，即使方法名、映射、类型和其他重载仍在，也必须失败。
@@ -182,6 +183,58 @@ public final class PipelineExpressionCoverageSelfTest {
         }
     }
 
+    /** 全部已收录 overload 独立检查；无参 sum 以及 expression getter 不能产生输出名槽。 */
+    private static void verifyAccumulatorOutputFields(MongoPlusApiIndex index) {
+        int families = 0;
+        int overloads = 0;
+        int stringNames = 0;
+        int getterNames = 0;
+        for (Map<?, ?> family : maps(index.getMethodFamilies())) {
+            List<Map<?, ?>> accumulators = maps((List<?>) family.get("overloads")).stream()
+                    .filter(method -> "com.mongoplus.aggregate.pipeline.Accumulators".equals(method.get("declaredIn")))
+                    .toList();
+            if (accumulators.isEmpty()) { continue; }
+            families++;
+            require("PIPELINE_EXPRESSION".equals(family.get("apiCategory")), "Accumulator 分类改变");
+            for (Map<?, ?> method : accumulators) {
+                overloads++;
+                List<Map<?, ?>> params = parameters(method);
+                if (params.isEmpty()) {
+                    require("sum".equals(method.get("name")), "仅 sum() 没有输出参数槽");
+                    continue;
+                }
+                Map<?, ?> output = params.get(0);
+                require("fieldName".equals(output.get("name"))
+                        && "OUTPUT_FIELD_NAME".equals(output.get("semanticType"))
+                        && "VALUE".equals(output.get("semanticScope"))
+                        && "PIPELINE_PARAMETER_OUTPUT_FIELD_NAME".equals(output.get("conceptRef")),
+                        "缺少独立输出字段名 evidence: " + method.get("signature"));
+                Map<?, ?> evidence = (Map<?, ?>) output.get("semanticEvidence");
+                require(evidence != null && "JAVADOC".equals(evidence.get("source"))
+                        && "mongoParam".equals(evidence.get("tag"))
+                        && "fieldName OUTPUT_FIELD_NAME VALUE".equals(evidence.get("value")),
+                        "不得按名称、类型或同名 overload 推断输出名");
+                if ("String".equals(output.get("type"))) { stringNames++; }
+                else {
+                    require(((String) output.get("type")).startsWith("SFunction<"), "输出名类型改变");
+                    getterNames++;
+                }
+                require(params.subList(1, params.size()).stream()
+                        .noneMatch(p -> "OUTPUT_FIELD_NAME".equals(p.get("semanticType"))),
+                        "expression、sortBy、函数源码等参数不得误标为输出名");
+            }
+        }
+        require(families == 21 && overloads == 85 && stringNames == 29 && getterNames == 55,
+                "Accumulator 审计覆盖必须为 21 families / 85 overloads / 29 String + 55 Lambda 输出槽");
+        Map<?, ?> concept = maps(index.list("concepts")).stream()
+                .filter(item -> "PIPELINE_PARAMETER_OUTPUT_FIELD_NAME".equals(item.get("id")))
+                .findFirst().orElseThrow();
+        require(maps((List<?>) concept.get("representations")).stream()
+                .anyMatch(item -> "com.mongoplus.support.SFunction".equals(item.get("javaType"))
+                        && "GET_FIELD_NAME_LINE".equals(item.get("encoding"))),
+                "Lambda 输出名称须复用 getFieldNameLine 表示");
+    }
+
     private static void verifyAudit(MongoPlusApiIndex index, Path root) throws Exception {
         List<Map<?, ?>> families = maps(index.getMethodFamilies());
         require(families.size() == 82, "MethodFamily 数量改变");
@@ -211,15 +264,18 @@ public final class PipelineExpressionCoverageSelfTest {
         }
         Set<String> expected = new HashSet<>();
         int additions = 0;
+        int outputNameAdditions = 0;
         for (String line : Files.readAllLines(root.resolve(
                 "mongo-plus-indexer/src/test/resources/pipeline-expression-parameter-audit.tsv"), StandardCharsets.UTF_8)) {
             String[] row = line.split("\t");
             expected.add(String.join("\t", row[0], row[1], row[2], row[3]));
             if ("ADDED".equals(row[4])) { additions++; }
+            if ("OUTPUT_NAME_ADDED".equals(row[4])) { outputNameAdditions++; }
         }
         require(actual.equals(expected), "逐参数结果与人工源码审计清单不一致");
         require(actual.size() == 373, "372 个参数及 1 个无参方法必须全部审计");
         require(additions == 127, "新增标记数量不一致");
+        require(outputNameAdditions == 84, "本次仅新增 84 个 accumulator 输出名槽");
         // types.publicMethods 与 MethodFamily 中相同声明必须保留同一逐参数证据。
         for (Map<?, ?> family : expressions) {
             for (Map<?, ?> method : maps((List<?>) family.get("overloads"))) {

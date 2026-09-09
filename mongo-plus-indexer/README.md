@@ -147,6 +147,23 @@ Indexer 仅补足既有范围校验：ELEMENT 允许数组以及明确的 `java.
 evidence 不变。全部源码参数标签合计 170 个，其中 methodFamilies 为 168 个（Expression 161、Stage 7），
 另 2 个 computed 参数仅在 types.publicMethods；本轮 127 个标记在 overload/type 中各出现一次。
 
+### Stage 参数审计
+
+完成 33 个 Stage family、140 个 overload、291 个参数的逐源码审计：219 个参数补充 evidence，
+7 个已有 expression evidence 保留，65 个专用类型/标量/条件回调参数无需新增标签。
+另补可达 UnwindOption 的两个 includeArrayIndex setter 参数，不增加 Stage/Expression 入口。
+完整清单、逐项原因、13 种新增语义及 15 个 concept、验证命令见 [Stage 参数审计](STAGE_PARAMETER_AUDIT.md)。
+
+复用 `@mongoParam <parameter> <semanticType> VALUE|ELEMENT [conceptRef]`。
+仅逐方法显式标签生效；可选第四段只允许选择与语义匹配的已审计 concept。
+例如 graphLookup 的 connectFromField/connectToField 共享 FOREIGN_FIELD_NAME，分别显式引用
+两个记录遍历方向的 concept。其他 Stage 标签使用默认 concept；原 PIPELINE_EXPRESSION 三段式不变。
+名字、字段引用、子管道、内部 Stage 文档和排序文档的表示各自记录，不按 String/Bson 或同名方法继承。
+
+Core 仅增加 Javadoc 参数标签；Indexer 没有扩大扫描范围或修改 API 映射。
+正式 Index 仍为 schemaVersion 1.1、33 Stage + 49 Expression、82 families、297 overload。
+Expression evidence 和原 concepts 保持不变。参数语义不放宽 Java 类型，也不承诺外部 opaque options 的构造能力。
+
 ### 验证
 
 ```powershell
@@ -155,9 +172,10 @@ java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/class
 java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.MongoPlusPipelineIndexerSelfTest .
 java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineExpressionSemanticsSelfTest .
 java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineExpressionCoverageSelfTest .
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineStageSemanticsSelfTest .
 ```
 
-四者是显式运行的可执行测试，不应把 Surefire 的 `Tests run: 0` 当作测试通过。
+五者是显式运行的可执行测试，不应把 Surefire 的 `Tests run: 0` 当作测试通过。
 Pipeline 测试包含全部 Stage evidence 在增加 Expression 根前后保持一致、独立 Expression 根、
 旧包副本排除、根顺序/重复配置/签名重复可达、继承/静态排除、同名未标记重载、枚举、
 构造器循环闭包、函数接口、真实 FieldChain/SFunction/concept 及重复生成比较。

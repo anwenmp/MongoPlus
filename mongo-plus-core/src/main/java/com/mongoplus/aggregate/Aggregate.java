@@ -161,7 +161,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children addFields(final Bson bson);
 
@@ -271,7 +271,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children set(final Bson bson);
 
@@ -342,7 +342,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucket
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children bucket(final Bson bson);
 
@@ -409,7 +409,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $bucketAuto
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children bucketAuto(final Bson bson);
 
@@ -482,7 +482,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $match
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children match(final Bson bson);
 
@@ -500,7 +500,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $project
-     * @mongoParam bson STAGE_DOCUMENT VALUE
+     * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      */
     Children project(final Bson bson);
 

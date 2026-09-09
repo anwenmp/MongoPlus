@@ -136,6 +136,27 @@ public final class PipelineStageSemanticsSelfTest {
         require("TRAVERSAL_SOURCE".equals(from.get("fieldRole")) && "TRAVERSAL_TARGET".equals(to.get("fieldRole")),
                 "graphLookup 两个外部字段的遍历方向必须由 concept 区分");
         require(!from.equals(to), "不能按同为 FOREIGN_FIELD_NAME 合并方向证据");
+        Map<?, ?> sort = methods(index, "mongoStages", "$sort").stream()
+                .filter(m -> parameters(m).size() == 2 && "String".equals(parameters(m).get(0).get("type")))
+                .findFirst().orElseThrow();
+        List<Map<?, ?>> slots = List.of(reference, parameters(sort).get(0), parameters(lookup).get(0), parameters(lookup).get(3));
+        List<String> intents = List.of("FIELD_REFERENCE", "FIELD_NAME", "COLLECTION_NAME", "OUTPUT_FIELD_NAME");
+        for (int slot = 0; slot < slots.size(); slot++) {
+            for (int intent = 0; intent < intents.size(); intent++) {
+                String value = intent == 0 ? "$orders" : "orders";
+                require(acceptsName(index, slots.get(slot), intents.get(intent), value) == (slot == intent),
+                        "field reference/plain field/collection/output 四种意图不可混用");
+            }
+        }
+        Map<?, ?> project = methods(index, "mongoStages", "$project").stream()
+                .filter(m -> parameters(m).size() == 1 && "Bson".equals(parameters(m).get(0).get("type")))
+                .findFirst().orElseThrow();
+        Map<?, ?> body = parameters(project).get(0);
+        require(marked(index, body, "STAGE_BODY_DOCUMENT", "VALUE")
+                && "STAGE_BODY".equals(concept(index, body.get("conceptRef")).get("documentRole")),
+                "Bson 内部文档角色必须显式存在");
+        require(!marked(index, body, "PIPELINE_STAGE_DOCUMENT", "VALUE")
+                && !marked(index, body, "SORT_SPECIFICATION", "VALUE"), "相同 Bson 不得混用完整 Stage/内部排序文档");
     }
 
     private static boolean acceptsName(MongoPlusApiIndex index, Map<?, ?> parameter, String role, String value) {
@@ -170,9 +191,9 @@ public final class PipelineStageSemanticsSelfTest {
         require(expression(index, "$sum", "BsonField") && expression(index, "$avg", "BsonField")
                 && stage(index, "$group", "PIPELINE_EXPRESSION"), "group + accumulators");
         require(expression(index, "$ifNull", "Bson") && expression(index, "$multiply", "Bson")
-                && stage(index, "$project", "STAGE_DOCUMENT"), "ifNull -> multiply -> project");
-        require(expression(index, "$cond", "Bson") && stage(index, "$project", "STAGE_DOCUMENT"), "cond -> project");
-        require(expression(index, "$dateToString", "Bson") && stage(index, "$project", "STAGE_DOCUMENT"), "dateToString -> project");
+                && stage(index, "$project", "STAGE_BODY_DOCUMENT"), "ifNull -> multiply -> project");
+        require(expression(index, "$cond", "Bson") && stage(index, "$project", "STAGE_BODY_DOCUMENT"), "cond -> project");
+        require(expression(index, "$dateToString", "Bson") && stage(index, "$project", "STAGE_BODY_DOCUMENT"), "dateToString -> project");
         require(stage(index, "$lookup", "COLLECTION_NAME") && stage(index, "$unwind", "FIELD_REFERENCE")
                 && stage(index, "$group", "PIPELINE_EXPRESSION") && stage(index, "$sort", "FIELD_NAME"), "lookup -> unwind -> group -> sort");
         System.out.println("Five complex Pipeline evidence checks PASS");
