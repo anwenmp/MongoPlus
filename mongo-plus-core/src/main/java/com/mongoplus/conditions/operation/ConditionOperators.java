@@ -27,6 +27,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoExpressionShape OBJECT
      * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
@@ -45,6 +46,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoExpressionShape ARRAY
      * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
@@ -62,6 +64,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoExpressionShape OBJECT
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */
@@ -74,6 +77,7 @@ public class ConditionOperators {
      * @author anwen
      *
      * @mongoExpression $cond
+     * @mongoExpressionShape OBJECT
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
      */

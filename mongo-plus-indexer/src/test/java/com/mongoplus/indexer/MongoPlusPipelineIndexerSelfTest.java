@@ -66,6 +66,19 @@ public final class MongoPlusPipelineIndexerSelfTest {
                 "正式扫描统计必须与 evidence 一致");
         require(((List<?>) named(index.getMethodFamilies(), "sum").get("overloads")).size() == 6,
                 "累加器与普通 sum 的真实声明需保留，旧包副本需排除");
+        require("OBJECT".equals(overload(index, "cond(Object ifValue, Object thenValue, Object elseValue)")
+                        .get("expressionShape")), "cond 三参数 overload 应生成 OBJECT shape evidence");
+        require("OBJECT".equals(overload(index,
+                        "cond(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue)")
+                        .get("expressionShape")), "cond 四参数 overload 应生成 OBJECT shape evidence");
+        require("ARRAY".equals(overload(index, "condArray(Object ifValue, Object thenValue, Object elseValue)")
+                        .get("expressionShape")), "condArray 三参数 overload 应生成 ARRAY shape evidence");
+        require("OBJECT".equals(overload(index,
+                        "condArray(String ifCondition, Collection<?> ifValue, Object thenValue, Object elseValue)")
+                        .get("expressionShape")), "condArray 四参数 overload 应按真实委托生成 OBJECT shape evidence");
+        require(!named(index.getMethodFamilies(), "cond").containsKey("expressionShape")
+                        && !named(index.getMethodFamilies(), "condArray").containsKey("expressionShape"),
+                "expressionShape 只能存在于 overload，不能提升到 MethodFamily");
         MongoPlusApiIndex stageOnly = new MongoPlusIndexer(MongoPlusIndexerConfig.builder()
                 .addSourceRoot(root.resolve("mongo-plus-core/src/main/java"))
                 .addSourceRoot(root.resolve("mongo-plus-annotation/src/main/java"))
@@ -205,6 +218,17 @@ public final class MongoPlusPipelineIndexerSelfTest {
             require(expressionEvidence.list("specialTypes").size() == 1, "Expression 签名应独立带入 SFunction");
             require(!json(expressionEvidence).contains("com.mongoplus.conditions.interfaces.ConditionOperators"),
                     "同源码根存在 deprecated 副本不代表应扫描它");
+            String conditionOperators = "com/mongoplus/conditions/operation/ConditionOperators.java";
+            source(fixture, conditionOperators,
+                    new String(Files.readAllBytes(core.resolve(conditionOperators)), StandardCharsets.UTF_8)
+                            .replaceAll("(?m)^\\s*\\* @mongoExpressionShape (?:OBJECT|ARRAY)\\r?\\n", ""));
+            MongoPlusApiIndex withoutShapes = evidence.generate();
+            require(!overload(withoutShapes, "cond(Object ifValue, Object thenValue, Object elseValue)")
+                            .containsKey("expressionShape")
+                            && !overload(withoutShapes,
+                            "condArray(Object ifValue, Object thenValue, Object elseValue)")
+                            .containsKey("expressionShape"),
+                    "方法名和描述不能代替逐 overload 的 mongoExpressionShape 标签");
             for (String expressionRoot : MongoPlusIndexerConfig.PIPELINE_EXPRESSION_ROOTS) {
                 String name = expressionRoot.replace('.', '/') + ".java";
                 source(fixture, name, new String(Files.readAllBytes(core.resolve(name)), StandardCharsets.UTF_8)
@@ -248,6 +272,17 @@ public final class MongoPlusPipelineIndexerSelfTest {
             if (name.equals(value.get("name"))) { return value; }
         }
         throw new AssertionError("缺少 " + name);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> overload(MongoPlusApiIndex index, String signature) {
+        for (Object familyItem : index.getMethodFamilies()) {
+            for (Object overloadItem : (List<Object>) ((Map<?, ?>) familyItem).get("overloads")) {
+                Map<String, Object> overload = (Map<String, Object>) overloadItem;
+                if (signature.equals(overload.get("signature"))) { return overload; }
+            }
+        }
+        throw new AssertionError("缺少 overload " + signature);
     }
 
     private static void require(boolean value, String message) {

@@ -144,6 +144,10 @@ Number 仅承载数值常量，String 仅承载字符串表示，List<String> �
 Indexer 仅补足数组和明确 java.util.List/Collection 的既有标签范围校验，concept 仍只关联显式标签。
 Stage/Expression 收录仍为 33/49，overload 总数 297；不新增根、内部实现或实例化规则。
 
+`$cond` 另以逐方法 `@mongoExpressionShape OBJECT|ARRAY` 记录 BSON 表达式外形，生成字段只位于
+overload。四个现行声明按实际 BSON/委托路径为 OBJECT、OBJECT、ARRAY、OBJECT；Indexer 不从
+`cond`/`condArray` 名称、MethodFamily 或参数信息推断缺失 shape，Stage/Expression 映射保持不变。
+
 ## Stage 参数结构化语义
 
 最终 Stage 审计覆盖 33 个 family、140 个 overload、291 个参数：新增 219 个参数 evidence，
@@ -165,6 +169,15 @@ Stage 参数语义和 15 个 concept。可选第四段仅选择兼容的已注�
 本轮 Core 仅 Javadoc 变化，JDK 8 编译通过；5 个 Index 自测、5 个复杂 Pipeline 的真实 BSON 对比、
 表示/角色负向测试和连续生成确定性通过。未运行 MongoDB 服务端查询。
 最终 API surface 仍为 Stage 33、Expression 49、family 82、overload 297，扫描闭包未扩大。
+
+## Stage body 文档归约 evidence
+
+`Projections.fields(Bson...)` 与 `fields(List<? extends Bson>)` 已增加独立的
+`STAGE_BODY_DOCUMENT ELEMENT` 参数 evidence 和 `mongoReduction` 标签：按输入顺序浅合并，
+同名键最后覆盖，空输入返回空文档。中性元素 Concept 与原 Stage body VALUE Concept 分离；
+Index 仅在使用归约时声明 `DOCUMENT_REDUCTION_V1`。详细 DSL 和验证入口见
+[Indexer README](../../../mongo-plus-indexer/README.md#stage-body-元素与文档归约-evidence)。
+本批次未增加 include 固定值契约；MCP 加载期认识能力不等于已经消费归约，调用树留待后续实现。
 
 ## Lookup 与跨集合边界
 

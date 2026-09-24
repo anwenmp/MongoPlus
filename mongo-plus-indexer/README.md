@@ -113,6 +113,13 @@ extends/implements 关系，而是带 `@Deprecated`、Javadoc 指向 operation �
 - `plainStringValue`：不以 `$` 开头的字符串原样写入，不自动加字段前缀；不自动 literal 转义。
   `$` 开头的字符串如何强制表示 literal，记录为 `NOT_ESTABLISHED`，不虚构专用 `$literal` API。
 - `sourceEvidence`：记录源码路径/符号及 Driver 5.4.0、默认 StringCodec 的实际编码依据。
+
+### Pipeline 表达式 shape evidence
+
+只有当前方法 Javadoc 显式声明 `@mongoExpressionShape OBJECT|ARRAY`，才在对应 overload 写入
+`expressionShape`。该字段不提升到 MethodFamily，也不从 Java 方法名、描述、参数类型或同名 overload
+传播。当前 `$cond` 的四个实测声明分别为 `OBJECT`、`OBJECT`、`ARRAY`、`OBJECT`；其中动态参数版
+`condArray(String, Collection, Object, Object)` 实际委托对象形式，因此不能按方法名标成 `ARRAY`。
   这是表示和传递契约，不保证任意表达式都符合具体操作符的服务端类型/作用域要求。
 
 第一轮审计及标记范围：
@@ -163,6 +170,33 @@ evidence 不变。全部源码参数标签合计 170 个，其中 methodFamilies
 Core 仅增加 Javadoc 参数标签；Indexer 没有扩大扫描范围或修改 API 映射。
 正式 Index 仍为 schemaVersion 1.1、33 Stage + 49 Expression、82 families、297 overload。
 Expression evidence 和原 concepts 保持不变。参数语义不放宽 Java 类型，也不承诺外部 opaque options 的构造能力。
+
+### Stage body 元素与文档归约 evidence
+
+`@mongoParam projections STAGE_BODY_DOCUMENT ELEMENT` 仅声明元素角色。Indexer 使用 Java Compiler
+Tree API 校验一层数组/varargs 或 `java.util.List` 的元素；接受 `Bson`、List 的 `? extends Bson`
+上界，并核对 import。无界/下界通配符、原始 List、嵌套容器均拒绝并说明原因。
+新 Concept 为 `PIPELINE_PARAMETER_STAGE_BODY_DOCUMENT_ELEMENT`，不携带 Stage 包装或合并行为；
+既有 VALUE Concept 和其他 API evidence 保持不变。
+
+两个 `Projections.fields` overload 独立声明：
+
+```java
+@mongoParam projections STAGE_BODY_DOCUMENT ELEMENT
+@mongoReduction projections -> STAGE_BODY_DOCUMENT operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT
+```
+
+`mongoReduction` 是独立标签，不扩展 `mongoComposition`。结果输出 `resultSemanticType`、
+`reductionContract`、`resultSemanticEvidence` 和 `reductionEvidence`；输入语义只取同一方法的
+显式参数标签。属性缺失/未知/重复、参数缺失、作用域或输入输出语义不合法均导致生成失败。
+DOCUMENT_MERGE 当前契约为按输入顺序浅合并、同名键最后覆盖、空输入得到空文档。
+
+只有输出中实际包含归约 evidence，顶层才增加 `requiredCapabilities: ["DOCUMENT_REDUCTION_V1"]`。
+该批次不提供固定值契约，也不表示 Resolver 已支持归约调用树。新增独立自测：
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineReductionEvidenceSelfTest .
+```
 
 ### 验证
 

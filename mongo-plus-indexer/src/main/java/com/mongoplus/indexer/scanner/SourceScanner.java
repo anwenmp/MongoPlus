@@ -187,7 +187,7 @@ public final class SourceScanner {
         for (VariableTree parameter : constructor.getParameters()) {
             String parameterType = parameter.getType().toString();
             boolean varargs = parameter.toString().contains("...");
-            source.parameters.add(new SourceParameter(parameter.getName().toString(), parameterType, varargs));
+            source.parameters.add(new SourceParameter(parameter.getName().toString(), parameterType, varargs, parameter.getType()));
         }
         type.constructors.add(source);
     }
@@ -217,7 +217,7 @@ public final class SourceScanner {
         for (VariableTree parameter : method.getParameters()) {
             String parameterType = parameter.getType().toString();
             boolean varargs = parameter.toString().contains("...");
-            source.parameters.add(new SourceParameter(parameter.getName().toString(), parameterType, varargs));
+            source.parameters.add(new SourceParameter(parameter.getName().toString(), parameterType, varargs, parameter.getType()));
         }
         type.methods.add(source);
     }
@@ -504,7 +504,9 @@ public final class SourceScanner {
         private static final String EXPRESSION_SEMANTIC = "PIPELINE_EXPRESSION";
         private static final String FIELD_REFERENCE_CONCEPT = "PIPELINE_EXPRESSION_FIELD_REFERENCE";
         private static final String PARAMETER_TAG = "mongoParam";
+        private static final String EXPRESSION_SHAPE_TAG = "mongoExpressionShape";
         private boolean hasExpressionParameterEvidence;
+        private final Set<String> requiredCapabilities = new java.util.TreeSet<String>();
         private final Set<String> stageParameterSemantics = new java.util.TreeSet<String>();
         private final Map<String, SourceType> loaded = new java.util.TreeMap<String, SourceType>();
         private final Set<String> hierarchy = new java.util.TreeSet<String>();
@@ -643,6 +645,9 @@ public final class SourceScanner {
             stats.put("pipelineExpressionCount", expressions);
             stats.put("externalTypeReferences", new ArrayList<String>(external));
             stats.put("fullProjectTraversal", false);
+            if (!requiredCapabilities.isEmpty()) {
+                index.asMap().put("requiredCapabilities", new ArrayList<String>(requiredCapabilities));
+            }
             return index;
         }
 
@@ -745,8 +750,54 @@ public final class SourceScanner {
             value.put("modifiers", modifiers);
             value.put("mongoStages", new ArrayList<String>(mapping(owner, method, "mongoStage")));
             value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
+            expressionShape(owner, method, value);
             parameterSemantics(owner, method, value);
+            compositionSemantics(owner, method, value);
+            List<String> reductions = method.tags.getOrDefault("mongoReduction", Collections.<String>emptyList());
+            if (!reductions.isEmpty()) {
+                DocumentReductionContract.apply(qualified(owner) + "#" + method.signature(), reductions, value);
+                requiredCapabilities.add(DocumentReductionContract.CAPABILITY);
+            }
             return value;
+        }
+
+        /** 组合声明只属于当前 overload；箭头右侧显式声明结果，不能补全缺失的参数证据。 */
+        private void compositionSemantics(SourceType owner, SourceMethod method, Map<String, Object> evidence) {
+            Set<String> values = new java.util.TreeSet<String>(
+                    method.tags.getOrDefault("mongoComposition", Collections.<String>emptyList()));
+            if (values.isEmpty()) { return; }
+            evidence.put("compositionSemantics", new ArrayList<String>(values));
+            for (String raw : values) {
+                // 兼容既有不含箭头的组合标识；只有显式关系才提供结果语义。
+                if (!raw.contains("->")) { continue; }
+                if (!raw.matches("[A-Z][A-Z0-9_]*(?: \\+ [A-Z][A-Z0-9_]*)* -> [A-Z][A-Z0-9_]*")) {
+                    throw new IllegalArgumentException("非法 @mongoComposition: " + qualified(owner)
+                            + "#" + method.signature() + " -> " + raw);
+                }
+                String result = raw.substring(raw.indexOf("->") + 2).trim();
+                if (evidence.containsKey("resultSemanticType")
+                        && !result.equals(evidence.get("resultSemanticType"))) {
+                    throw new IllegalArgumentException("@mongoComposition 结果冲突: " + qualified(owner)
+                            + "#" + method.signature());
+                }
+                evidence.put("resultSemanticType", result);
+                Map<String, Object> source = object();
+                source.put("source", "JAVADOC");
+                source.put("tag", "mongoComposition");
+                source.put("value", raw);
+                evidence.put("resultSemanticEvidence", source);
+            }
+        }
+
+        /** 只接受当前 overload 的显式 Javadoc 标记，不从方法名、参数或 MethodFamily 推断。 */
+        private void expressionShape(SourceType owner, SourceMethod method, Map<String, Object> evidence) {
+            List<String> values = method.tags.getOrDefault(EXPRESSION_SHAPE_TAG, Collections.<String>emptyList());
+            if (values.isEmpty()) { return; }
+            if (values.size() != 1 || !("OBJECT".equals(values.get(0)) || "ARRAY".equals(values.get(0)))) {
+                throw new IllegalArgumentException("非法 @mongoExpressionShape: " + qualified(owner) + "#"
+                        + method.signature() + " -> " + values);
+            }
+            evidence.put("expressionShape", values.get(0));
         }
 
         /** 仅消费逐参数显式声明；泛型名、参数名和描述均不能产生聚合语义。 */
@@ -766,18 +817,30 @@ public final class SourceScanner {
                     Map<String, Object> parameter = (Map<String, Object>) item;
                     if (parts[0].equals(parameter.get("name"))) { target = parameter; break; }
                 }
+                boolean stageBodyElement = StageParameterConcepts.isStageBodyElement(parts[1], parts[2]);
+                if (target != null && stageBodyElement) {
+                    SourceParameter declaration = method.parameters.stream()
+                            .filter(parameter -> parts[0].equals(parameter.name)).findFirst().get();
+                    try {
+                        StageParameterConcepts.validateStageBodyElement(declaration.typeTree,
+                                name -> resolveElementType(owner, name));
+                    } catch (IllegalArgumentException exception) {
+                        throw new IllegalArgumentException("非法 @mongoParam: " + qualified(owner) + "#"
+                                + method.signature() + " -> " + raw + "，原因: " + exception.getMessage(), exception);
+                    }
+                }
                 if (target == null
-                        || ("ELEMENT".equals(parts[2]) && !isExpressionElementContainer(owner, target))
+                        || (!stageBodyElement && "ELEMENT".equals(parts[2]) && !isExpressionElementContainer(owner, target))
                         || ("VALUE".equals(parts[2]) && Boolean.TRUE.equals(target.get("varargs")))) {
                     throw new IllegalArgumentException("@mongoParam 参数或作用范围不匹配: " + qualified(owner)
                             + "#" + method.signature() + " -> " + raw);
                 }
                 boolean expression = EXPRESSION_SEMANTIC.equals(parts[1]);
                 String conceptRef = expression ? FIELD_REFERENCE_CONCEPT
-                        : parts.length == 4 ? parts[3] : StageParameterConcepts.conceptId(parts[1]);
+                        : parts.length == 4 ? parts[3] : StageParameterConcepts.conceptId(parts[1], parts[2]);
                 if (target.containsKey("semanticEvidence") || !expression
-                        && (!StageParameterConcepts.accepts(parts[1], (String) target.get("type"), parts[2])
-                        || !StageParameterConcepts.acceptsConcept(parts[1], conceptRef))
+                        && (!stageBodyElement && !StageParameterConcepts.accepts(parts[1], (String) target.get("type"), parts[2])
+                        || !StageParameterConcepts.acceptsConcept(parts[1], parts[2], conceptRef))
                         || expression && parts.length != 3) {
                     throw new IllegalArgumentException("@mongoParam 冲突或 Java 表示不匹配: " + qualified(owner)
                             + "#" + method.signature() + " -> " + raw);
@@ -793,6 +856,23 @@ public final class SourceScanner {
                 if (expression) { hasExpressionParameterEvidence = true; }
                 else { stageParameterSemantics.add(conceptRef); }
             }
+        }
+
+        /** 新结构化元素仅解析登记的表示类型；不把同名类或未确认的 import 当作 Bson。 */
+        private String resolveElementType(SourceType owner, String name) {
+            if (name.contains(".")) { return name; }
+            String imported = owner.imports.get(name);
+            if (imported != null) { return imported; }
+            String local = owner.packageName + "." + name;
+            if (locateQualifiedName(local) != null) { return local; }
+            for (String allowed : Arrays.asList("java.util.List", "org.bson.conversions.Bson")) {
+                int separator = allowed.lastIndexOf('.');
+                if (allowed.substring(separator + 1).equals(name)
+                        && owner.imports.containsKey(allowed.substring(0, separator) + ".*")) {
+                    return allowed;
+                }
+            }
+            return local;
         }
 
         /** 只校验显式 ELEMENT 标签的容器结构；容器类型本身不产生任何语义。 */
@@ -937,7 +1017,10 @@ public final class SourceScanner {
     }
     private static final class SourceParameter {
         final String name; final String type; final boolean varargs;
-        SourceParameter(String name, String type, boolean varargs) { this.name = name; this.type = type; this.varargs = varargs; }
+        final Tree typeTree;
+        SourceParameter(String name, String type, boolean varargs, Tree typeTree) {
+            this.name = name; this.type = type; this.varargs = varargs; this.typeTree = typeTree;
+        }
     }
     private static final class Documentation {
         String description = ""; String returnDescription = ""; final Map<String, String> parameters = new HashMap<String, String>();

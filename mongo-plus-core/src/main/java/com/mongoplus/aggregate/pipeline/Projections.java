@@ -38,7 +38,9 @@ public class Projections {
      * @return $project
      * @see #computedSearchMeta(String)
      * @see Aggregates#project(Bson)
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoComposition OUTPUT_FIELD_NAME + PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT
      */
     public static <TExpression> Bson computed(final String fieldName, final TExpression expression) {
         return new SimpleExpression<>(fieldName, expression);
@@ -53,7 +55,9 @@ public class Projections {
      * @return $project
      * @see #computedSearchMeta(String)
      * @see Aggregates#project(Bson)
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoComposition OUTPUT_FIELD_NAME + PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT
      */
     public static <TExpression,T> Bson computed(final SFunction<T,?> fieldName, final TExpression expression) {
         return computed(fieldName.getFieldNameLine(), expression);
@@ -455,6 +459,8 @@ public class Projections {
      *
      * @param projections 要合并的投影列表
      * @return the combined projection
+     * @mongoParam projections STAGE_BODY_DOCUMENT ELEMENT
+     * @mongoReduction projections -> STAGE_BODY_DOCUMENT operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT
      */
     public static Bson fields(final Bson... projections) {
         return fields(asList(projections));
@@ -465,6 +471,8 @@ public class Projections {
      *
      * @param projections 要合并的投影列表
      * @return the combined projection
+     * @mongoParam projections STAGE_BODY_DOCUMENT ELEMENT
+     * @mongoReduction projections -> STAGE_BODY_DOCUMENT operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT
      */
     public static Bson fields(final List<? extends Bson> projections) {
         notNull("projections", projections);

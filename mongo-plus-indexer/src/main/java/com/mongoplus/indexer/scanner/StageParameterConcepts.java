@@ -1,12 +1,19 @@
 package com.mongoplus.indexer.scanner;
 
+import com.sun.source.tree.ArrayTypeTree;
+import com.sun.source.tree.ParameterizedTypeTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.WildcardTree;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /** 已经逐 Core/Driver 实现审计的参数表示；只由显式 mongoParam 标签引用。 */
 final class StageParameterConcepts {
+    static final String STAGE_BODY_ELEMENT_CONCEPT = "PIPELINE_PARAMETER_STAGE_BODY_DOCUMENT_ELEMENT";
+    private static final String BSON_TYPE = "org.bson.conversions.Bson";
     private static final String CORE = "mongo-plus-core/src/main/java/com/mongoplus/";
     private static final List<String> SEMANTICS = Arrays.asList(
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
@@ -18,6 +25,57 @@ final class StageParameterConcepts {
     static boolean contains(String semantic) { return SEMANTICS.contains(semantic); }
 
     static String conceptId(String semantic) { return "PIPELINE_PARAMETER_" + semantic; }
+
+    static String conceptId(String semantic, String scope) {
+        return isStageBodyElement(semantic, scope) ? STAGE_BODY_ELEMENT_CONCEPT : conceptId(semantic);
+    }
+
+    static boolean isStageBodyElement(String semantic, String scope) {
+        return "STAGE_BODY_DOCUMENT".equals(semantic) && "ELEMENT".equals(scope);
+    }
+
+    /** 新元素契约不借用既有 VALUE Concept 中的 Stage 包装行为。 */
+    static boolean acceptsConcept(String semantic, String scope, String reference) {
+        if (isStageBodyElement(semantic, scope)) { return STAGE_BODY_ELEMENT_CONCEPT.equals(reference); }
+        return acceptsConcept(semantic, reference);
+    }
+
+    /** 只解开一层真实 AST 容器；上界仅证明 Java 表示，语义仍必须由 mongoParam 声明。 */
+    static void validateStageBodyElement(Tree type, Function<String, String> resolveName) {
+        Tree element;
+        if (type instanceof ArrayTypeTree) {
+            element = ((ArrayTypeTree) type).getType();
+        } else if (type instanceof ParameterizedTypeTree) {
+            ParameterizedTypeTree container = (ParameterizedTypeTree) type;
+            if (!"java.util.List".equals(resolveName.apply(container.getType().toString()))) {
+                throw new IllegalArgumentException("结构化 ELEMENT 容器必须为数组、varargs 或 java.util.List");
+            }
+            if (container.getTypeArguments().size() != 1) {
+                throw new IllegalArgumentException("List 必须恰有一个元素类型参数");
+            }
+            element = container.getTypeArguments().get(0);
+        } else {
+            if ("java.util.List".equals(resolveName.apply(type.toString()))) {
+                throw new IllegalArgumentException("原始 List 缺少元素类型，不能证明 Stage body 元素表示");
+            }
+            throw new IllegalArgumentException("结构化 ELEMENT 容器必须为数组、varargs 或 java.util.List");
+        }
+        if (element instanceof WildcardTree) {
+            if (element.getKind() == Tree.Kind.UNBOUNDED_WILDCARD) {
+                throw new IllegalArgumentException("无界通配符 ? 没有可验证的 Bson 上界");
+            }
+            if (element.getKind() == Tree.Kind.SUPER_WILDCARD) {
+                throw new IllegalArgumentException("下界通配符 ? super Bson 不能保证读取元素为 Bson");
+            }
+            element = ((WildcardTree) element).getBound();
+        }
+        if (element instanceof ParameterizedTypeTree || element instanceof ArrayTypeTree) {
+            throw new IllegalArgumentException("嵌套容器不能作为 Stage body 元素，不自动递归展开");
+        }
+        if (!BSON_TYPE.equals(resolveName.apply(element.toString()))) {
+            throw new IllegalArgumentException("元素或上界必须解析为 org.bson.conversions.Bson，实际为 " + element);
+        }
+    }
 
     static boolean acceptsConcept(String semantic, String reference) {
         return conceptId(semantic).equals(reference) || "FOREIGN_FIELD_NAME".equals(semantic)
@@ -54,6 +112,13 @@ final class StageParameterConcepts {
     }
 
     static Map<String, Object> concept(String reference) {
+        if (STAGE_BODY_ELEMENT_CONCEPT.equals(reference)) {
+            return object("id", reference, "semanticType", "STAGE_BODY_DOCUMENT", "semanticScope", "ELEMENT",
+                    "name", "STAGE_BODY_DOCUMENT_ELEMENT",
+                    "description", "容器的每个元素提供一个已经构造好的 Stage body document。",
+                    "elementRole", "STAGE_BODY_DOCUMENT",
+                    "representations", Arrays.asList(object("javaType", BSON_TYPE)));
+        }
         String role = reference.substring("PIPELINE_PARAMETER_".length());
         String semantic = role.startsWith("GRAPH_CONNECT_") ? "FOREIGN_FIELD_NAME" : role;
         Map<String, Object> result = object("id", reference, "semanticType", semantic);
