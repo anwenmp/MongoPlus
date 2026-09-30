@@ -1,5 +1,14 @@
 # Stage Parameter Semantic Audit
 
+2026-09-30 nested PIPELINE evidence：两个 entry 容器参数改为显式 `NAMED_PIPELINE ELEMENT`，
+并声明单次命名管道容器组合；依据真实 Core `Facet(String,Aggregate<?>)` 和 Driver facet Stage 路径。
+当前 ADD 为 222，NO_CHANGE 为 62；下方历史审计口径保留。receiver 构造/effect/提取契约见 README。
+
+2026-09-30 后续修正：仅 `sample(Number size).size` 从 JDK_TYPE 改为显式 INTEGER_VALUE VALUE，
+并声明对象字段 size、INT32_EXACT、1..2147483647 及 Core/Driver/MongoDB 来源。
+TSV golden 清单同步这一行；此次 sample 修正后 ADD 为 220，NO_CHANGE 为 64，下面 2026-09-09 的表格保留历史审计口径。
+新通用提取器不按 sample/size/$sample 名称匹配；Core 仍不校验 Number.intValue 的截断或溢出。
+
 审计开始：2026-09-07；最终验证：2026-09-09。基线来自本轮重新编译后生成的 Pipeline Index；保留此前的 Expression 审计成果。
 
 ## 第一阶段：修改前完整清单

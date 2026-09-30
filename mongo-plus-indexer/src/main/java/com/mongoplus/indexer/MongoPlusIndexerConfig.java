@@ -27,6 +27,11 @@ public final class MongoPlusIndexerConfig {
             "com.mongoplus.aggregate.pipeline.Sorts",
             "com.mongoplus.conditions.operation.ConditionOperators"));
 
+    /** 不在 Stage 签名中的公开 receiver/组合构造入口；加载类型不赋予语义。 */
+    public static final List<String> PIPELINE_CONSTRUCTION_ROOTS = Collections.unmodifiableList(java.util.Arrays.asList(
+            "com.mongoplus.aggregate.AggregateWrapper",
+            "com.mongoplus.aggregate.pipeline.Facet"));
+
     private final List<Path> sourceRoots;
     private final List<String> primaryPackages;
     private final Path output;
@@ -34,6 +39,7 @@ public final class MongoPlusIndexerConfig {
     private final boolean includeGeneratedAt;
     private final boolean pipeline;
     private final List<String> expressionRoots;
+    private final List<String> constructionRoots;
 
     private MongoPlusIndexerConfig(Builder builder) {
         if (builder.sourceRoots.isEmpty()) {
@@ -50,6 +56,8 @@ public final class MongoPlusIndexerConfig {
         this.pipeline = builder.pipeline;
         this.expressionRoots = Collections.unmodifiableList(
                 new ArrayList<String>(new java.util.TreeSet<String>(builder.expressionRoots)));
+        this.constructionRoots = Collections.unmodifiableList(
+                new ArrayList<String>(new java.util.TreeSet<String>(builder.constructionRoots)));
         if (pipeline && includeGeneratedAt) {
             throw new IllegalArgumentException("Pipeline Index 不允许非确定性的 generatedAt");
         }
@@ -101,12 +109,14 @@ public final class MongoPlusIndexerConfig {
     public boolean isIncludeGeneratedAt() { return includeGeneratedAt; }
     public boolean isPipeline() { return pipeline; }
     public List<String> getExpressionRoots() { return expressionRoots; }
+    public List<String> getConstructionRoots() { return constructionRoots; }
 
     /** 创建聚合专用索引配置，复用项目版本和源码根。 */
     public static Builder forPipelineProject(Path projectRoot) throws IOException {
         Builder builder = forMongoPlusProject(projectRoot).pipeline(true).output(projectRoot.toAbsolutePath().normalize()
                 .resolve("mongo-plus-indexer/target/generated-resources").resolve(PIPELINE_OUTPUT_FILE));
         for (String root : PIPELINE_EXPRESSION_ROOTS) { builder.addExpressionRoot(root); }
+        for (String root : PIPELINE_CONSTRUCTION_ROOTS) { builder.addConstructionRoot(root); }
         return builder;
     }
 
@@ -119,6 +129,16 @@ public final class MongoPlusIndexerConfig {
         private boolean includeGeneratedAt;
         private boolean pipeline;
         private final List<String> expressionRoots = new ArrayList<String>();
+        private final List<String> constructionRoots = new ArrayList<String>();
+
+        /** 添加精确构造类型入口；其语义仍须由当前声明的源码标签证明。 */
+        public Builder addConstructionRoot(String qualifiedName) {
+            if (qualifiedName == null || qualifiedName.trim().isEmpty()) {
+                throw new IllegalArgumentException("constructionRoot 不能为空");
+            }
+            constructionRoots.add(qualifiedName.trim());
+            return this;
+        }
 
         /** 添加精确的表达式 API 类型入口，不按包或标签反向扫描工厂。 */
         public Builder addExpressionRoot(String qualifiedName) {

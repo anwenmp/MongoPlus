@@ -39,6 +39,10 @@ public class Facet extends com.mongodb.client.model.Facet {
      * @param name facet名称
      * @param aggregateChainWrapper 管道Wrapper
      * @author anwen
+     * @mongoParam name OUTPUT_FIELD_NAME VALUE
+     * @mongoParam aggregateChainWrapper PIPELINE VALUE
+     * @mongoPipelineInput aggregateChainWrapper extractor=com.mongoplus.aggregate.Aggregate#getAggregateConditionList()
+     * @mongoComposition OUTPUT_FIELD_NAME + PIPELINE -> NAMED_PIPELINE
      */
     public Facet(String name, Aggregate<?> aggregateChainWrapper){
         super(name, aggregateChainWrapper.getAggregateConditionList());

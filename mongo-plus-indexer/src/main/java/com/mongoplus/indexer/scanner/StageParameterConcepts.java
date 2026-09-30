@@ -17,8 +17,8 @@ final class StageParameterConcepts {
     private static final String CORE = "mongo-plus-core/src/main/java/com/mongoplus/";
     private static final List<String> SEMANTICS = Arrays.asList(
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
-            "FOREIGN_FIELD_NAME", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
-            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT");
+            "FOREIGN_FIELD_NAME", "INTEGER_VALUE", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
+            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT", "NAMED_PIPELINE");
 
     private StageParameterConcepts() { }
 
@@ -94,6 +94,11 @@ final class StageParameterConcepts {
         value = value.replaceFirst("^\\? extends ", "");
         boolean string = "String".equals(value) || "java.lang.String".equals(value);
         boolean getter = value.startsWith("SFunction<") || value.startsWith("com.mongoplus.support.SFunction<");
+        if ("INTEGER_VALUE".equals(semantic)) {
+            return "VALUE".equals(scope) && Arrays.asList("byte", "short", "int", "long", "float", "double",
+                    "java.lang.Number", "java.lang.Byte", "java.lang.Short", "java.lang.Integer", "java.lang.Long",
+                    "java.lang.Float", "java.lang.Double", "java.math.BigInteger", "java.math.BigDecimal").contains(value);
+        }
         if (Arrays.asList("FIELD_NAME", "FIELD_REFERENCE", "LOCAL_FIELD_NAME", "FOREIGN_FIELD_NAME",
                 "OUTPUT_FIELD_NAME").contains(semantic)) { return string || getter; }
         if ("COLLECTION_NAME".equals(semantic)) {
@@ -112,6 +117,18 @@ final class StageParameterConcepts {
     }
 
     static Map<String, Object> concept(String reference) {
+        if (conceptId("NAMED_PIPELINE").equals(reference)) {
+            return object("id", reference, "semanticType", "NAMED_PIPELINE", "semanticScope", "ELEMENT",
+                    "name", "NAMED_PIPELINE", "description", "一个输出名称与完整有序 PIPELINE 组成的命名条目；"
+                            + "必须匹配显式构造结果及容器元素的 Java 类型，不从类名推断。",
+                    "keySemanticType", "OUTPUT_FIELD_NAME", "valueSemanticType", "PIPELINE");
+        }
+        if (conceptId("INTEGER_VALUE").equals(reference)) {
+            return object("id", reference, "semanticType", "INTEGER_VALUE", "semanticScope", "VALUE",
+                    "name", "INTEGER_VALUE", "description", "精确整数值；字段、编码和范围须由逐参数绑定显式声明。"
+                            + "仅支持可精确转换的整数，不承诺任意 Number、任意 BSON 数值类型或自定义 Number 实现等价。",
+                    "representations", Arrays.asList(object("javaType", "java.lang.Number")));
+        }
         if (STAGE_BODY_ELEMENT_CONCEPT.equals(reference)) {
             return object("id", reference, "semanticType", "STAGE_BODY_DOCUMENT", "semanticScope", "ELEMENT",
                     "name", "STAGE_BODY_DOCUMENT_ELEMENT",

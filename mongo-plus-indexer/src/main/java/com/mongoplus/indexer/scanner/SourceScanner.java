@@ -164,7 +164,7 @@ public final class SourceScanner {
                 if (member instanceof MethodTree) {
                     MethodTree method = (MethodTree) member;
                     if ("<init>".contentEquals(method.getName())) {
-                        addConstructor(type, method);
+                        addConstructor(type, method, unit, docTrees);
                         declaredConstructor = true;
                     } else {
                         addMethod(type, method, unit, docTrees);
@@ -181,9 +181,11 @@ public final class SourceScanner {
         }
     }
 
-    private void addConstructor(SourceType type, MethodTree constructor) {
+    private void addConstructor(SourceType type, MethodTree constructor, CompilationUnitTree unit, DocTrees docs) {
         Set<Modifier> flags = constructor.getModifiers().getFlags();
         SourceConstructor source = new SourceConstructor(visibility(flags), false);
+        source.doc = documentation(docs, unit, constructor);
+        source.tags.putAll(tags(docs, unit, constructor));
         for (VariableTree parameter : constructor.getParameters()) {
             String parameterType = parameter.getType().toString();
             boolean varargs = parameter.toString().contains("...");
@@ -530,6 +532,10 @@ public final class SourceScanner {
                 // 与签名依赖共用闭包，保留构造器、父类型和 special type；每个类型只处理一次。
                 dependencies.add(root);
             }
+            for (String root : config.getConstructionRoots()) {
+                if (load(root) == null) { throw new IOException("找不到构造入口源码: " + root); }
+                dependencies.add(root);
+            }
             Set<String> processed = new java.util.TreeSet<String>();
             while (!processed.containsAll(dependencies)) {
                 Set<String> pending = new java.util.TreeSet<String>(dependencies);
@@ -553,6 +559,9 @@ public final class SourceScanner {
             MongoPlusApiIndex index = new MongoPlusApiIndex(config.getMongoPlusVersion());
             index.asMap().put("entryType", entry);
             index.asMap().put("expressionRoots", config.getExpressionRoots());
+            if (!config.getConstructionRoots().isEmpty()) {
+                index.asMap().put("constructionRoots", config.getConstructionRoots());
+            }
             index.list("primaryPackages").add("com.mongoplus.aggregate");
             int overloadCount = 0;
             int stages = 0;
@@ -583,6 +592,7 @@ public final class SourceScanner {
                 SourceType type = loaded.get(name);
                 if (type == null) { continue; }
                 Map<String, Object> value = wrapper(type);
+                constructorSemantics(type, value);
                 value.put("abstractType", type.abstractType || type.kind.contains("INTERFACE"));
                 value.put("description", type.doc.description);
                 value.put("typeParameters", new ArrayList<String>(type.typeParameters));
@@ -600,7 +610,8 @@ public final class SourceScanner {
                     if (hierarchy.contains(name) && !dependencies.contains(name)
                             && method.staticMethod && !name.equals(entry)) { continue; }
                     if (dependencies.contains(name) || !mapping(type, method, "mongoStage").isEmpty()
-                            || !mapping(type, method, "mongoExpression").isEmpty()) {
+                            || !mapping(type, method, "mongoExpression").isEmpty()
+                            || PipelineConstructionContract.hasTags(method.tags)) {
                         methods.add(evidence(type, method));
                     }
                 }
@@ -612,6 +623,7 @@ public final class SourceScanner {
                 }
                 index.list("types").add(value);
             }
+            PipelineConstructionContract.validateExtractions(index.list("types"));
             // 只带入闭包实际引用的既有 special type / concept，不注入全局样例。
             MongoPlusApiIndex special = new MongoPlusApiIndex(config.getMongoPlusVersion());
             for (SourceType type : loaded.values()) {
@@ -637,6 +649,7 @@ public final class SourceScanner {
             Map<String, Object> stats = index.object("scanStatistics");
             Set<String> activeTypes = new java.util.TreeSet<String>(hierarchy);
             activeTypes.addAll(config.getExpressionRoots());
+            activeTypes.addAll(config.getConstructionRoots());
             stats.put("activelyScannedJavaTypes", activeTypes.size());
             stats.put("referencedTypesParsed", loaded.size() - activeTypes.size());
             stats.put("methodFamilyCount", families.size());
@@ -752,13 +765,45 @@ public final class SourceScanner {
             value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
             expressionShape(owner, method, value);
             parameterSemantics(owner, method, value);
+            if (ObjectFieldBindingContract.apply(qualified(owner) + "#" + method.signature(),
+                    method.tags.getOrDefault(ObjectFieldBindingContract.TAG, Collections.<String>emptyList()),
+                    method.tags.getOrDefault(ObjectFieldBindingContract.SOURCE_TAG, Collections.<String>emptyList()), value)) {
+                requiredCapabilities.add(ObjectFieldBindingContract.CAPABILITY);
+            }
             compositionSemantics(owner, method, value);
+            if (PipelineConstructionContract.apply(qualified(owner) + "#" + method.signature(), qualified(owner),
+                    false, method.staticMethod, method.tags, value)) {
+                requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
+            }
             List<String> reductions = method.tags.getOrDefault("mongoReduction", Collections.<String>emptyList());
             if (!reductions.isEmpty()) {
                 DocumentReductionContract.apply(qualified(owner) + "#" + method.signature(), reductions, value);
                 requiredCapabilities.add(DocumentReductionContract.CAPABILITY);
             }
             return value;
+        }
+
+        /** 构造器与普通方法复用相同的逐参数和组合提取器；不传播类级或相邻声明的标签。 */
+        @SuppressWarnings("unchecked")
+        private void constructorSemantics(SourceType owner, Map<String, Object> type) {
+            for (Object item : (List<?>) type.get("constructors")) {
+                Map<String, Object> value = (Map<String, Object>) item;
+                for (SourceConstructor constructor : owner.constructors) {
+                    if (!(owner.name + constructor.signature()).equals(value.get("signature"))) { continue; }
+                    if (constructor.tags.isEmpty()) { break; }
+                    SourceMethod declaration = new SourceMethod(owner.name, qualified(owner));
+                    declaration.parameters.addAll(constructor.parameters);
+                    declaration.tags.putAll(constructor.tags);
+                    declaration.doc = constructor.doc;
+                    parameterSemantics(owner, declaration, value);
+                    compositionSemantics(owner, declaration, value);
+                    if (PipelineConstructionContract.apply(qualified(owner) + "#" + value.get("signature"),
+                            qualified(owner), true, false, constructor.tags, value)) {
+                        requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
+                    }
+                    break;
+                }
+            }
         }
 
         /** 组合声明只属于当前 overload；箭头右侧显式声明结果，不能补全缺失的参数证据。 */
@@ -818,6 +863,14 @@ public final class SourceScanner {
                     if (parts[0].equals(parameter.get("name"))) { target = parameter; break; }
                 }
                 boolean stageBodyElement = StageParameterConcepts.isStageBodyElement(parts[1], parts[2]);
+                boolean namedPipelineElement = "NAMED_PIPELINE".equals(parts[1]) && "ELEMENT".equals(parts[2]);
+                if (target != null && namedPipelineElement) {
+                    SourceParameter declaration = method.parameters.stream()
+                            .filter(parameter -> parts[0].equals(parameter.name)).findFirst().get();
+                    target.put("elementJavaType", PipelineConstructionContract.elementType(declaration.typeTree,
+                            name -> resolveConstructionElementType(owner, name)));
+                    requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
+                }
                 if (target != null && stageBodyElement) {
                     SourceParameter declaration = method.parameters.stream()
                             .filter(parameter -> parts[0].equals(parameter.name)).findFirst().get();
@@ -830,7 +883,8 @@ public final class SourceScanner {
                     }
                 }
                 if (target == null
-                        || (!stageBodyElement && "ELEMENT".equals(parts[2]) && !isExpressionElementContainer(owner, target))
+                        || (!stageBodyElement && !namedPipelineElement && "ELEMENT".equals(parts[2])
+                        && !isExpressionElementContainer(owner, target))
                         || ("VALUE".equals(parts[2]) && Boolean.TRUE.equals(target.get("varargs")))) {
                     throw new IllegalArgumentException("@mongoParam 参数或作用范围不匹配: " + qualified(owner)
                             + "#" + method.signature() + " -> " + raw);
@@ -838,8 +892,11 @@ public final class SourceScanner {
                 boolean expression = EXPRESSION_SEMANTIC.equals(parts[1]);
                 String conceptRef = expression ? FIELD_REFERENCE_CONCEPT
                         : parts.length == 4 ? parts[3] : StageParameterConcepts.conceptId(parts[1], parts[2]);
+                String declaredType = (String) target.get("type");
+                if ("INTEGER_VALUE".equals(parts[1])) { declaredType = resolveNumericType(owner, declaredType); }
                 if (target.containsKey("semanticEvidence") || !expression
-                        && (!stageBodyElement && !StageParameterConcepts.accepts(parts[1], (String) target.get("type"), parts[2])
+                        && (!stageBodyElement && !namedPipelineElement
+                        && !StageParameterConcepts.accepts(parts[1], declaredType, parts[2])
                         || !StageParameterConcepts.acceptsConcept(parts[1], parts[2], conceptRef))
                         || expression && parts.length != 3) {
                     throw new IllegalArgumentException("@mongoParam 冲突或 Java 表示不匹配: " + qualified(owner)
@@ -858,6 +915,23 @@ public final class SourceScanner {
             }
         }
 
+        /** 精确数值契约只接受已登记的标量表示，不能把同名 Number/Integer 类当作 JDK 类型。 */
+        private String resolveNumericType(SourceType owner, String name) {
+            if (name.contains(".") || Arrays.asList("byte", "short", "int", "long", "float", "double").contains(name)) {
+                return name;
+            }
+            String imported = owner.imports.get(name);
+            if (imported != null) { return imported; }
+            if (locateQualifiedName(owner.packageName + "." + name) != null) { return owner.packageName + "." + name; }
+            if (Arrays.asList("Number", "Byte", "Short", "Integer", "Long", "Float", "Double").contains(name)) {
+                return "java.lang." + name;
+            }
+            if (owner.imports.containsKey("java.math.*") && Arrays.asList("BigInteger", "BigDecimal").contains(name)) {
+                return "java.math." + name;
+            }
+            return name;
+        }
+
         /** 新结构化元素仅解析登记的表示类型；不把同名类或未确认的 import 当作 Bson。 */
         private String resolveElementType(SourceType owner, String name) {
             if (name.contains(".")) { return name; }
@@ -873,6 +947,16 @@ public final class SourceScanner {
                 }
             }
             return local;
+        }
+
+        /** 外部命名元素要求完整类型或显式 import，不猜测通配 import 中的类名。 */
+        private String resolveConstructionElementType(SourceType owner, String name) {
+            String resolved = resolveElementType(owner, name);
+            if (!name.contains(".") && !owner.imports.containsKey(name)
+                    && locateQualifiedName(resolved) == null && !"java.util.List".equals(resolved)) {
+                throw new IllegalArgumentException("NAMED_PIPELINE 元素类型未确认，需要完整类型或显式 import: " + name);
+            }
+            return resolved;
         }
 
         /** 只校验显式 ELEMENT 标签的容器结构；容器类型本身不产生任何语义。 */
@@ -981,6 +1065,8 @@ public final class SourceScanner {
     private static final class SourceConstructor {
         final String visibility; final boolean implicit;
         final List<SourceParameter> parameters = new ArrayList<SourceParameter>();
+        final Map<String, List<String>> tags = new HashMap<String, List<String>>();
+        Documentation doc = new Documentation();
         SourceConstructor(String visibility, boolean implicit) {
             this.visibility = visibility; this.implicit = implicit;
         }

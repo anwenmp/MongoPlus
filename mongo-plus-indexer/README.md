@@ -22,6 +22,9 @@ schemaVersion, project, mongoPlusVersion, primaryScanModule, primaryPackages,
 scanStatistics, wrappers, methodFamilies, types, specialTypes, concepts, entryType, expressionRoots
 ```
 
+正式配置另输出 `constructionRoots`，记录显式 receiver/组合构造入口；扩展契约通过
+`requiredCapabilities` 声明，均不赋予未标记的声明任何语义。
+
 `entryType` 固定为 `com.mongoplus.aggregate.Aggregate`，`expressionRoots` 记录排序、去重后的表达式入口。
 `primaryPackages` 仍表示 Stage 入口所属包，
 不表示遍历该包。Pipeline 不支持 `generatedAt`。
@@ -197,6 +200,74 @@ DOCUMENT_MERGE 当前契约为按输入顺序浅合并、同名键最后覆盖�
 ```powershell
 java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineReductionEvidenceSelfTest .
 ```
+
+### Stage 对象字段绑定 evidence
+
+拆分参数构造 `{$stage:{field:value}}` 时，逐方法声明参数语义、绑定及来源，例如：
+
+```java
+@mongoParam size INTEGER_VALUE VALUE
+@mongoObjectField size field=size encoding=INT32_EXACT minimum=1 maximum=2147483647
+@mongoObjectFieldSource size path=... symbols=... mechanism=...
+@mongoObjectFieldSource size artifact=... symbols=... mechanism=...
+```
+
+`mongoObjectField` 必须有全部四个属性；当前编码为 `INT32_EXACT`，上下界须为 Int32 范围内的
+精确整数且 minimum <= maximum。范围从标签读取，生成器不固定为正数；`sample` 的正数下界
+由 MongoDB size 语义声明。每个绑定至少有一个同参数的来源，来源标签格式为参数名、
+`path=` 或 `artifact=`、`symbols=`、`mechanism=`（最后的说明可含空格）。标签只在当前
+方法生效；类、相邻 overload、方法名、字段名和描述均不能补全契约。
+
+方法必须有唯一 Stage 映射，绑定参数必须显式声明 `INTEGER_VALUE VALUE` 及匹配 concept。
+一个方法可绑定多个参数到不同单层字段；字段标识符为 `[A-Za-z_][A-Za-z0-9_]*`。
+重复参数/字段/属性、未知或缺失属性、来源缺失/无对应绑定、错误语义/Java 表示均拒绝生成。
+Java 数值标量仅校验表示兼容，不据此产生语义；import 或本地同名 Number/Integer 不冒充 JDK 类型。
+
+输出复用 `parameters[].objectFieldBinding`（field、encoding、minimum、maximum、sourceEvidence）
+和中性 `PIPELINE_PARAMETER_INTEGER_VALUE` concept，两个 Index 视图通过同一个 evidence 方法生成。
+只有存在实际绑定时才声明 `STAGE_OBJECT_FIELD_BINDING_V1`；保留既有 `DOCUMENT_REDUCTION_V1`。
+schemaVersion 仍为 1.1，能力通过 requiredCapabilities 揭示，不增加扫描入口或 Stage 映射。
+
+Core `sample(Number)` 仍调用 `Aggregates.sample(size.intValue())`，本次只修改 Javadoc。
+新 evidence 仅承诺 1..2147483647 的精确整数可绑定为 BSON Int32；小数、超界、非精确转换、
+自定义 Number 以及原 BSON Int64/Double/Decimal128 的类型等价性均未声明。Core 不新增运行时校验。
+测试覆盖 1、5、100、2147483647 的实际 BSON、截断/溢出反例、删除真实源码标签后验收失败、
+不同名称/Stage/范围、多个拆分字段、类标签/相邻重载隔离、非法契约及确定性生成。
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineObjectFieldBindingSelfTest .
+```
+
+### Nested PIPELINE 构造 evidence
+
+正式配置增加两个 construction roots：`AggregateWrapper`、`com.mongoplus.aggregate.pipeline.Facet`。
+手动 builder 使用 `addConstructionRoot(qualifiedName)`；与 Expression roots 共用签名依赖闭包，
+不沿方法体或 Javadoc 链接反向扫描。构造器开始复用方法的 `mongoParam` / `mongoComposition` 提取。
+
+```text
+@mongoPipelineFactory receiver=NEW initial=EMPTY ownership=INDEPENDENT
+@mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+@mongoPipelineRepresentation source=RECEIVER semanticType=PIPELINE order=CALL_ORDER access=LIVE_VIEW
+@mongoPipelineInput <parameter> extractor=<qualified-type>#<no-arg-method>()
+@mongoComposition OUTPUT_FIELD_NAME + PIPELINE -> NAMED_PIPELINE
+@mongoParam <entries> NAMED_PIPELINE ELEMENT
+@mongoPipelineContainer <entries> operation=NAMED_PIPELINES result=STAGE_BODY_DOCUMENT order=INPUT invocation=SINGLE
+```
+
+分别输出 `pipelineFactory`、`pipelineEffect`、`pipelineRepresentation`、参数 `pipelineExtraction`、
+既有结果语义及 `pipelineContainer`，每项保留当前声明的 `sourceEvidence`。复用 `PIPELINE` 与
+`OUTPUT_FIELD_NAME`；`NAMED_PIPELINE` 只描述名称和完整管道的条目，不以 Java 类名定义语义。
+ELEMENT 用 Compiler Tree 校验单层数组/varargs/List，记录 `elementJavaType`；外部元素要求完整类型
+或显式 import。extractor 必须在正式闭包内具有显式 representation；缺失或矛盾契约拒绝生成。
+effect/container 要求唯一显式 Stage 映射；不根据 Stage 名称分支，不传播类级或相邻 overload 标签。
+能力为 `PIPELINE_CONSTRUCTION_V1`，消费者需实现后再接受该能力。
+
+本次仅给 `limit(int)`、`sort(String,Integer)` 和两个 entry 容器 overload 声明追加 effect。
+真实构造链为独立 `AggregateWrapper` → receiver Stage 调用 → `Facet(String,Aggregate<?>)`
+→ 一次 `facet(Facet...)`（另一个 List 容器也有 evidence）。不扩张其他 nested Stage 的构造证据。
+
+最小验证入口：`PipelineConstructionEvidenceSelfTest`（完整链、真实源码逐标签删除失败、
+无关 API 名称夹具、非法契约、两次生成稳定）及 Core `FacetNestedPipelineTest`（仅两个目标 BSON）。
 
 ### 验证
 

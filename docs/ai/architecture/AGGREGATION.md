@@ -179,6 +179,29 @@ Index 仅在使用归约时声明 `DOCUMENT_REDUCTION_V1`。详细 DSL 和验证
 [Indexer README](../../../mongo-plus-indexer/README.md#stage-body-元素与文档归约-evidence)。
 本批次未增加 include 固定值契约；MCP 加载期认识能力不等于已经消费归约，调用树留待后续实现。
 
+## Stage 对象字段绑定 evidence
+
+`Aggregate.sample(Number size)` 显式声明 `INTEGER_VALUE VALUE` 和 `mongoObjectField`，绑定 `size`
+到 `$sample.size`，编码 `INT32_EXACT`、范围 1..2147483647；逐参数 `mongoObjectFieldSource`
+记录 Core、Driver 5.4.0 和 MongoDB 的来源。Indexer 通用提取字段、编码、范围和来源，两个 Index
+视图同步；仅存在实际绑定时声明 `STAGE_OBJECT_FIELD_BINDING_V1`。标签语法和约束见
+[Indexer README](../../../mongo-plus-indexer/README.md#stage-对象字段绑定-evidence)。
+
+实际 Core 仍经 `size.intValue()` 调用 Driver `Aggregates.sample(int)`，后者写 `BsonInt32`。
+metadata 仅承诺范围内精确整数，不能将小数截断、溢出、自定义 Number 或其他 BSON 数值类型
+视为等价；本次不更改运行时校验或方法签名，也不扩张其他 Stage 的 evidence。
+
+## Nested PIPELINE 构造 evidence
+
+正式 Index 增加 `AggregateWrapper` 和 Core `Facet` 两个显式 construction roots，构造器复用
+`mongoParam` / `mongoComposition`；新增通用 factory、receiver append effect、ordered PIPELINE
+representation、参数 extractor 引用及 named-entry container 标签。复用 `PIPELINE` / `OUTPUT_FIELD_NAME`，
+新增中性 `NAMED_PIPELINE` 条目语义及 `PIPELINE_CONSTRUCTION_V1` 能力。
+源码和契约详见 [Indexer README](../../../mongo-plus-indexer/README.md#nested-pipeline-构造-evidence)。
+目标路径创建独立 inner receiver，以 `Facet(String,Aggregate<?>)` 保持分支名称和 Stage 顺序，
+一次外层 `facet(Facet...)` 合并多个 entry；本轮仅 Index evidence 和两个 Core BSON smoke 测试，
+不代表 MCP Resolver 已消费能力，也未扩张其他 nested Stage。Stage/Expression surface 仍为 33/49、297 overload。
+
 ## Lookup 与跨集合边界
 
 - 基础 lookup 支持 `from/localField/foreignField/as`，`from` 可用字符串或实体类；实体类仅经 `AnnotationOperate.getCollectionName` 解析 collection 名。

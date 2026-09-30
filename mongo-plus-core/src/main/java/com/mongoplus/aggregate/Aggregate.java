@@ -3,6 +3,7 @@ package com.mongoplus.aggregate;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.model.*;
+import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.densify.DensifyOptions;
 import com.mongodb.client.model.densify.DensifyRange;
 import com.mongodb.client.model.fill.FillOptions;
@@ -23,9 +24,10 @@ import java.util.List;
 public interface Aggregate<Children> extends Project<Children> {
 
     /**
-     * 获取管道列表
+     * 返回当前 receiver 的完整有序管道，列表是可变状态的直接视图。
      * @return {@link List<Bson>}
      * @author anwen
+     * @mongoPipelineRepresentation source=RECEIVER semanticType=PIPELINE order=CALL_ORDER access=LIVE_VIEW
      */
     List<Bson> getAggregateConditionList();
 
@@ -519,6 +521,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children sort(final String field, final Integer value);
 
@@ -769,6 +772,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $limit
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children limit(final int limit);
 
@@ -1246,6 +1250,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $facet
+     * @mongoParam facets NAMED_PIPELINE ELEMENT
+     * @mongoPipelineContainer facets operation=NAMED_PIPELINES result=STAGE_BODY_DOCUMENT order=INPUT invocation=SINGLE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children facet(final Facet... facets);
 
@@ -1256,6 +1263,9 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $facet
+     * @mongoParam facets NAMED_PIPELINE ELEMENT
+     * @mongoPipelineContainer facets operation=NAMED_PIPELINES result=STAGE_BODY_DOCUMENT order=INPUT invocation=SINGLE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children facet(final List<Facet> facets);
 
@@ -1883,11 +1893,19 @@ public interface Aggregate<Children> extends Project<Children> {
 
     /**
      * $sample阶段
+     * <p>Index 的等价绑定仅覆盖 1..2147483647 的精确整数，使用 Int32 编码。
+     * 实现调用 size.intValue()，运行时不检查截断或溢出；小数、超范围、非精确转换及自定义 Number
+     * 不属于该绑定承诺，BSON Int64/Double/Decimal128 的类型等价性也未声明。</p>
      * @param size 指定数量
      * @return {@link Children}
      * @author anwen
      *
      * @mongoStage $sample
+     * @mongoParam size INTEGER_VALUE VALUE
+     * @mongoObjectField size field=size encoding=INT32_EXACT minimum=1 maximum=2147483647
+     * @mongoObjectFieldSource size path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sample(Number);sample(Bson);custom(Bson) mechanism=sample(Number) 经 size.intValue() 调用 Aggregates.sample(int)，完整 Stage 原样加入管道；仅精确 Int32 整数避免截断和溢出。
+     * @mongoObjectFieldSource size artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.sample(int) mechanism=Driver 构造 $sample 对象，其 size 字段为 BsonInt32(size)。
+     * @mongoObjectFieldSource size path=https://www.mongodb.com/docs/manual/reference/operator/aggregation/sample/ symbols=$sample.size mechanism=MongoDB 要求 size 为大于等于 1 的整数；上界来自此 Java API 的 Int32 编码边界。
      */
     Children sample(final Number size);
 
