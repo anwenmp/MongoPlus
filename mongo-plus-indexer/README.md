@@ -112,7 +112,9 @@ extends/implements 关系，而是带 `@Deprecated`、Javadoc 指向 operation �
 只有收录的公开方法存在参数标记，才输出 `PIPELINE_EXPRESSION_FIELD_REFERENCE` concept：
 
 - `fieldReference`：Java `String`，前缀 `$`，排除 `$$`，`encoding=UNCHANGED`。
-- `variableReference`：前缀 `$$`，原样编码；源码例子为 `$$SEARCH_META`，不验证变量绑定。
+- `variableReference`：`semanticType=VARIABLE_REFERENCE`，前缀 `$$`，原样编码；正式拆出
+  `referenceName` / `accessPath`。源码例子 `$$SEARCH_META` 仅证明表示，不声明 system variable。
+  有显式作用域契约时关联 `VARIABLE_BINDING_SCOPE_V1`，引用使用点必须按该契约校验绑定。
 - `plainStringValue`：不以 `$` 开头的字符串原样写入，不自动加字段前缀；不自动 literal 转义。
   `$` 开头的字符串如何强制表示 literal，记录为 `NOT_ESTABLISHED`，不虚构专用 `$literal` API。
 - `sourceEvidence`：记录源码路径/符号及 Driver 5.4.0、默认 StringCodec 的实际编码依据。
@@ -212,19 +214,23 @@ java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/class
 @mongoObjectFieldSource size artifact=... symbols=... mechanism=...
 ```
 
-`mongoObjectField` 必须有全部四个属性；当前编码为 `INT32_EXACT`，上下界须为 Int32 范围内的
-精确整数且 minimum <= maximum。范围从标签读取，生成器不固定为正数；`sample` 的正数下界
-由 MongoDB size 语义声明。每个绑定至少有一个同参数的来源，来源标签格式为参数名、
+`mongoObjectField` 只统一要求 `field`；它证明对象字段对应哪个方法参数，编码约束由参数语义决定。
+`INTEGER_VALUE VALUE` 仍必须同时声明 `encoding=INT32_EXACT`、minimum、maximum，上下界须为
+Int32 范围内的精确整数且 minimum <= maximum。范围从标签读取，生成器不固定为正数；
+`sample` 的正数下界由 MongoDB size 语义声明。`COLLECTION_NAME VALUE`、`PIPELINE VALUE` 等
+非整数绑定只声明字段，不伪造整数编码/范围。每个绑定至少有一个同参数的来源，来源标签格式为参数名、
 `path=` 或 `artifact=`、`symbols=`、`mechanism=`（最后的说明可含空格）。标签只在当前
 方法生效；类、相邻 overload、方法名、字段名和描述均不能补全契约。
 
-方法必须有唯一 Stage 映射，绑定参数必须显式声明 `INTEGER_VALUE VALUE` 及匹配 concept。
+方法必须有唯一 Stage 映射，普通绑定参数必须显式声明 VALUE 语义及匹配 concept。
+DOCUMENT entries 绑定可使用 ELEMENT，但必须同时有完整、已校验的 entryConstruction 和
+typedContainerConstruction；INTEGER_VALUE 仍只接受 VALUE。
 一个方法可绑定多个参数到不同单层字段；字段标识符为 `[A-Za-z_][A-Za-z0-9_]*`。
 重复参数/字段/属性、未知或缺失属性、来源缺失/无对应绑定、错误语义/Java 表示均拒绝生成。
 Java 数值标量仅校验表示兼容，不据此产生语义；import 或本地同名 Number/Integer 不冒充 JDK 类型。
 
-输出复用 `parameters[].objectFieldBinding`（field、encoding、minimum、maximum、sourceEvidence）
-和中性 `PIPELINE_PARAMETER_INTEGER_VALUE` concept，两个 Index 视图通过同一个 evidence 方法生成。
+输出复用 `parameters[].objectFieldBinding`（field、sourceEvidence，以及语义要求的 encoding、minimum、maximum）
+和既有 semantic concept，两个 Index 视图通过同一个 evidence 方法生成。
 只有存在实际绑定时才声明 `STAGE_OBJECT_FIELD_BINDING_V1`；保留既有 `DOCUMENT_REDUCTION_V1`。
 schemaVersion 仍为 1.1，能力通过 requiredCapabilities 揭示，不增加扫描入口或 Stage 映射。
 
@@ -262,12 +268,159 @@ ELEMENT 用 Compiler Tree 校验单层数组/varargs/List，记录 `elementJavaT
 effect/container 要求唯一显式 Stage 映射；不根据 Stage 名称分支，不传播类级或相邻 overload 标签。
 能力为 `PIPELINE_CONSTRUCTION_V1`，消费者需实现后再接受该能力。
 
-本次仅给 `limit(int)`、`sort(String,Integer)` 和两个 entry 容器 overload 声明追加 effect。
+`limit(int)`、`sort(String,Integer)` 和两个 entry 容器 overload 声明追加 effect。
 真实构造链为独立 `AggregateWrapper` → receiver Stage 调用 → `Facet(String,Aggregate<?>)`
-→ 一次 `facet(Facet...)`（另一个 List 容器也有 evidence）。不扩张其他 nested Stage 的构造证据。
+→ 一次 `facet(Facet...)`（另一个 List 容器也有 evidence）。
+
+2026-10-01：六个正式 `unionWith` Stage overload 也逐声明追加 effect；四个双参数 overload
+用 `mongoObjectField` 显式绑定 `coll` 到 collectionName/collection、`pipeline` 到 aggregate，
+来源为当前 Core 委托及 Driver 5.4.0 `UnionWithStage.toBsonDocument` 的字段写入。
+两个 `Aggregate<?>` overload 用同一 `mongoPipelineInput` 引用
+`com.mongoplus.aggregate.Aggregate#getAggregateConditionList()`，完整路径为独立 receiver
+→ sort/limit → ordered PIPELINE representation → Aggregate 参数 → 外层追加一个 Stage。
+String 集合名用既有 `UNCHANGED` 表示；Class 参数用 `ANNOTATION_OPERATE_COLLECTION_NAME`，
+需要 Java Class 值，Mongo 字符串不能直接供给。单参数 overload 是简化字符串 Stage，故不声明对象字段绑定。
+List 参数保留完整有序 Bson 列表的消费证据，不声明 receiver extractor 或新增 Stage→Bson 构造能力。
+不新增 Stage 专用契约或 planner，复用 `PIPELINE_CONSTRUCTION_V1` / `STAGE_OBJECT_FIELD_BINDING_V1`。
 
 最小验证入口：`PipelineConstructionEvidenceSelfTest`（完整链、真实源码逐标签删除失败、
 无关 API 名称夹具、非法契约、两次生成稳定）及 Core `FacetNestedPipelineTest`（仅两个目标 BSON）。
+
+`PipelineUnionWithEvidenceSelfTest` 验收 U02/U03、String/Class Java 表示和六个追加 effect，
+删除真实 coll/pipeline binding、extractor、factory、representation 或目标 effect 后同一验收失败；
+Core `UnionWithNestedPipelineTest` 只验证 U02/U03 的 BSON。绑定泛化回归继续使用
+`PipelineObjectFieldBindingSelfTest`，包括 `$sample` 所有严格整数负例及无关名称的非整数绑定。
+
+2026-10-07：仅 `lookup(String,Aggregate<?>,String)` 补充三个通用对象字段绑定：
+from→from（`COLLECTION_NAME`）、pipeline→aggregate（`PIPELINE`）、as→as（既有
+`OUTPUT_FIELD_NAME`）。逐参数来源记录真实 Core 委托和 Driver 5.4.0 `LookupStage.toBsonDocument`；
+Aggregate 参数引用同一 `getAggregateConditionList()` extractor，Stage 声明
+`APPEND_STAGE/RECEIVER/ONE/CALL_ORDER`。复用既有独立 factory、ordered representation 和
+sort/limit effect，不改通用提取器、不新增 capability，也不向其他 overload 传播标签。
+不涉及 letList、变量或表达式。`PipelineLookupEvidenceSelfTest` 只验收 limit(1) 与
+sort(createTime,-1)→limit(1) 两个输入的 evidence 链，`LookupNestedPipelineTest` 比较同两项实际 BSON。
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineLookupEvidenceSelfTest .
+mvn -pl mongo-plus-core -am '-Dtest=LookupNestedPipelineTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+```
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.PipelineUnionWithEvidenceSelfTest .
+mvn -pl mongo-plus-core -am '-Dtest=UnionWithNestedPipelineTest,SampleInt32EncodingTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+```
+
+### 通用 entry / typed-container construction evidence
+
+`ENTRY_CONTAINER_CONSTRUCTION_V1` 将构造单个 entry 与收集 typed List 分开表达，
+不借用 `NAMED_PIPELINES`，也不根据方法、字段、Stage 或类名称生成语义。
+当前支持单层 `List<E<G>>`，E 是真实 artifact 中具有一个 Object 上界类型参数的公开具体类，
+构造器有两个参数（String key 与泛型 value，位置由标签指定）。G 可为无界类型变量或显式引用类型；
+raw 类型、wildcard、嵌套容器、受限上界和以子类 List 替代父类 List 均拒绝生成。
+
+```text
+@mongoParam <entries> VARIABLE_DEFINITION ELEMENT
+@mongoEntryConstruction <entries> constructor=<qualified-type> artifact=<group:artifact:version> key=0 value=1 keySemantic=VARIABLE_NAME valueSemantic=PIPELINE_EXPRESSION result=VARIABLE_DEFINITION
+@mongoEntryConstructionSource <entries> artifact=<group:artifact:version> symbols=<audited-symbols> mechanism=<source-audit>
+@mongoTypedContainer <entries> input=DOCUMENT_ENTRIES order=INPUT target=java.util.List
+@mongoObjectField <entries> field=<document-field>
+@mongoObjectFieldSource <entries> path|artifact=<source> symbols=<consumer> mechanism=<field-write>
+```
+
+三项 construction 标签必须逐参数配对，且结果匹配当前声明的 ELEMENT 语义及 concept。
+`entryConstruction.constructor` 输出真实公开签名、类型参数与上界、key/value 参数位置和语义、
+`resultSemanticType`、构造结果 Java 类型及 `genericBindings`。名称原值使用 `VARIABLE_NAME`；
+表达式值引用既有 `PIPELINE_EXPRESSION_FIELD_REFERENCE`，不更改 `$` / 排除 `$$` 的字段引用表示。
+key/value 的语义来自显式标签及逐声明来源，Java 类型仅用于验证，不能赋予 Mongo 语义。
+
+`typedContainerConstruction` 输出 `elementType`、`genericArgument`、`targetContainerType`、
+`elementAssignability`、`containerAssignability`、`genericArgumentInference`、
+`ORDERED_ENTRIES / INPUT / inputOrderPreserved=true` 及 entry construction 的正式引用。
+泛型使用结构化 PARAMETERIZED / TYPE_VARIABLE / REFERENCE 类型；构造器类型参数绑定到目标实参，
+全部 entry 共用同一可赋值实参。类型变量从全部 value 推断公共可赋值类型；具体实参只检查 value
+可赋值，不重新推断。`valueAssignability` 要求消费者在构造前校验值。单元素及最终 List 都以
+替换后的类型一致性证明；List 泛型明确为 INVARIANT，不以擦除或 unchecked 转换冒充兼容。
+
+目标 `lookup(String,List<Driver.Variable<TExpression>>,Aggregate<?>,String)` 独立声明四个对象字段绑定、
+PIPELINE extractor 与追加 effect。entry 直接使用 Driver `Variable(String,TExpression)`，
+不构造 MongoPlus 子类。生成时从显式 Maven 坐标精确读取 JAR，用 JDK reflection 校验泛型签名，
+并验证 JAR 版本身份（pom.properties 或标准 manifest 版本）；无 artifact 或签名不符即拒绝生成。
+默认读取 `maven.repo.local` 系统属性或用户 `.m2/repository`，builder 可配置
+`constructionArtifactRepository(Path)`。不扫描仓库、不下载依赖，Indexer 仍无第三方编译依赖。
+
+`VariableEntryConstructionSelfTest` 覆盖单/多 entry 的 evidence 驱动 Java 生成及
+`-Xlint:unchecked -Werror` 编译、实际名称/值顺序、泛型改名、具体 String/Object 实参、
+无关 API/字段及独立 artifact 夹具、删标签和非法契约拒绝、相邻 overload/类标签隔离和生成稳定性。
+Core `LookupVariableEntriesTest` 比较同两项实际 BSON，并显式断言 `userId → orderId` 顺序。
+变量身份、作用域和引用绑定由下节的独立 `VARIABLE_BINDING_SCOPE_V1` 提供。
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.VariableEntryConstructionSelfTest .
+mvn -pl mongo-plus-core -am '-Dtest=LookupVariableEntriesTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+java -cp 'mongo-plus-indexer/target/classes' com.mongoplus.indexer.cli.MongoPlusPipelineIndexerMain --project-root .
+```
+
+### 通用变量声明、作用域与绑定 evidence
+
+`VARIABLE_BINDING_SCOPE_V1` 连接 `VARIABLE_DEFINITION → declaration identity → scope →
+VARIABLE_REFERENCE → binding`，复用现有 entry/container、`VARIABLE_NAME` 及表达式中的
+FIELD_REFERENCE / VARIABLE_REFERENCE representation。绑定执行由消费者根据输入结构完成；
+Index 的 `bindingValidated=false` 表示静态 Index 没有替某一次输入执行绑定，
+`bindingValidation=REQUIRED_AT_REFERENCE_USE` 明确要求引用使用点校验，`$$` 前缀不能证明已绑定。
+
+逐方法声明（不传播类标签或相邻 overload 标签）：
+
+```text
+@mongoVariableScope declarations=<entry参数> body=<PIPELINE参数> parent=ENCLOSING initializer=PARENT inheritance=LEXICAL shadowing=NEAREST exit=RESTORE_PARENT
+@mongoVariableEnvironment <PIPELINE参数> source=ENCLOSING inheritance=LEXICAL exit=RESTORE_PARENT
+@mongoVariableScopeSource reference=<绝对URI> symbols=<来源符号> mechanism=<已核对的语义>
+```
+
+scope 输出方法 `variableScope`，声明参数 `variableDeclaration` 与 body 参数 `variableEnvironment`
+通过同一个 `scopeRef` 关联。声明参数必须已有 ELEMENT `VARIABLE_DEFINITION`、有序
+entry/container construction，且 ENTRY_KEY 已显式声明 `VARIABLE_NAME`；声明和 body 都必须已有
+独立 objectFieldBinding。缺参数、缺依赖、重复 scope、未知属性或矛盾环境拒绝生成。
+`mongoVariableEnvironment` 单独描述无本地声明的 body 继承边；同一个 body 不能同时指定新 scope
+与直接继承环境。该标签也必须有独立 PIPELINE 参数、字段绑定和语义来源。
+
+`declarationName.source=ENTRY_KEY`，名称原值精确比较；`declarationIdentity` 为结构化 tuple：
+`{apiRef, ownerNodePath, declarationParameter, entryOrdinal}`。ownerNodePath 使用输入 owner 节点的
+RFC 6901 JSON Pointer，entryOrdinal 使用 ORDERED_ENTRIES 的零基序号；相同输入身份稳定，
+不同 owner 的同名声明身份不同，不以名称、Java 对象地址、生成时间或随机值作为身份。
+`scopeIdentity` 使用前三个组件。entry/container 与身份规则均指向同一正式 construction evidence。
+
+`variableReference.nameExtraction` 保留编码原值，移除 `$$` 后按第一个 `.` 拆分：
+`$$userId → referenceName=userId, accessPath=null`；
+`$$userId.name → referenceName=userId, accessPath=name`；更深的路径完整保留，不参与名称查找。
+不 trim；空名称或空 accessPath 得到 `INVALID_VARIABLE_REFERENCE`。
+
+`variableScope` 正式记录 declarationOwner、body、parentScope、initializerEnvironment、inheritance、
+shadowing、scopeExit 及来源。initializer 使用 parent scope，当前全部声明对同级 initializer 均不可见；
+body 使用新 declaration scope；查找顺序为最近环境再逐 parent 环境；退出恢复 parent，不导出到 outer/sibling。
+无声明 body 的显式 environment 边继承同一词法链；每条 nested environment 边都必须有证据，
+未声明的边不能根据方法名或 PIPELINE 类型自行补全。
+
+当前目标 let lookup 与无 let lookup 的来源是已核对的 MongoDB r8.0.0
+`DocumentSourceLookUp`（initializer 从父 parseState 解析，body 使用独立复制的变量环境）以及
+`VariablesParseState.defineVariable/getVariable`（当前名称映射定位声明 ID），另附官方 lookup 语义说明。
+Core 只新增 Javadoc metadata，公开 Java 签名和执行逻辑保持原行为。
+
+顶层 `concepts[id=VARIABLE_BINDING_SCOPE_V1]` 声明环境/结果契约。消费者必须提供
+`scopeGraphComplete`、`declarationsComplete`、`externalCatalogComplete`、`systemCatalogComplete`
+及每项正式来源。external/system 目录仅接受显式 `{declarationName, declarationIdentity, sourceEvidence}`
+条目；没有隐式 system 名单，空目录也必须有完整性证据。
+最近可见匹配返回 `BOUND_VARIABLE + declarationIdentity`；完整 scope 链和全部目录均无匹配才返回
+`UNBOUND_VARIABLE`；证据不完整返回 `INCOMPLETE_VARIABLE_ENVIRONMENT`，不能把缺证据当未绑定。
+
+`VariableBindingScopeSelfTest` 消费正式 Index，覆盖正常绑定、accessPath、`$$missing`、同名 shadowing
+及退出恢复、父 initializer、自身/同级声明隔离、outer/sibling 不可见、无声明 nested body 的显式继承、
+四种完整性缺失及来源缺失、external/system 显式目录、无关 API/字段名夹具、非法标签及两视图/两次生成一致。
+验收不包含 `$expr/$eq` API composition，也不代表 MCP 消费者或 MongoDB Server 已运行验证。
+
+```powershell
+java -cp 'mongo-plus-indexer/target/test-classes;mongo-plus-indexer/target/classes' com.mongoplus.indexer.VariableBindingScopeSelfTest .
+java -cp 'mongo-plus-indexer/target/classes' com.mongoplus.indexer.cli.MongoPlusPipelineIndexerMain --project-root .
+```
 
 ### 验证
 

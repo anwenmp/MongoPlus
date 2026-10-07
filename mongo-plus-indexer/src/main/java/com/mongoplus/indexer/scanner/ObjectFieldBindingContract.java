@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** 拆分参数到 Stage 对象字段的显式契约；字段、编码、范围和实现来源均由当前方法声明。 */
+/** 对象字段到方法参数的显式契约；编码和范围仅在参数语义要求时声明。 */
 final class ObjectFieldBindingContract {
     static final String CAPABILITY = "STAGE_OBJECT_FIELD_BINDING_V1";
     static final String TAG = "mongoObjectField";
@@ -36,26 +36,28 @@ final class ObjectFieldBindingContract {
             if (!parameter.containsKey("semanticEvidence")) {
                 throw invalid(declaration, "缺少显式 @mongoParam: " + tokens[0]);
             }
-            if (!"INTEGER_VALUE".equals(parameter.get("semanticType")) || !"VALUE".equals(parameter.get("semanticScope"))
-                    || !"PIPELINE_PARAMETER_INTEGER_VALUE".equals(parameter.get("conceptRef"))) {
-                throw invalid(declaration, "INT32_EXACT 需要 INTEGER_VALUE VALUE 及匹配的 concept");
-            }
             Map<String, String> attributes = attributes(declaration, tokens);
             String field = attributes.get("field");
             if (!field.matches("[A-Za-z_][A-Za-z0-9_]*")) {
                 throw invalid(declaration, "field 必须为单层对象字段标识符: " + field);
             }
-            if (!"INT32_EXACT".equals(attributes.get("encoding"))) {
-                throw invalid(declaration, "不支持的 encoding: " + attributes.get("encoding"));
-            }
-            long minimum = bound(declaration, attributes.get("minimum"));
-            long maximum = bound(declaration, attributes.get("maximum"));
-            if (minimum > maximum) { throw invalid(declaration, "Int32 范围 minimum 不能大于 maximum"); }
             Map<String, Object> binding = new LinkedHashMap<String, Object>();
             binding.put("field", field);
-            binding.put("encoding", attributes.get("encoding"));
-            binding.put("minimum", minimum);
-            binding.put("maximum", maximum);
+            String semantic = (String) parameter.get("semanticType");
+            if ("INTEGER_VALUE".equals(semantic)) {
+                if (!"VALUE".equals(parameter.get("semanticScope"))) {
+                    throw invalid(declaration, "整数绑定仍要求 INTEGER_VALUE VALUE");
+                }
+                integerEncoding(declaration, attributes, binding);
+            } else if (attributes.size() != 1) {
+                throw invalid(declaration, "INT32_EXACT 需要 INTEGER_VALUE VALUE 及匹配的 concept；其他语义不声明整数编码/范围");
+            }
+            boolean constructedEntries = "ELEMENT".equals(parameter.get("semanticScope"))
+                    && parameter.containsKey("entryConstruction") && parameter.containsKey("typedContainerConstruction");
+            if (!("VALUE".equals(parameter.get("semanticScope")) || constructedEntries)
+                    || !StageParameterConcepts.acceptsConcept(semantic, (String) parameter.get("conceptRef"))) {
+                throw invalid(declaration, "对象字段绑定需要 VALUE 或完整 typed entry construction，及匹配的 semantic concept");
+            }
             binding.put("sourceEvidence", new ArrayList<Map<String, Object>>());
             if (bindings.putIfAbsent(tokens[0], binding) != null) { throw invalid(declaration, "重复绑定: " + tokens[0]); }
             if (!fields.add(field)) { throw invalid(declaration, "重复对象字段: " + field); }
@@ -101,10 +103,23 @@ final class ObjectFieldBindingContract {
                 throw invalid(declaration, "重复属性: " + key);
             }
         }
-        for (String key : ATTRIBUTES) {
-            if (!result.containsKey(key)) { throw invalid(declaration, "缺少属性: " + key); }
-        }
+        if (!result.containsKey("field")) { throw invalid(declaration, "缺少属性: field"); }
         return result;
+    }
+
+    private static void integerEncoding(String declaration, Map<String, String> attributes, Map<String, Object> binding) {
+        for (String key : Arrays.asList("encoding", "minimum", "maximum")) {
+            if (!attributes.containsKey(key)) { throw invalid(declaration, "缺少属性: " + key); }
+        }
+        if (!"INT32_EXACT".equals(attributes.get("encoding"))) {
+            throw invalid(declaration, "不支持的 encoding: " + attributes.get("encoding"));
+        }
+        long minimum = bound(declaration, attributes.get("minimum"));
+        long maximum = bound(declaration, attributes.get("maximum"));
+        if (minimum > maximum) { throw invalid(declaration, "Int32 范围 minimum 不能大于 maximum"); }
+        binding.put("encoding", attributes.get("encoding"));
+        binding.put("minimum", minimum);
+        binding.put("maximum", maximum);
     }
 
     private static long bound(String declaration, String value) {

@@ -120,7 +120,8 @@ Stage 根 `Aggregate` 加五个明确的 Expression 工厂根，详见
 - `ConditionOperators` 的已核对泛型值直接进入 Document 或操作数数组。Lambda 便利方法使用
   `SFunction.getFieldNameLineOption()`，其实现明确返回 `$` + 实际字段名，证明字符串字段引用表示。
 - `Projections.computed` 原样保存值，`computedSearchMeta` 明确传 `$$SEARCH_META`；
-  `AggregateOptions.let` 的源码契约还明确声明 `$$` 变量访问语法。变量是否已绑定不由 Index 保证。
+  `AggregateOptions.let` 的源码契约还明确声明 `$$` 变量访问语法。引用表示中的名称/path 正式提取；
+  声明和作用域绑定使用独立 `VARIABLE_BINDING_SCOPE_V1`，需要消费者提供完整环境证据。
 - `"amount"` 与 `"$amount"` 都原样编码；前者不自动加字段前缀，后者可作为已标记参数的字段引用。
   当前未确认将 `$` 开头字符串强制解释为 literal 的专用 API，concept 记录 `NOT_ESTABLISHED`，
   不增加 `$literal` 映射。此证据不宣称已执行服务端表达式求值。
@@ -189,7 +190,12 @@ Index 仅在使用归约时声明 `DOCUMENT_REDUCTION_V1`。详细 DSL 和验证
 
 实际 Core 仍经 `size.intValue()` 调用 Driver `Aggregates.sample(int)`，后者写 `BsonInt32`。
 metadata 仅承诺范围内精确整数，不能将小数截断、溢出、自定义 Number 或其他 BSON 数值类型
-视为等价；本次不更改运行时校验或方法签名，也不扩张其他 Stage 的 evidence。
+视为等价；不更改运行时校验或方法签名。
+
+2026-10-01：对象字段绑定统一必需项为 field 和实现来源，参数仍必须显式声明 VALUE 语义及匹配
+concept。`INTEGER_VALUE` 保留完整 Int32 编码/范围校验；非整数绑定无需 encoding/range。
+四个双参数 `unionWith` overload 显式绑定 coll→collectionName/collection、pipeline→aggregate；
+String 原值与需要 Java Class 的集合名表示仍由既有 concept 和参数类型区分。
 
 ## Nested PIPELINE 构造 evidence
 
@@ -200,9 +206,61 @@ representation、参数 extractor 引用及 named-entry container 标签。复�
 源码和契约详见 [Indexer README](../../../mongo-plus-indexer/README.md#nested-pipeline-构造-evidence)。
 目标路径创建独立 inner receiver，以 `Facet(String,Aggregate<?>)` 保持分支名称和 Stage 顺序，
 一次外层 `facet(Facet...)` 合并多个 entry；本轮仅 Index evidence 和两个 Core BSON smoke 测试，
-不代表 MCP Resolver 已消费能力，也未扩张其他 nested Stage。Stage/Expression surface 仍为 33/49、297 overload。
+不代表 MCP Resolver 已消费能力。Stage/Expression surface 仍为 33/49、297 overload。
+
+`unionWith(String,Aggregate<?>)` 实际经 getAggregateConditionList→unionWith(String,List)
+→ Driver Aggregates.unionWith→unionWith(Bson)→custom(Bson) 追加到外层 receiver；Class overload
+先用 AnnotationOperate.getCollectionName 再委托 String overload。两个 Aggregate 参数用既有
+pipelineExtraction 引用正式 PIPELINE representation，六个正式 Stage overload 显式声明
+APPEND_STAGE/RECEIVER/ONE/CALL_ORDER。U02/U03 复用独立 factory→sort/limit→PIPELINE→参数的
+`PIPELINE_CONSTRUCTION_V1` 链；List 消费已有 Bson 列表，不新增 Stage→Bson 构造 evidence。
+验证入口为 PipelineUnionWithEvidenceSelfTest、PipelineObjectFieldBindingSelfTest 和 Core
+UnionWithNestedPipelineTest / SampleInt32EncodingTest；MCP planner 复用仍须下游实测。
 
 ## Lookup 与跨集合边界
+
+2026-10-07：正式 Index 仅为 `lookup(String,Aggregate<?>,String)` 增加无 let pipeline evidence。
+Core 直接取 `aggregate.getAggregateConditionList()`→Driver `Aggregates.lookup(from,List,as)`
+→`custom(Bson)` 追加一个 Stage；Driver 按序写 pipeline 数组，from/as 字符串原样写入。
+三个通用 objectFieldBinding 分别为 from→from、pipeline→aggregate、as→as，语义沿用
+`COLLECTION_NAME` / `PIPELINE` / `OUTPUT_FIELD_NAME`；Aggregate 参数引用既有 pipelineExtraction，
+Stage 明确 `APPEND_STAGE/RECEIVER/ONE/CALL_ORDER`，复用 `PIPELINE_CONSTRUCTION_V1`。
+最小验证入口为 `PipelineLookupEvidenceSelfTest` 与 Core `LookupNestedPipelineTest`，输入限于
+limit(1) 和 sort(createTime,-1)→limit(1)；不覆盖 letList 或变量/表达式，不代表 MCP planner 已实测。
+
+同日补齐目标 `lookup(String,List<Driver.Variable<TExpression>>,Aggregate<?>,String)` 的有序 let entry evidence。
+`let→letList` 使用通用 objectFieldBinding，ELEMENT 参数同时提供 `entryConstruction` 与
+`typedContainerConstruction`。新 capability 为 `ENTRY_CONTAINER_CONSTRUCTION_V1`，与
+`PIPELINE_CONSTRUCTION_V1` 独立；没有把 Variable 条目解释为 `NAMED_PIPELINE`。
+真实 Driver 5.4.0 `Variable(String,TExpression)` 的公开构造签名、类型参数及 Object 上界在生成时由
+显式 artifact 的 JAR 校验；key→`VARIABLE_NAME`、value→既有表达式 FIELD_REFERENCE representation、
+构造结果→`VARIABLE_DEFINITION` 均由逐声明 Javadoc 契约提供语义来源。
+typed-container 结构化记录泛型元素、实参、完整目标 List 类型、替换后的单元素与容器类型一致性、
+List 不变性和 DOCUMENT entries 的 INPUT 顺序。全部 entry 共用一个可赋值实参；不从 raw 类型或
+unchecked 转换证明兼容。Core 实现与公开签名保持原有行为，仅增加元数据及明确的 Driver 类型 import。
+目标同时显式声明 from/pipeline/as 绑定、已有 PIPELINE extractor 和追加 effect，其他 overload 不继承标签。
+生成器默认从本地 Maven repository 读取真实 artifact，无依赖下载；配置及受支持泛型边界见 Indexer README。
+验证入口为 `VariableEntryConstructionSelfTest`（evidence 驱动 Java 编译与泛型/标签/名称/artifact 夹具）
+和 Core `LookupVariableEntriesTest`（单 entry、多 entry BSON，显式检查 `userId→orderId`）。
+同日增加独立 `VARIABLE_BINDING_SCOPE_V1`：目标 let lookup 声明 owner、body、parent、initializer、
+inheritance、shadowing 与 exit；无 let String/Aggregate/String overload 显式声明继承 environment 边。
+来源为 MongoDB r8.0.0 `DocumentSourceLookUp` 的父 initializer/独立 body parseState，以及
+`VariablesParseState.defineVariable/getVariable` 的名称到声明 ID 映射和官方 lookup 说明。
+只新增逐方法 Javadoc metadata，Core 公开签名和执行逻辑保持原行为。
+
+ENTRY_KEY 原值为 declarationName；稳定 declarationIdentity 使用结构化
+`{apiRef, ownerNodePath, declarationParameter, entryOrdinal}`，owner 为输入 JSON Pointer，
+entry 序号来自现有有序 construction。`$$name.path` 拆为 referenceName 与 accessPath，
+accessPath 不参与绑定。initializer 排除当前全部声明、使用父环境；body 使用新 scope；
+最近可见同名声明覆盖父声明，退出恢复父环境，outer/sibling 不接收声明。
+
+formal concept 要求 scope graph、声明集、external/system catalog 的完整性及来源证据。
+没有默认 external/system 名单；显式目录的名称、身份和来源才可参与查找。
+完整环境无匹配返回 `UNBOUND_VARIABLE`，证据不完整返回 `INCOMPLETE_VARIABLE_ENVIRONMENT`。
+`VariableBindingScopeSelfTest` 验证正常绑定、missing、shadowing/恢复、initializer/隔离、显式 inherited body
+与目录、非法/缺证据契约、无关名称夹具及生成稳定性。
+详细结构见 [Indexer 变量绑定契约](../../../mongo-plus-indexer/README.md#通用变量声明作用域与绑定-evidence)。
+`$expr/$eq` composition 和 MCP 消费者运行仍在本次范围外。
 
 - 基础 lookup 支持 `from/localField/foreignField/as`，`from` 可用字符串或实体类；实体类仅经 `AnnotationOperate.getCollectionName` 解析 collection 名。
 - pipeline lookup 支持 `from + pipeline + as`，也支持 `let variables + pipeline`；子 pipeline 可由另一个 `Aggregate<?>` 提供，`expr` 可通过 Query/BSON stage 表达。

@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.model.*;
 import com.mongodb.client.model.Facet;
+import com.mongodb.client.model.Variable;
 import com.mongodb.client.model.densify.DensifyOptions;
 import com.mongodb.client.model.densify.DensifyRange;
 import com.mongodb.client.model.fill.FillOptions;
@@ -1075,6 +1076,28 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam from COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoParam letList VARIABLE_DEFINITION ELEMENT
+     * @mongoEntryConstruction letList constructor=com.mongodb.client.model.Variable artifact=org.mongodb:mongodb-driver-core:5.4.0 key=0 value=1 keySemantic=VARIABLE_NAME valueSemantic=PIPELINE_EXPRESSION result=VARIABLE_DEFINITION
+     * @mongoEntryConstructionSource letList artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Variable#Variable(String,TExpression);getName;getValue mechanism=公开构造器原样保存名称和表达式值；StringCodec保留字段引用字符串。
+     * @mongoTypedContainer letList input=DOCUMENT_ENTRIES order=INPUT target=java.util.List
+     * @mongoVariableScope declarations=letList body=aggregate parent=ENCLOSING initializer=PARENT inheritance=LEXICAL shadowing=NEAREST exit=RESTORE_PARENT
+     * @mongoVariableScopeSource reference=https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/ symbols=let;pipeline mechanism=let声明仅在目标pipeline及继承该环境的嵌套pipeline可见；退出body不向outer或sibling导出声明。
+     * @mongoVariableScopeSource reference=https://github.com/mongodb/mongo/blob/r8.0.0/src/mongo/db/pipeline/document_source_lookup.cpp symbols=DocumentSourceLookUp;Expression::parseOperand;VariablesParseState::defineVariable;Variables::copyToExpCtx mechanism=initializer使用expCtx的父variablesParseState；新变量写入独立_variablesParseState并复制到foreign body环境。
+     * @mongoVariableScopeSource reference=https://github.com/mongodb/mongo/blob/r8.0.0/src/mongo/db/pipeline/variables.cpp symbols=VariablesParseState::defineVariable;VariablesParseState::getVariable mechanism=同名新声明替换当前独立parseState中的名称到ID映射；引用取得最近环境中的声明ID；找不到已声明用户或system变量时报undefined-variable。
+     * @mongoObjectField letList field=let
+     * @mongoObjectFieldSource letList path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,List,Aggregate,String) mechanism=letList原样交给Driver；Aggregate提取既有有序管道列表。
+     * @mongoObjectFieldSource letList artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.LookupStage.toBsonDocument;Variable.getName;Variable.getValue mechanism=按List顺序遍历变量，以名称writeName并encodeValue写入let子document。
+     * @mongoObjectField from field=from
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectField as field=as
+     * @mongoObjectFieldSource from path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,List,Aggregate,String) mechanism=from原样委托Aggregates.lookup。
+     * @mongoObjectFieldSource from artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.LookupStage.toBsonDocument mechanism=writeString将from原样写入lookup对象的from字段。
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,List,Aggregate,String) mechanism=getAggregateConditionList提供完整有序PIPELINE。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.LookupStage.toBsonDocument mechanism=逐stage编码到pipeline数组，保持输入顺序。
+     * @mongoObjectFieldSource as path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,List,Aggregate,String) mechanism=as原样委托Aggregates.lookup。
+     * @mongoObjectFieldSource as artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.LookupStage.toBsonDocument mechanism=writeString将as原样写入lookup对象的as字段。
+     * @mongoPipelineInput aggregate extractor=com.mongoplus.aggregate.Aggregate#getAggregateConditionList()
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <TExpression> Children lookup(final String from, final List<Variable<TExpression>> letList,
                                   final Aggregate<?> aggregate, final String as);
@@ -1142,6 +1165,19 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam from COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoObjectField from field=from
+     * @mongoObjectFieldSource from path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,Aggregate,String) mechanism=from 原样传给 Driver Aggregates.lookup。
+     * @mongoObjectFieldSource from artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.lookup;LookupStage.toBsonDocument mechanism=Driver 将 from 字符串原样写入 from 字段。
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,Aggregate,String);getAggregateConditionList mechanism=Aggregate 取 receiver 的完整 Stage 列表后传给 Driver。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.lookup;LookupStage.toBsonDocument mechanism=Driver 将完整 Stage 列表按输入顺序编码为 pipeline 数组。
+     * @mongoVariableEnvironment aggregate source=ENCLOSING inheritance=LEXICAL exit=RESTORE_PARENT
+     * @mongoVariableScopeSource reference=https://github.com/mongodb/mongo/blob/r8.0.0/src/mongo/db/pipeline/document_source_lookup.cpp symbols=DocumentSourceLookUp;Variables::copyToExpCtx mechanism=无本地let声明时仍复制父variables及parseState到独立foreign pipeline环境；不向父环境导出声明。
+     * @mongoObjectField as field=as
+     * @mongoObjectFieldSource as path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=lookup(String,Aggregate,String) mechanism=as 输出字段名原样传给 Driver Aggregates.lookup。
+     * @mongoObjectFieldSource as artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.lookup;LookupStage.toBsonDocument mechanism=Driver 将 as 字符串原样写入 as 字段。
+     * @mongoPipelineInput aggregate extractor=com.mongoplus.aggregate.Aggregate#getAggregateConditionList()
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children lookup(final String from, final Aggregate<?> aggregate, final String as);
 
@@ -1528,6 +1564,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unionWith
      * @mongoParam collectionName COLLECTION_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final String collectionName);
 
@@ -1540,6 +1577,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unionWith
      * @mongoParam collection COLLECTION_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final Class<?> collection);
 
@@ -1553,6 +1591,14 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $unionWith
      * @mongoParam collectionName COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
+     * @mongoObjectField collectionName field=coll
+     * @mongoObjectFieldSource collectionName path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(String,Aggregate);unionWith(String,List) mechanism=collectionName 原样委托给 Driver Aggregates.unionWith。
+     * @mongoObjectFieldSource collectionName artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 将 collection 字符串写入 coll 字段。
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(String,Aggregate);getAggregateConditionList();unionWith(String,List) mechanism=Aggregate receiver 的完整有序列表由 getAggregateConditionList 提取并传给 Driver。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 按输入顺序将完整 Stage 编码到 pipeline 数组，不额外包装元素。
+     * @mongoPipelineInput aggregate extractor=com.mongoplus.aggregate.Aggregate#getAggregateConditionList()
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final String collectionName,final Aggregate<?> aggregate);
 
@@ -1566,6 +1612,13 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $unionWith
      * @mongoParam collectionName COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
+     * @mongoObjectField collectionName field=coll
+     * @mongoObjectFieldSource collectionName path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(String,List) mechanism=collectionName 原样传给 Driver Aggregates.unionWith。
+     * @mongoObjectFieldSource collectionName artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 将 collection 字符串写入 coll 字段。
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(String,List) mechanism=已有完整 Bson Stage 列表原样传给 Driver，不声明 Stage 到 Bson 的构造能力。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 按输入顺序将完整 Stage 编码到 pipeline 数组，不额外包装元素。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final String collectionName,final List<? extends Bson> aggregate);
 
@@ -1579,6 +1632,14 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $unionWith
      * @mongoParam collection COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
+     * @mongoObjectField collection field=coll
+     * @mongoObjectFieldSource collection path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(Class,Aggregate);unionWith(String,Aggregate) mechanism=Class 经 AnnotationOperate.getCollectionName 转成集合名再委托 String overload；需要 Java Class 值。
+     * @mongoObjectFieldSource collection artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 将解析后的 collection 字符串写入 coll 字段。
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(Class,Aggregate);unionWith(String,Aggregate);getAggregateConditionList() mechanism=委托 String overload 后提取 Aggregate receiver 的完整有序列表。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 按输入顺序将完整 Stage 编码到 pipeline 数组，不额外包装元素。
+     * @mongoPipelineInput aggregate extractor=com.mongoplus.aggregate.Aggregate#getAggregateConditionList()
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final Class<?> collection,final Aggregate<?> aggregate);
 
@@ -1592,6 +1653,13 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $unionWith
      * @mongoParam collection COLLECTION_NAME VALUE
      * @mongoParam aggregate PIPELINE VALUE
+     * @mongoObjectField collection field=coll
+     * @mongoObjectFieldSource collection path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(Class,List);unionWith(String,List) mechanism=Class 经 AnnotationOperate.getCollectionName 转成集合名再委托 String overload；需要 Java Class 值。
+     * @mongoObjectFieldSource collection artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 将解析后的 collection 字符串写入 coll 字段。
+     * @mongoObjectField aggregate field=pipeline
+     * @mongoObjectFieldSource aggregate path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unionWith(Class,List);unionWith(String,List) mechanism=已有完整 Bson Stage 列表委托给 String overload，不声明 Stage 到 Bson 的构造能力。
+     * @mongoObjectFieldSource aggregate artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.unionWith;UnionWithStage.toBsonDocument mechanism=Driver 按输入顺序将完整 Stage 编码到 pipeline 数组，不额外包装元素。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unionWith(final Class<?> collection,final List<? extends Bson> aggregate);
 

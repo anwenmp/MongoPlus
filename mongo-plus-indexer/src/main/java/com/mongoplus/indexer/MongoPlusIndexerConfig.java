@@ -40,6 +40,7 @@ public final class MongoPlusIndexerConfig {
     private final boolean pipeline;
     private final List<String> expressionRoots;
     private final List<String> constructionRoots;
+    private final Path constructionArtifactRepository;
 
     private MongoPlusIndexerConfig(Builder builder) {
         if (builder.sourceRoots.isEmpty()) {
@@ -58,6 +59,7 @@ public final class MongoPlusIndexerConfig {
                 new ArrayList<String>(new java.util.TreeSet<String>(builder.expressionRoots)));
         this.constructionRoots = Collections.unmodifiableList(
                 new ArrayList<String>(new java.util.TreeSet<String>(builder.constructionRoots)));
+        this.constructionArtifactRepository = builder.constructionArtifactRepository.toAbsolutePath().normalize();
         if (pipeline && includeGeneratedAt) {
             throw new IllegalArgumentException("Pipeline Index 不允许非确定性的 generatedAt");
         }
@@ -110,6 +112,7 @@ public final class MongoPlusIndexerConfig {
     public boolean isPipeline() { return pipeline; }
     public List<String> getExpressionRoots() { return expressionRoots; }
     public List<String> getConstructionRoots() { return constructionRoots; }
+    public Path getConstructionArtifactRepository() { return constructionArtifactRepository; }
 
     /** 创建聚合专用索引配置，复用项目版本和源码根。 */
     public static Builder forPipelineProject(Path projectRoot) throws IOException {
@@ -130,6 +133,15 @@ public final class MongoPlusIndexerConfig {
         private boolean pipeline;
         private final List<String> expressionRoots = new ArrayList<String>();
         private final List<String> constructionRoots = new ArrayList<String>();
+        private Path constructionArtifactRepository = java.nio.file.Paths.get(System.getProperty("maven.repo.local",
+                System.getProperty("user.home") + "/.m2/repository"));
+
+        /** 只读取显式 construction 契约引用的 artifact；不扫描仓库、不下载依赖。 */
+        public Builder constructionArtifactRepository(Path repository) {
+            if (repository == null) { throw new IllegalArgumentException("construction artifact repository 不能为空"); }
+            this.constructionArtifactRepository = repository;
+            return this;
+        }
 
         /** 添加精确构造类型入口；其语义仍须由当前声明的源码标签证明。 */
         public Builder addConstructionRoot(String qualifiedName) {

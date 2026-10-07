@@ -182,8 +182,10 @@ public final class MongoPlusPipelineIndexerSelfTest {
                     "com/mongoplus/aggregate/pipeline/Project.java"}) {
                 source(fixture, name, new String(Files.readAllBytes(core.resolve(name)), StandardCharsets.UTF_8)
                         .replaceAll("(?m)^\\s*\\* @mongo(?:Stage|Expression) \\$[A-Za-z][A-Za-z0-9]*\\r?\\n", "")
-                        // receiver effect/container 依赖显式 Stage；空映射夹具须一起移除依赖契约。
-                        .replaceAll("(?m)^\\s*\\* @mongoPipeline(?:Effect|Container) [^\\r\\n]*\\r?\\n", ""));
+                        // 移除依赖 Stage/字段绑定的契约，保留此夹具对入口标签筛选的单独验证。
+                        .replaceAll("(?m)^\\s*\\* @mongoPipeline(?:Effect|Container) [^\\r\\n]*\\r?\\n", "")
+                        .replaceAll("(?m)^\\s*\\* @mongoObjectField(?:Source)? [^\\r\\n]*\\r?\\n", "")
+                        .replaceAll("(?m)^\\s*\\* @mongoVariable(?:Scope(?:Source)?|Environment) [^\\r\\n]*\\r?\\n", ""));
             }
             MongoPlusIndexer evidence = generator;
             require(evidence.generate().getMethodFamilies().isEmpty(), "真实方法名、包名和描述不能代替标签");

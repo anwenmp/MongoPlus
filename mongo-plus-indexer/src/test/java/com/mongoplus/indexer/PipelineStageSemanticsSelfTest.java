@@ -23,7 +23,7 @@ public final class PipelineStageSemanticsSelfTest {
         verifyPipelines(index);
         verifyExplicitTags();
         System.out.println("PipelineStageSemanticsSelfTest PASSED: 33 families / 140 overloads / 291 parameters; "
-                + "222 Stage additions (including sample and named pipeline entries) + 2 option setter parameters; role negatives PASS");
+                + "223 Stage additions (including sample, named pipeline and typed variable entries) + 2 option setter parameters; role negatives PASS");
     }
 
     private static MongoPlusApiIndex generate(Path root) throws Exception {
@@ -76,7 +76,7 @@ public final class PipelineStageSemanticsSelfTest {
             expectedMethods.add(row[4] + "\t" + row[2]);
         }
         require(actualMethods.equals(expectedMethods), "完整 overload 清单（含无参方法）变化");
-        require(added == 222, "新增参数计数错误");
+        require(added == 223, "新增参数计数错误");
         Map<?, ?> options = maps(index.list("types")).stream()
                 .filter(t -> "com.mongoplus.aggregate.pipeline.UnwindOption".equals(t.get("qualifiedName")))
                 .findFirst().orElseThrow();

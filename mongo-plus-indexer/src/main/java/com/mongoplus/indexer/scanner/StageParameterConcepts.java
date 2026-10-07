@@ -18,7 +18,8 @@ final class StageParameterConcepts {
     private static final List<String> SEMANTICS = Arrays.asList(
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
             "FOREIGN_FIELD_NAME", "INTEGER_VALUE", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
-            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT", "NAMED_PIPELINE");
+            "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT", "NAMED_PIPELINE",
+            "VARIABLE_NAME", "VARIABLE_DEFINITION");
 
     private StageParameterConcepts() { }
 
@@ -101,6 +102,7 @@ final class StageParameterConcepts {
         }
         if (Arrays.asList("FIELD_NAME", "FIELD_REFERENCE", "LOCAL_FIELD_NAME", "FOREIGN_FIELD_NAME",
                 "OUTPUT_FIELD_NAME").contains(semantic)) { return string || getter; }
+        if ("VARIABLE_NAME".equals(semantic)) { return "VALUE".equals(scope) && string; }
         if ("COLLECTION_NAME".equals(semantic)) {
             return "VALUE".equals(scope) && (string || value.startsWith("Class<") || value.startsWith("java.lang.Class<"));
         }
@@ -117,6 +119,11 @@ final class StageParameterConcepts {
     }
 
     static Map<String, Object> concept(String reference) {
+        if (conceptId("VARIABLE_DEFINITION").equals(reference)) {
+            return object("id", reference, "semanticType", "VARIABLE_DEFINITION", "semanticScope", "ELEMENT",
+                    "name", "VARIABLE_DEFINITION", "description", "名称与表达式值构成的单个变量定义；"
+                            + "Java 构造及目标容器兼容性必须由独立 entry/container evidence 证明。");
+        }
         if (conceptId("NAMED_PIPELINE").equals(reference)) {
             return object("id", reference, "semanticType", "NAMED_PIPELINE", "semanticScope", "ELEMENT",
                     "name", "NAMED_PIPELINE", "description", "一个输出名称与完整有序 PIPELINE 组成的命名条目；"
@@ -149,6 +156,13 @@ final class StageParameterConcepts {
         String mechanism;
         String symbols;
         switch (semantic) {
+            case "VARIABLE_NAME":
+                representations.add(name());
+                result.put("interpretation", "NAME");
+                result.put("sourceEvidence", Arrays.asList(object("source", "EXPLICIT_ENTRY_CONTRACT",
+                        "mechanism", "名称角色由 entry key 标签声明；原值传给已校验构造器的 String 参数。")));
+                result.put("representations", representations);
+                return result;
             case "FIELD_REFERENCE":
                 representations.add(object("javaType", "java.lang.String", "encoding", "UNCHANGED",
                         "prefix", "$", "excludedPrefix", "$$", "automaticFieldPrefix", false));

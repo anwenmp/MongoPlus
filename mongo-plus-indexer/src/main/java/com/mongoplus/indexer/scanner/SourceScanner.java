@@ -611,7 +611,8 @@ public final class SourceScanner {
                             && method.staticMethod && !name.equals(entry)) { continue; }
                     if (dependencies.contains(name) || !mapping(type, method, "mongoStage").isEmpty()
                             || !mapping(type, method, "mongoExpression").isEmpty()
-                            || PipelineConstructionContract.hasTags(method.tags)) {
+                            || PipelineConstructionContract.hasTags(method.tags)
+                            || VariableBindingScopeContract.hasTags(method.tags)) {
                         methods.add(evidence(type, method));
                     }
                 }
@@ -645,6 +646,9 @@ public final class SourceScanner {
             if (hasExpressionParameterEvidence) { index.list("concepts").add(expressionParameterConcept()); }
             for (String semantic : stageParameterSemantics) {
                 index.list("concepts").add(StageParameterConcepts.concept(semantic));
+            }
+            if (requiredCapabilities.contains(VariableBindingScopeContract.CAPABILITY)) {
+                index.list("concepts").add(VariableBindingScopeContract.concept());
             }
             Map<String, Object> stats = index.object("scanStatistics");
             Set<String> activeTypes = new java.util.TreeSet<String>(hierarchy);
@@ -765,6 +769,24 @@ public final class SourceScanner {
             value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
             expressionShape(owner, method, value);
             parameterSemantics(owner, method, value);
+            Map<String, Map<String, String>> entryGenerics = new LinkedHashMap<String, Map<String, String>>();
+            for (String generic : owner.typeParameters) {
+                entryGenerics.put(generic.split("\\s+")[0], entryGeneric(generic, qualified(owner)));
+            }
+            for (String generic : method.typeParameters) {
+                entryGenerics.put(generic.split("\\s+")[0],
+                        entryGeneric(generic, qualified(owner) + "#" + method.signature()));
+            }
+            if (EntryContainerConstructionContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value,
+                    name -> method.parameters.stream().filter(parameter -> name.equals(parameter.name))
+                            .findFirst().get().typeTree,
+                    name -> resolveEntryType(owner, name), entryGenerics, config.getConstructionArtifactRepository(),
+                    reference -> {
+                        if (FIELD_REFERENCE_CONCEPT.equals(reference)) { hasExpressionParameterEvidence = true; }
+                        else { stageParameterSemantics.add(reference); }
+                    })) {
+                requiredCapabilities.add(EntryContainerConstructionContract.CAPABILITY);
+            }
             if (ObjectFieldBindingContract.apply(qualified(owner) + "#" + method.signature(),
                     method.tags.getOrDefault(ObjectFieldBindingContract.TAG, Collections.<String>emptyList()),
                     method.tags.getOrDefault(ObjectFieldBindingContract.SOURCE_TAG, Collections.<String>emptyList()), value)) {
@@ -774,6 +796,10 @@ public final class SourceScanner {
             if (PipelineConstructionContract.apply(qualified(owner) + "#" + method.signature(), qualified(owner),
                     false, method.staticMethod, method.tags, value)) {
                 requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
+            }
+            if (VariableBindingScopeContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value)) {
+                requiredCapabilities.add(VariableBindingScopeContract.CAPABILITY);
+                hasExpressionParameterEvidence = true;
             }
             List<String> reductions = method.tags.getOrDefault("mongoReduction", Collections.<String>emptyList());
             if (!reductions.isEmpty()) {
@@ -864,6 +890,8 @@ public final class SourceScanner {
                 }
                 boolean stageBodyElement = StageParameterConcepts.isStageBodyElement(parts[1], parts[2]);
                 boolean namedPipelineElement = "NAMED_PIPELINE".equals(parts[1]) && "ELEMENT".equals(parts[2]);
+                boolean constructedElement = "ELEMENT".equals(parts[2])
+                        && EntryContainerConstructionContract.declares(method.tags, parts[0]);
                 if (target != null && namedPipelineElement) {
                     SourceParameter declaration = method.parameters.stream()
                             .filter(parameter -> parts[0].equals(parameter.name)).findFirst().get();
@@ -883,7 +911,7 @@ public final class SourceScanner {
                     }
                 }
                 if (target == null
-                        || (!stageBodyElement && !namedPipelineElement && "ELEMENT".equals(parts[2])
+                        || (!stageBodyElement && !namedPipelineElement && !constructedElement && "ELEMENT".equals(parts[2])
                         && !isExpressionElementContainer(owner, target))
                         || ("VALUE".equals(parts[2]) && Boolean.TRUE.equals(target.get("varargs")))) {
                     throw new IllegalArgumentException("@mongoParam 参数或作用范围不匹配: " + qualified(owner)
@@ -895,7 +923,7 @@ public final class SourceScanner {
                 String declaredType = (String) target.get("type");
                 if ("INTEGER_VALUE".equals(parts[1])) { declaredType = resolveNumericType(owner, declaredType); }
                 if (target.containsKey("semanticEvidence") || !expression
-                        && (!stageBodyElement && !namedPipelineElement
+                        && (!stageBodyElement && !namedPipelineElement && !constructedElement
                         && !StageParameterConcepts.accepts(parts[1], declaredType, parts[2])
                         || !StageParameterConcepts.acceptsConcept(parts[1], parts[2], conceptRef))
                         || expression && parts.length != 3) {
@@ -959,6 +987,25 @@ public final class SourceScanner {
             return resolved;
         }
 
+        /** entry 的外部类型要求完整名或显式 import；java.lang 表示单独解析。 */
+        private String resolveEntryType(SourceType owner, String name) {
+            if (name.contains(".")) { return name; }
+            String imported = owner.imports.get(name);
+            if (imported != null) { return imported; }
+            String local = owner.packageName + "." + name;
+            if (locateQualifiedName(local) != null) { return local; }
+            if (Arrays.asList("String", "Object").contains(name)) { return "java.lang." + name; }
+            if ("List".equals(name) && owner.imports.containsKey("java.util.*")) { return "java.util.List"; }
+            throw new IllegalArgumentException("entry Java 类型需要完整名或显式 import: " + name);
+        }
+
+        private Map<String, String> entryGeneric(String declaration, String owner) {
+            Map<String, String> result = new LinkedHashMap<String, String>();
+            result.put("declaration", declaration);
+            result.put("declaredBy", owner);
+            return result;
+        }
+
         /** 只校验显式 ELEMENT 标签的容器结构；容器类型本身不产生任何语义。 */
         private boolean isExpressionElementContainer(SourceType owner, Map<String, Object> parameter) {
             String type = (String) parameter.get("type");
@@ -993,6 +1040,8 @@ public final class SourceScanner {
             variable.put("encoding", "UNCHANGED");
             variable.put("sourceExample", "$$SEARCH_META");
             variable.put("bindingValidated", false);
+            VariableBindingScopeContract.describeReference(variable,
+                    requiredCapabilities.contains(VariableBindingScopeContract.CAPABILITY));
             concept.put("variableReference", variable);
             Map<String, Object> literal = object();
             literal.put("javaType", "java.lang.String");

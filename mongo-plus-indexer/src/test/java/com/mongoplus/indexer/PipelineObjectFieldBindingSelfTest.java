@@ -98,6 +98,7 @@ public final class PipelineObjectFieldBindingSelfTest {
             require(overloads(split).get(0).equals(publicMethods(split).get(0)), "多参数同步视图");
             passed++;
             reject(file, generator, Files.readString(file).replace("field=count", "field=quantity"), "重复对象字段");
+            genericBindings(file, generator);
             Files.writeString(file, source("Number", "", "", ""));
             require(!generator.generate().asMap().containsKey("requiredCapabilities"), "无绑定时不声明能力");
             passed++;
@@ -112,6 +113,36 @@ public final class PipelineObjectFieldBindingSelfTest {
     private static String source(String type, String parameter, String binding, String origin) {
         return "package com.mongoplus.aggregate; public interface Aggregate<C> {\n/**\n * "
                 + parameter + "\n * " + binding + "\n * " + origin + "\n * @mongoStage $arbitrary\n */\n C construct(" + type + " amount);\n}\n";
+    }
+
+    private static void genericBindings(Path file, MongoPlusIndexer generator) throws Exception {
+        // 无关的 Stage/方法/参数/字段名称；纯字段映射不被迫声明 Int32 编码。
+        String source = "package com.mongoplus.aggregate; public interface Aggregate<C> {\n/**\n"
+                + " * @mongoStage $unrelated\n * @mongoParam destination COLLECTION_NAME VALUE\n"
+                + " * @mongoParam sequence PIPELINE VALUE\n * @mongoObjectField destination field=target\n"
+                + " * @mongoObjectField sequence field=steps\n"
+                + " * @mongoObjectFieldSource destination path=fixture/Impl.java symbols=compose mechanism=集合名原值。\n"
+                + " * @mongoObjectFieldSource sequence path=fixture/Impl.java symbols=compose mechanism=完整有序管道。\n"
+                + " */ C compose(String destination, Aggregate<?> sequence); }";
+        Files.writeString(file, source);
+        MongoPlusApiIndex index = generator.generate();
+        Map<?, ?> method = overloads(index).get(0);
+        List<?> parameters = (List<?>) method.get("parameters");
+        for (int i = 0; i < parameters.size(); i++) {
+            Map<?, ?> binding = (Map<?, ?>) ((Map<?, ?>) parameters.get(i)).get("objectFieldBinding");
+            require(List.of("target", "steps").get(i).equals(binding.get("field")), "通用字段按显式标签输出");
+            require(!binding.containsKey("encoding") && !binding.containsKey("minimum") && !binding.containsKey("maximum"), "非整数不伪造编码/范围");
+        }
+        require(method.equals(publicMethods(index).get(0)), "泛化后两个完整视图一致");
+        passed++;
+        reject(file, generator, source.replace("field=target", ""), "缺少属性: field");
+        reject(file, generator, source.replace("field=steps", "field=target"), "重复对象字段");
+        for (String attributes : List.of("encoding=INT32_EXACT", "minimum=1", "maximum=20",
+                "encoding=INT32_EXACT minimum=1 maximum=20")) {
+            reject(file, generator, source.replace("field=target", "field=target " + attributes), "INTEGER_VALUE VALUE");
+        }
+        reject(file, generator, source.replace("String destination", "Number destination"), "Java 表示不匹配");
+        reject(file, generator, source.replace("Aggregate<?> sequence", "String sequence"), "Java 表示不匹配");
     }
 
     private static void completeSample(MongoPlusApiIndex index) {
