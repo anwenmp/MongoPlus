@@ -68,7 +68,11 @@ MongoPlus listener 层没有字段排除、command/database 过滤、命令白/�
 
 ## 测试与证据
 
-当前仓库未发现覆盖此链的回归测试。至少应覆盖 CRUD、aggregate/getMore、bulkWrite、索引、成功/失败、慢/异常 listener、多 listener/相同 order、重复初始化、多/动态数据源、旧 client、事务、分片、大 BSON、敏感字段及 Boot 3/Boot 4/Solon。
+`LogListener` 的 `pretty=true` 通过 `MongoCommandBuildUtils.buildCommand` 构建日志文本。更新命令逐项根据 `multi` 选择 `updateOne`/`updateMany`：省略或显式 `false` 使用 `updateOne`，`true` 使用 `updateMany`。2026-10-08 修复批量更新项省略 `multi` 时的空指针：文档字段缺失返回空字符串，与已有数组解析保持一致，不再把 Java `null` 传入 `BsonUtil.toJavaType`；原始命令 BSON 不被修改。
+
+`mongo-plus-core` 的 `MongoCommandBuildUtilsTest` 包含 5 项纯本地回归，覆盖混合批量缺失/false/true、单条数组和文档形态，断言 q/u、顺序、系统换行及原始 BSON 不变。修复前批量和文档形态两项复现 `BsonUtil.java:276` 空指针；修复后执行 `mvn -pl mongo-plus-core -am test`，core 共 30 项测试全部通过（Maven 3.8.6、JDK 21.0.11、Driver 5.4.0）。这些测试构造 Driver 事件，不连接 MongoDB。
+
+真实 Driver 回调链仍需覆盖 CRUD、aggregate/getMore、bulkWrite、索引、成功/失败、慢/异常 listener、多 listener/相同 order、重复初始化、多/动态数据源、旧 client、事务、分片、大 BSON、敏感字段及 Boot 3/Boot 4/Solon；本次本地命令构建测试不作为上述运行行为的证据。
 
 关键源码：`MongoUtil.java`，`BaseListener.java`，`Listener.java`，`MongoPlusListener.java`，`ListenerCache.java`，三个 command 模型，三个集成模块的 `MongoPlusAutoConfiguration.java`/`MongoPlusConfiguration.java`，`DataSourceManager.java`。
 

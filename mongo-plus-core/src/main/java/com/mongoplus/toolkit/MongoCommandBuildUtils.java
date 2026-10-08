@@ -187,6 +187,10 @@ public class MongoCommandBuildUtils {
             return bs.toJson();
         } else {
             BsonValue bsonValue = bs.get(item);
+            // UpdateOneModel 可省略 multi，缺失字段与数组解析保持一致。
+            if (Objects.isNull(bsonValue)) {
+                return "";
+            }
             if (bsonValue instanceof BsonDocument) {
                 return bsonValue.asDocument().toJson();
             }
