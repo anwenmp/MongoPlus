@@ -22,21 +22,28 @@ public final class MongoPlusPipelineIndexerSelfTest {
         MongoPlusApiIndex index = real.generate();
         require(((Number) index.object("scanStatistics").get("pipelineExpressionCount")).intValue() > 0,
                 "正式 Pipeline 入口必须直接收录 Expression API");
-        require(index.getMethodFamilies().size() == 96, "真实源码应收录 34 个 stage 和 62 个 expression/composition family");
+        require(index.getMethodFamilies().size() == 100, "真实源码应收录 34 个 stage、62 个 expression 和 4 个 query family");
         require(index.asMap().get("expressionRoots").equals(MongoPlusIndexerConfig.PIPELINE_EXPRESSION_ROOTS),
                 "正式 Expression 入口必须明确且不包含 deprecated 旧包");
         int realOverloads = 0;
         int expressionOverloads = 0;
+        int queryOverloads = 0;
         java.util.Set<String> declarations = new java.util.TreeSet<String>();
         java.util.Set<String> evidenceKeys = new java.util.HashSet<String>();
         for (Object item : index.getMethodFamilies()) {
             Map<?, ?> family = (Map<?, ?>) item;
             boolean stage = "PIPELINE_STAGE".equals(family.get("apiCategory"));
+            boolean query = "PIPELINE_QUERY_PREDICATE".equals(family.get("apiCategory"));
             for (Object itemOverload : (List<?>) family.get("overloads")) {
                 Map<?, ?> overload = (Map<?, ?>) itemOverload;
                 require(evidenceKeys.add(family.get("apiCategory") + ":" + overload.get("declaredIn")
                         + ":" + overload.get("signature")), "同一声明不能因多个入口或依赖路径重复收录");
-                if (!stage) {
+                if (query) {
+                    require(!((List<?>) overload.get("mongoQueryPredicates")).isEmpty(), "每个 Query 必须有自身标签");
+                    require(((List<?>) overload.get("mongoExpressions")).isEmpty()
+                            && ((List<?>) overload.get("mongoStages")).isEmpty(), "Query 不能混入 Expression 或 Stage");
+                    queryOverloads++;
+                } else if (!stage) {
                     require(!((List<?>) overload.get("mongoExpressions")).isEmpty(), "每个 expression 必须有自身标签");
                     require(((List<?>) overload.get("mongoStages")).isEmpty(), "Expression 不能推断 Stage 映射");
                     require(!((List<?>) overload.get("availableIn")).contains(MongoPlusIndexerConfig.PIPELINE_ENTRY_TYPE),
@@ -56,13 +63,15 @@ public final class MongoPlusPipelineIndexerSelfTest {
         }
         require(realOverloads == 141, "真实源码 stage overload evidence 数量变化");
         require(expressionOverloads == 170, "正式 Expression 应排除旧包副本的 54 条 evidence");
+        require(queryOverloads == 6, "Query 映射保留 eq/gte 及 and/or 的全部合法 overload");
         require(declarations.equals(new java.util.TreeSet<String>(MongoPlusIndexerConfig.PIPELINE_EXPRESSION_ROOTS)),
                 "Expression 声明只能来自已核对的六个公开工厂");
         require(!json(index).contains("com.mongoplus.conditions.interfaces.ConditionOperators"),
                 "deprecated 旧包不能重复进入正式 Index");
         require(((Number) index.object("scanStatistics").get("pipelineStageCount")).intValue() == 34
                 && ((Number) index.object("scanStatistics").get("pipelineExpressionCount")).intValue() == 62
-                && ((Number) index.object("scanStatistics").get("overloadCount")).intValue() == 311,
+                && ((Number) index.object("scanStatistics").get("pipelineQueryPredicateCount")).intValue() == 4
+                && ((Number) index.object("scanStatistics").get("overloadCount")).intValue() == 317,
                 "正式扫描统计必须与 evidence 一致");
         require(((List<?>) named(index.getMethodFamilies(), "sum").get("overloads")).size() == 6,
                 "累加器与普通 sum 的真实声明需保留，旧包副本需排除");
@@ -241,7 +250,9 @@ public final class MongoPlusPipelineIndexerSelfTest {
                 source(fixture, name, new String(Files.readAllBytes(core.resolve(name)), StandardCharsets.UTF_8)
                         .replaceAll("(?m)^\\s*\\* @mongoExpression \\$[A-Za-z][A-Za-z0-9]*\\r?\\n", ""));
             }
-            require(evidence.generate().getMethodFamilies().isEmpty(), "Expression 根、方法名和描述不能代替显式标签");
+            require(evidence.generate().getMethodFamilies().stream().map(item -> (Map<?, ?>) item)
+                    .noneMatch(family -> "PIPELINE_EXPRESSION".equals(family.get("apiCategory"))),
+                    "Expression 根、方法名和描述不能代替显式标签；独立 Query 标签保持有效");
         } finally {
             try (Stream<Path> paths = Files.walk(fixture)) {
                 for (Path path : (Iterable<Path>) paths.sorted(Comparator.reverseOrder())::iterator) {

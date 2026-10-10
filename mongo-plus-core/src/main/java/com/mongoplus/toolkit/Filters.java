@@ -51,6 +51,13 @@ public final class Filters {
      * @param <TItem>   the value type
      * @return the filter
      * &#064;mongodb.driver.manual  reference/operator/query/eq $eq
+     * @mongoQuery $eq
+     * @mongoParam fieldName FIELD_NAME VALUE
+     * @mongoParam value QUERY_VALUE VALUE
+     * @mongoComposition FIELD_NAME + QUERY_VALUE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_FIELD key=fieldName value=value operator=NONE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=eq;SimpleEncodingFilter.toBsonDocument mechanism=字段名原样写入；隐式等值不生成$eq；值通过BuildersHelper逐值编码。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static <TItem> Bson eq(final String fieldName, @Nullable final TItem value) {
         return new SimpleEncodingFilter<>(fieldName, value);
@@ -103,6 +110,13 @@ public final class Filters {
      * @param <TItem>   the value type
      * @return the filter
      * &#064;mongodb.driver.manual reference/operator/query/gte $gte
+     * @mongoQuery $gte
+     * @mongoParam fieldName FIELD_NAME VALUE
+     * @mongoParam value QUERY_VALUE VALUE
+     * @mongoComposition FIELD_NAME + QUERY_VALUE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_FIELD key=fieldName value=value operator=$gte
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=gte;OperatorFilter.toBsonDocument mechanism=字段下包装固定$gte文档；值通过BuildersHelper逐值编码，不构造聚合数组。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static <TItem> Bson gte(final String fieldName, final TItem value) {
         return new OperatorFilter<>("$gte", fieldName, value);
@@ -192,6 +206,12 @@ public final class Filters {
      * @param filters the list of filters to and together
      * @return the filter
      * &#064;mongodb.driver.manual reference/operator/query/and $and
+     * @mongoQuery $and
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=ARRAY operator=$and
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=and;AndFilter.toBsonDocument mechanism=varargs经Arrays.asList委托Iterable入口；逐个子Bson以相同documentClass和registry编码，保留完整逻辑数组及迭代顺序。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static Bson and(final Iterable<Bson> filters) {
         return new AndFilter(filters);
@@ -212,6 +232,12 @@ public final class Filters {
      * @param filters the list of filters to and together
      * @return the filter
      * &#064;mongodb.driver.manual reference/operator/query/and $and
+     * @mongoQuery $and
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=ARRAY operator=$and
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=and;AndFilter.toBsonDocument mechanism=varargs经Arrays.asList委托Iterable入口；逐个子Bson以相同documentClass和registry编码，保留完整逻辑数组及迭代顺序。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static Bson and(final Bson... filters) {
         return and(asList(filters));
@@ -223,6 +249,12 @@ public final class Filters {
      * @param filters the list of filters to and together
      * @return the filter
      * &#064;mongodb.driver.manual reference/operator/query/or $or
+     * @mongoQuery $or
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=ARRAY operator=$or
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=or;OrNorFilter.toBsonDocument mechanism=varargs经Arrays.asList委托Iterable入口；逐个子Bson以相同documentClass和registry编码，保留完整逻辑数组及迭代顺序。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static Bson or(final Iterable<Bson> filters) {
         return new OrNorFilter(OrNorFilter.Operator.OR, filters);
@@ -234,6 +266,12 @@ public final class Filters {
      * @param filters the list of filters to and together
      * @return the filter
      * &#064;mongodb.driver.manual reference/operator/query/or $or
+     * @mongoQuery $or
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=ARRAY operator=$or
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=or;OrNorFilter.toBsonDocument mechanism=varargs经Arrays.asList委托Iterable入口；逐个子Bson以相同documentClass和registry编码，保留完整逻辑数组及迭代顺序。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java symbols=encodeValue mechanism=null写BSONnull；Bson走toBsonDocument；其他值按runtime类型委托实际Codec。
      */
     public static Bson or(final Bson... filters) {
         return or(asList(filters));
@@ -840,6 +878,62 @@ public final class Filters {
 
     public interface MPBson extends Bson {
         BasicDBObject getBasicDBObject();
+    }
+
+    /**
+     * 按输入顺序合并查询条件的顶层字段，保留隐式等值和各字段的真实 BSON 类型。
+     * 不将多字段改写为逻辑数组；重复字段拒绝，避免覆盖丢失输入条件。
+     * @param filters 已构造的查询条件；非空，元素非 null，顶层键互不重复
+     * @return 查询条件 body，供 match(Bson) 包装为单个 Stage
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=MERGE_DISJOINT operator=NONE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=fields;DisjointFieldsFilter.toBsonDocument mechanism=varargs委托Iterable；相同documentClass和registry逐个编码子Bson；按迭代和字段顺序浅合并，重复键和空输入拒绝。
+     */
+    public static Bson fields(final Bson... filters) {
+        return fields(asList(filters));
+    }
+
+    /**
+     * 按输入顺序合并查询条件的顶层字段，保留隐式等值和各字段的真实 BSON 类型。
+     * 不将多字段改写为逻辑数组；重复字段拒绝，避免覆盖丢失输入条件。
+     * @param filters 已构造的查询条件；非空，元素非 null，顶层键互不重复
+     * @return 查询条件 body，供 match(Bson) 包装为单个 Stage
+     * @mongoParam filters QUERY_PREDICATE ELEMENT
+     * @mongoComposition QUERY_PREDICATE -> QUERY_PREDICATE
+     * @mongoCandidate operation=QUERY_SEQUENCE encoding=MERGE_DISJOINT operator=NONE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/toolkit/Filters.java symbols=fields;DisjointFieldsFilter.toBsonDocument mechanism=varargs委托Iterable；相同documentClass和registry逐个编码子Bson；按迭代和字段顺序浅合并，重复键和空输入拒绝。
+     */
+    public static Bson fields(final Iterable<Bson> filters) {
+        return new DisjointFieldsFilter(filters);
+    }
+
+    /** 延迟编码子条件，避免在构造时绑定隐藏的全局 CodecRegistry。 */
+    private static final class DisjointFieldsFilter implements Bson {
+        private final Iterable<Bson> filters;
+
+        private DisjointFieldsFilter(Iterable<Bson> filters) {
+            this.filters = Objects.requireNonNull(filters, "filters");
+        }
+
+        @Override
+        public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry registry) {
+            BsonDocument result = new BsonDocument();
+            boolean hasFilter = false;
+            for (Bson filter : filters) {
+                hasFilter = true;
+                BsonDocument child = Objects.requireNonNull(filter, "filter")
+                        .toBsonDocument(documentClass, registry);
+                for (Map.Entry<String, BsonValue> entry : child.entrySet()) {
+                    if (result.containsKey(entry.getKey())) {
+                        throw new IllegalArgumentException("Duplicate query field: " + entry.getKey());
+                    }
+                    result.append(entry.getKey(), entry.getValue());
+                }
+            }
+            if (!hasFilter) { throw new IllegalArgumentException("filters must not be empty"); }
+            return result;
+        }
     }
 
     public static final class SimpleFilter implements Bson {

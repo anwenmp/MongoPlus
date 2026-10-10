@@ -19,7 +19,7 @@ final class StageParameterConcepts {
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
             "FOREIGN_FIELD_NAME", "INTEGER_VALUE", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
             "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT", "NAMED_PIPELINE",
-            "VARIABLE_NAME", "VARIABLE_DEFINITION");
+            "VARIABLE_NAME", "VARIABLE_DEFINITION", "QUERY_PREDICATE", "QUERY_VALUE");
 
     private StageParameterConcepts() { }
 
@@ -93,6 +93,12 @@ final class StageParameterConcepts {
             else if (value.contains("<")) { value = value.substring(value.indexOf('<') + 1, value.lastIndexOf('>')); }
         }
         value = value.replaceFirst("^\\? extends ", "");
+        if ("QUERY_VALUE".equals(semantic)) {
+            return "VALUE".equals(scope) && value.matches("(?:java\\.lang\\.)?[A-Za-z][A-Za-z0-9_]*");
+        }
+        if ("QUERY_PREDICATE".equals(semantic)) {
+            return "Bson".equals(value) || BSON_TYPE.equals(value);
+        }
         boolean string = "String".equals(value) || "java.lang.String".equals(value);
         boolean getter = value.startsWith("SFunction<") || value.startsWith("com.mongoplus.support.SFunction<");
         if ("INTEGER_VALUE".equals(semantic)) {
@@ -119,6 +125,24 @@ final class StageParameterConcepts {
     }
 
     static Map<String, Object> concept(String reference) {
+        if (conceptId("QUERY_PREDICATE").equals(reference)) {
+            return object("id", reference, "semanticType", "QUERY_PREDICATE",
+                    "documentRole", "QUERY_PREDICATE_BODY", "javaType", BSON_TYPE,
+                    "requires", "EXPLICIT_RESULT_ROLE_AND_COMPLETE_CANDIDATE_CALL_TREE",
+                    "expressionCoercion", "FORBID", "rawDocumentAdmission", "FORBID",
+                    "description", "普通查询条件；Bson 接口或 Document 类型不能证明此角色。"
+                            + "只能通过已证明的构造项进入 Stage body，不能消费聚合 Expression。");
+        }
+        if (conceptId("QUERY_VALUE").equals(reference)) {
+            return object("id", reference, "semanticType", "QUERY_VALUE", "semanticScope", "VALUE",
+                    "fieldReferenceInterpretation", "NONE", "encoding", "BUILDERS_HELPER_CODEC",
+                    "admittedRuntimeTypes", Arrays.asList("java.lang.String", "java.lang.Integer",
+                            "java.lang.Long", "java.lang.Double", "java.lang.Boolean", "org.bson.types.Decimal128"),
+                    "null", "ENCODE_BSON_NULL", "structuredLiteral", "NOT_ESTABLISHED",
+                    "codecEvidence", "REQUIRED_FOR_EVERY_LEAF",
+                    "description", "比较值原样编码；美元开头的字符串仍是查询值，不解释为字段或变量引用。"
+                            + "数组、对象、Bson 和未知 Codec 需要独立证据，V1 不放行。");
+        }
         if ((conceptId("SORT_SPECIFICATION") + "_ELEMENT").equals(reference)) {
             return object("id", reference, "semanticType", "SORT_SPECIFICATION", "semanticScope", "ELEMENT",
                     "name", "有序排序 body 元素", "description", "一个排序 body 文档；不含外层 Stage，"

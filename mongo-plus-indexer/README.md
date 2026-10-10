@@ -759,3 +759,26 @@ String、任意 Bson、未知泛型对象、Document 子类、null、未知 Code
 `<Object>replaceWith((Object) provenDocument)` 并独立核验 Document 来源，不能把类型实参当作 overload 证据。
 消费者须验证该输入域全部守卫；仅认识旧构造节点或 capability 名称不足以合并候选。
 专项入口：Core `ReplaceWithDocumentEquivalenceTest`、Indexer `ReplaceWithDocumentEvidenceSelfTest <项目根>`。
+
+### P0-07A：普通 Query Predicate
+
+`@mongoQuery` 仅从当前 overload 提取，生成独立 `PIPELINE_QUERY_PREDICATE` family 和
+`mongoQueryPredicates`，不进入 `mongoExpressions`。`QUERY_PREDICATE_CONSTRUCTION_V1` 要求
+消费端识别独立 `QUERY_PREDICATE` / `QUERY_VALUE` 角色；未知能力必须拒绝。
+`QUERY_VALUE` 中美元字符串是普通值，不是字段/变量引用；结构化 Literal 尚未闭合。
+
+沿用 `CANDIDATE_SEMANTICS_V1`：`QUERY_FIELD key=... value=... operator=NONE|$operator`
+发布字段构造项（NONE 保留隐式等值）；`QUERY_SEQUENCE encoding=ARRAY operator=$operator`
+发布 `BSON_DOCUMENT_ARRAY`；`encoding=MERGE_DISJOINT operator=NONE` 发布
+`QUERY_DOCUMENT_MERGE`。所有参数/结果/composition/source/真实 Java 表示及子节点 Codec
+均须独立证明。未知构造节点、原始 Document、Expression 或缺证据不得准入。
+
+`Filters.eq/gte`、`and/or` 的全部真实 overload 补查询证据；新 `Filters.fields` 的 varargs 和
+Iterable 入口按顺序合并互不重复的已证明查询 body，保留 BSON 类型，不改写为逻辑数组。
+`match(Bson)` 补显式 Query 到 Stage 组合、documentInputBinding 与单次追加候选项。
+`Filters.expr` 保留 Expression -> STAGE_BODY_DOCUMENT 路线，不作为普通 Query 子节点。
+多个合法 overload 沿用条件等价证据，保留候选，不提供选择策略。
+
+专项入口：Core `QueryPredicateEncodingTest`、Indexer `QueryPredicateEvidenceSelfTest <项目根>`。
+修改前审计、实际 Java 21 overload / BSON / Stage 验证、拒绝边界和正式 SHA 见
+[P0-07A 报告](p0-07a-query-predicate-report.md)。

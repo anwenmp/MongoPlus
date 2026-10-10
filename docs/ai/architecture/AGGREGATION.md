@@ -434,6 +434,22 @@ Core 测试验证公开 API 的真实字节编码；Indexer main 验证证据准
 Document 来源证明；String、任意 Bson、未知对象/Codec、子类和缺证据不能据此合并候选。
 两条原实现和 Bson 透传行为保持原样；此上游关系不替代 MCP 对具体树的准入或 SELECTED 验收。
 
+### P0-07A：普通 Query Predicate
+
+`Filters.eq(String,TItem)` 的隐式等值、`gte(String,TItem)` 的字段比较及 `and/or` 的有序逻辑
+数组新增逐 overload Query 证据；与同名 AggregateOperator 的 Aggregation Expression 严格分开。
+新增 `Filters.fields(Bson...) / fields(Iterable<Bson>)` 按序浅合并已构造的查询 body，延迟使用
+调用方 documentClass/registry 编码子节点；空输入、null 元素和重复顶层字段拒绝，不改写成 $and。
+原 QueryWrapper 的 eq 仍写显式 $eq；可变累积路线不自动获得本轮正式构造证明。
+
+Indexer 新增 `QUERY_PREDICATE_CONSTRUCTION_V1`、独立 `@mongoQuery` family 和
+`QUERY_PREDICATE` / `QUERY_VALUE`，沿用 CANDIDATE_SEMANTICS_V1 的参数/结果/来源及条件等价。
+`match(Bson)` 补 Query 到 Stage 的显式组合、body 包装和单次追加构造项，原实现不变。
+`Filters.expr` 仍消费 PIPELINE_EXPRESSION 并返回 STAGE_BODY_DOCUMENT；普通 Query 组合器不能
+消费它。无完整子树、Codec 或角色证据保持未闭合；原始 Document 和 P0-07B 结构化 Literal
+不自动准入。Java/Driver 验证不替代 MCP 候选选择或服务器执行。
+审计、专项实测与正式 SHA 见 [P0-07A 报告](../../../mongo-plus-indexer/p0-07a-query-predicate-report.md)。
+
 ## 结果映射与资源生命周期
 
 执行器固定请求 `AggregateIterable<Document>`。`aggregateList` 调用 `MongoConverter.read(iterable, TypeReference)`；`aggregateOne` 调用 `readDocument`。实体/DTO 字段读取依次涉及 TypeHandler、ReadHandler（解密、脱敏、DBRef）及 ConversionStrategy；`_id`、嵌套对象、泛型集合、Map 规则与普通查询相同，详见 [ENTITY_MAPPING.md](ENTITY_MAPPING.md)。DTO 不要求登记 namespace；registry 用于 collection 相关增强，不用于目标 DTO 的实例化。

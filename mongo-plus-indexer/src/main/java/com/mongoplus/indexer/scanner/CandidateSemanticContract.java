@@ -65,6 +65,77 @@ final class CandidateSemanticContract {
         Map<String, Object> term;
         try {
             switch (operation == null ? "" : operation) {
+                case "QUERY_FIELD":
+                    keys(declaration, attrs, "operation", "key", "value", "operator");
+                    Map<String, Object> queryKey = parameter(parameters, attrs.get("key"));
+                    Map<String, Object> queryValue = parameter(parameters, attrs.get("value"));
+                    semantic(queryKey, "FIELD_NAME");
+                    semantic(queryValue, "QUERY_VALUE");
+                    queryResult(method, "FIELD_NAME + QUERY_VALUE -> QUERY_PREDICATE");
+                    if (!(method.get("mongoQueryPredicates") instanceof List<?> queryMappings)
+                            || queryMappings.size() != 1) { throw missing("查询字段缺独立映射"); }
+                    if (parameters.size() != 2 || queryKey == queryValue
+                            || !"VALUE".equals(queryKey.get("semanticScope"))
+                            || !"VALUE".equals(queryValue.get("semanticScope"))
+                            || !"java.lang.String".equals(elementRepresentation(contract, queryKey))) {
+                        throw missing("查询字段需要独立 String 键和 VALUE 值");
+                    }
+                    String queryValueType = elementRepresentation(contract, queryValue);
+                    Map<String, String> queryGeneric = generics.get(queryValueType);
+                    if (!"java.lang.Object".equals(queryValueType)
+                            && (queryGeneric == null || !queryValueType.equals(queryGeneric.get("declaration")))) {
+                        throw missing("查询值需要 Object 或真实无界方法泛型");
+                    }
+                    Map<String, Object> encodedValue = node("BUILDERS_HELPER_CODEC", "input", input(queryValue),
+                            "semanticType", "QUERY_VALUE", "null", "ENCODE_BSON_NULL");
+                    if (!"NONE".equals(attrs.get("operator"))) {
+                        if (!attrs.get("operator").matches("\\$[A-Za-z][A-Za-z0-9]*")) {
+                            throw invalid(declaration, "查询比较操作符必须显式声明");
+                        }
+                        if (!List.of(attrs.get("operator")).equals(method.get("mongoQueryPredicates"))) {
+                            throw missing("查询操作符映射冲突");
+                        }
+                        encodedValue = node("DOCUMENT", "key", attrs.get("operator"), "value", encodedValue);
+                    }
+                    term = node("DOCUMENT_ENTRIES", "key", object("inputParameter", queryKey.get("name"),
+                            "encoding", "UNCHANGED", "javaType", "java.lang.String"),
+                            "value", encodedValue, "order", "INPUT");
+                    ((Map<String, Object>) contract.get("applicability")).put("queryValueDomain",
+                            object("semanticType", "QUERY_VALUE", "structuredValues", "NOT_ESTABLISHED",
+                                    "fieldReferences", "NONE", "fieldName", "NONEMPTY_NO_LEADING_DOLLAR_NO_NUL",
+                                    "runtimeTypes", List.of("java.lang.String", "java.lang.Integer", "java.lang.Long",
+                                            "java.lang.Double", "java.lang.Boolean", "org.bson.types.Decimal128"),
+                                    "null", "ENCODE_BSON_NULL", "enforcement", "BINDING_CONSUMER"));
+                    contract.put("resultSemanticType", "QUERY_PREDICATE");
+                    break;
+                case "QUERY_SEQUENCE":
+                    keys(declaration, attrs, "operation", "encoding", "operator");
+                    Map<String, Object> queryChildren = only(parameters);
+                    semantic(queryChildren, "QUERY_PREDICATE");
+                    queryResult(method, "QUERY_PREDICATE -> QUERY_PREDICATE");
+                    if (!"ELEMENT".equals(queryChildren.get("semanticScope"))
+                            || !"org.bson.conversions.Bson".equals(elementRepresentation(contract, queryChildren))) {
+                        throw missing("查询组合需要真实 Bson 元素容器");
+                    }
+                    if ("ARRAY".equals(attrs.get("encoding"))) {
+                        if (!List.of(attrs.get("operator")).equals(method.get("mongoQueryPredicates"))) {
+                            throw missing("查询数组需要独立操作符映射");
+                        }
+                        term = node("DOCUMENT", "key", attrs.get("operator"), "value",
+                                node("BSON_DOCUMENT_ARRAY", "input", input(queryChildren), "order", "ITERATION",
+                                        "childSemanticType", "QUERY_PREDICATE", "minimumCount", 1));
+                    } else if ("MERGE_DISJOINT".equals(attrs.get("encoding")) && "NONE".equals(attrs.get("operator"))) {
+                        term = node("QUERY_DOCUMENT_MERGE", "input", input(queryChildren), "order", "ITERATION",
+                                "childSemanticType", "QUERY_PREDICATE", "duplicateKeys", "REJECT",
+                                "depth", "SHALLOW", "minimumCount", 1);
+                    } else { throw invalid(declaration, "未知查询组合编码"); }
+                    ((Map<String, Object>) contract.get("applicability")).put("queryChildren",
+                            object("semanticType", "QUERY_PREDICATE", "minimumCount", 1,
+                                    "rawDocumentAdmission", "FORBID", "expressionAdmission", "FORBID",
+                                    "childEncoding", "TO_BSON_DOCUMENT_SAME_DOCUMENT_CLASS_AND_REGISTRY",
+                                    "enforcement", "BINDING_CONSUMER"));
+                    contract.put("resultSemanticType", "QUERY_PREDICATE");
+                    break;
                 case "STAGE_VALUE":
                     keys(declaration, attrs, "operation");
                     Map<String, Object> scalar = only(parameters);
@@ -407,6 +478,18 @@ final class CandidateSemanticContract {
         return node("DOCUMENT", "key", mapping(method, "mongoStages"), "value", body);
     }
 
+    private static void queryResult(Map<String, Object> method, String relation) {
+        if (!Boolean.TRUE.equals(method.get("staticMethod"))
+                || !Arrays.asList("Bson", "org.bson.conversions.Bson").contains(method.get("returnType"))
+                || !"QUERY_PREDICATE".equals(method.get("resultSemanticType"))
+                || !List.of(relation).equals(method.get("compositionSemantics"))
+                || !((List<?>) method.get("mongoExpressions")).isEmpty()
+                || !((List<?>) method.get("mongoStages")).isEmpty()) {
+            throw missing("Query Predicate 需要独立公开静态工厂、Bson 返回值和查询 composition/result");
+        }
+        dependency(method, "resultSemanticEvidence");
+    }
+
     private static String mapping(Map<String, Object> method, String key) {
         List<?> mappings = (List<?>) method.get(key);
         if (mappings.size() != 1) { throw missing("需要独立且唯一的 " + key); }
@@ -464,7 +547,7 @@ final class CandidateSemanticContract {
             if ("com.mongoplus.support.SFunction".equals(raw)) {
                 return object("container", "SCALAR", "javaType", raw, "typeArguments", tree.toString());
             }
-            if (!Arrays.asList("java.util.List", "java.util.Collection").contains(raw)
+            if (!Arrays.asList("java.util.List", "java.util.Collection", "java.lang.Iterable").contains(raw)
                     || container.getTypeArguments().size() != 1) {
                 throw invalid(declaration, "只声明单层 List/Collection 参数域");
             }

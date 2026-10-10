@@ -39,7 +39,7 @@ public final class PipelineCandidateSemanticsSelfTest {
                 }
             }
         }
-        require(count == 71, "原 69 个及 Document 表达式 Stage 的 2 个条件化候选事实");
+        require(count == 80, "原 71 个事实及 8 个 Query 工厂和 match 包装候选");
         for (Map<?, ?> family : maps(index.getMethodFamilies())) {
             for (Map<?, ?> overload : maps((List<?>) family.get("overloads"))) {
                 if (overload.containsKey("candidateSemantics")) {

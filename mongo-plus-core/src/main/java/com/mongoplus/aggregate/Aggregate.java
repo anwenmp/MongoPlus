@@ -504,6 +504,12 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $match
      * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
      * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoComposition QUERY_PREDICATE -> PIPELINE_STAGE_DOCUMENT
+     * @mongoComposition STAGE_BODY_DOCUMENT -> PIPELINE_STAGE_DOCUMENT
+     * @mongoDocumentInput parameter=bson semantic=STAGE_BODY_DOCUMENT encoding=WRAP_DECLARED_STAGE
+     * @mongoDocumentSource mongoDocumentInput path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=match;custom mechanism=match(Bson)只包装一次$match并经custom向当前receiver追加一次。
+     * @mongoCandidate operation=STAGE_DOCUMENT_INPUT
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=match;custom mechanism=body完整保留在$match槽；当前receiver按调用顺序追加一个Stage，不改写查询内容。
      */
     Children match(final Bson bson);
 

@@ -9,6 +9,8 @@ import com.sun.source.doctree.ParamTree;
 import com.sun.source.doctree.ReturnTree;
 import com.sun.source.doctree.UnknownBlockTagTree;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.ArrayTypeTree;
+import com.sun.source.tree.ParameterizedTypeTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
@@ -575,25 +577,28 @@ public final class SourceScanner {
             int overloadCount = 0;
             int stages = 0;
             int expressions = 0;
+            int predicates = 0;
             for (Map.Entry<String, List<MethodRecord>> item : families.entrySet()) {
                 List<MethodRecord> records = item.getValue();
                 records.sort(Comparator.comparing((MethodRecord r) -> qualified(r.type))
                         .thenComparing(r -> r.method.signature()));
                 boolean stage = item.getKey().startsWith("PIPELINE_STAGE:");
+                boolean query = item.getKey().startsWith("PIPELINE_QUERY_PREDICATE:");
                 Map<String, Object> value = family(records.get(0).method.name, records, Collections.<SourceType>emptyList());
-                value.put("apiCategory", stage ? "PIPELINE_STAGE" : "PIPELINE_EXPRESSION");
+                value.put("apiCategory", stage ? "PIPELINE_STAGE" : query ? "PIPELINE_QUERY_PREDICATE" : "PIPELINE_EXPRESSION");
                 Set<String> mappings = new java.util.TreeSet<String>();
                 List<Object> overloads = new ArrayList<Object>();
                 for (MethodRecord record : records) {
-                    mappings.addAll(mapping(record.type, record.method, stage ? "mongoStage" : "mongoExpression"));
+                    mappings.addAll(mapping(record.type, record.method, stage ? "mongoStage" : query ? "mongoQuery" : "mongoExpression"));
                     overloads.add(evidence(record.type, record.method));
                 }
                 value.put("mongoStages", stage ? new ArrayList<String>(mappings) : Collections.emptyList());
-                value.put("mongoExpressions", stage ? Collections.emptyList() : new ArrayList<String>(mappings));
+                value.put("mongoExpressions", stage || query ? Collections.emptyList() : new ArrayList<String>(mappings));
+                if (query) { value.put("mongoQueryPredicates", new ArrayList<String>(mappings)); }
                 value.put("overloads", overloads);
                 index.getMethodFamilies().add(value);
                 overloadCount += records.size();
-                if (stage) { stages++; } else { expressions++; }
+                if (stage) { stages++; } else if (query) { predicates++; } else { expressions++; }
             }
             Set<String> included = new java.util.TreeSet<String>(hierarchy);
             included.addAll(dependencies);
@@ -670,6 +675,20 @@ public final class SourceScanner {
             if (requiredCapabilities.contains(CandidateSemanticContract.CAPABILITY)) {
                 index.list("concepts").add(CandidateSemanticContract.concept());
             }
+            if (requiredCapabilities.contains("QUERY_PREDICATE_CONSTRUCTION_V1")) {
+                Map<String, Object> query = object();
+                query.put("id", "QUERY_PREDICATE_CONSTRUCTION_V1");
+                query.put("semanticType", "QUERY_PREDICATE");
+                query.put("mappingTag", "mongoQuery");
+                query.put("termOperations", List.of("DOCUMENT_ENTRIES", "BUILDERS_HELPER_CODEC",
+                        "BSON_DOCUMENT_ARRAY", "QUERY_DOCUMENT_MERGE"));
+                query.put("closure", "EVERY_PARAMETER_RESULT_SOURCE_CODEC_AND_CHILD_MUST_BE_ESTABLISHED");
+                query.put("expressionCoercion", "FORBID");
+                query.put("rawDocumentAdmission", "FORBID");
+                query.put("unknownEvidence", "UNRESOLVED");
+                query.put("candidateSelection", "NOT_PROVIDED_PRESERVE_ALL_LEGAL_OVERLOADS");
+                index.list("concepts").add(query);
+            }
             Map<String, Object> stats = index.object("scanStatistics");
             Set<String> activeTypes = new java.util.TreeSet<String>(hierarchy);
             activeTypes.addAll(config.getExpressionRoots());
@@ -680,6 +699,7 @@ public final class SourceScanner {
             stats.put("overloadCount", overloadCount);
             stats.put("pipelineStageCount", stages);
             stats.put("pipelineExpressionCount", expressions);
+            stats.put("pipelineQueryPredicateCount", predicates);
             stats.put("externalTypeReferences", new ArrayList<String>(external));
             stats.put("fullProjectTraversal", false);
             if (!requiredCapabilities.isEmpty()) {
@@ -699,8 +719,9 @@ public final class SourceScanner {
         }
 
         private void select(SourceType type, SourceMethod method) throws IOException {
-            for (String category : Arrays.asList("PIPELINE_STAGE", "PIPELINE_EXPRESSION")) {
-                String tag = "PIPELINE_STAGE".equals(category) ? "mongoStage" : "mongoExpression";
+            for (String category : Arrays.asList("PIPELINE_STAGE", "PIPELINE_EXPRESSION", "PIPELINE_QUERY_PREDICATE")) {
+                String tag = "PIPELINE_STAGE".equals(category) ? "mongoStage"
+                        : "PIPELINE_QUERY_PREDICATE".equals(category) ? "mongoQuery" : "mongoExpression";
                 if (mapping(type, method, tag).isEmpty()) { continue; }
                 families.computeIfAbsent(category + ":" + method.name, key -> new ArrayList<MethodRecord>())
                         .add(new MethodRecord(type, method));
@@ -711,7 +732,8 @@ public final class SourceScanner {
 
         private Set<String> mapping(SourceType type, SourceMethod method, String tag) {
             Set<String> values = new java.util.TreeSet<String>();
-            List<String> raw = new ArrayList<String>(type.tags.getOrDefault(tag, Collections.<String>emptyList()));
+            List<String> raw = new ArrayList<String>("mongoQuery".equals(tag)
+                    ? Collections.emptyList() : type.tags.getOrDefault(tag, Collections.<String>emptyList()));
             raw.addAll(method.tags.getOrDefault(tag, Collections.<String>emptyList()));
             for (String value : raw) {
                 // 仅接受独立且完整的显式标记值，不从描述正文提取美元词。
@@ -787,6 +809,8 @@ public final class SourceScanner {
             value.put("modifiers", modifiers);
             value.put("mongoStages", new ArrayList<String>(mapping(owner, method, "mongoStage")));
             value.put("mongoExpressions", new ArrayList<String>(mapping(owner, method, "mongoExpression")));
+            Set<String> queries = mapping(owner, method, "mongoQuery");
+            if (!queries.isEmpty()) { value.put("mongoQueryPredicates", new ArrayList<String>(queries)); }
             expressionShape(owner, method, value);
             parameterSemantics(owner, method, value);
             Map<String, Map<String, String>> entryGenerics = new LinkedHashMap<String, Map<String, String>>();
@@ -813,6 +837,12 @@ public final class SourceScanner {
                 requiredCapabilities.add(ObjectFieldBindingContract.CAPABILITY);
             }
             compositionSemantics(owner, method, value);
+            if (!queries.isEmpty() || "QUERY_PREDICATE".equals(value.get("resultSemanticType"))
+                    || ((List<?>) value.getOrDefault("compositionSemantics", Collections.emptyList())).stream()
+                            .anyMatch(relation -> relation.toString().contains("QUERY_PREDICATE"))) {
+                requiredCapabilities.add("QUERY_PREDICATE_CONSTRUCTION_V1");
+                stageParameterSemantics.add(StageParameterConcepts.conceptId("QUERY_PREDICATE"));
+            }
             if (PipelineConstructionContract.apply(qualified(owner) + "#" + method.signature(), qualified(owner),
                     false, method.staticMethod, method.tags, value)) {
                 requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
@@ -938,6 +968,7 @@ public final class SourceScanner {
                 }
                 boolean stageBodyElement = StageParameterConcepts.isStageBodyElement(parts[1], parts[2]);
                 boolean namedPipelineElement = "NAMED_PIPELINE".equals(parts[1]) && "ELEMENT".equals(parts[2]);
+                boolean queryElement = "QUERY_PREDICATE".equals(parts[1]) && "ELEMENT".equals(parts[2]);
                 boolean constructedElement = "ELEMENT".equals(parts[2])
                         && EntryContainerConstructionContract.declares(method.tags, parts[0]);
                 if (target != null && namedPipelineElement) {
@@ -958,8 +989,24 @@ public final class SourceScanner {
                                 + method.signature() + " -> " + raw + "，原因: " + exception.getMessage(), exception);
                     }
                 }
+                if (target != null && queryElement) {
+                    SourceParameter declaration = method.parameters.stream()
+                            .filter(parameter -> parts[0].equals(parameter.name)).findFirst().orElseThrow();
+                    Tree tree = declaration.typeTree;
+                    if (tree instanceof ArrayTypeTree) {
+                        tree = ((ArrayTypeTree) tree).getType();
+                    } else if (tree instanceof ParameterizedTypeTree
+                            && "java.lang.Iterable".equals(resolveEntryType(owner,
+                                    ((ParameterizedTypeTree) tree).getType().toString()))
+                            && ((ParameterizedTypeTree) tree).getTypeArguments().size() == 1) {
+                        tree = ((ParameterizedTypeTree) tree).getTypeArguments().get(0);
+                    } else { throw new IllegalArgumentException("Query 元素必须为单层 Bson 数组或 Iterable<Bson>"); }
+                    if (!"org.bson.conversions.Bson".equals(resolveEntryType(owner, tree.toString()))) {
+                        throw new IllegalArgumentException("Query 元素必须为真实 Bson 类型");
+                    }
+                }
                 if (target == null
-                        || (!stageBodyElement && !namedPipelineElement && !constructedElement && "ELEMENT".equals(parts[2])
+                        || (!stageBodyElement && !namedPipelineElement && !queryElement && !constructedElement && "ELEMENT".equals(parts[2])
                         && !isExpressionElementContainer(owner, target))
                         || ("VALUE".equals(parts[2]) && Boolean.TRUE.equals(target.get("varargs")))) {
                     throw new IllegalArgumentException("@mongoParam 参数或作用范围不匹配: " + qualified(owner)
@@ -1042,7 +1089,7 @@ public final class SourceScanner {
             if (imported != null) { return imported; }
             String local = owner.packageName + "." + name;
             if (locateQualifiedName(local) != null) { return local; }
-            if (Arrays.asList("String", "Object").contains(name)) { return "java.lang." + name; }
+            if (Arrays.asList("String", "Object", "Iterable").contains(name)) { return "java.lang." + name; }
             if ("List".equals(name) && owner.imports.containsKey("java.util.*")) { return "java.util.List"; }
             throw new IllegalArgumentException("entry Java 类型需要完整名或显式 import: " + name);
         }
