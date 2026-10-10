@@ -1875,6 +1875,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      * @mongoParam collectionName COLLECTION_NAME VALUE
      */
     Children out(final String collectionName);
@@ -1886,6 +1887,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      * @mongoParam collection COLLECTION_NAME VALUE
      */
     Children out(final Class<?> collection);
@@ -1898,6 +1900,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $out
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      * @mongoParam databaseName DATABASE_NAME VALUE
      * @mongoParam collectionName COLLECTION_NAME VALUE
      */

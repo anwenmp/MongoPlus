@@ -35,6 +35,16 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 - 单独看 Tenant，无 match 会 `add(0, $match)` 并污染 Wrapper 原 List；单独看 Logic Delete，无 match 会 `add($match)` 并污染 Wrapper 原 List。两者同时启用且 Tenant 生效时，Tenant 先插入 match，Logic 随后进入“已有 match”分支并返回新 List，所以 Wrapper 原 List 只持久留下 Tenant match，本次 Driver 参数则同时含 Tenant 与 Logic 条件；重复执行会因这次污染而改变分支；
 - `out/merge` 会永久设置 `isSkip=true`；后续再追加普通 stage 仍会按跳过结果处理。
 
+2026-10-10 的 P0-06 收尾逐一核验 `out(String)`、`out(Class<?>)`、`out(String,String)`：
+三条正式映射最终都进入 `out(Bson)`，先设置当前 receiver 的 `isSkip=true`，再经 `custom`
+按调用顺序追加一个完整 Stage 并返回当前对象。Class 路径先解析集合名；跨库路径 BSON 的
+body 按 `db`、`coll` 顺序构造。三条声明补充现有 `PIPELINE_CONSTRUCTION_V1` Effect，
+任意 `out(Bson)` 透传入口继续未映射。`isSkip` 不参与 BSON、Stage 数量或构造顺序；
+它在 Mapper 执行后的结果消费分支生效，不属于 Effect 的机器证据。直接调用上述 API 的
+Java 构造自然保留该状态变化，本轮未发现它导致构造正确性缺口；Effect 不证明执行/结果消费、
+服务器合法性或完整参数准入。专项验证与正式 SHA 见
+[out 审计报告](../../../mongo-plus-indexer/p0-06-out-stage-effect-report.md)。
+
 ## Stage 支持矩阵
 
 聚合专用机器索引由 `mongo-plus-indexer` 的 `MongoPlusPipelineIndexerMain` 生成，入口为
