@@ -19,6 +19,7 @@ import static com.mongoplus.enums.CommonOperators.*;
  * 条件构造
  *
  * @author anwen
+ * @mongoJavaTypeRelation artifact=org.mongodb:bson:5.4.0 subtype=org.bson.Document supertype=org.bson.conversions.Bson
  */
 public class ConditionOperators {
 
@@ -31,6 +32,11 @@ public class ConditionOperators {
      * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
+     * @mongoComposition PIPELINE_EXPRESSION + PIPELINE_EXPRESSION + PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_OBJECT_ARGUMENTS resultJava=org.bson.Document fields=if,then,else
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=cond mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static Bson cond(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(),
@@ -50,6 +56,12 @@ public class ConditionOperators {
      * @mongoParam ifValue PIPELINE_EXPRESSION VALUE
      * @mongoParam thenValue PIPELINE_EXPRESSION VALUE
      * @mongoParam elseValue PIPELINE_EXPRESSION VALUE
+     * @mongoComposition PIPELINE_EXPRESSION + PIPELINE_EXPRESSION + PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_ARGUMENTS collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=condArray mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=按iteration顺序编码所有元素；容器和各叶子codec独立证明，不能仅凭Bson接口替代runtime对象。
      */
     public static Bson condArray(Object ifValue, Object thenValue, Object elseValue) {
         return new Document(COND.getOperator(), new ArrayList<Object>(){{
@@ -91,6 +103,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $multiply
      * @mongoParam values PIPELINE_EXPRESSION ELEMENT
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=multiply(Object...);multiply(Collection) mechanism=varargs按序复制为ArrayList并委托Collection；Document只写当前expression键及原collection。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=默认CollectionCodec按iteration顺序逐元素编码；自定义容器codec或叶子codec必须独立证明，不由同一registry推断等价。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY;getDefaultCodecRegistry mechanism=Driver5.4默认registry先由CollectionCodecProvider处理Collection；此事实不涵盖自定义registry。
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
      */
     public static Bson multiply(Object... values) {
         return multiply(new ArrayList<>(Arrays.asList(values)));
@@ -112,6 +130,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $multiply
      * @mongoParam values PIPELINE_EXPRESSION ELEMENT
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=multiply(Object...);multiply(Collection) mechanism=varargs按序复制为ArrayList并委托Collection；Document只写当前expression键及原collection。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=默认CollectionCodec按iteration顺序逐元素编码；自定义容器codec或叶子codec必须独立证明，不由同一registry推断等价。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY;getDefaultCodecRegistry mechanism=Driver5.4默认registry先由CollectionCodecProvider处理Collection；此事实不涵盖自定义registry。
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
      */
     public static Bson multiply(Collection<?> values) {
         return new Document("$multiply", values);
@@ -236,6 +260,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $mergeObjects
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=mergeObjects mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static Document mergeObjects(String value){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),value);
@@ -271,6 +301,13 @@ public class ConditionOperators {
      *
      * @mongoExpression $mergeObjects
      * @mongoParam values PIPELINE_EXPRESSION ELEMENT
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=mergeObjects mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=按iteration顺序编码所有元素；容器和各叶子codec独立证明，不能仅凭Bson接口替代runtime对象。
      */
     public static Document mergeObjects(Collection<?> values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values);
@@ -308,6 +345,13 @@ public class ConditionOperators {
      *
      * @mongoExpression $mergeObjects
      * @mongoParam values PIPELINE_EXPRESSION ELEMENT
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=mergeObjects mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=按iteration顺序编码所有元素；容器和各叶子codec独立证明，不能仅凭Bson接口替代runtime对象。
      */
     public static <T> Document mergeObjects(Object... values){
         return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
@@ -420,6 +464,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toDate
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toDate mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toDate(TExpression expression){
         return new Document(TO_DATE.getOperator(),expression);
@@ -520,6 +570,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toBool
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toBool mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toBool(TExpression expression){
         return new Document(TO_BOOL.getOperator(),expression);
@@ -545,6 +601,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toDecimal
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toDecimal mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toDecimal(TExpression expression){
         return new Document(TO_DECIMAL.getOperator(),expression);
@@ -570,6 +632,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toDouble
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toDouble mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toDouble(TExpression expression){
         return new Document(TO_DOUBLE.getOperator(),expression);
@@ -583,6 +651,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toHashedIndexKey
      * @mongoParam key PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toHashedIndexKey mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <T> Bson toHashedIndexKey(String key){
         return new Document(TO_HASHED_INDEX_KEY.getOperator(),key);
@@ -608,6 +682,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toInt
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toInt mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toInt(TExpression expression){
         return new Document(TO_INT.getOperator(),expression);
@@ -633,6 +713,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toLong
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toLong mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toLong(TExpression expression){
         return new Document(TO_LONG.getOperator(),expression);
@@ -658,6 +744,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toObjectId
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toObjectId mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toObjectId(TExpression expression){
         return new Document(TO_OBJECT_ID.getOperator(),expression);
@@ -683,6 +775,12 @@ public class ConditionOperators {
      *
      * @mongoExpression $toString
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoExpressionShape VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_VALUE resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=toString mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
      */
     public static <TExpression> Bson toString(TExpression expression){
         return new Document(TO_STRING.getOperator(),expression);
@@ -774,6 +872,13 @@ public class ConditionOperators {
      *
      * @mongoExpression $ifNull
      * @mongoParam inputExpressions PIPELINE_EXPRESSION ELEMENT
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=ifNull mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=按iteration顺序编码所有元素；容器和各叶子codec独立证明，不能仅凭Bson接口替代runtime对象。
      */
     public static Bson ifNull(List<?> inputExpressions){
         return new Document(IF_NULL.getOperator(),inputExpressions);
@@ -787,6 +892,13 @@ public class ConditionOperators {
      *
      * @mongoExpression $ifNull
      * @mongoParam inputExpressions PIPELINE_EXPRESSION ELEMENT
+     * @mongoExpressionShape ARRAY
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=EXPRESSION_ARRAY collectionCodec=org.bson.codecs.CollectionCodec resultJava=org.bson.Document
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/conditions/operation/ConditionOperators.java symbols=ifNull mechanism=当前overload保留操作数runtime对象及声明顺序；只构造Document表达式，不在Java求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=Document按插入顺序写入键；null编码BSON_NULL；其余按实际runtime类型向registry查询codec。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/MongoClientSettings.java symbols=DEFAULT_CODEC_REGISTRY mechanism=只审计Driver5.4默认DocumentCodec和CollectionCodec及已知叶子codec；自定义registry或未知runtime对象需要独立严格编码证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=encode;writeValue mechanism=按iteration顺序编码所有元素；容器和各叶子codec独立证明，不能仅凭Bson接口替代runtime对象。
      */
     public static Bson ifNull(Object... inputExpressions){
         return ifNull(Arrays.asList(inputExpressions));

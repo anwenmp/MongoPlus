@@ -53,7 +53,7 @@ public final class PipelineExpressionCoverageSelfTest {
         require(!provePipeline(badScope, concat, true), "不能把容器的 VALUE 证据当成 ELEMENT");
         System.out.println("Pipeline 1 ($multiply): PASS; Pipeline 2 ($concat/$ifNull): PASS"
                 + "; varargs + collection; field reference + plain String + nested Bson");
-        System.out.println("PipelineExpressionCoverageSelfTest PASSED: 49 families, 157 overloads, 372 parameters");
+        System.out.println("PipelineExpressionCoverageSelfTest PASSED: 62 families, 170 overloads, 393 parameters");
     }
 
     private static MongoPlusApiIndex generate(Path root) throws Exception {
@@ -162,6 +162,12 @@ public final class PipelineExpressionCoverageSelfTest {
     /** semantic evidence 不放宽 Java 类型；受限的 String/List/Number 不变成 Object。 */
     private static void verifyDeclaredTypeLimits(MongoPlusApiIndex index) {
         for (Map<?, ?> method : methods(index, "mongoExpressions", "$concatArrays")) {
+            if ("concatArraysExpressions".equals(method.get("name"))) {
+                require("Object[]".equals(parameters(method).get(0).get("type"))
+                        && Boolean.TRUE.equals(parameters(method).get(0).get("varargs")),
+                        "独立命名入口接受真实 Object varargs operand");
+                continue;
+            }
             String element = elementType((String) parameters(method).get(0).get("type"));
             require(!accepts(method, element, "String") && !accepts(method, element, "Bson"),
                     "concatArrays 的每个外层操作数仍必须为 List");
@@ -237,15 +243,15 @@ public final class PipelineExpressionCoverageSelfTest {
 
     private static void verifyAudit(MongoPlusApiIndex index, Path root) throws Exception {
         List<Map<?, ?>> families = maps(index.getMethodFamilies());
-        require(families.size() == 82, "MethodFamily 数量改变");
-        require(families.stream().filter(f -> "PIPELINE_STAGE".equals(f.get("apiCategory"))).count() == 33,
+        require(families.size() == 96, "MethodFamily 数量改变");
+        require(families.stream().filter(f -> "PIPELINE_STAGE".equals(f.get("apiCategory"))).count() == 34,
                 "Stage family 数量改变");
         List<Map<?, ?>> expressions = families.stream()
                 .filter(f -> "PIPELINE_EXPRESSION".equals(f.get("apiCategory"))).toList();
-        require(expressions.size() == 49, "Expression family 数量改变");
-        require(expressions.stream().mapToInt(f -> ((List<?>) f.get("overloads")).size()).sum() == 157,
+        require(expressions.size() == 62, "Expression family 数量改变");
+        require(expressions.stream().mapToInt(f -> ((List<?>) f.get("overloads")).size()).sum() == 170,
                 "Expression overload 数量改变");
-        require(families.stream().mapToInt(f -> ((List<?>) f.get("overloads")).size()).sum() == 297,
+        require(families.stream().mapToInt(f -> ((List<?>) f.get("overloads")).size()).sum() == 311,
                 "总 overload 数量改变");
         Set<String> actual = new HashSet<>();
         for (Map<?, ?> family : expressions) {
@@ -273,8 +279,8 @@ public final class PipelineExpressionCoverageSelfTest {
             if ("OUTPUT_NAME_ADDED".equals(row[4])) { outputNameAdditions++; }
         }
         require(actual.equals(expected), "逐参数结果与人工源码审计清单不一致");
-        require(actual.size() == 373, "372 个参数及 1 个无参方法必须全部审计");
-        require(additions == 127, "新增标记数量不一致");
+        require(actual.size() == 394, "393 个参数及 1 个无参方法必须全部审计");
+        require(additions == 128, "新增标记数量不一致");
         require(outputNameAdditions == 84, "本次仅新增 84 个 accumulator 输出名槽");
         // types.publicMethods 与 MethodFamily 中相同声明必须保留同一逐参数证据。
         for (Map<?, ?> family : expressions) {

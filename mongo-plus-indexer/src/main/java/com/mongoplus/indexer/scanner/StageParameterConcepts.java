@@ -28,16 +28,16 @@ final class StageParameterConcepts {
     static String conceptId(String semantic) { return "PIPELINE_PARAMETER_" + semantic; }
 
     static String conceptId(String semantic, String scope) {
-        return isStageBodyElement(semantic, scope) ? STAGE_BODY_ELEMENT_CONCEPT : conceptId(semantic);
+        return isStageBodyElement(semantic, scope) ? conceptId(semantic) + "_ELEMENT" : conceptId(semantic);
     }
 
     static boolean isStageBodyElement(String semantic, String scope) {
-        return "STAGE_BODY_DOCUMENT".equals(semantic) && "ELEMENT".equals(scope);
+        return Arrays.asList("STAGE_BODY_DOCUMENT", "SORT_SPECIFICATION").contains(semantic) && "ELEMENT".equals(scope);
     }
 
     /** 新元素契约不借用既有 VALUE Concept 中的 Stage 包装行为。 */
     static boolean acceptsConcept(String semantic, String scope, String reference) {
-        if (isStageBodyElement(semantic, scope)) { return STAGE_BODY_ELEMENT_CONCEPT.equals(reference); }
+        if (isStageBodyElement(semantic, scope)) { return conceptId(semantic, scope).equals(reference); }
         return acceptsConcept(semantic, reference);
     }
 
@@ -115,10 +115,15 @@ final class StageParameterConcepts {
                     || value.matches("(?:java\\.util\\.)?List<\\? extends (?:org\\.bson\\.conversions\\.)?Bson>"));
         }
         return ("Bson".equals(value) || "org.bson.conversions.Bson".equals(value))
-                && ("PIPELINE_STAGE_DOCUMENT".equals(semantic) ? "ELEMENT".equals(scope) : "VALUE".equals(scope));
+                && ("PIPELINE_STAGE_DOCUMENT".equals(semantic) || "VALUE".equals(scope));
     }
 
     static Map<String, Object> concept(String reference) {
+        if ((conceptId("SORT_SPECIFICATION") + "_ELEMENT").equals(reference)) {
+            return object("id", reference, "semanticType", "SORT_SPECIFICATION", "semanticScope", "ELEMENT",
+                    "name", "有序排序 body 元素", "description", "一个排序 body 文档；不含外层 Stage，"
+                            + "按逐 overload reduction 与 typed-container evidence 合并，不能从 Bson 类型补齐 Stage 包装。");
+        }
         if (conceptId("VARIABLE_DEFINITION").equals(reference)) {
             return object("id", reference, "semanticType", "VARIABLE_DEFINITION", "semanticScope", "ELEMENT",
                     "name", "VARIABLE_DEFINITION", "description", "名称与表达式值构成的单个变量定义；"

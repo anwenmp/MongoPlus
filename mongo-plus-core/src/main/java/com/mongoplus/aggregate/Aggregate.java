@@ -76,6 +76,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $addFields
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children addFields(final String field,final String value);
 
@@ -91,6 +92,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $addFields
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children addFields(final SFunction<T,?> field,final String value);
 
@@ -106,6 +108,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $addFields
      * @mongoParam value PIPELINE_EXPRESSION VALUE
      * @mongoParam field OUTPUT_FIELD_PATH_SEGMENT ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T> Children addFields(final String value,final SFunction<T,?>... field);
@@ -144,6 +147,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children addFields(final Field<?>... fields);
 
@@ -154,6 +158,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $addFields
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children addFields(final List<Field<?>> fields);
 
@@ -165,6 +170,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $addFields
      * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children addFields(final Bson bson);
 
@@ -186,6 +192,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $set
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children set(final String field,final String value);
 
@@ -201,6 +208,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $set
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children set(final SFunction<T,?> field,final String value);
 
@@ -216,6 +224,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $set
      * @mongoParam value PIPELINE_EXPRESSION VALUE
      * @mongoParam field OUTPUT_FIELD_PATH_SEGMENT ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T> Children set(final String value,final SFunction<T,?>... field);
@@ -254,6 +263,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children set(final Field<?>... fields);
 
@@ -264,6 +274,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $set
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children set(final List<Field<?>> fields);
 
@@ -275,6 +286,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $set
      * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children set(final Bson bson);
 
@@ -307,6 +319,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $bucket
      * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
      * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <Boundary> Children bucket(final Object groupBy,final List<Boundary> boundaries);
 
@@ -335,6 +348,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $bucket
      * @mongoParam groupBy PIPELINE_EXPRESSION VALUE
      * @mongoParam boundaries BUCKET_BOUNDARY ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <Boundary> Children bucket(final Object groupBy, final List<Boundary> boundaries, BucketOptions options);
 
@@ -428,6 +442,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @author anwen
      *
      * @mongoStage $count
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children count();
 
@@ -439,6 +454,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $count
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children count(final String field);
 
@@ -450,6 +466,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $count
      * @mongoParam field OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children count(final SFunction<T,?> field);
 
@@ -486,6 +503,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $match
      * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children match(final Bson bson);
 
@@ -504,6 +522,13 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam bson STAGE_BODY_DOCUMENT VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoDocumentInput parameter=bson semantic=STAGE_BODY_DOCUMENT encoding=WRAP_DECLARED_STAGE
+     * @mongoDocumentSource mongoDocumentInput path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=project(Bson);custom mechanism=BasicDBObject($project,bson)包装一次并追加一个Stage。
+     * @mongoDocumentPolicy input=FLAT_DOCUMENT numeric=ZERO_NONZERO_FLAGS boolean=FALSE_TRUE_FLAGS exceptionField=_id mixed=REJECT_NON_EXCEPTION_EXCLUSION empty=REJECT expressions=INDEPENDENT_EVIDENCE
+     * @mongoDocumentSource mongoDocumentPolicy reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/query/projection_parser.cpp symbols=isInclusionOrExclusionType;parseInclusion;parseExclusion;parseLiteral;parseAndAnalyze mechanism=顶层数字与Bool按零或非零判包含/排除，_id标志不决定其他字段模式；普通排除不能混入include/computed。
+     * @mongoCandidate operation=STAGE_DOCUMENT_INPUT
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=project;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
      */
     Children project(final Bson bson);
 
@@ -523,6 +548,11 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME VALUE
      * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoParam value INTEGER_VALUE VALUE
+     * @mongoCandidate operation=FIELD_STAGE key=field value=value allowedInt32=-1,1
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/query/sort_pattern.cpp symbols=SortPattern::SortPattern mechanism=普通数值方向只接受1或-1；Core虽可编码其他Integer，合法候选输入域不能因此扩张。
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sort;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sort(final String field, final Integer value);
 
@@ -557,6 +587,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortAsc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortAsc(final String field);
 
@@ -580,6 +614,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortAsc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortAsc(final String... field);
 
@@ -602,6 +640,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortAsc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortAsc(final List<String> field);
 
@@ -624,6 +666,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:-1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortDesc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortDesc(final String field);
 
@@ -647,6 +693,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:-1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortDesc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortDesc(final String... field);
 
@@ -669,6 +719,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sort
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=FIELD_STAGE key=field value=int32:-1
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortDesc;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
      */
     Children sortDesc(final List<String> field);
 
@@ -693,8 +747,35 @@ public interface Aggregate<Children> extends Project<Children> {
      * @param bson bson
      * @return {@link Children}
      * @author anwen
+     * @mongoParam bson PIPELINE_STAGE_DOCUMENT VALUE
+     * @mongoDocumentInput parameter=bson semantic=PIPELINE_STAGE_DOCUMENT encoding=UNCHANGED
+     * @mongoDocumentSource mongoDocumentInput path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sort(Bson);custom mechanism=直接追加完整Stage，无body包装；Sorts.orderBy返回body不能直接绑定到此入口。
      */
     Children sort(final Bson bson);
+
+    /**
+     * 将排序规范 body 包装为一个完整的 $sort Stage，并追加到当前 receiver。
+     * 可用 {@link com.mongoplus.aggregate.pipeline.Sorts#orderBy(Bson...)} 组合不同方向；
+     * 保留 body 的字段顺序及 BSON 值类型，入参不应包含 $sort 外层。
+     * 本方法与 {@link #sort(Bson)} 的完整 Stage 透传入口具有不同的输入语义。
+     *
+     * @param specification 非 null 的排序规范 body
+     * @return 当前 receiver
+     * @throws NullPointerException specification 为 null 时抛出，此时不追加 Stage
+     * @mongoStage $sort
+     * @mongoParam specification SORT_SPECIFICATION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoDocumentInput parameter=specification semantic=SORT_SPECIFICATION encoding=WRAP_DECLARED_STAGE
+     * @mongoDocumentSource mongoDocumentInput path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/Aggregate.java symbols=sortSpecification;custom mechanism=默认方法将排序body交Driver包装一次，再通过custom追加到当前receiver；LambdaAggregateWrapper继承此实现。
+     * @mongoDocumentSource mongoDocumentInput reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage用声明的Stage键包装原body的toBsonDocument结果，不重排字段或转换BSON值类型。
+     * @mongoCandidate operation=STAGE_DOCUMENT_INPUT
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/Aggregate.java symbols=sortSpecification;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=sort;SimplePipelineStage.toBsonDocument mechanism=SimplePipelineStage仅以声明的Stage键包裹原body，保留BSON类型、值和字段顺序。
+     */
+    default Children sortSpecification(final Bson specification) {
+        java.util.Objects.requireNonNull(specification, "specification");
+        return custom(Aggregates.sort(specification));
+    }
 
     /* $sort阶段 end */
 
@@ -710,6 +791,11 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sortByCount
      * @mongoParam field PIPELINE_EXPRESSION VALUE
+     * @mongoStageValue field encoding=UNCHANGED prefix=$ minimumLength=2
+     * @mongoStageValueSource field path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sortByCount(String);custom(Bson) mechanism=String 表达式原样传给 Aggregates.sortByCount，不自动添加或移除美元前缀；正常返回追加一次。
+     * @mongoStageValueSource field artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.sortByCount;SortByCountStage.toBsonDocument mechanism=BuildersHelper.encodeValue 将 String 原值编码为整个 Stage body，不接受任意表达式对象代替 String。
+     * @mongoStageValueSource field reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/pipeline/document_source_sort_by_count.cpp symbols=DocumentSourceSortByCount.createFromBson mechanism=字符串必须以美元符号开头且至少有一个后续字符；Core 能编码普通字符串，但服务端拒绝；变量引用另需正式作用域绑定 evidence。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children sortByCount(final String field);
 
@@ -721,6 +807,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $sortByCount
      * @mongoParam field FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children sortByCount(final SFunction<T,?> field);
 
@@ -731,22 +818,43 @@ public interface Aggregate<Children> extends Project<Children> {
     /* $skip阶段 start */
 
     /**
-     * $skip阶段，当前页
-     * @param skip 当前页
+     * $skip阶段，跳过指定数量的文档。
+     * <p>long 经 Math.toIntExact 委托 int overload，仍编码为 BSON Int32；超出 Int32 范围时抛出
+     * ArithmeticException 且不追加 Stage。合法绑定范围为 0..2147483647，负值虽能编码但服务端拒绝。</p>
+     * @param skip 跳过的文档数量，不是页码
      * @return {@link Children}
      * @author anwen
      *
      * @mongoStage $skip
+     * @mongoParam skip INTEGER_VALUE VALUE
+     * @mongoStageValue skip encoding=INT32_EXACT minimum=0 maximum=2147483647
+     * @mongoStageValueSource skip path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=skip(long);skip(int);custom(Bson) mechanism=Math.toIntExact 先精确转为 int，再委托 int overload；不会输出 BSON Int64；越界抛异常且不追加。
+     * @mongoStageValueSource skip artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.skip(int) mechanism=构造 BsonDocument($skip,new BsonInt32(skip))，没有非负运行时校验；合法绑定整数不得截断或舍入。
+     * @mongoStageValueSource skip reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/pipeline/document_source_skip.cpp symbols=DocumentSourceSkip.createFromBson;DocumentSourceSkip.create mechanism=MongoDB 接受非负 64 位整数，包括零；Core 的实际范围与服务端合法范围取交集为 0..2147483647。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=STAGE_VALUE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=skip;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=skip mechanism=Aggregates.skip直接构造Int32的Stage值，无额外转换。
      */
     Children skip(final long skip);
 
     /**
-     * $skip阶段，当前页
-     * @param skip 当前页
+     * $skip阶段，跳过指定数量的文档。
+     * <p>int 原样编码为 BSON Int32。合法绑定范围为 0..2147483647；Core 不拒绝负数，服务端拒绝。</p>
+     * @param skip 跳过的文档数量，不是页码
      * @return {@link Children}
      * @author anwen
      *
      * @mongoStage $skip
+     * @mongoParam skip INTEGER_VALUE VALUE
+     * @mongoStageValue skip encoding=INT32_EXACT minimum=0 maximum=2147483647
+     * @mongoStageValueSource skip path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=skip(int);custom(Bson) mechanism=int 原样进入 Aggregates.skip，正常返回向当前 receiver 追加一次；Core 不校验负值。
+     * @mongoStageValueSource skip artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.skip(int) mechanism=构造 BsonDocument($skip,new BsonInt32(skip))，不会输出 BSON Int64；合法绑定整数不得截断或舍入。
+     * @mongoStageValueSource skip reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/pipeline/document_source_skip.cpp symbols=DocumentSourceSkip.createFromBson;DocumentSourceSkip.create mechanism=MongoDB 接受非负 64 位整数，包括零；Core 的实际范围与服务端合法范围取交集为 0..2147483647。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=STAGE_VALUE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=skip;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=skip mechanism=Aggregates.skip直接构造Int32的Stage值，无额外转换。
      */
     Children skip(final int skip);
 
@@ -1335,6 +1443,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as);
@@ -1355,6 +1464,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                          final SFunction<U,?> connectToField, final String as);
@@ -1375,6 +1485,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as);
@@ -1401,6 +1512,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children graphLookup(final String from, final Object startWith, final String connectFromField,
                          final String connectToField, final String as, final GraphLookupOptions options);
@@ -1427,6 +1539,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,R,U> Children graphLookup(final String from, final SFunction<T,?> startWith, final SFunction<R,?> connectFromField,
                                final SFunction<U,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1453,6 +1566,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoParam connectFromField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_FROM_FIELD_NAME
      * @mongoParam connectToField FOREIGN_FIELD_NAME VALUE PIPELINE_PARAMETER_GRAPH_CONNECT_TO_FIELD_NAME
      * @mongoParam as OUTPUT_FIELD_NAME VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,R> Children graphLookup(final String from, final Object startWith, final SFunction<T,?> connectFromField,
                                final SFunction<R,?> connectToField, final String as, final GraphLookupOptions options);
@@ -1479,6 +1593,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam _id PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=PREFIXED_ENTRIES_STAGE key=_id value=_id entries=EMPTY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=group;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=group;GroupStage.toBsonDocument;BuildersHelper.encodeValue mechanism=GroupStage先写_id，再按输入顺序写BsonField名称及值；BuildersHelper保留实际codec类型。
      */
     Children group(final String _id);
 
@@ -1490,6 +1608,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam _id FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children group(final SFunction<T,?> _id);
 
@@ -1502,6 +1621,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam id PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=PREFIXED_ENTRIES_STAGE key=_id value=id entries=fieldAccumulators
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=group;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=group;GroupStage.toBsonDocument;BuildersHelper.encodeValue mechanism=GroupStage先写_id，再按输入顺序写BsonField名称及值；BuildersHelper保留实际codec类型。
      */
     <TExpression> Children group(@Nullable final TExpression id, final BsonField... fieldAccumulators);
 
@@ -1514,6 +1637,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam id FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final BsonField... fieldAccumulators);
 
@@ -1526,6 +1650,10 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam id PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=PREFIXED_ENTRIES_STAGE key=_id value=id entries=fieldAccumulators
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=group;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/driver-core/src/main/com/mongodb/client/model/Aggregates.java symbols=group;GroupStage.toBsonDocument;BuildersHelper.encodeValue mechanism=GroupStage先写_id，再按输入顺序写BsonField名称及值；BuildersHelper保留实际codec类型。
      */
     <TExpression> Children group(@Nullable final TExpression id, final List<BsonField> fieldAccumulators);
 
@@ -1538,6 +1666,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $group
      * @mongoParam id FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T,TExpression> Children group(@Nullable final SFunction<T,?> id, final List<BsonField> fieldAccumulators);
 
@@ -1685,6 +1814,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unwind
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unwind(final String fieldName);
 
@@ -1696,6 +1826,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unwind
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children unwind(final SFunction<T,?> fieldName);
 
@@ -1707,6 +1838,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unwind
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children unwind(final String fieldName, final UnwindOption unwindOption);
 
@@ -1718,6 +1850,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unwind
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children unwind(final SFunction<T,?> fieldName,final UnwindOption unwindOption);
 
@@ -1873,6 +2006,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $replaceRoot
      * @mongoParam fieldName PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <TExpression> Children replaceRoot(final TExpression fieldName);
 
@@ -1884,6 +2018,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $replaceRoot
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children replaceRoot(final Document value);
 
@@ -1895,6 +2030,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $replaceRoot
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children replaceRoot(final SFunction<T,?> fieldName);
 
@@ -1914,23 +2050,40 @@ public interface Aggregate<Children> extends Project<Children> {
 
     /**
      * $replaceWith阶段
+     * <p>候选等价证据仅覆盖来源和完整子树已证明的精确 runtime Document 表达式。
+     * 必须另行证明实际 Java overload 与泛型绑定、每个 Codec、BSON 类型及顺序和 receiver effect；
+     * 普通 String、任意 Bson、未知 Object、Document 子类及 null 不自动属于此等价输入域。</p>
      * @param fieldName 字段
      * @return {@link Children}
      * @author anwen
      *
      * @mongoStage $replaceWith
      * @mongoParam fieldName PIPELINE_EXPRESSION VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_STAGE_DOCUMENT
+     * @mongoCandidate operation=STAGE_EXPRESSION_DOCUMENT runtimeJava=org.bson.Document runtimeCodec=org.bson.codecs.DocumentCodec bsonDocumentCodec=org.bson.codecs.BsonDocumentCodec
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=replaceWith(TExpression);replaceWith(Bson);custom(Bson) mechanism=原表达式经 Aggregates.replaceWith 包装后由 Bson overload 追加一次，返回当前 typedThis；只在独立证明的 Document 表达式输入域建立等价。
+     * @mongoCandidateSource reference=urn:maven:org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.replaceWith;ReplaceStage.toBsonDocument;BuildersHelper.encodeValue mechanism=Driver 的 ReplaceStage(value,true) 写入唯一 $replaceWith 字段；精确 runtime Document 经 Bson 分支、DocumentCodec 和 registry.get(BsonDocument.class) 的 BsonDocumentCodec 编码，保留 BSON 类型、值及所有文档和数组顺序。
+     * @mongoCandidateSource reference=urn:maven:org.mongodb:bson:5.4.0 symbols=Document.toBsonDocument;DocumentCodec.encode;BsonDocumentCodec.encode mechanism=Document 从 registry 获取 DocumentCodec，按 entry 迭代顺序保留子值的 runtime 编码；中间 BsonDocumentCodec 及所有叶子和容器 Codec 必须独立确认。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <TExpression> Children replaceWith(final TExpression fieldName);
 
     /**
      * $replaceWith阶段
+     * <p>仅在精确 runtime Document、独立表达式/Codec/Java 绑定证据和相同 receiver effect
+     * 均闭合时，与泛型包装路线构成条件等价；Document 可赋值给 Bson 不授予 Bson 透传路线等价性。</p>
      * @param value 值
      * @return {@link Children}
      * @author anwen
      *
      * @mongoStage $replaceWith
      * @mongoParam value PIPELINE_EXPRESSION VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> PIPELINE_STAGE_DOCUMENT
+     * @mongoCandidate operation=STAGE_EXPRESSION_DOCUMENT runtimeJava=org.bson.Document runtimeCodec=org.bson.codecs.DocumentCodec bsonDocumentCodec=org.bson.codecs.BsonDocumentCodec
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=replaceWith(Document);replaceWith(Bson);custom(Bson) mechanism=Document 原值经 Aggregates.replaceWith 包装后由 Bson overload 追加一次，返回当前 typedThis；与泛型路线比较时仍要求两条完整调用树独立闭合。
+     * @mongoCandidateSource reference=urn:maven:org.mongodb:mongodb-driver-core:5.4.0 symbols=Aggregates.replaceWith;ReplaceStage.toBsonDocument;BuildersHelper.encodeValue mechanism=Driver 的 ReplaceStage(value,true) 写入唯一 $replaceWith 字段；精确 runtime Document 经 Bson 分支、DocumentCodec 和 registry.get(BsonDocument.class) 的 BsonDocumentCodec 编码，保留 BSON 类型、值及所有文档和数组顺序。
+     * @mongoCandidateSource reference=urn:maven:org.mongodb:bson:5.4.0 symbols=Document.toBsonDocument;DocumentCodec.encode;BsonDocumentCodec.encode mechanism=Document 从 registry 获取 DocumentCodec，按 entry 迭代顺序保留子值的 runtime 编码；中间 BsonDocumentCodec 及所有叶子和容器 Codec 必须独立确认。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children replaceWith(final Document value);
 
@@ -1942,6 +2095,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $replaceWith
      * @mongoParam fieldName FIELD_REFERENCE VALUE
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children replaceWith(final SFunction<T,?> fieldName);
 
@@ -1974,6 +2128,7 @@ public interface Aggregate<Children> extends Project<Children> {
      * @mongoObjectFieldSource size path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=sample(Number);sample(Bson);custom(Bson) mechanism=sample(Number) 经 size.intValue() 调用 Aggregates.sample(int)，完整 Stage 原样加入管道；仅精确 Int32 整数避免截断和溢出。
      * @mongoObjectFieldSource size artifact=org.mongodb:mongodb-driver-core:5.4.0 symbols=com.mongodb.client.model.Aggregates.sample(int) mechanism=Driver 构造 $sample 对象，其 size 字段为 BsonInt32(size)。
      * @mongoObjectFieldSource size path=https://www.mongodb.com/docs/manual/reference/operator/aggregation/sample/ symbols=$sample.size mechanism=MongoDB 要求 size 为大于等于 1 的整数；上界来自此 Java API 的 Int32 编码边界。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children sample(final Number size);
 
@@ -2163,6 +2318,13 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unset
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoStageValue field encoding=SINGLETON_SCALAR_ELSE_ARRAY minimumSize=1 duplicates=REJECT singleton=VALUE_TO_ELEMENT
+     * @mongoStageValueSource field path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unset(String...);unset(List);custom(Bson) mechanism=varargs 转 List；一个 String 输出 BsonString，零个或多个输出 BsonArray；保留顺序和重复字段，不增删美元前缀；标量字段需提升为单元素容器。
+     * @mongoStageValueSource field reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/pipeline/document_source_project.cpp symbols=DocumentSourceProject.createFromBson;buildExclusionProjectionSpecification mechanism=服务端只接受字符串或非空字符串数组，Core 能编码空数组但该输入不允许合法绑定。
+     * @mongoStageValueSource field reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/query/projection_parser.cpp symbols=addNodeAtPathHelper mechanism=重复字段及父子路径冲突触发服务端 path collision；绑定不能去重修复，字段路径仍需服务端校验。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=STAGE_VALUE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unset;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
      */
     Children unset(final String... field);
 
@@ -2174,6 +2336,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unset
      * @mongoParam field FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T> Children unset(final SFunction<T,?>... field);
@@ -2186,6 +2349,13 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unset
      * @mongoParam fields FIELD_NAME ELEMENT
+     * @mongoStageValue fields encoding=SINGLETON_SCALAR_ELSE_ARRAY minimumSize=1 duplicates=REJECT singleton=VALUE_TO_ELEMENT
+     * @mongoStageValueSource fields path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unset(List);unset(Bson);custom(Bson) mechanism=真实元素类型为 String；一个元素输出 BsonString，零个或多个输出 BsonArray；保留顺序和重复字段；数组直接收集为 List，标量字段需提升为单元素 List。
+     * @mongoStageValueSource fields reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/pipeline/document_source_project.cpp symbols=DocumentSourceProject.createFromBson;buildExclusionProjectionSpecification mechanism=服务端只接受字符串或非空字符串数组，Core 能编码空数组但该输入不允许合法绑定。
+     * @mongoStageValueSource fields reference=https://raw.githubusercontent.com/mongodb/mongo/v8.0/src/mongo/db/query/projection_parser.cpp symbols=addNodeAtPathHelper mechanism=重复字段及父子路径冲突触发服务端 path collision；绑定不能去重修复，字段路径仍需服务端校验。
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
+     * @mongoCandidate operation=STAGE_VALUE
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java symbols=unset;custom mechanism=当前输入快照及codec下构造一次，保留参数值与顺序；公开返回receiver且只追加一个Stage。
      */
     Children unset(final List<String> fields);
 
@@ -2197,6 +2367,7 @@ public interface Aggregate<Children> extends Project<Children> {
      *
      * @mongoStage $unset
      * @mongoParam fields FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     <T> Children unsetLambda(final List<SFunction<T,?>> fields);
 

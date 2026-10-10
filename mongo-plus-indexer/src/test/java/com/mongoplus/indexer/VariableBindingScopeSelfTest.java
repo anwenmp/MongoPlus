@@ -20,6 +20,19 @@ public final class VariableBindingScopeSelfTest {
 
     private VariableBindingScopeSelfTest() { }
 
+    /** expression 消费测试复用本测试已有的正式 scope consumer，不另建变量绑定规则。 */
+    static String boundReference(MongoPlusApiIndex index, String reference, Map<String, String> declarations) {
+        Map<?, ?> expression = concept(index, "PIPELINE_EXPRESSION_FIELD_REFERENCE");
+        EvidenceConsumer consumer = new EvidenceConsumer(concept(index, CAPABILITY),
+                contract(expression, "variableReference"));
+        Map<?, ?> scopeOwner = index.getMethodFamilies().stream().map(f -> (Map<?, ?>) f)
+                .flatMap(f -> ((List<?>) f.get("overloads")).stream()).map(m -> (Map<?, ?>) m)
+                .filter(m -> m.containsKey("variableScope")).findFirst().orElseThrow();
+        Scope root = consumer.root(true, true, true, true, List.of(), List.of());
+        Scope body = consumer.enter(contract(scopeOwner, "variableScope"), "/fixture", root, declarations);
+        return consumer.resolve(body, reference).status;
+    }
+
     public static void main(String[] args) throws Exception {
         MongoPlusIndexerConfig config = MongoPlusIndexerConfig.forPipelineProject(Path.of(args[0])).build();
         MongoPlusIndexer generator = new MongoPlusIndexer(config);

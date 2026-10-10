@@ -19,6 +19,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(SFunction<T,R>... column);
@@ -31,6 +32,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children projectDisplay(String... column);
 
@@ -42,6 +44,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(SFunction<T,R>... column);
@@ -54,6 +57,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children projectNone(String... column);
 
@@ -65,6 +69,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children project(boolean displayId, Projection... projection);
 
@@ -75,6 +80,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children project(Projection... projection);
 
@@ -86,6 +92,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children project(boolean displayId, Collection<? extends Projection> projection);
 
@@ -96,6 +103,7 @@ public interface Project<Children> {
      * @author JiaChaoYang
      *
      * @mongoStage $project
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children project(Collection<? extends Projection> projection);
 
@@ -108,6 +116,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectDisplay(boolean displayId,SFunction<T,R>... column);
@@ -121,6 +130,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children projectDisplay(boolean displayId,String... column);
 
@@ -133,6 +143,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     @SuppressWarnings("unchecked")
     <T,R> Children projectNone(boolean displayId,SFunction<T,R>... column);
@@ -146,6 +157,7 @@ public interface Project<Children> {
      *
      * @mongoStage $project
      * @mongoParam column FIELD_NAME ELEMENT
+     * @mongoPipelineEffect operation=APPEND_STAGE target=RECEIVER count=ONE order=CALL_ORDER
      */
     Children projectNone(boolean displayId,String... column);
 

@@ -22,7 +22,7 @@ public final class MongoPlusPipelineIndexerSelfTest {
         MongoPlusApiIndex index = real.generate();
         require(((Number) index.object("scanStatistics").get("pipelineExpressionCount")).intValue() > 0,
                 "正式 Pipeline 入口必须直接收录 Expression API");
-        require(index.getMethodFamilies().size() == 82, "真实源码应收录 33 个 stage 和 49 个 expression family");
+        require(index.getMethodFamilies().size() == 96, "真实源码应收录 34 个 stage 和 62 个 expression/composition family");
         require(index.asMap().get("expressionRoots").equals(MongoPlusIndexerConfig.PIPELINE_EXPRESSION_ROOTS),
                 "正式 Expression 入口必须明确且不包含 deprecated 旧包");
         int realOverloads = 0;
@@ -54,15 +54,15 @@ public final class MongoPlusPipelineIndexerSelfTest {
                 realOverloads++;
             }
         }
-        require(realOverloads == 140, "真实源码 stage overload evidence 数量变化");
-        require(expressionOverloads == 157, "正式 Expression 应排除旧包副本的 54 条 evidence");
+        require(realOverloads == 141, "真实源码 stage overload evidence 数量变化");
+        require(expressionOverloads == 170, "正式 Expression 应排除旧包副本的 54 条 evidence");
         require(declarations.equals(new java.util.TreeSet<String>(MongoPlusIndexerConfig.PIPELINE_EXPRESSION_ROOTS)),
-                "Expression 声明只能来自已核对的五个公开工厂");
+                "Expression 声明只能来自已核对的六个公开工厂");
         require(!json(index).contains("com.mongoplus.conditions.interfaces.ConditionOperators"),
                 "deprecated 旧包不能重复进入正式 Index");
-        require(((Number) index.object("scanStatistics").get("pipelineStageCount")).intValue() == 33
-                && ((Number) index.object("scanStatistics").get("pipelineExpressionCount")).intValue() == 49
-                && ((Number) index.object("scanStatistics").get("overloadCount")).intValue() == 297,
+        require(((Number) index.object("scanStatistics").get("pipelineStageCount")).intValue() == 34
+                && ((Number) index.object("scanStatistics").get("pipelineExpressionCount")).intValue() == 62
+                && ((Number) index.object("scanStatistics").get("overloadCount")).intValue() == 311,
                 "正式扫描统计必须与 evidence 一致");
         require(((List<?>) named(index.getMethodFamilies(), "sum").get("overloads")).size() == 6,
                 "累加器与普通 sum 的真实声明需保留，旧包副本需排除");
@@ -185,6 +185,8 @@ public final class MongoPlusPipelineIndexerSelfTest {
                         // 移除依赖 Stage/字段绑定的契约，保留此夹具对入口标签筛选的单独验证。
                         .replaceAll("(?m)^\\s*\\* @mongoPipeline(?:Effect|Container) [^\\r\\n]*\\r?\\n", "")
                         .replaceAll("(?m)^\\s*\\* @mongoObjectField(?:Source)? [^\\r\\n]*\\r?\\n", "")
+                        .replaceAll("(?m)^\\s*\\* @mongoDocument[^\\r\\n]*\\r?\\n", "")
+                        .replaceAll("(?m)^\\s*\\* @mongoCandidate(?:Source)? [^\\r\\n]*\\r?\\n", "")
                         .replaceAll("(?m)^\\s*\\* @mongoVariable(?:Scope(?:Source)?|Environment) [^\\r\\n]*\\r?\\n", ""));
             }
             MongoPlusIndexer evidence = generator;
@@ -196,6 +198,7 @@ public final class MongoPlusPipelineIndexerSelfTest {
             for (String name : new String[] {"aggregate/pipeline/Accumulators.java",
                     "aggregate/pipeline/AggregateOperator.java", "aggregate/pipeline/Projections.java",
                     "aggregate/pipeline/Sorts.java", "conditions/operation/ConditionOperators.java",
+                    "toolkit/Filters.java",
                     "conditions/interfaces/ConditionOperators.java"}) {
                 String relative = "com/mongoplus/" + name;
                 source(fixture, relative, new String(Files.readAllBytes(core.resolve(relative)), StandardCharsets.UTF_8));
@@ -215,7 +218,7 @@ public final class MongoPlusPipelineIndexerSelfTest {
                     require(!((List<?>) family.get("mongoExpressions")).isEmpty(), "表达式标签丢失");
                 }
             }
-            require(fixtureExpressionOverloads == 157, "仅五个现行工厂的 157 条 expression evidence 应可解析");
+            require(fixtureExpressionOverloads == 170, "仅六个现行工厂的 170 条 expression/composition evidence 应可解析");
             require(((List<?>) named(expressionEvidence.getMethodFamilies(), "sum").get("overloads")).size() == 6,
                     "累加器与普通 sum 表达式的不同声明不能折叠");
             require(json(expressionEvidence).equals(json(evidence.generate())), "真实表达式标签生成顺序不稳定");

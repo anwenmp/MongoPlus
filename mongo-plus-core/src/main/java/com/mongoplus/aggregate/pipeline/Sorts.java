@@ -32,6 +32,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson asc(final String... fieldNames) {
         return asc(asList(fieldNames));
@@ -43,6 +48,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     @SafeVarargs
     public static <T> Bson asc(final SFunction<T,?>... fieldNames) {
@@ -55,6 +65,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=ascLambda;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <T> Bson ascLambda(final List<SFunction<T,?>> fieldNames) {
         return asc(fieldNames.stream().map(SFunction::getFieldNameLine).collect(Collectors.toList()));
@@ -66,6 +81,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson asc(final List<String> fieldNames) {
         notNull("fieldNames", fieldNames);
@@ -78,6 +98,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:-1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=desc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson desc(final String... fieldNames) {
         return desc(asList(fieldNames));
@@ -89,6 +114,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:-1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=desc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     @SafeVarargs
     public static <T> Bson desc(final SFunction<T,?>... fieldNames) {
@@ -101,6 +131,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:-1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=descLambda;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <T> Bson descLambda(final List<SFunction<T,?>> fieldNames) {
         return desc(fieldNames.stream().map(SFunction::getFieldNameLine).collect(Collectors.toList()));
@@ -112,6 +147,11 @@ public class Sorts {
      * @param fieldNames 字段名称，必须至少包含一个
      * @return 排序规范
      * @since mongodb.driver.manual reference/operator/meta/orderby Sort
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:-1 result=SORT_SPECIFICATION target=RESULT order=INPUT duplicatePosition=FIRST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=asc;desc;orderBy mechanism=逐键append固定BsonInt32；输入顺序保留，重键值覆盖但保留首次位置；不包装$sort。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=desc;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson desc(final List<String> fieldNames) {
         notNull("fieldNames", fieldNames);
@@ -151,6 +191,10 @@ public class Sorts {
      *
      * @param sorts 排序规格
      * @return 组合排序规范
+     * @mongoParam sorts SORT_SPECIFICATION ELEMENT
+     * @mongoReduction sorts -> SORT_SPECIFICATION operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT duplicatePosition=FIRST
+     * @mongoCandidate operation=DOCUMENT_MERGE duplicatePosition=FIRST
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=orderBy;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson orderBy(final Bson... sorts) {
         return orderBy(asList(sorts));
@@ -171,6 +215,10 @@ public class Sorts {
      *
      * @param sorts 排序规范
      * @return 组合排序规范
+     * @mongoParam sorts SORT_SPECIFICATION ELEMENT
+     * @mongoReduction sorts -> SORT_SPECIFICATION operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT duplicatePosition=FIRST
+     * @mongoCandidate operation=DOCUMENT_MERGE duplicatePosition=FIRST
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Sorts.java symbols=orderBy;orderBy;CompoundSort.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson orderBy(final List<? extends Bson> sorts) {
         notNull("sorts", sorts);

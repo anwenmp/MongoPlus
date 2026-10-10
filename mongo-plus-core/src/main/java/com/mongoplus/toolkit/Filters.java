@@ -410,6 +410,7 @@ public final class Filters {
 
     /**
      * Allows the use of aggregation expressions within the query language.
+     * 表达式原样编码到 {@code $expr} 值槽，结果是供 match(Bson) 消费的查询文档 body。
      *
      * @param expression    the aggregation expression
      * @param <TExpression> the expression type
@@ -417,6 +418,9 @@ public final class Filters {
      * &#064;mongodb.server.release  3.6
      * &#064;mongodb.driver.manual reference/operator/query/expr/ $expr
      * @since 3.6
+     * @mongoExpression $expr
+     * @mongoParam expression PIPELINE_EXPRESSION VALUE
+     * @mongoComposition PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT
      */
     public static <TExpression> Bson expr(final TExpression expression) {
         return new SimpleEncodingFilter<>("$expr", expression);

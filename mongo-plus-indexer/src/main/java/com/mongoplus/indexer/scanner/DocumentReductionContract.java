@@ -32,11 +32,11 @@ final class DocumentReductionContract {
         if (!"ELEMENT".equals(input.get("semanticScope"))) {
             throw invalid(declaration, "归约输入作用域必须为 ELEMENT: " + tokens[0]);
         }
-        if (!DOCUMENT.equals(input.get("semanticType"))) {
-            throw invalid(declaration, "DOCUMENT_MERGE 输入语义必须为 " + DOCUMENT);
+        if (!List.of(DOCUMENT, "SORT_SPECIFICATION").contains(input.get("semanticType"))) {
+            throw invalid(declaration, "DOCUMENT_MERGE 输入语义必须为已登记文档角色");
         }
-        if (!DOCUMENT.equals(tokens[2])) {
-            throw invalid(declaration, "DOCUMENT_MERGE 输出语义必须为 " + DOCUMENT + "，实际为 " + tokens[2]);
+        if (!input.get("semanticType").equals(tokens[2])) {
+            throw invalid(declaration, "DOCUMENT_MERGE 输出语义必须与输入语义相同，实际为 " + tokens[2]);
         }
         Map<String, String> declared = new LinkedHashMap<String, String>();
         for (int i = 3; i < tokens.length; i++) {
@@ -47,9 +47,9 @@ final class DocumentReductionContract {
             }
             String key = token.substring(0, equals);
             String value = token.substring(equals + 1);
-            if (!ATTRIBUTES.containsKey(key)) { throw invalid(declaration, "未知属性: " + key); }
+            if (!ATTRIBUTES.containsKey(key) && !"duplicatePosition".equals(key)) { throw invalid(declaration, "未知属性: " + key); }
             if (declared.putIfAbsent(key, value) != null) { throw invalid(declaration, "重复属性: " + key); }
-            if (!ATTRIBUTES.get(key).equals(value)) {
+            if ("duplicatePosition".equals(key) ? !List.of("FIRST", "LAST").contains(value) : !ATTRIBUTES.get(key).equals(value)) {
                 throw invalid(declaration, "不支持的属性值: " + token + "，当前仅支持 " + ATTRIBUTES.get(key));
             }
         }
@@ -65,6 +65,7 @@ final class DocumentReductionContract {
         contract.put("inputSemanticType", input.get("semanticType"));
         // 固定契约字段顺序；原始标签仍在 evidence 中保留其声明顺序。
         for (String key : ATTRIBUTES.keySet()) { contract.put(key, declared.get(key)); }
+        if (declared.containsKey("duplicatePosition")) { contract.put("duplicatePosition", declared.get("duplicatePosition")); }
         Map<String, Object> evidence = new LinkedHashMap<String, Object>();
         evidence.put("source", "JAVADOC");
         evidence.put("tag", TAG);

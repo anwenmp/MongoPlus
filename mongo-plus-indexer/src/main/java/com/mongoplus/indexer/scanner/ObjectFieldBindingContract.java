@@ -107,7 +107,8 @@ final class ObjectFieldBindingContract {
         return result;
     }
 
-    private static void integerEncoding(String declaration, Map<String, String> attributes, Map<String, Object> binding) {
+    /** 对象字段和 Stage body 共用同一精确 Int32 编码/范围校验，既有输出结构不变。 */
+    static void integerEncoding(String declaration, Map<String, String> attributes, Map<String, Object> binding) {
         for (String key : Arrays.asList("encoding", "minimum", "maximum")) {
             if (!attributes.containsKey(key)) { throw invalid(declaration, "缺少属性: " + key); }
         }

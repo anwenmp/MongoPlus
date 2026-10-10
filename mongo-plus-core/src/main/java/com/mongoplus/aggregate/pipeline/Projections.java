@@ -41,6 +41,10 @@ public class Projections {
      * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      * @mongoComposition OUTPUT_FIELD_NAME + PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT
+     * @mongoDocumentEntry key=fieldName value=expression result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=computed;SimpleExpression.toBsonDocument mechanism=String/getter写实际输出键；值按codec编码，顶层数字或boolean仍须消费Stage模式规则。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=computed;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <TExpression> Bson computed(final String fieldName, final TExpression expression) {
         return new SimpleExpression<>(fieldName, expression);
@@ -58,6 +62,10 @@ public class Projections {
      * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
      * @mongoParam expression PIPELINE_EXPRESSION VALUE
      * @mongoComposition OUTPUT_FIELD_NAME + PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT
+     * @mongoDocumentEntry key=fieldName value=expression result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=computed;SimpleExpression.toBsonDocument mechanism=String/getter写实际输出键；值按codec编码，顶层数字或boolean仍须消费Stage模式规则。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=computed;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <TExpression,T> Bson computed(final SFunction<T,?> fieldName, final TExpression expression) {
         return computed(fieldName.getFieldNameLine(), expression);
@@ -98,6 +106,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=include;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson include(final String... fieldNames) {
         return include(asList(fieldNames));
@@ -108,6 +121,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=include;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     @SafeVarargs
     public static <T> Bson include(final SFunction<T,?>... fieldNames) {
@@ -119,6 +137,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=include;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson include(final List<String> fieldNames) {
         return combine(fieldNames, new BsonInt32(1));
@@ -129,6 +152,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:1 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=includeLambda;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <T> Bson includeLambda(final List<SFunction<T,?>> fieldNames) {
         return combine(fieldNames.stream().map(SFunction::getFieldNameLine).collect(Collectors.toList()), new BsonInt32(1));
@@ -139,6 +167,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:0 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=exclude;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson exclude(final String... fieldNames) {
         return exclude(asList(fieldNames));
@@ -149,6 +182,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:0 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=exclude;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     @SafeVarargs
     public static <T> Bson exclude(final SFunction<T,?>... fieldNames) {
@@ -160,6 +198,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:0 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=exclude;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson exclude(final List<String> fieldNames) {
         return combine(fieldNames, new BsonInt32(0));
@@ -170,6 +213,11 @@ public class Projections {
      *
      * @param fieldNames 字段名
      * @return $project
+     * @mongoParam fieldNames FIELD_NAME ELEMENT
+     * @mongoDocumentEntry key=fieldNames value=int32:0 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=combine;include;exclude mechanism=字段按输入顺序写键，固定Int32标志；重键移除后追加，最后值及最后位置生效。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=excludeLambda;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static <T> Bson excludeLambda(final List<SFunction<T,?>> fieldNames) {
         return combine(fieldNames.stream().map(SFunction::getFieldNameLine).collect(Collectors.toList()), new BsonInt32(0));
@@ -179,6 +227,10 @@ public class Projections {
      * 创建一个排除 _id 字段的投影。这将禁止自动包含默认的 _id，即使明确包含其他字段也是如此
      *
      * @return $project
+     * @mongoDocumentEntry key=literal:_id value=int32:0 result=STAGE_BODY_DOCUMENT target=RESULT order=INPUT duplicatePosition=LAST
+     * @mongoDocumentSource mongoDocumentEntry path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=excludeId mechanism=固定键_id与Int32(0)，是body而非完整Stage。
+     * @mongoCandidate operation=DOCUMENT_ENTRY
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=excludeId;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson excludeId() {
         return new BsonDocument("_id", new BsonInt32(0));
@@ -461,6 +513,8 @@ public class Projections {
      * @return the combined projection
      * @mongoParam projections STAGE_BODY_DOCUMENT ELEMENT
      * @mongoReduction projections -> STAGE_BODY_DOCUMENT operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT
+     * @mongoCandidate operation=DOCUMENT_MERGE duplicatePosition=LAST
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=fields;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson fields(final Bson... projections) {
         return fields(asList(projections));
@@ -473,6 +527,8 @@ public class Projections {
      * @return the combined projection
      * @mongoParam projections STAGE_BODY_DOCUMENT ELEMENT
      * @mongoReduction projections -> STAGE_BODY_DOCUMENT operation=DOCUMENT_MERGE order=INPUT duplicateKeys=LAST_WINS depth=SHALLOW empty=EMPTY_DOCUMENT
+     * @mongoCandidate operation=DOCUMENT_MERGE duplicatePosition=LAST
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java symbols=fields;combine;FieldsProjection.toBsonDocument;SimpleExpression.toBsonDocument mechanism=使用独立documentEntryConstruction或reductionContract；同一输入元素及codec下按序编码，重复键位置依源码保留。
      */
     public static Bson fields(final List<? extends Bson> projections) {
         notNull("projections", projections);

@@ -38,7 +38,7 @@ Stage 在每次 Wrapper 调用时即构造成 BSON，不是执行时统一翻译
 ## Stage 支持矩阵
 
 聚合专用机器索引由 `mongo-plus-indexer` 的 `MongoPlusPipelineIndexerMain` 生成，入口为
-Stage 根 `Aggregate` 加五个明确的 Expression 工厂根，详见
+Stage 根 `Aggregate` 加六个明确的 Expression/composition 工厂根，详见
 [Indexer 契约与生成方式](../../../mongo-plus-indexer/README.md)。索引映射仅接受
 源码 `@mongoStage` / `@mongoExpression` 块标签；下述人工源码审计的支持矩阵不能作为自动映射来源。
 2026-09-06 已按当前实现补充这两类标签；收录统计与边界见下方 Pipeline Javadoc evidence。
@@ -208,6 +208,15 @@ representation、参数 extractor 引用及 named-entry container 标签。复�
 一次外层 `facet(Facet...)` 合并多个 entry；本轮仅 Index evidence 和两个 Core BSON smoke 测试，
 不代表 MCP Resolver 已消费能力。Stage/Expression surface 仍为 33/49、297 overload。
 
+2026-10-08，P0-01 在当前工作树逐 overload 审计 58 个常见 Stage 入口，仅为已有独立 Stage 映射且
+追加链闭合的 47 个声明增加 `mongoPipelineEffect`；Core 的方法签名和方法体、Indexer 契约均未改动。
+审计表记录每条委托链及未补的五个任意 BSON 透传、六个未映射 addFields/set Object/Collection 入口。
+effect 不代替 skip 范围/编码、projection 模式、Options、Field/BsonField entry 或 expression composition。
+Core 已执行全部 47 overload 及其 facet/lookup/unionWith 的 141 个嵌入 BSON 组合；Indexer 逐标签删除后
+对应 141 个 construction effect 验收均拒绝。正式 Index 两次生成一致，相对任务前只新增两个视图的
+94 个 effect 字段，其他 evidence 不变；当前 surface 为 33 Stage / 51 Expression / 299 overload。
+完整结果和 MCP 复用验证边界见 [P0-01 报告](../../../mongo-plus-indexer/p0-01-stage-effect-report.md)。
+
 `unionWith(String,Aggregate<?>)` 实际经 getAggregateConditionList→unionWith(String,List)
 → Driver Aggregates.unionWith→unionWith(Bson)→custom(Bson) 追加到外层 receiver；Class overload
 先用 AnnotationOperate.getCollectionName 再委托 String overload。两个 Aggregate 参数用既有
@@ -260,13 +269,160 @@ formal concept 要求 scope graph、声明集、external/system catalog 的完�
 `VariableBindingScopeSelfTest` 验证正常绑定、missing、shadowing/恢复、initializer/隔离、显式 inherited body
 与目录、非法/缺证据契约、无关名称夹具及生成稳定性。
 详细结构见 [Indexer 变量绑定契约](../../../mongo-plus-indexer/README.md#通用变量声明作用域与绑定-evidence)。
-`$expr/$eq` composition 和 MCP 消费者运行仍在本次范围外。
+该轮未补充 `$expr/$eq` composition；MCP 消费者运行不属于上游 scope 验证。
 
 - 基础 lookup 支持 `from/localField/foreignField/as`，`from` 可用字符串或实体类；实体类仅经 `AnnotationOperate.getCollectionName` 解析 collection 名。
 - pipeline lookup 支持 `from + pipeline + as`，也支持 `let variables + pipeline`；子 pipeline 可由另一个 `Aggregate<?>` 提供，`expr` 可通过 Query/BSON stage 表达。
 - 没有公开 lookup database 参数，也没有跨 datasource 路由入口。动态集合 Handler 只替换主 collection；foreign name 不经过 `CollectionNameHandler`。
 - Tenant/Logic 只处理 executeAggregate 的顶层 List，不递归 lookup/facet/unionWith 子 pipeline。
 - lookup 数组、嵌套对象、实体集合和 Map 的读取均走通用 `MongoConverter`；没有 lookup 专用映射或 DBRef 交互。字段名/泛型必须与目标 DTO/实体匹配。
+
+## Expression composition：operand → expression → query body → Stage
+
+2026-10-08：新增 `AggregateOperator.eq(Object left,Object right)`，按声明顺序原样构造
+`{$eq:[left,right]}`；既有 `Filters.expr(TExpression)` 构造 `{$expr:expression}`，随后
+`Aggregate<?>.match(Bson)` 包裹 `$match` 并追加一个 Stage。查询 Eq 接口/Filters.eq 的字段条件
+没有此双 operand expression 语义，不能借用其 `$eq` 映射。
+
+正式证据复用逐参数 `PIPELINE_EXPRESSION VALUE`、`mongoExpressionShape ARRAY`、
+`mongoComposition` 及结果来源：`PIPELINE_EXPRESSION + PIPELINE_EXPRESSION -> PIPELINE_EXPRESSION`
+与 `PIPELINE_EXPRESSION -> STAGE_BODY_DOCUMENT`；match 复用已有 `STAGE_BODY_DOCUMENT VALUE`
+并补充 `APPEND_STAGE` receiver effect。没有新增 composition 模型、变量模型、schema 或 capability。
+Filters 增加为第六个显式根，只有标记的 expr 进入 family；结果语义表明它是查询 body，不可当作
+aggregation expression operand。正式 surface 增至 84 families/299 overloads，Stage surface 不变。
+
+字段与变量引用继续由同一个既有 expression concept 提供，`$` 排除 `$$`，变量绑定继续引用
+`VARIABLE_BINDING_SCOPE_V1`；字面量/嵌套 Bson 保持 codec 路径，不推断或声明业务变量。
+既有 expression concept 追加结构化 `literalValue`（运行时 codec/Java 类型需证据）与
+`nestedExpression`（Bson 表示/子调用结果需证据），原字段与变量契约保持不变。
+E01～E03 由正式 Index evidence 测试及真实 Java/BSON 测试共同验证，Int32、operand 顺序、
+缺失证据和未绑定变量拒绝均覆盖。生成仍使用正式 CLI，没有 JSON 后处理；MCP/服务器验证需下游完成。
+
+### P0-02：标量与 singleton 绑定 evidence
+
+2026-10-08：`skip(int/long)` 复用 `INTEGER_VALUE VALUE`；两个 overload 实际都输出 BSON Int32，
+long 先 `Math.toIntExact`。合法绑定范围是 MongoDB 非负整数与 Core Int32 表示的交集
+0..2147483647；负数仍能在 Core 编码，超 Int32 的 long 仍抛异常，不改变运行时行为。
+
+原对象字段绑定和构造条目容器不能表达整个 Stage body 的值槽及 VALUE→ELEMENT 提升，因此新增
+通用 `STAGE_VALUE_BINDING_V1`。逐参数 `mongoStageValue` / `mongoStageValueSource` 输出
+`stageValueBinding`；ELEMENT 复用一层 AST 容器校验并输出 `elementContainerBinding`，
+只在显式声明时提供 `singletonLifting`。不依据 `$skip/$unset`、方法名或 Java 类型猜语义。
+
+`unset(String...)` / `unset(List<String>)` 的字符串标量提升为单元素容器，字符串数组收集为真实
+String 容器；Core 将一个元素编码为字符串，其余长度为数组。非空、字符串元素、重复拒绝是
+合法绑定约束；Core 对空数组和重复字段的既有编码保留，字段路径/父子冲突仍需服务端校验。
+getter overload 不获得字符串到 getter 的构造能力；任意 Bson 透传不进入 Stage family。
+
+`sortByCount(String)` 复用已有表达式语义并增加原值标量编码、`$` 前缀及至少两个字符的约束。
+对象表达式不绑定到 String，变量仍需已有作用域证据。unset 四个和 sortByCount 两个 overload
+补充真实单次追加 effect；嵌套继续使用原 factory/representation/extraction/container，不改 planner。
+相同输入的多个合法 overload 保留正式类型和编码差异；方法顺序不能决定选择。
+
+正式扫描面仍为 33 Stage / 51 Expression / 84 families / 299 overloads。本轮 Core 48 个 JUnit
+及显式 Indexer 17 个 main 回归通过，正式生成两次字节一致；本轮没有 MongoDB/MCP 实机验证。
+完整审计、未闭合项和冻结 SHA 见 [P0-02 报告](../../../mongo-plus-indexer/p0-02-scalar-singleton-report.md)。
+
+### P0-03：多字段排序与投影组合 evidence
+
+2026-10-09：Sorts 的八个 asc/desc 工厂逐 overload 声明固定 Int32、有序字段键和真实 String/getter
+容器；两个 orderBy(Bson.../List) 复用 DOCUMENT_REDUCTION_V1 并保持 SORT_SPECIFICATION 角色。
+Projections 的八个 include/exclude 工厂声明 Int32 1/0，excludeId 声明固定 `_id:0`，两个 computed
+保留原 expression/composition evidence。新增 DOCUMENT_SHAPE_V1 从独立 Javadoc 标签消费
+document entry、输入角色和 flat projection 模式；普通数值/bool 顶层值是标志，嵌套 expression
+operand 的数字仍是表达式值。未知表达式、nested 模式和特殊 computed 排除必须另有证据。
+
+合法的 include/exclude/computed body 可通过 fields 的两个已有归约 overload 和 project(Bson)
+包装一次。非 `_id` 排除不得混合 include/普通 computed；消费者必须在归约前拒绝重复键，核对
+全字段覆盖、原序和路径碰撞，不能借 LAST_WINS 改写输入。Core 原样编码，未新增运行时模式校验。
+
+`Sorts.orderBy` 返回排序 body，而 `Aggregate.sort(Bson)` 是完整 Stage 透传；新输入 evidence
+明确此差异，后者仍不进入 Stage MethodFamily。P0-03 后续补齐了独立默认方法
+`Aggregate.sortSpecification(Bson specification)`：接受 `SORT_SPECIFICATION VALUE`，经 Driver
+`Aggregates.sort` 包装一次，调用 `custom` 追加到当前 receiver。`LambdaAggregateWrapper` 及其
+子类继承默认实现，不要求第三方 Aggregate 实现新增抽象方法；`Aggregate<?>` 可直接调用。
+`DOCUMENT_SHAPE_V1` 的 `documentInputBinding` 提供 body→Stage composition，与独立
+`APPEND_STAGE/RECEIVER/ONE/CALL_ORDER` effect 闭合；返回值仍是 receiver，没有虚构 Bson result。
+缺输入 composition、参数、来源或 effect 必须拒绝；裸 body 不能经旧透传入口进入完整 Stage。
+真实 BSON 验证单字段、多字段、混合方向、Int32 原类型以及 facet/lookup/unionWith 内层顺序与隔离。
+null specification 在追加前拒绝，旧 `sort(Bson)` 的输入及透传行为保持不变。
+同方向 sortAsc/sortDesc 的已有 Stage 构造和 effect 保留。Projection/Order 专用 entry 的通用
+构造证据仍未补齐；所有既有 overload 均保留，P0-04 候选选择未实施。
+
+完整链路、五个场景、Core/Indexer 回归、正式 Index SHA 和 MCP 准入范围见
+[P0-03 报告](../../../mongo-plus-indexer/p0-03-sort-projection-report.md)；排序 Stage 缺口补齐见
+[排序 Stage 报告](../../../mongo-plus-indexer/p0-03-sort-stage-report.md)。
+
+### P0-04 第一阶段：候选语义等价 evidence
+
+2026-10-09：新增独立 `CANDIDATE_SEMANTICS_V1`，以逐方法 Javadoc 声明的通用构造项复用已有
+参数、Stage value、document entry/reduction/input 和 pipeline effect。正式证据描述每条路线的
+Java 类型与容器、适用输入域、实际 BSON 类型/值/顺序、Stage 数量、逻辑 receiver 及来源。
+41 个条件化构造规则涵盖 skip、unset、Sorts、String 排序 Stage、Projections、现行
+ConditionOperators.multiply 和 group 的直接 expression/命名条目路线；公开 API 和 Core
+可执行源码保持原样。不能从这些节点事实推断未知 expression、getter 或命名条目构造已经闭合。
+
+等价比较须代入全部已证明子树，执行实际 Java/语义/scope/codec 准入，再比较完整有序且带类型
+的 BSON 和 receiver effect。旧 sort(String,Integer) 与 sortSpecification(Sorts...) 可以在相同
+字段/方向/一个 Stage 的输入域证明整树等价；拆成多个 Stage、改变字段/operand 顺序、数字类型、
+变量绑定或 sibling receiver 不等价。单元素 unset 的 Java 容器压缩不能授权改写原始 BSON。
+同一 registry 不保证不同 Collection runtime codec 相同；默认 Driver codec 或独立编码证明
+是必要前提。Order/Projection 对象构造、group getter 转换和非空 accumulator 子树的额外
+构造/作用域缺口仍保持未闭合。没有实现 MCP 候选选择。
+
+结构、候选关系、正负测试及正式 Index SHA 见
+[P0-04 报告](../../../mongo-plus-indexer/p0-04-candidate-semantics-report.md)。
+
+### P0-05 第一阶段：常见 Aggregation Expression
+
+`AggregateOperator` 新增 `ne/gt/gte/lt/lte/subtract/divide(Object,Object)`、
+`and/or(Object...)` 和 `not(Object)`，均为表达式工厂。前七项保存两个有序 operand；
+and/or 保留零个、一个或多个元素；not 使用 singletonList 保留外层单元素数组。
+null operand 编码为 BSON null，null varargs 容器拒绝。工厂不提前求值或推断服务器结果类型。
+同名 Filters 方法仍是 Query Predicate；不能借用其映射。eq 只增加实际 Document 构造证据。
+
+复用 `@mongoParam`、ARRAY shape、composition/result、字段/变量引用及
+`CANDIDATE_SEMANTICS_V1`。新增通用 `EXPRESSION_ARGUMENTS` 构造声明，分别发布
+固定 Java 参数按序组数组的 `ARRAY_ARGUMENTS_RUNTIME_CODEC` 和变参的既有
+`ARRAY_RUNTIME_CODEC`；显式记录数量域、null 和不提前求值。旧候选分支和 41 条规则不变。
+方法结果、composition、类型/参数、来源或子节点 codec/scope 缺失时不能建立完整树；
+未知构造节点的消费者必须拒绝。BSON expression 不等于 Stage 或可自由替换的 raw BSON。
+
+已验证范围为 Driver 5.4 默认 codec 下的 String、Integer/Long/Double/Decimal128、Boolean、
+null 和这批工厂（含 eq）的递归 Document 表达式；变量仍要求既有作用域证明。
+任意自定义 codec、opaque Bson、数组/对象 literal、未补齐组合证据的其他工厂不自动闭合。
+Core Java/BSON 测试不替代服务器运行或 MCP 整 Stage 验证。
+完整审计、测试结果和正式 SHA 见 [P0-05 报告](../../../mongo-plus-indexer/p0-05-common-expression-report.md)。
+
+### P0-06 第一阶段：Expression result、类型关系与数组
+
+普通 Object/Collection 参数的 multiply、ifNull、mergeObjects，三参数 cond/condArray，以及
+toDate/toBool/toDecimal/toDouble/toHashedIndexKey/toInt/toLong/toObjectId/toString 的非 getter
+入口补齐逐 overload 的 shape、composition/result 与 runtime Document 构造来源。
+单值使用 VALUE shape；cond 对象形式记录 if/then/else 的字段序。四参数 condArray 真实委托
+对象形式 cond，保留原行为；不能按方法名视为数组形式。
+
+`AggregateOperator.concatArraysExpressions(Object...)` 独立命名，直接保存有序 operand，支持
+`$items`/`$other` 和已证明的嵌套表达式。旧 `concatArrays(List<?>...)` 行为保持不变；数组 literal
+仍需独立递归构造/Codec 证据。Getter 规范化、动态条件键和未知/custom codec 不自动闭合。
+
+`JAVA_TYPE_RELATIONS_V1` 从声明的 Maven artifact 实际读取 `Document → Bson` 关系及反向否定，
+记录 artifact/class 指纹，要求消费端相同 binary definitions。此事实不证明语义角色、Codec 或
+BSON 等价。普通 mergeObjects 返回 Document；Accumulators 的 mergeObjects 返回 BsonField，
+不得混用。`replaceWith(Document)` 包装 Stage，`replaceWith(Bson)` 是完整 Stage 透传。
+
+复用已有参数/composition/候选契约，新增通用单值/固定字段对象构造项，不增加 operator planner。
+Core 测试验证公开 API 的真实字节编码；Indexer main 验证证据准入；两者均不替代 MCP Stage
+选择或服务器求值。完整审计与结果见 [P0-06 报告](../../../mongo-plus-indexer/p0-06-expression-result-type-report.md)。
+
+2026-10-10 A05 补充：`replaceWith(Document)` 与泛型包装路线都经
+`Aggregates.replaceWith → ReplaceStage → BuildersHelper.encodeValue → replaceWith(Bson) → custom`，
+向当前 receiver 追加一次并返回 typedThis。两条声明复用 `CANDIDATE_SEMANTICS_V1` 的
+`STAGE_EXPRESSION_DOCUMENT` 构造规则及显式 Expression→Stage composition；条件域只允许
+有完整来源的精确 runtime Document 表达式，并要求独立核验 Java 静态类型/真实 overload/泛型绑定、
+每个 Codec、有序且带类型的 BSON、Stage 数量/调用序和 receiver/scope。Object 的显式拓宽仍需
+Document 来源证明；String、任意 Bson、未知对象/Codec、子类和缺证据不能据此合并候选。
+两条原实现和 Bson 透传行为保持原样；此上游关系不替代 MCP 对具体树的准入或 SELECTED 验收。
 
 ## 结果映射与资源生命周期
 

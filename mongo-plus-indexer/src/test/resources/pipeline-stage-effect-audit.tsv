@@ -1,0 +1,59 @@
+owner	signature	stage	decision	coreDelegation	remainingBoundary
+Aggregate	project(Bson bson)	$project	EFFECT	project(Bson) -> wrap $project -> custom(Bson)	Stage body composition remains independent
+Project	projectDisplay(SFunction<T, R>... column)	$project	EFFECT	projectDisplay(SFunction[]) -> buildProject(SFunction[],Integer) -> buildProject(String[],Integer) -> buildProject(List) -> custom	Lambda Java representation
+Project	projectDisplay(String... column)	$project	EFFECT	projectDisplay(String[]) -> buildProject(String[],Integer) -> buildProject(List) -> custom	Projection mode composition
+Project	projectNone(SFunction<T, R>... column)	$project	EFFECT	projectNone(SFunction[]) -> buildProject(SFunction[],Integer) -> buildProject(String[],Integer) -> buildProject(List) -> custom	Lambda Java representation
+Project	projectNone(String... column)	$project	EFFECT	projectNone(String[]) -> buildProject(String[],Integer) -> buildProject(List) -> custom	Projection mode composition
+Project	project(boolean displayId, Projection... projection)	$project	EFFECT	project(boolean,Projection[]) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection entries and displayId mode
+Project	project(Projection... projection)	$project	EFFECT	project(Projection[]) -> project(true,Projection[]) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection entries composition
+Project	project(boolean displayId, Collection<? extends Projection> projection)	$project	EFFECT	project(boolean,Collection) -> project(boolean,Projection[]) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection entries and displayId mode
+Project	project(Collection<? extends Projection> projection)	$project	EFFECT	project(Collection) -> project(true,Collection) -> project(boolean,Projection[]) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection entries composition
+Project	projectDisplay(boolean displayId, SFunction<T, R>... column)	$project	EFFECT	projectDisplay(boolean,SFunction[]) -> buildProject(boolean,SFunction[],Integer) -> buildProject(boolean,String[],Integer) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection mode and Lambda representation
+Project	projectDisplay(boolean displayId, String... column)	$project	EFFECT	projectDisplay(boolean,String[]) -> buildProject(boolean,String[],Integer) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection mode composition
+Project	projectNone(boolean displayId, SFunction<T, R>... column)	$project	EFFECT	projectNone(boolean,SFunction[]) -> buildProject(boolean,SFunction[],Integer) -> buildProject(boolean,String[],Integer) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection mode and Lambda representation
+Project	projectNone(boolean displayId, String... column)	$project	EFFECT	projectNone(boolean,String[]) -> buildProject(boolean,String[],Integer) -> buildProject(boolean,List) -> buildProject(List) -> custom	Projection mode composition
+Aggregate	group(String _id)	$group	EFFECT	group(String) -> group(TExpression,List) -> Aggregates.group -> group(Bson) -> custom	Scalar input route
+Aggregate	group(SFunction<T, ?> _id)	$group	EFFECT	group(SFunction) -> group(String) -> group(TExpression,List) -> group(Bson) -> custom	Lambda Java representation
+Aggregate	group(TExpression id, BsonField... fieldAccumulators)	$group	EFFECT	group(TExpression,BsonField[]) -> group(TExpression,List) -> Aggregates.group -> group(Bson) -> custom	Accumulator composition and candidate closure
+Aggregate	group(SFunction<T, ?> id, BsonField... fieldAccumulators)	$group	EFFECT	group(SFunction,BsonField[]) -> group(TExpression,BsonField[]) -> group(TExpression,List) -> group(Bson) -> custom	Accumulator composition and Lambda representation
+Aggregate	group(TExpression id, List<BsonField> fieldAccumulators)	$group	EFFECT	group(TExpression,List) -> Aggregates.group -> group(Bson) -> custom	Accumulator composition and candidate closure
+Aggregate	group(SFunction<T, ?> id, List<BsonField> fieldAccumulators)	$group	EFFECT	group(SFunction,List) -> group(TExpression,List) -> Aggregates.group -> group(Bson) -> custom	Accumulator composition and Lambda representation
+Aggregate	group(Bson bson)	-	RAW	group(Bson) -> custom(Bson), input unchanged	Arbitrary input is not guaranteed to be one $group Stage
+Aggregate	count()	$count	EFFECT	count() -> custom(Aggregates.count())	Default output name and scalar input route
+Aggregate	count(String field)	$count	EFFECT	count(String) -> custom(Aggregates.count(field))	Scalar input route
+Aggregate	count(SFunction<T, ?> field)	$count	EFFECT	count(SFunction) -> count(String) -> custom(Aggregates.count(field))	Lambda Java representation
+Aggregate	unwind(String fieldName)	$unwind	EFFECT	unwind(String) -> custom(Aggregates.unwind(fieldName))	Scalar input route
+Aggregate	unwind(SFunction<T, ?> fieldName)	$unwind	EFFECT	unwind(SFunction) -> unwind(String) -> custom	Lambda Java representation
+Aggregate	unwind(String fieldName, UnwindOption unwindOption)	$unwind	EFFECT	unwind(String,UnwindOption) -> build $unwind options document -> custom	Options construction evidence
+Aggregate	unwind(SFunction<T, ?> fieldName, UnwindOption unwindOption)	$unwind	EFFECT	unwind(SFunction,UnwindOption) -> unwind(String,UnwindOption) -> custom	Options construction and Lambda representation
+Aggregate	unwind(Bson bson)	-	RAW	unwind(Bson) -> custom(Bson), input unchanged	Arbitrary input is not guaranteed to be one $unwind Stage
+Aggregate	addFields(String field, String value)	$addFields	EFFECT	addFields(String,String) -> Field.of -> addFields(Field[]) -> addFields(List) -> custom(Aggregates.addFields)	Named field composition
+Aggregate	addFields(SFunction<T, ?> field, String value)	$addFields	EFFECT	addFields(SFunction,String) -> addFields(String,String) -> addFields(Field[]) -> addFields(List) -> custom	Named field composition and Lambda representation
+Aggregate	addFields(String value, SFunction<T, ?>... field)	$addFields	EFFECT	addFields(String,SFunction[]) -> join path -> addFields(String,String) -> addFields(Field[]) -> addFields(List) -> custom	Path composition; empty path throws before append
+Aggregate	addFields(SFunction<T, ?> field, Object value)	-	UNMAPPED	addFields(SFunction,Object) -> Field.of -> addFields(Field[]) -> addFields(List) -> custom	Single append confirmed but no per-overload mongoStage; mapping expansion excluded
+Aggregate	addFields(SFunction<T, ?> field, Collection<?> value)	-	UNMAPPED	addFields(SFunction,Collection) -> addFields(String,Collection) -> addFields(Field[]) -> addFields(List) -> custom	Single append confirmed but no per-overload mongoStage; collection encoding not certified
+Aggregate	addFields(String field, Collection<?> value)	-	UNMAPPED	addFields(String,Collection) -> build concatArrays payload -> addFields(Field[]) -> addFields(List) -> custom	Single append confirmed but no per-overload mongoStage; collection encoding not certified
+Aggregate	addFields(Field<?>... fields)	$addFields	EFFECT	addFields(Field[]) -> addFields(List) -> custom(Aggregates.addFields)	Field entry construction evidence
+Aggregate	addFields(List<Field<?>> fields)	$addFields	EFFECT	addFields(List) -> custom(Aggregates.addFields)	Field entry construction evidence
+Aggregate	addFields(Bson bson)	$addFields	EFFECT	addFields(Bson) -> wrap $addFields -> custom(Bson)	Stage body composition remains independent
+Aggregate	set(String field, String value)	$set	EFFECT	set(String,String) -> Field.of -> set(Field[]) -> set(List) -> custom(Aggregates.set)	Named field composition
+Aggregate	set(SFunction<T, ?> field, String value)	$set	EFFECT	set(SFunction,String) -> set(String,String) -> set(Field[]) -> set(List) -> custom	Named field composition and Lambda representation
+Aggregate	set(String value, SFunction<T, ?>... field)	$set	EFFECT	set(String,SFunction[]) -> join path -> set(String,String) -> set(Field[]) -> set(List) -> custom	Path composition; empty path throws before append
+Aggregate	set(SFunction<T, ?> field, Object value)	-	UNMAPPED	set(SFunction,Object) -> Field.of -> set(Field[]) -> set(List) -> custom	Single append confirmed but no per-overload mongoStage; mapping expansion excluded
+Aggregate	set(SFunction<T, ?> field, Collection<?> value)	-	UNMAPPED	set(SFunction,Collection) -> set(String,Collection) -> set(Field[]) -> set(List) -> custom	Single append confirmed but no per-overload mongoStage; collection encoding not certified
+Aggregate	set(String field, Collection<?> value)	-	UNMAPPED	set(String,Collection) -> build concatArrays payload -> set(Field[]) -> set(List) -> custom	Single append confirmed but no per-overload mongoStage; collection encoding not certified
+Aggregate	set(Field<?>... fields)	$set	EFFECT	set(Field[]) -> set(List) -> custom(Aggregates.set)	Field entry construction evidence
+Aggregate	set(List<Field<?>> fields)	$set	EFFECT	set(List) -> custom(Aggregates.set)	Field entry construction evidence
+Aggregate	set(Bson bson)	$set	EFFECT	set(Bson) -> wrap $set -> custom(Bson)	Stage body composition remains independent
+Aggregate	skip(long skip)	$skip	EFFECT	skip(long) -> Math.toIntExact -> skip(int) -> custom(Aggregates.skip)	Integer input encoding/range evidence; overflow throws before append
+Aggregate	skip(int skip)	$skip	EFFECT	skip(int) -> custom(Aggregates.skip)	Integer input encoding/range evidence
+Aggregate	sample(Number size)	$sample	EFFECT	sample(Number) -> size.intValue -> Aggregates.sample -> sample(Bson) -> custom	Existing exact INT32 binding remains required
+Aggregate	sample(Bson bson)	-	RAW	sample(Bson) -> custom(Bson), input unchanged	Arbitrary input is not guaranteed to be one $sample Stage
+Aggregate	replaceRoot(TExpression fieldName)	$replaceRoot	EFFECT	replaceRoot(TExpression) -> Aggregates.replaceRoot -> replaceRoot(Bson) -> custom	Expression result/composition evidence
+Aggregate	replaceRoot(Document value)	$replaceRoot	EFFECT	replaceRoot(Document) -> Aggregates.replaceRoot -> replaceRoot(Bson) -> custom	Document Java representation/composition
+Aggregate	replaceRoot(SFunction<T, ?> fieldName)	$replaceRoot	EFFECT	replaceRoot(SFunction) -> replaceRoot(String as TExpression) -> Aggregates.replaceRoot -> replaceRoot(Bson) -> custom	Lambda Java representation
+Aggregate	replaceRoot(Bson bson)	-	RAW	replaceRoot(Bson) -> custom(Bson), input unchanged	Arbitrary input is not guaranteed to be one $replaceRoot Stage
+Aggregate	replaceWith(TExpression fieldName)	$replaceWith	EFFECT	replaceWith(TExpression) -> Aggregates.replaceWith -> replaceWith(Bson) -> custom	Expression result/composition evidence
+Aggregate	replaceWith(Document value)	$replaceWith	EFFECT	replaceWith(Document) -> Aggregates.replaceWith -> replaceWith(Bson) -> custom	Document Java representation/composition
+Aggregate	replaceWith(SFunction<T, ?> fieldName)	$replaceWith	EFFECT	replaceWith(SFunction) -> replaceWith(String as TExpression) -> Aggregates.replaceWith -> replaceWith(Bson) -> custom	Lambda Java representation
+Aggregate	replaceWith(Bson bson)	-	RAW	replaceWith(Bson) -> custom(Bson), input unchanged	Arbitrary input is not guaranteed to be one $replaceWith Stage

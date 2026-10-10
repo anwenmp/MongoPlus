@@ -25,7 +25,8 @@ public final class MongoPlusIndexerConfig {
             "com.mongoplus.aggregate.pipeline.AggregateOperator",
             "com.mongoplus.aggregate.pipeline.Projections",
             "com.mongoplus.aggregate.pipeline.Sorts",
-            "com.mongoplus.conditions.operation.ConditionOperators"));
+            "com.mongoplus.conditions.operation.ConditionOperators",
+            "com.mongoplus.toolkit.Filters"));
 
     /** 不在 Stage 签名中的公开 receiver/组合构造入口；加载类型不赋予语义。 */
     public static final List<String> PIPELINE_CONSTRUCTION_ROOTS = Collections.unmodifiableList(java.util.Arrays.asList(
@@ -59,7 +60,13 @@ public final class MongoPlusIndexerConfig {
                 new ArrayList<String>(new java.util.TreeSet<String>(builder.expressionRoots)));
         this.constructionRoots = Collections.unmodifiableList(
                 new ArrayList<String>(new java.util.TreeSet<String>(builder.constructionRoots)));
-        this.constructionArtifactRepository = builder.constructionArtifactRepository.toAbsolutePath().normalize();
+        Path repository = builder.constructionArtifactRepository;
+        if (repository == null) {
+            // 普通 Index 不消费 artifact，保持原默认值，避免引入 settings 读取依赖。
+            repository = pipeline ? MavenLocalRepository.resolve() : java.nio.file.Paths.get(
+                    System.getProperty("maven.repo.local", System.getProperty("user.home") + "/.m2/repository"));
+        }
+        this.constructionArtifactRepository = repository.toAbsolutePath().normalize();
         if (pipeline && includeGeneratedAt) {
             throw new IllegalArgumentException("Pipeline Index 不允许非确定性的 generatedAt");
         }
@@ -133,8 +140,7 @@ public final class MongoPlusIndexerConfig {
         private boolean pipeline;
         private final List<String> expressionRoots = new ArrayList<String>();
         private final List<String> constructionRoots = new ArrayList<String>();
-        private Path constructionArtifactRepository = java.nio.file.Paths.get(System.getProperty("maven.repo.local",
-                System.getProperty("user.home") + "/.m2/repository"));
+        private Path constructionArtifactRepository;
 
         /** 只读取显式 construction 契约引用的 artifact；不扫描仓库、不下载依赖。 */
         public Builder constructionArtifactRepository(Path repository) {

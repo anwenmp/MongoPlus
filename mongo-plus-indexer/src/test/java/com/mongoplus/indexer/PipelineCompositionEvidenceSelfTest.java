@@ -29,7 +29,8 @@ public final class PipelineCompositionEvidenceSelfTest {
         require(index.getMethodFamilies().stream().map(item -> (Map<?, ?>) item)
                 .noneMatch(item -> "computed".equals(item.get("name"))), "computed 不能成为 MethodFamily");
         require(index.list("types").stream().map(item -> (Map<?, ?>) item)
-                .noneMatch(item -> item.toString().contains("SimpleExpression")), "不得暴露 SimpleExpression");
+                .noneMatch(item -> "com.mongoplus.aggregate.pipeline.SimpleExpression".equals(item.get("qualifiedName"))),
+                "不得暴露 SimpleExpression；sourceEvidence 可以引用实际编码实现");
         String source = Files.readString(project.resolve(
                 "mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/Projections.java"));
         verifyMutations(source);
@@ -38,6 +39,8 @@ public final class PipelineCompositionEvidenceSelfTest {
     }
 
     private static void verifyMutations(String source) throws Exception {
+        // 本测试独立验 composition；P0-03 的 document shape 必须另用其 fail-closed 负测验收。
+        source = source.replaceAll("(?m)^\\s*\\* @mongoDocument(?:Entry|Source) [^\\r\\n]*\\r?\\n", "");
         Path root = Files.createTempDirectory("pipeline-composition-evidence-");
         try {
             Path aggregate = root.resolve("com/mongoplus/aggregate/Aggregate.java");

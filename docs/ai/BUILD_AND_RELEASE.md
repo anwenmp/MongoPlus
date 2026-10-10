@@ -248,6 +248,7 @@ flowchart LR
 | sharding starter 解析失败 | Boot 3 starter、sharding、core、annotation 上游是否一并构建 |
 | Boot 4 编译报 Java 版本 | `mvn -version` 的运行 JDK 必须 17+，不要只看 `java -version` |
 | dependency:tree 单模块失败 | 同版本 parent/BOM/兄弟 artifact 是否已 install；改用根 `-pl -am` |
+| Pipeline Indexer 报“缺少 construction artifact”，但 Maven 已下载依赖 | 检查实际本地仓库是否与 Indexer 一致；默认按 builder、`maven.repo.local`、用户 settings、Maven 安装目录 settings、`.m2/repository` 定位。安装目录由 `maven.home` / `MAVEN_HOME` / `M2_HOME` 提供；IDEA 任意自定义 settings 路径需用 VM option `-Dmaven.repo.local=<实际仓库目录>` 显式传入。详见 [Indexer README](../../mongo-plus-indexer/README.md) |
 | javadoc 在不同 JDK 失败 | 插件 3.6.3、doclint/JDK 差异、模块 Java target；保存完整命令/错误 |
 | Central 权限/签名失败 | `central` 与 `release` server id、平台路径、当前 GPG execution 被注释；不输出凭据 |
 | 本地旧 snapshot/2.2.0 干扰 | 使用隔离的本地仓库重新验证并记录顺序，不删除用户仓库 |

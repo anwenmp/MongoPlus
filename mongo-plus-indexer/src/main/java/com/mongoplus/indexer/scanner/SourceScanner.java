@@ -557,6 +557,15 @@ public final class SourceScanner {
                 }
             }
             MongoPlusApiIndex index = new MongoPlusApiIndex(config.getMongoPlusVersion());
+            List<Object> javaRelations = new ArrayList<>();
+            for (SourceType type : loaded.values()) {
+                javaRelations.addAll(JavaTypeRelationEvidence.inspect(config.getConstructionArtifactRepository(),
+                        qualified(type), type.tags.getOrDefault(JavaTypeRelationEvidence.TAG, Collections.emptyList())));
+            }
+            if (!javaRelations.isEmpty()) {
+                index.asMap().put("javaTypeRelations", javaRelations);
+                requiredCapabilities.add(JavaTypeRelationEvidence.CAPABILITY);
+            }
             index.asMap().put("entryType", entry);
             index.asMap().put("expressionRoots", config.getExpressionRoots());
             if (!config.getConstructionRoots().isEmpty()) {
@@ -612,6 +621,8 @@ public final class SourceScanner {
                     if (dependencies.contains(name) || !mapping(type, method, "mongoStage").isEmpty()
                             || !mapping(type, method, "mongoExpression").isEmpty()
                             || PipelineConstructionContract.hasTags(method.tags)
+                            || DocumentShapeContract.hasTags(method.tags)
+                            || CandidateSemanticContract.hasTags(method.tags)
                             || VariableBindingScopeContract.hasTags(method.tags)) {
                         methods.add(evidence(type, method));
                     }
@@ -649,6 +660,15 @@ public final class SourceScanner {
             }
             if (requiredCapabilities.contains(VariableBindingScopeContract.CAPABILITY)) {
                 index.list("concepts").add(VariableBindingScopeContract.concept());
+            }
+            if (requiredCapabilities.contains(StageValueBindingContract.CAPABILITY)) {
+                index.list("concepts").add(StageValueBindingContract.concept());
+            }
+            if (requiredCapabilities.contains(DocumentShapeContract.CAPABILITY)) {
+                index.list("concepts").add(DocumentShapeContract.concept());
+            }
+            if (requiredCapabilities.contains(CandidateSemanticContract.CAPABILITY)) {
+                index.list("concepts").add(CandidateSemanticContract.concept());
             }
             Map<String, Object> stats = index.object("scanStatistics");
             Set<String> activeTypes = new java.util.TreeSet<String>(hierarchy);
@@ -797,6 +817,12 @@ public final class SourceScanner {
                     false, method.staticMethod, method.tags, value)) {
                 requiredCapabilities.add(PipelineConstructionContract.CAPABILITY);
             }
+            if (StageValueBindingContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value,
+                    name -> method.parameters.stream().filter(parameter -> name.equals(parameter.name))
+                            .findFirst().orElseThrow().typeTree,
+                    name -> resolveEntryType(owner, name))) {
+                requiredCapabilities.add(StageValueBindingContract.CAPABILITY);
+            }
             if (VariableBindingScopeContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value)) {
                 requiredCapabilities.add(VariableBindingScopeContract.CAPABILITY);
                 hasExpressionParameterEvidence = true;
@@ -805,6 +831,27 @@ public final class SourceScanner {
             if (!reductions.isEmpty()) {
                 DocumentReductionContract.apply(qualified(owner) + "#" + method.signature(), reductions, value);
                 requiredCapabilities.add(DocumentReductionContract.CAPABILITY);
+            }
+            if (DocumentShapeContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value,
+                    name -> method.parameters.stream().filter(parameter -> name.equals(parameter.name))
+                            .findFirst().orElseThrow().typeTree,
+                    name -> resolveEntryType(owner, name))) {
+                requiredCapabilities.add(DocumentShapeContract.CAPABILITY);
+            }
+            if (CandidateSemanticContract.apply(qualified(owner) + "#" + method.signature(), method.tags, value,
+                    name -> method.parameters.stream().filter(parameter -> name.equals(parameter.name))
+                            .findFirst().orElseThrow().typeTree,
+                    name -> {
+                        if (Arrays.asList("int", "long", "Integer", "Long", "java.lang.Integer", "java.lang.Long")
+                                .contains(name)) { return resolveNumericType(owner, name); }
+                        if ("BsonField".equals(name) && !owner.imports.containsKey(name)
+                                && owner.imports.containsKey("com.mongodb.client.model.*")
+                                && locateQualifiedName(owner.packageName + "." + name) == null) {
+                            return "com.mongodb.client.model.BsonField";
+                        }
+                        return resolveEntryType(owner, name);
+                    }, entryGenerics)) {
+                requiredCapabilities.add(CandidateSemanticContract.CAPABILITY);
             }
             return value;
         }
@@ -864,7 +911,8 @@ public final class SourceScanner {
         private void expressionShape(SourceType owner, SourceMethod method, Map<String, Object> evidence) {
             List<String> values = method.tags.getOrDefault(EXPRESSION_SHAPE_TAG, Collections.<String>emptyList());
             if (values.isEmpty()) { return; }
-            if (values.size() != 1 || !("OBJECT".equals(values.get(0)) || "ARRAY".equals(values.get(0)))) {
+            if (values.size() != 1 || !("OBJECT".equals(values.get(0)) || "ARRAY".equals(values.get(0))
+                    || "VALUE".equals(values.get(0)))) {
                 throw new IllegalArgumentException("非法 @mongoExpressionShape: " + qualified(owner) + "#"
                         + method.signature() + " -> " + values);
             }
@@ -1053,6 +1101,21 @@ public final class SourceScanner {
             literal.put("dollarPrefixedLiteralConstruction", "NOT_ESTABLISHED");
             concept.put("plainStringValue", literal);
             concept.put("bsonValueHandling", "Bson 转为 BSON document；其他非 null 值使用运行时类型对应的 codec。");
+            // 将既有 codec 机制结构化；表示证据不替代调用参数的 Java 类型及子表达式结果证据。
+            Map<String, Object> literalValue = object();
+            literalValue.put("semanticType", "LITERAL");
+            literalValue.put("encoding", "RUNTIME_CODEC");
+            literalValue.put("requiresAssignableJavaType", true);
+            literalValue.put("requiresCodecEvidence", true);
+            literalValue.put("stringInterpretationRef", "plainStringValue");
+            concept.put("literalValue", literalValue);
+            Map<String, Object> nested = object();
+            nested.put("semanticType", EXPRESSION_SEMANTIC);
+            nested.put("javaType", "org.bson.conversions.Bson");
+            nested.put("encoding", "BSON_DOCUMENT");
+            nested.put("requiresAssignableJavaType", true);
+            nested.put("requiresResultSemanticEvidence", true);
+            concept.put("nestedExpression", nested);
             List<Object> sources = new ArrayList<Object>();
             sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/LambdaAggregateWrapper.java",
                     "group(TExpression,List<BsonField>); group(SFunction,BsonField...)",
@@ -1069,6 +1132,10 @@ public final class SourceScanner {
                     "computed; computedSearchMeta", "computed 原样接收 expression；computedSearchMeta 传入 $$SEARCH_META。"));
             sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/AggregateOptions.java",
                     "let", "契约明确使用双美元前缀访问聚合 let 变量。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/AggregateOperator.java",
+                    "eq", "两个 Object operand 按声明顺序放入 Document 的数组，由实际 codec 编码。"));
+            sources.add(semanticSource("mongo-plus-core/src/main/java/com/mongoplus/toolkit/BuildersHelper.java",
+                    "encodeValue", "Filters.expr 的值槽中，Bson 转 document，其他非 null 值使用运行时 codec。"));
             Map<String, Object> driver = object();
             driver.put("artifact", "org.mongodb:mongodb-driver-core:5.4.0");
             driver.put("symbols", "com.mongodb.client.model.Aggregates.GroupStage; com.mongodb.client.model.BuildersHelper.encodeValue");

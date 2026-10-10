@@ -139,3 +139,4 @@ $unwind	unwind	unwind(SFunction<T, ?> fieldName)	1	com.mongoplus.aggregate.Aggre
 $unwind	unwind	unwind(SFunction<T, ?> fieldName, UnwindOption unwindOption)	2	com.mongoplus.aggregate.Aggregate
 $unwind	unwind	unwind(String fieldName)	1	com.mongoplus.aggregate.Aggregate
 $unwind	unwind	unwind(String fieldName, UnwindOption unwindOption)	2	com.mongoplus.aggregate.Aggregate
+$sort	sortSpecification	sortSpecification(Bson specification)	1	com.mongoplus.aggregate.Aggregate

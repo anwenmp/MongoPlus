@@ -22,8 +22,9 @@ public final class PipelineStageSemanticsSelfTest {
         verifyRoles(index);
         verifyPipelines(index);
         verifyExplicitTags();
-        System.out.println("PipelineStageSemanticsSelfTest PASSED: 33 families / 140 overloads / 291 parameters; "
-                + "223 Stage additions (including sample, named pipeline and typed variable entries) + 2 option setter parameters; role negatives PASS");
+        System.out.println("PipelineStageSemanticsSelfTest PASSED: 34 families / 141 overloads / 292 parameters; "
+                + "227 Stage additions (including sort specification body and explicit sort integer)"
+                + " + 2 option setter parameters; role negatives PASS");
     }
 
     private static MongoPlusApiIndex generate(Path root) throws Exception {
@@ -60,13 +61,13 @@ public final class PipelineStageSemanticsSelfTest {
         int added = 0;
         List<String> auditLines = Files.readAllLines(root.resolve(
                 "mongo-plus-indexer/src/test/resources/pipeline-stage-parameter-audit.tsv"), StandardCharsets.UTF_8);
-        require(auditLines.size() == 292, "参数审计表必须恰好含 291 行及表头");
+        require(auditLines.size() == 293, "参数审计表必须恰好含 292 行及表头");
         for (String line : auditLines.subList(1, auditLines.size())) {
             String[] row = line.split("\t", -1);
             expected.add(key(row[13], row[2], row[3], row[6], row[7]) + "\t" + row[15]);
             if ("ADD".equals(row[8])) { added++; }
         }
-        require(stages.size() == 33 && overloads == 140 && actual.size() == 291, "Stage surface 变化");
+        require(stages.size() == 34 && overloads == 141 && actual.size() == 292, "Stage surface 变化");
         require(actual.equals(expected), "逐参数 evidence 尚未补齐或偏离独立审计表");
         Set<String> expectedMethods = new HashSet<>();
         List<String> methodLines = Files.readAllLines(root.resolve(
@@ -76,7 +77,7 @@ public final class PipelineStageSemanticsSelfTest {
             expectedMethods.add(row[4] + "\t" + row[2]);
         }
         require(actualMethods.equals(expectedMethods), "完整 overload 清单（含无参方法）变化");
-        require(added == 223, "新增参数计数错误");
+        require(added == 227, "新增参数计数错误");
         Map<?, ?> options = maps(index.list("types")).stream()
                 .filter(t -> "com.mongoplus.aggregate.pipeline.UnwindOption".equals(t.get("qualifiedName")))
                 .findFirst().orElseThrow();
