@@ -103,7 +103,9 @@ public class MongoPlusTransactionalManager extends AbstractPlatformTransactionMa
     @Override
     protected void doResume(Object transaction, Object suspendedResources) throws TransactionException {
         MongoTransactionStatus suspended = (MongoTransactionStatus) suspendedResources;
-        ((MongoTransactionObject) transaction).setStatus(suspended);
+        if (transaction != null) {
+            ((MongoTransactionObject) transaction).setStatus(suspended);
+        }
         TransactionSynchronizationManager.bindResource(this, suspended);
         MongoTransactionContext.setTransactionStatus(suspended);
     }
