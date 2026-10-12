@@ -380,6 +380,7 @@ com.mongoplus.aggregate.pipeline.AggregateOperator	gt(Object left, Object right)
 com.mongoplus.aggregate.pipeline.AggregateOperator	gt(Object left, Object right)	right	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证
 com.mongoplus.aggregate.pipeline.AggregateOperator	gte(Object left, Object right)	left	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证
 com.mongoplus.aggregate.pipeline.AggregateOperator	gte(Object left, Object right)	right	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证
+com.mongoplus.aggregate.pipeline.AggregateOperator	literal(Object value)	value	VALUE	P0_07B_ADDED	独立的LITERAL_VALUE数据槽；Document固定$literal键；内部美元字符串和操作符不递归求值；逐容器构造和Codec独立证明
 com.mongoplus.aggregate.pipeline.AggregateOperator	lt(Object left, Object right)	left	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证
 com.mongoplus.aggregate.pipeline.AggregateOperator	lt(Object left, Object right)	right	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证
 com.mongoplus.aggregate.pipeline.AggregateOperator	lte(Object left, Object right)	left	VALUE	P0_05_ADDED	当前工厂的Document保存独立expression键；operand按声明或数组顺序编码，null保留；codec与nested result独立验证

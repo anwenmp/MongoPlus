@@ -4,6 +4,13 @@
 
 ## 公开 API 与对象关系
 
+2026-10-12：`AggregateOperator.literal(Object)` 补 `$literal` 聚合表达式，参数为独立
+`LITERAL_VALUE` 数据角色。Core 仅包装文档，Driver 按 runtime Codec 编码；输入中的美元字符串
+及操作符键不递归求值。正式 `LITERAL_VALUE_CONSTRUCTION_V1` 仅准入逐节点证明的标量、
+Document 构造/append 和 Arrays.asList 数据树，不能凭 Document/Bson 类型或普通 Expression
+参数角色补齐证据。专项 Java 21、BSON 字节、source/Codec 负例及下游边界见
+[P0-07B 报告](../../../mongo-plus-indexer/p0-07b-literal-report.md)。
+
 - `Aggregate<Children>` 是 stage 契约，`AggregateOptions<Children>` 是执行选项契约；`LambdaAggregateWrapper<Children>` 保存可变 pipeline 和 options，`AggregateWrapper` 只是其具体便捷类型。
 - 当前没有名为 `AggregateChainWrapper` 的类型。链式执行类型是 `LambdaAggregateChainWrapper<T>`，继承 `LambdaAggregateWrapper` 并实现 `ChainAggregate<T>`，公开 `list/one` 及指定 `Class<R>` 结果类型的重载。
 - `Wrappers.lambdaAggregate()` 创建构建器，`ChainWrappers.lambdaAggregateChain(BaseMapper, Class)` 创建可执行链。

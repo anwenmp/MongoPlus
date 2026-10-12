@@ -782,3 +782,20 @@ Iterable 入口按顺序合并互不重复的已证明查询 body，保留 BSON 
 专项入口：Core `QueryPredicateEncodingTest`、Indexer `QueryPredicateEvidenceSelfTest <项目根>`。
 修改前审计、实际 Java 21 overload / BSON / Stage 验证、拒绝边界和正式 SHA 见
 [P0-07A 报告](p0-07a-query-predicate-report.md)。
+
+### P0-07B：Aggregation Literal
+
+`AggregateOperator.literal(Object)` 是独立 `$literal` Expression 工厂，参数声明为
+`LITERAL_VALUE VALUE`，组合为 `LITERAL_VALUE -> PIPELINE_EXPRESSION`，shape 为 VALUE。
+新增能力 `LITERAL_VALUE_CONSTRUCTION_V1`；不认识它的消费者必须保持未闭合。
+沿用 `CANDIDATE_SEMANTICS_V1` 的 `operation=LITERAL_VALUE`，发布
+`DOCUMENT -> LITERAL_DATA_RUNTIME_CODEC` 和 `applicability.literalValueDomain`。
+`evaluation=OPAQUE_DATA` 明确禁止内部字段/变量引用及操作符递归解释；数据构造树仍须递归证明。
+
+正式域只覆盖默认 Driver 5.4 的 String/Integer/Long/Double/Boolean/Decimal128/null，
+以及由 `Document()` / `Document(String,Object)` / `append(String,Object)` 和
+`Arrays.asList(T...)` 独立构造的有序数据树。必须核对实际 Java overload、泛型及参数类型、
+每个容器/叶子 Codec、无重复键、无 NUL 键和同一输入快照；任意 Document/Bson/Map、
+未知工厂、未知类型和自定义 Codec 不自动准入。此域只属于 Literal 工厂，不扩大 P0-07A Query 域。
+专项入口：Core `LiteralEncodingTest`、Indexer `LiteralEvidenceSelfTest <项目根>`。
+审计、L01-L05、拒绝边界、正式 SHA 及下游消费要求见 [P0-07B 报告](p0-07b-literal-report.md)。

@@ -675,6 +675,18 @@ public final class SourceScanner {
             if (requiredCapabilities.contains(CandidateSemanticContract.CAPABILITY)) {
                 index.list("concepts").add(CandidateSemanticContract.concept());
             }
+            if (requiredCapabilities.contains(CandidateSemanticContract.LITERAL_CAPABILITY)) {
+                Map<String, Object> literal = object();
+                literal.put("id", CandidateSemanticContract.LITERAL_CAPABILITY);
+                literal.put("termOperation", "LITERAL_DATA_RUNTIME_CODEC");
+                literal.put("semanticType", "LITERAL_VALUE");
+                literal.put("evaluation", "OPAQUE_DATA");
+                literal.put("operatorInterpretation", "NONE_RECURSIVELY");
+                literal.put("closure", "EVERY_DATA_CONSTRUCTION_CONTAINER_AND_LEAF_CODEC_MUST_BE_ESTABLISHED");
+                literal.put("unknownEvidence", "UNRESOLVED");
+                literal.put("candidateSelection", "NOT_PROVIDED");
+                index.list("concepts").add(literal);
+            }
             if (requiredCapabilities.contains("QUERY_PREDICATE_CONSTRUCTION_V1")) {
                 Map<String, Object> query = object();
                 query.put("id", "QUERY_PREDICATE_CONSTRUCTION_V1");
@@ -1035,6 +1047,9 @@ public final class SourceScanner {
                 target.put("semanticEvidence", source);
                 if (expression) { hasExpressionParameterEvidence = true; }
                 else { stageParameterSemantics.add(conceptRef); }
+                if ("LITERAL_VALUE".equals(parts[1])) {
+                    requiredCapabilities.add(CandidateSemanticContract.LITERAL_CAPABILITY);
+                }
             }
         }
 

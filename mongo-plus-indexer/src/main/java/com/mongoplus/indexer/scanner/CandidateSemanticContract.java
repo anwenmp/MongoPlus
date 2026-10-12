@@ -19,6 +19,7 @@ import java.util.function.Function;
  */
 final class CandidateSemanticContract {
     static final String CAPABILITY = "CANDIDATE_SEMANTICS_V1";
+    static final String LITERAL_CAPABILITY = "LITERAL_VALUE_CONSTRUCTION_V1";
     private static final String TAG = "mongoCandidate";
     private static final String SOURCE = "mongoCandidateSource";
     private static final String ESTABLISHED = "ESTABLISHED";
@@ -65,6 +66,72 @@ final class CandidateSemanticContract {
         Map<String, Object> term;
         try {
             switch (operation == null ? "" : operation) {
+                case "LITERAL_VALUE":
+                    keys(declaration, attrs, "operation", "resultJava", "documentCodec", "collectionCodec",
+                            "valueCodecProvider", "evaluation", "dataConstruction");
+                    Map<String, Object> literal = only(parameters);
+                    semantic(literal, "LITERAL_VALUE");
+                    if (!"VALUE".equals(literal.get("semanticScope"))
+                            || Boolean.TRUE.equals(literal.get("varargs"))
+                            || !"java.lang.Object".equals(elementRepresentation(contract, literal))
+                            || !Boolean.TRUE.equals(method.get("staticMethod"))
+                            || !Arrays.asList("Bson", "org.bson.conversions.Bson").contains(method.get("returnType"))
+                            || !"VALUE".equals(method.get("expressionShape"))
+                            || !"PIPELINE_EXPRESSION".equals(method.get("resultSemanticType"))
+                            || !List.of("LITERAL_VALUE -> PIPELINE_EXPRESSION").equals(method.get("compositionSemantics"))
+                            || !"org.bson.Document".equals(attrs.get("resultJava"))
+                            || !"org.bson.codecs.DocumentCodec".equals(attrs.get("documentCodec"))
+                            || !"org.bson.codecs.CollectionCodec".equals(attrs.get("collectionCodec"))
+                            || !"org.bson.codecs.ValueCodecProvider".equals(attrs.get("valueCodecProvider"))
+                            || !"OPAQUE_DATA".equals(attrs.get("evaluation"))
+                            || !"DOCUMENT_ENTRIES_AND_ARRAYS_AS_LIST".equals(attrs.get("dataConstruction"))) {
+                        throw missing("Literal 缺独立 Object VALUE、Expression result/composition/shape 或已审计 Codec/数据构造域");
+                    }
+                    dependency(method, "resultSemanticEvidence");
+                    if (sources.stream().noneMatch(source -> ((Map<?, ?>) source).containsKey("path"))) {
+                        throw missing("Literal 缺本地工厂来源");
+                    }
+                    for (String symbol : List.of("Document();Document(String,Object);append(String,Object);toBsonDocument",
+                            "asList(T...)", "encode;writeValue", "writeValue", "encode", "addCodecs;get")) {
+                        if (sources.stream().noneMatch(source -> ((Map<?, ?>) source).containsKey("reference")
+                                && symbol.equals(((Map<?, ?>) source).get("symbols")))) {
+                            throw missing("Literal 缺独立数据构造或 Codec 来源: " + symbol);
+                        }
+                    }
+                    String literalOperator = mapping(method, "mongoExpressions");
+                    if (sources.stream().noneMatch(source -> ((Map<?, ?>) source).containsKey("reference")
+                            && literalOperator.equals(((Map<?, ?>) source).get("symbols")))) {
+                        throw missing("Literal 缺不递归求值的服务器语义来源");
+                    }
+                    Map<String, Object> literalDomain = object("parameter", literal.get("name"),
+                            "evaluation", "OPAQUE_DATA", "fieldReferences", "NONE", "variableReferences", "NONE",
+                            "operatorInterpretation", "NONE_RECURSIVELY", "nestedExpressionCalls", "FORBID",
+                            "runtimeScalarTypes", List.of("java.lang.String", "java.lang.Integer", "java.lang.Long",
+                                    "java.lang.Double", "java.lang.Boolean", "org.bson.types.Decimal128"),
+                            "null", "ENCODE_BSON_NULL", "requiredDocumentCodec", attrs.get("documentCodec"),
+                            "requiredCollectionCodec", attrs.get("collectionCodec"),
+                            "requiredValueCodecProvider", attrs.get("valueCodecProvider"),
+                            "documentConstruction", object("javaType", "org.bson.Document", "runtimeTypeMatch", "EXACT_CLASS",
+                                    "constructors", List.of("Document()", "Document(java.lang.String,java.lang.Object)"),
+                                    "append", "append(java.lang.String,java.lang.Object)", "returns", "RECEIVER",
+                                    "keys", "STRING_NO_NUL", "duplicateKeys", "FORBID", "order", "INSERTION"),
+                            "arrayConstruction", object("factory", "java.util.Arrays.asList(T...)",
+                                    "runtimeJavaType", "java.util.Arrays$ArrayList", "order", "ARGUMENT_ORDER",
+                                    "javaBinding", "VERIFY_ACTUAL_GENERIC_INVOCATION_AND_ELEMENT_ASSIGNABILITY"),
+                            "recursiveValues", "ONLY_THIS_DATA_DOMAIN_WITH_INDEPENDENT_CONSTRUCTION_AND_CODEC_PROOF",
+                            "unprovedDocumentOrList", "FORBID", "otherBsonOrMap", "NOT_ESTABLISHED",
+                            "unknownJavaTypes", "NOT_ESTABLISHED", "sourceEvidence", sources,
+                            "enforcement", "BINDING_CONSUMER");
+                    ((Map<String, Object>) contract.get("applicability")).put("literalValueDomain", literalDomain);
+                    // 数据树递归验证编码来源，但绝不递归绑定内部操作符或字段/变量引用。
+                    term = node("DOCUMENT", "key", literalOperator, "value",
+                            node("LITERAL_DATA_RUNTIME_CODEC", "input", input(literal), "evaluation", "OPAQUE_DATA",
+                                    "domainRef", "applicability.literalValueDomain"));
+                    contract.put("javaResultRepresentation", attrs.get("resultJava"));
+                    contract.put("resultSemanticType", "PIPELINE_EXPRESSION");
+                    ((Map<String, Object>) contract.get("applicability")).put("nullContainers", "ENCODE_BSON_NULL");
+                    ((Map<String, Object>) contract.get("applicability")).put("nullDocumentOrFieldElements", "ENCODE_BSON_NULL_VALUES_ONLY");
+                    break;
                 case "QUERY_FIELD":
                     keys(declaration, attrs, "operation", "key", "value", "operator");
                     Map<String, Object> queryKey = parameter(parameters, attrs.get("key"));

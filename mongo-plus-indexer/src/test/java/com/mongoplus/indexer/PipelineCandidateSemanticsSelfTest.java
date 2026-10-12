@@ -39,7 +39,7 @@ public final class PipelineCandidateSemanticsSelfTest {
                 }
             }
         }
-        require(count == 80, "原 71 个事实及 8 个 Query 工厂和 match 包装候选");
+        require(count == 81, "原 80 个事实及一个独立 Literal 工厂候选");
         for (Map<?, ?> family : maps(index.getMethodFamilies())) {
             for (Map<?, ?> overload : maps((List<?>) family.get("overloads"))) {
                 if (overload.containsKey("candidateSemantics")) {

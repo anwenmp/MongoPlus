@@ -19,7 +19,7 @@ final class StageParameterConcepts {
             "BUCKET_BOUNDARY", "COLLECTION_NAME", "DATABASE_NAME", "FIELD_NAME", "FIELD_REFERENCE",
             "FOREIGN_FIELD_NAME", "INTEGER_VALUE", "LOCAL_FIELD_NAME", "OUTPUT_FIELD_NAME", "OUTPUT_FIELD_PATH_SEGMENT",
             "PIPELINE", "PIPELINE_STAGE_DOCUMENT", "SORT_SPECIFICATION", "STAGE_BODY_DOCUMENT", "NAMED_PIPELINE",
-            "VARIABLE_NAME", "VARIABLE_DEFINITION", "QUERY_PREDICATE", "QUERY_VALUE");
+            "VARIABLE_NAME", "VARIABLE_DEFINITION", "QUERY_PREDICATE", "QUERY_VALUE", "LITERAL_VALUE");
 
     private StageParameterConcepts() { }
 
@@ -93,6 +93,9 @@ final class StageParameterConcepts {
             else if (value.contains("<")) { value = value.substring(value.indexOf('<') + 1, value.lastIndexOf('>')); }
         }
         value = value.replaceFirst("^\\? extends ", "");
+        if ("LITERAL_VALUE".equals(semantic)) {
+            return "VALUE".equals(scope) && Arrays.asList("Object", "java.lang.Object").contains(value);
+        }
         if ("QUERY_VALUE".equals(semantic)) {
             return "VALUE".equals(scope) && value.matches("(?:java\\.lang\\.)?[A-Za-z][A-Za-z0-9_]*");
         }
@@ -125,6 +128,16 @@ final class StageParameterConcepts {
     }
 
     static Map<String, Object> concept(String reference) {
+        if (conceptId("LITERAL_VALUE").equals(reference)) {
+            return object("id", reference, "semanticType", "LITERAL_VALUE", "semanticScope", "VALUE",
+                    "javaType", "java.lang.Object", "evaluation", "OPAQUE_DATA",
+                    "fieldReferenceInterpretation", "NONE", "variableReferenceInterpretation", "NONE",
+                    "operatorInterpretation", "NONE_RECURSIVELY", "encoding", "LITERAL_DATA_RUNTIME_CODEC",
+                    "constructionEvidence", "REQUIRED_FOR_EVERY_DOCUMENT_ENTRY_AND_ARRAY_ELEMENT",
+                    "codecEvidence", "REQUIRED_FOR_EVERY_CONTAINER_AND_LEAF",
+                    "description", "字面量数据角色；不因美元前缀、操作符键或 Bson 类型构造子表达式调用树。"
+                            + "必须消费当前候选的有序数据构造域，未知类型、未知来源和 Codec 保持未闭合。");
+        }
         if (conceptId("QUERY_PREDICATE").equals(reference)) {
             return object("id", reference, "semanticType", "QUERY_PREDICATE",
                     "documentRole", "QUERY_PREDICATE_BODY", "javaType", BSON_TYPE,

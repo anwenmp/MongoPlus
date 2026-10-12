@@ -19,6 +19,35 @@ import static com.mongoplus.enums.CommonOperators.*;
 public class AggregateOperator {
 
     /**
+     * 构造不递归解释输入的聚合字面量表达式。
+     * {@code "$amount"}、{@code "$$variable"} 以及 Document/List 内的操作符均为普通数据；
+     * Java 和 Driver 只编码值，MongoDB 按 {@code $literal} 边界返回数据，不求值内部表达式。
+     * null 编码为 BSON null；数值类型、文档插入顺序和数组顺序由实际 runtime Codec 保留。
+     * 不复制可变输入，调用方须保持同一输入快照；Object 参数不保证任意类型存在 Codec。
+     * 正式结构化输入域仅包含独立证明的 Document 构造/append 和 Arrays.asList 数据树，
+     * 不授予任意 Bson、Map、自定义类型或自定义 Codec 自动准入。
+     *
+     * @param value 字面量数据，不是字段引用、查询条件或待求值的子表达式
+     * @return 表示 {@code $literal} 的聚合表达式 BSON 文档，不是完整 Stage
+     * @mongoExpression $literal
+     * @mongoExpressionShape VALUE
+     * @mongoParam value LITERAL_VALUE VALUE
+     * @mongoComposition LITERAL_VALUE -> PIPELINE_EXPRESSION
+     * @mongoCandidate operation=LITERAL_VALUE resultJava=org.bson.Document documentCodec=org.bson.codecs.DocumentCodec collectionCodec=org.bson.codecs.CollectionCodec valueCodecProvider=org.bson.codecs.ValueCodecProvider evaluation=OPAQUE_DATA dataConstruction=DOCUMENT_ENTRIES_AND_ARRAYS_AS_LIST
+     * @mongoCandidateSource path=mongo-plus-core/src/main/java/com/mongoplus/aggregate/pipeline/AggregateOperator.java symbols=literal(Object) mechanism=Document只保存固定$literal键及原始value，不调用其他表达式工厂，不递归解析或求值。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/Document.java symbols=Document();Document(String,Object);append(String,Object);toBsonDocument mechanism=LinkedHashMap保持插入顺序；String键和Object值原样保存；append返回当前Document；只准入无重复键的独立数据构造树。
+     * @mongoCandidateSource reference=https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html#asList(T...) symbols=asList(T...) mechanism=真实泛型varargs工厂按参数顺序构造固定长度List；允许null元素；本域仅准入该工厂且输入快照不变。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/DocumentCodec.java symbols=encode;writeValue mechanism=按Document的entry迭代顺序写键；null写BSON_NULL；其余值按runtime类型取Codec，美元键和值不触发表达式解析。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/CollectionCodec.java symbols=writeValue mechanism=每个非null元素按runtime类型取Codec；CollectionCodec与所有叶子Codec必须独立证明。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/AbstractCollectionCodec.java symbols=encode mechanism=按iteration顺序写数组；null直接写BSON_NULL；数组元素作为数据编码而非执行表达式。
+     * @mongoCandidateSource reference=https://raw.githubusercontent.com/mongodb/mongo-java-driver/r5.4.0/bson/src/main/org/bson/codecs/ValueCodecProvider.java symbols=addCodecs;get mechanism=默认String、Integer、Long、Double、Boolean、Decimal128的Codec保持BSON类型和值；其他类型未闭合。
+     * @mongoCandidateSource reference=https://www.mongodb.com/docs/manual/reference/operator/aggregation/literal/ symbols=$literal mechanism=返回未经解析的value；内部美元字符串、文档和数组中的操作符均不递归解释为聚合表达式。
+     */
+    public static Bson literal(Object value) {
+        return new Document("$literal", value);
+    }
+
+    /**
      * 构造聚合相等表达式，两个操作数按声明顺序原样写入数组。
      * {@code "$field"} 表示字段引用，{@code "$$variable"} 表示变量引用；变量绑定由调用处的作用域决定。
      * 普通字符串、数值等 literal 由 BSON codec 编码，嵌套表达式可传入 Bson；不自动加前缀或转义 literal。
