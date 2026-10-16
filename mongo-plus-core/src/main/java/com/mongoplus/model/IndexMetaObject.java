@@ -1,6 +1,7 @@
 package com.mongoplus.model;
 
 import com.mongodb.client.model.IndexModel;
+import com.mongodb.client.model.SearchIndexModel;
 import com.mongoplus.enums.IndexType;
 import com.mongoplus.mapping.TypeInformation;
 
@@ -28,6 +29,11 @@ public class IndexMetaObject {
     private List<IndexModel> indexModels;
 
     /**
+     * MongoDB Search 和 Vector Search
+     */
+    private List<SearchIndexModel> searchIndexModels;
+
+    /**
      * 索引类型
      */
     private IndexType indexType;
@@ -35,11 +41,12 @@ public class IndexMetaObject {
     public IndexMetaObject() {
     }
 
-    public IndexMetaObject(TypeInformation typeInformation, String dataSource, List<IndexModel> indexModels, IndexType indexType) {
+    public IndexMetaObject(TypeInformation typeInformation, String dataSource, List<IndexModel> indexModels, IndexType indexType, List<SearchIndexModel> searchIndexModels) {
         this.typeInformation = typeInformation;
         this.dataSource = dataSource;
         this.indexModels = indexModels;
         this.indexType = indexType;
+        this.searchIndexModels = searchIndexModels;
     }
 
     public TypeInformation getTypeInformation() {
@@ -74,17 +81,25 @@ public class IndexMetaObject {
         this.indexType = indexType;
     }
 
+    public List<SearchIndexModel> getSearchIndexModels() {
+        return searchIndexModels;
+    }
+
+    public void setSearchIndexModels(List<SearchIndexModel> searchIndexModels) {
+        this.searchIndexModels = searchIndexModels;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         IndexMetaObject that = (IndexMetaObject) o;
-        return Objects.equals(typeInformation, that.typeInformation) && Objects.equals(dataSource, that.dataSource) && Objects.equals(indexModels, that.indexModels) && indexType == that.indexType;
+        return Objects.equals(typeInformation, that.typeInformation) && Objects.equals(dataSource, that.dataSource) && Objects.equals(indexModels, that.indexModels) && indexType == that.indexType && Objects.equals(searchIndexModels, that.searchIndexModels);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(typeInformation, dataSource, indexModels, indexType);
+        return Objects.hash(typeInformation, dataSource, indexModels, indexType, searchIndexModels);
     }
 
     @Override
@@ -94,6 +109,7 @@ public class IndexMetaObject {
                 ", dataSource='" + dataSource + '\'' +
                 ", indexModels=" + indexModels +
                 ", indexType=" + indexType +
+                ", searchIndexModels=" + searchIndexModels +
                 '}';
     }
 }

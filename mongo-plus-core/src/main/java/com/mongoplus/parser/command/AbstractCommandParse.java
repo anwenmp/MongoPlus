@@ -1,4 +1,4 @@
-package com.mongoplus.parser;
+package com.mongoplus.parser.command;
 
 import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.enums.CommandOperate;
