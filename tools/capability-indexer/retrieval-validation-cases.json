@@ -1,0 +1,146 @@
+[
+  {
+    "id": "H01",
+    "query": "联表查出每位顾客最近一次购买，子管道先排序再 limit",
+    "expected": [
+      "nested-pipeline"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H02",
+    "query": "使用 lookup 的独立聚合分支筛选外部集合",
+    "expected": [
+      "nested-pipeline"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H03",
+    "query": "主集合只按更新时间排序，不涉及关联或多分支",
+    "expected": [
+      "conditional-query"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H04",
+    "query": "监听 commandSucceeded 来统计成功命令耗时",
+    "expected": [
+      "command-events"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H05",
+    "query": "通知需要在提交后可靠投递，而且恰好一次",
+    "expected": [
+      "command-events"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  },
+  {
+    "id": "H06",
+    "query": "要求可靠消息通知 exactly once delivery",
+    "expected": [
+      "command-events"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  },
+  {
+    "id": "H07",
+    "query": "把查询结果写成 xlsx 文件",
+    "expected": [],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  },
+  {
+    "id": "H08",
+    "query": "生成带工作表的 Excel 报表",
+    "expected": [],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  },
+  {
+    "id": "H09",
+    "query": "用 BackupManager 把集合备份成 ZIP 文件",
+    "expected": [
+      "backup"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H10",
+    "query": "从 ZIP 恢复集合前需要检查哪些限制",
+    "expected": [
+      "backup"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H11",
+    "query": "根据当前租户隔离数据，提供 TenantHandler",
+    "expected": [
+      "tenant"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H12",
+    "query": "用 MetaObjectHandler 自动写入创建时间和修改时间",
+    "expected": [
+      "auto-fill"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H13",
+    "query": "数据库密码以 ENC 形式放在配置文件里",
+    "expected": [
+      "encrypted-config"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H14",
+    "query": "使用 MongoDs 注解选择命名数据源",
+    "expected": [
+      "datasource-routing"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。"
+  },
+  {
+    "id": "H15",
+    "query": "NonNull 注解是否已经提供运行时校验",
+    "expected": [
+      "nonnull-validation"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "candidate"
+  },
+  {
+    "id": "H16",
+    "query": "FieldBind 和 DataBindHandler 能否自动接线回写字典字段",
+    "expected": [
+      "dictionary-bind"
+    ],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "candidate"
+  },
+  {
+    "id": "H17",
+    "query": "请提供邮件收件箱的垃圾邮件分类",
+    "expected": [],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  },
+  {
+    "id": "H18",
+    "query": "生成 PDF 发票并添加电子签章",
+    "expected": [],
+    "review": "独立保留集；按能力的静态证据范围和已知边界评议。",
+    "expectedDisposition": "insufficient"
+  }
+]

@@ -1,0 +1,6 @@
+interface:
+  display_name: "MongoPlus"
+  short_description: "发现 MongoPlus 业务能力，核对版本与真实 Java API，再实现并验证"
+  default_prompt: "使用 $mongoplus 检查当前项目版本，为 MongoDB 命令失败通知选择有证据的扩展点并验证实现。"
+policy:
+  allow_implicit_invocation: true

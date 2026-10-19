@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0",
+  "status": "NOT_RUN",
+  "cases": [
+    {
+      "id": "A01",
+      "projectVersion": "2.2.0",
+      "prompt": "请用 MongoPlus QueryWrapper 查询年龄大于等于 18 的用户，按注册时间倒序。",
+      "expectedCapability": "mp.conditional-query",
+      "expectedBehavior": "核对 QueryWrapper 与实际查询入口，不能套用 MyBatis-Plus 方法，编译生成代码。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A02",
+      "projectVersion": "2.2.0",
+      "prompt": "我希望每次数据库命令失败时发送通知。",
+      "expectedCapability": "mp.command-events",
+      "expectedBehavior": "比较后使用 Listener，真实失败事件字段，不承诺可靠投递。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A03",
+      "projectVersion": "2.2.0",
+      "prompt": "查询实体没有声明的未知键，都收进扩展属性 Map。",
+      "expectedCapability": "mp.extra-fields",
+      "expectedBehavior": "核对源码确认的 ExtraFields，区分读取与写回，使用真实注解与转换路径。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A04",
+      "projectVersion": "2.2.0",
+      "prompt": "所有数据库操作执行前检查业务参数，并单独统计命令失败。",
+      "expectedCapability": "mp.execution-extension / mp.command-events",
+      "expectedBehavior": "比较普通与高级拦截器、Listener、Recorder；参数检查与命令失败分别选择适合入口。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A05",
+      "projectVersion": "2.2.0",
+      "prompt": "把查询结果导出为 Excel 工作簿，兼容 xls 和 xlsx。",
+      "expectedCapability": null,
+      "expectedBehavior": "检索返回无匹配或明确无支持证据，不用 ZIP 备份替代，不编造导出 API。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A06",
+      "projectVersion": "2.2.0",
+      "prompt": "查询状态码后根据字典自动补上状态名称。",
+      "expectedCapability": "mp.dictionary-bind",
+      "expectedBehavior": "保留 candidate/REQUIRED，核实默认接线，不宣称开箱即用。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A07",
+      "projectVersion": "2.2.0",
+      "prompt": "事务提交后恰好一次可靠通知，进程崩溃也不能丢。",
+      "expectedCapability": "mp.command-events",
+      "expectedBehavior": "相关入口可导航，不能推荐为可靠投递；保留 insufficient 和全部 recommendationEligible=false。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A08",
+      "projectVersion": "2.1.9",
+      "prompt": "请给这个项目加上数据库命令失败通知。",
+      "expectedCapability": "mp.command-events",
+      "expectedBehavior": "提示索引为 2.2.0；从实际 2.1.9 依赖核实签名后生成，不自动升级依赖。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A09",
+      "projectVersion": "NONE_DRIVER_ONLY",
+      "prompt": "当前项目直接用 MongoDB Java Driver，请增加年龄范围查询。",
+      "expectedCapability": null,
+      "expectedBehavior": "确认无 MongoPlus 依赖，不强迫迁移，沿 Driver 实现。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A10",
+      "projectVersion": "2.2.0",
+      "prompt": "订单关联客户集合，关联结果按时间排序只取一条。",
+      "expectedCapability": "mp.nested-pipeline",
+      "expectedBehavior": "正确识别子管道而非仅主集合排序，核对 lookup 的真实参数与子管道租户边界。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A11",
+      "projectVersion": "2.2.0",
+      "prompt": "两个人同时编辑数据时，旧版本不要覆盖新版本。",
+      "expectedCapability": "mp.optimistic-lock",
+      "expectedBehavior": "保留 REQUIRED，核对版本类型、更新入口、回写与失败语义，不声称已运行。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A12",
+      "projectVersion": "2.2.0",
+      "prompt": "两个不同数据源的写入必须一起提交或一起回滚，要跨源原子性。",
+      "expectedCapability": "mp.cross-source-atomic",
+      "expectedBehavior": "保留候选或不足证据及人工审核，不把单源事务承诺为分布式原子提交。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A13",
+      "projectVersion": "2.2.0",
+      "prompt": "给字段加 NonNull 就能在所有写入中拒绝空值吗？",
+      "expectedCapability": "mp.nonnull-validation",
+      "expectedBehavior": "保留候选与人工审核，读取运行接线证据，不因注解存在就承诺自动校验。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    },
+    {
+      "id": "A14",
+      "projectVersion": "2.2.0",
+      "prompt": "给现有订单实体按租户与创建时间建复合索引，请先给实现代码。",
+      "expectedCapability": "mp.indexes",
+      "expectedBehavior": "检索实际索引入口并核实调用所属类，不自动运行数据库 DDL。",
+      "results": {
+        "discovered": "NOT_RUN",
+        "automaticTrigger": "NOT_RUN",
+        "retrievalScriptExecuted": "NOT_RUN",
+        "apiRead": "NOT_RUN",
+        "correctChoice": "NOT_RUN",
+        "codeCompiles": "NOT_RUN",
+        "runtimeTests": "NOT_RUN"
+      }
+    }
+  ]
+}

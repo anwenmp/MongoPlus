@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0",
+  "reviewedOn": "2026-10-19",
+  "gitHead": "a93a37684f73394679e47b21157479eb0222d512",
+  "projectVersion": "2.2.0",
+  "inputs": {
+    "projectVersion": "2.2.0",
+    "apiIndex": {
+      "records": 5236,
+      "byRecordType": {
+        "type": 612,
+        "method": 4231,
+        "field": 155,
+        "constructor": 238
+      },
+      "byModule": {
+        "mongo-plus-annotation": 160,
+        "mongo-plus-boot-starter": 159,
+        "mongo-plus-boot4-starter": 151,
+        "mongo-plus-core": 4492,
+        "mongo-plus-indexer": 55,
+        "mongo-plus-sensitive-word": 77,
+        "mongo-plus-sharding": 48,
+        "mongo-plus-sharding-boot-starter": 3,
+        "mongo-plus-solon-plugin": 91
+      },
+      "distinctDeclarationFiles": 586,
+      "apiVisible": {
+        "True": 5236
+      }
+    },
+    "sourceIndex": {
+      "records": 6678,
+      "byRecordType": {
+        "type": 655,
+        "method": 4674,
+        "constructor": 336,
+        "field": 1013
+      },
+      "byModule": {
+        "mongo-plus-annotation": 200,
+        "mongo-plus-boot-starter": 239,
+        "mongo-plus-boot4-starter": 228,
+        "mongo-plus-core": 5318,
+        "mongo-plus-indexer": 387,
+        "mongo-plus-sensitive-word": 100,
+        "mongo-plus-sharding": 63,
+        "mongo-plus-sharding-boot-starter": 3,
+        "mongo-plus-solon-plugin": 140
+      },
+      "distinctDeclarationFiles": 605,
+      "apiVisible": {
+        "True": 5236,
+        "False": 1442
+      }
+    }
+  },
+  "counts": {
+    "total": 48,
+    "byEvidenceStatus": {
+      "documented": 34,
+      "source_verified": 9,
+      "candidate": 3,
+      "internal_only": 2
+    },
+    "byDocumentationStatus": {
+      "confirmed": 34,
+      "not_explicit_in_reviewed_pages": 13,
+      "navigation_link_unusable": 1
+    },
+    "withTestReferences": 5,
+    "retrieval": {
+      "total": 66,
+      "top1Reasonable": 66,
+      "top3Expected": 66,
+      "passed": 66,
+      "failures": [],
+      "suites": {
+        "original": {
+          "total": 32,
+          "passed": 32,
+          "failures": []
+        },
+        "validation": {
+          "total": 18,
+          "passed": 18,
+          "failures": []
+        },
+        "holdout": {
+          "total": 16,
+          "passed": 16,
+          "failures": []
+        }
+      }
+    }
+  },
+  "referenceValidation": "PASS",
+  "existingArtifactsUnchanged": true,
+  "baseline": "tools/capability-indexer/review-baseline.json",
+  "generatorSha256": "b5877ae0db65ee9739c93141c67bffacc41342d250f0312827701f9b203d2b1a",
+  "catalogSha256": "32bc98229357d146fc3dc359dd53623a3067f4c20e347586abe8bab40f72d5ed",
+  "casesSha256": "43e0d41567d6545bd241d7b5b3e19b744611c8abf85582022f314a040c3d145a",
+  "searchSha256": "ce340afed23362d982f5336f87a869f01c411a12e570ad817cfddcf06a80bf38",
+  "holdoutCasesSha256": "25fb4c88193806c671281b1249e8f2a1b2be2ca5866114582c583cbfdeb08964",
+  "validationCasesSha256": "68d2859eec01b4928011170fc50d9395ef387452d39f24ef3f8be1d5aedbf664",
+  "evaluationProtocolSha256": "6b0479d9140712b75d4a635d9b076f8770800c833762bfd6aa74bee0e4d02374",
+  "outputs": {
+    "capability-index.jsonl": "6cc0429e2a9cd292304e5da5005dfc6dc75ef40f02ab2968f7168004ef2a1a6a",
+    "capability-index.md": "98e520184ed7b56b30435f11e5ea98d05e42d4b3acc409db906cf1037f1cbf97",
+    "capability-retrieval-tests.jsonl": "656872de9e783fa647822579df3b34609336e52608a76fb357d23e60eea51998",
+    "capability-retrieval-tests.md": "103a90d29306964a3c55e38604e695cf65c4c83fce090cfb4974513b316114f7",
+    "capability-review.md": "38387c8e4f9135182ace8b5ada630f6c4eac9818cc5d7365aba2ea6df2263c5d",
+    "undocumented-capabilities.md": "6f86d906464264a048e781b2ea2dd10ae91e86441f2966b0b1388911e87a1f6b"
+  }
+}
