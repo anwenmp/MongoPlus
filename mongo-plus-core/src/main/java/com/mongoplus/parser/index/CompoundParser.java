@@ -18,7 +18,7 @@ import static com.mongoplus.toolkit.ClassTypeUtil.getFieldName;
  * 复合索引解析器
  * @author anwen
  */
-public class MongoCompoundParser extends AbstractParser {
+public class CompoundParser extends AbstractParser {
 
     @Override
     public Function<TypeInformation, Boolean> activate() {

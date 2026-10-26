@@ -112,6 +112,21 @@ public interface TypeInformation {
     <A extends Annotation> A getAnnotation(Class<A> annotationClass);
 
     /**
+     * 获取类上的指定注解
+     *
+     * @return {@code A[]}
+     * @author anwen
+     */
+    <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationClass);
+
+    /**
+     * 判断类上是否存在指定注解
+     * @param annotationClass 注解类
+     * @return {@code boolean}
+     */
+    boolean isAnnotationPresent(Class<? extends Annotation> annotationClass);
+
+    /**
      * 根据注解获取字段
      *
      * @param annotationClass 注解类

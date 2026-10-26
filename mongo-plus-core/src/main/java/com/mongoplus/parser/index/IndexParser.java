@@ -2,14 +2,12 @@ package com.mongoplus.parser.index;
 
 import com.mongodb.client.model.IndexModel;
 import com.mongoplus.annotation.index.MongoIndex;
-import com.mongoplus.enums.IndexType;
 import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.IndexMetaObject;
 import com.mongoplus.toolkit.CollUtil;
 import org.bson.Document;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -18,7 +16,7 @@ import java.util.function.Function;
  *
  * @author anwen
  */
-public class MongoIndexParser extends AbstractParser {
+public class IndexParser extends AbstractParser {
 
     @Override
     public Function<TypeInformation, Boolean> activate() {

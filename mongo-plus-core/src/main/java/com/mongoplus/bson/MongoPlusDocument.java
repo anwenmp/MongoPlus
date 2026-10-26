@@ -39,6 +39,12 @@ public class MongoPlusDocument extends Document {
         }
     }
 
+    public void putIsNotNullByEnum(String key, Enum<?> value){
+        if (value != null) {
+            super.put(key, value.name());
+        }
+    }
+
     public <T,V> void put(SFunction<T,?> key, SFunction<V,?> value){
         super.put(key.getFieldNameLine(),value.getFieldNameLine());
     }

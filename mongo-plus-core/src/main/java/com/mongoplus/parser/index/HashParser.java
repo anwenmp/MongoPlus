@@ -17,7 +17,7 @@ import java.util.function.Function;
  *
  * @author anwen
  */
-public class MongoHashParser extends AbstractParser {
+public class HashParser extends AbstractParser {
     @Override
     public Function<TypeInformation, Boolean> activate() {
         return type -> CollUtil.isNotEmpty(type.getAnnotationFields(MongoHashIndex.class));

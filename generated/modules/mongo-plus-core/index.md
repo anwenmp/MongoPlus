@@ -63897,7 +63897,7 @@ protected TimeUnit getTimeUnit(String timeUnit)
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/AbstractParser.java:98-113
 
-#### class com.mongoplus.parser.index.MongoCompoundParser
+#### class com.mongoplus.parser.index.CompoundParser
 
 可见性：public；泛型：[]；extends：[AbstractParser]；implements：[]
 
@@ -63914,7 +63914,7 @@ protected TimeUnit getTimeUnit(String timeUnit)
 public Function<TypeInformation, Boolean> activate()
 ```
 
-所属类型：com.mongoplus.parser.index.MongoCompoundParser；可见性：public
+所属类型：com.mongoplus.parser.index.CompoundParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoCompoundParser.java:23-28
 
@@ -63928,7 +63928,7 @@ public Function<TypeInformation, Boolean> activate()
 public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObject)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoCompoundParser；可见性：public
+所属类型：com.mongoplus.parser.index.CompoundParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoCompoundParser.java:30-43
 
@@ -63942,11 +63942,11 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 public void compoundIndex(TypeInformation typeInformation, List<IndexModel> indexModelList, MongoCompoundIndex mongoCompoundIndex)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoCompoundParser；可见性：public
+所属类型：com.mongoplus.parser.index.CompoundParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoCompoundParser.java:45-64
 
-#### class com.mongoplus.parser.index.MongoGeoParser
+#### class com.mongoplus.parser.index.GeoParser
 
 可见性：public；泛型：[]；extends：[AbstractParser]；implements：[]
 
@@ -63964,7 +63964,7 @@ public void compoundIndex(TypeInformation typeInformation, List<IndexModel> inde
 public Function<TypeInformation, Boolean> activate()
 ```
 
-所属类型：com.mongoplus.parser.index.MongoGeoParser；可见性：public
+所属类型：com.mongoplus.parser.index.GeoParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoGeoParser.java:20-23
 
@@ -63978,7 +63978,7 @@ public Function<TypeInformation, Boolean> activate()
 public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObject)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoGeoParser；可见性：public
+所属类型：com.mongoplus.parser.index.GeoParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoGeoParser.java:25-36
 
@@ -63986,7 +63986,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 @Override
 ```
 
-#### class com.mongoplus.parser.index.MongoHashParser
+#### class com.mongoplus.parser.index.HashParser
 
 可见性：public；泛型：[]；extends：[AbstractParser]；implements：[]
 
@@ -64004,7 +64004,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 public Function<TypeInformation, Boolean> activate()
 ```
 
-所属类型：com.mongoplus.parser.index.MongoHashParser；可见性：public
+所属类型：com.mongoplus.parser.index.HashParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoHashParser.java:21-24
 
@@ -64018,7 +64018,7 @@ public Function<TypeInformation, Boolean> activate()
 public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObject)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoHashParser；可见性：public
+所属类型：com.mongoplus.parser.index.HashParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoHashParser.java:26-38
 
@@ -64026,7 +64026,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 @Override
 ```
 
-#### class com.mongoplus.parser.index.MongoIndexParser
+#### class com.mongoplus.parser.index.IndexParser
 
 可见性：public；泛型：[]；extends：[AbstractParser]；implements：[]
 
@@ -64044,7 +64044,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 public Function<TypeInformation, Boolean> activate()
 ```
 
-所属类型：com.mongoplus.parser.index.MongoIndexParser；可见性：public
+所属类型：com.mongoplus.parser.index.IndexParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoIndexParser.java:23-26
 
@@ -64058,7 +64058,7 @@ public Function<TypeInformation, Boolean> activate()
 public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObject)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoIndexParser；可见性：public
+所属类型：com.mongoplus.parser.index.IndexParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoIndexParser.java:28-43
 
@@ -64066,7 +64066,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 @Override
 ```
 
-#### class com.mongoplus.parser.index.MongoTextParser
+#### class com.mongoplus.parser.index.TextParser
 
 可见性：public；泛型：[]；extends：[AbstractParser]；implements：[]
 
@@ -64084,7 +64084,7 @@ public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObje
 public Function<TypeInformation, Boolean> activate()
 ```
 
-所属类型：com.mongoplus.parser.index.MongoTextParser；可见性：public
+所属类型：com.mongoplus.parser.index.TextParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoTextParser.java:21-24
 
@@ -64098,7 +64098,7 @@ public Function<TypeInformation, Boolean> activate()
 public void parse(TypeInformation typeInformation, IndexMetaObject indexMetaObject)
 ```
 
-所属类型：com.mongoplus.parser.index.MongoTextParser；可见性：public
+所属类型：com.mongoplus.parser.index.TextParser；可见性：public
 
 源码：mongo-plus-core/src/main/java/com/mongoplus/parser/index/MongoTextParser.java:26-53
 

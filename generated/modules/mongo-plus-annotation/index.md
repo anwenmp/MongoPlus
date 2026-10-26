@@ -1261,7 +1261,7 @@ String dataSource()
      * @author anwen
 ```
 
-#### annotation com.mongoplus.annotation.index.MongoSearchIndex
+#### annotation com.mongoplus.annotation.index.search.MongoSearchIndex
 
 可见性：public；泛型：[]；extends：[]；implements：[]
 
@@ -1284,7 +1284,7 @@ String dataSource()
 String name()
 ```
 
-所属类型：com.mongoplus.annotation.index.MongoSearchIndex；可见性：public
+所属类型：com.mongoplus.annotation.index.search.MongoSearchIndex；可见性：public
 
 源码：mongo-plus-annotation/src/main/java/com/mongoplus/annotation/index/MongoSearchIndex.java:14-14
 

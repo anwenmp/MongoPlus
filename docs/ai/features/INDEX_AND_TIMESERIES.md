@@ -8,6 +8,66 @@
 
 `@MongoIndex` 公开 `name`、`unique`、`direction`、`sparse`、`expireAfterSeconds`、字符串 `expireAfter`、`partialFilterExpression` 和 `background`。复合索引公开 JSON `value`、`name`、`unique`、`sparse`、`partialFilterExpression`、`background`。`IndexUtil` 把 `$field` 转换为实体映射字段；无效 JSON 或无效过期单位在创建前抛转换/字段异常。
 
+### MongoDB Search 注解与解析
+
+`@MongoSearchIndex` 的参数对照 [MongoDB Search 索引定义](https://www.mongodb.com/docs/search/indexes/index-definitions/) 补全（2026-10-20 核对）：
+
+- `name` 是创建索引的名称参数，不属于 `definition`。
+- `analyzer`、`searchAnalyzer` 使用 `Analyzer` 枚举；`DEFAULT` 表示省略选项，不能写成 `lucene.default`。`customAnalyzer`、`customSearchAnalyzer` 引用 `analyzers` 中定义的自定义分析器名称，使用时对应枚举保持 `DEFAULT`。
+- `dynamic=false` 与 `fields` 对应 `mappings.dynamic`、`mappings.fields`。`dynamicTypeSet` 表达 `mappings.dynamic` 的对象形式，与布尔形式互斥；类型集在 `typeSets` 中定义。未启用任何动态映射时必须指定静态字段。
+- `fields` 为 `MongoSearchField[]`；`synonyms` 为 `MongoSearchSynonym[]`；`analyzers`、`typeSets` 为 JSON 对象字符串数组。JSON 中使用实际 MongoDB 字段名，未声明普通索引的 `$field` 转换能力。
+- `sort` 为 `MongoSearchSort[]`，也可在实体字段上使用 `MongoSearchSort`（重复容器 `MongoSearchSorts`），
+  两处均未配置时省略索引定义的顶层 `sort`。类级数组按声明顺序，字段配置按 `priority` 升序、
+  同优先级按实际字段路径字典序追加；同一索引的重复排序路径应报错。
+  `order` 复用 `IndexDirection`，`noData` 使用 `SearchSortNoData`，DEFAULT 表示省略，另外可选 LOWEST/HIGHEST；
+  输出为 `1/-1` 或 `{order, noData}`，解析器执行排序合并和路径校验。
+  排序字段必须静态映射为 boolean/date/number/objectId/token/uuid，嵌套路径的父字段必须具有静态 document 映射，
+  不能仅依赖 dynamic/typeSet，也不能使用 searchScore。依据 [Sorted Index](https://www.mongodb.com/docs/search/indexes/sort/)。
+- `numPartitions` 保持 int 类型，默认 `1`，允许 `1/2/4`，额外分区需要独立 Search Nodes。
+  每分区容量按索引对象计数，embeddedDocuments 也会增加计数；配置或修改分区会重建索引，
+  多分区部署不能移除所有 Search Nodes。它不是数据库分片数量，也不自动设置查询级 concurrent。
+- `MongoSearchSynonym` 用必填的 name、sourceCollection 表达同义词名称与 source.collection，
+  analyzer 为 DEFAULT 且无 customAnalyzer 时必须显式输出 lucene.standard；自定义分析器在索引级 analyzers 中定义。
+  来源集合需与被索引集合位于同一数据库；查询目标字段必须使用相同分析器，text/phrase 查询需显式引用映射。
+  M0 集群每索引最多一个映射，来源集合最多一万条文档。本地解析只检查映射定义，不执行来源集合管理、集群限额检查或查询。
+- 索引级 `storedSource` 使用嵌套注解 `MongoSearchStoredSource`，默认不存储；`value=true` 表达全量存储，
+  非空 `include` / `exclude` 表达对应对象形式，两者互斥，且不能与 `value=true` 同用。
+  路径为实际 MongoDB 字段名或点路径，include 默认还存储 `_id`；该选项要求 MongoDB 7.0+。
+  含 vector 类型的索引不能全量存储，include 不能包含向量字段，exclude 必须排除向量字段。
+  解析器执行定义转换、互斥和静态向量路径检查，不执行源字段查询；嵌套字段的 `MongoSearchField.storedSource` 仍为 JSON 字符串。
+
+`MongoSearchIndex`、`MongoSearchField` 位于 `com.mongoplus.annotation.index.search`。
+`MongoSearchField` 可用于实体字段或索引的 `fields` 数组，通过可重复容器 `MongoSearchFields` 表达同字段多类型。
+`type` 默认 `SearchFieldType.STRING`，不是 Java 类型自动推断；`exclude=true` 表达空数组排除映射。
+`document` / `embeddedDocuments` 的嵌套 `fields` 和字符串 `multi` 使用 JSON 对象，
+避免 Java 注解不允许的循环成员类型；动态类型集引用使用 `dynamicTypeSet`。
+类型专属参数覆盖文本、自动补全、token、数值、geo、嵌套源字段存储和向量映射。
+文本 `similarity` 输出 `similarity.type` 对象，`vectorSimilarity` 输出向量 `similarity` 字符串。
+解析器按 `type` 选择选项，并省略空字符串、`-1`、`Analyzer.DEFAULT` 等标记，必填向量参数未配置时拒绝；
+不能直接把注解的所有成员写入每一种字段定义。示例与完整边界见 [字段配置说明](../../MONGO_SEARCH_FIELD.md)。
+
+2026-10-21：`SearchParse` 已实现注解到 `SearchIndexModel` 的转换。
+`Resolver.resolve` 按 `activate()` 分发，并把搜索模型写入 `IndexMetaObject.searchIndexModels`。
+类级 `MongoSearchIndex` 可重复声明，容器为 `MongoSearchIndexes`，激活和解析均通过
+`getAnnotationsByType` 读取；不新增类级注解继承语义。字段的重复注解同样通过该方法收集，包括父类字段。
+`MongoSearchField` 与 `MongoSearchSort` 共用归属规则：类上只有一个索引时 name 留空自动归属它；
+多个索引时 name 必填。存在类级声明时，显式名称必须匹配已声明索引，未知名称直接报错。
+没有类级声明时，保留字段注解按 name 分组、各组使用默认配置的能力。
+索引名默认为 default；显式空名仍省略 Driver 名称，但查找和重名校验视为 default，字段可用 default 引用。
+同一类的重复索引名（包括空名与 default 并存）报错。嵌套 fields/sort 的 name 仍须留空，归属外层索引；
+storedSource、synonyms、analyzers、typeSets 等配置和引用校验按索引隔离。
+字段名沿用 `@CollectionField`、驼峰及 ID 映射；显式 JSON 不执行 `$field` 转换。
+结构、引用、互斥和范围错误抛 `MongoPlusConvertException`；所有分组成功后才追加模型。
+包内 `SearchFieldParser` 负责按类型转换，`SearchDefinitionValidator` 负责本地定义校验。
+使用顺序 Stream 保留声明顺序；通过项目 Log 门面记录归属和完成数量的 DEBUG 日志，失败记录实体和异常。
+本次 Maven 3.8.6 / JDK 17 定向执行 `SearchParseTest,SearchRepeatableIndexTest`：24 项通过，0 失败/错误/跳过。
+
+本次验证是本地 BSON/解析器回归，不包含 Search DDL 或数据库行为。
+`AutoUtil` 仍使用旧的 `IndexUtil.getIndex` 和 `MongoCollection.createIndexes` 创建普通索引，
+没有接通搜索索引自动创建；实际搜索索引创建、来源集合、部署版本及 Search Nodes 为 `NOT_RUN`。
+
+### 其他入口
+
 时序入口 `@TimeSeries` 公开 `dataSource`、必填 `timeField`、`metaField`、`granularity`、`bucketMaxSpan`、`bucketRounding` 和 `expireAfter`。集合名不在注解中，仍由 `@CollectionName`/类名映射取得。不存在运行时手工“创建时序集合”的 MongoPlus API；用户只能直接使用 Driver。
 
 Boot 3/4 的 `MongoDBConfigurationProperty` 均有 `autoCreateIndex=false`、`autoCreateTimeSeries=false`、`autoScanPackages`。Solon 有同名属性，但扫描条件不同，见后文。

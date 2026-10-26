@@ -16,7 +16,7 @@ import java.util.function.Function;
  *
  * @author anwen
  */
-public class MongoGeoParser extends AbstractParser {
+public class GeoParser extends AbstractParser {
     @Override
     public Function<TypeInformation, Boolean> activate() {
         return type -> CollUtil.isNotEmpty(type.getAnnotationFields(MongoGeoIndex.class));

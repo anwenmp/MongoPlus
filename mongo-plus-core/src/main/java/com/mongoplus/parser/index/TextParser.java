@@ -17,7 +17,7 @@ import static com.mongoplus.toolkit.ClassTypeUtil.getFieldName;
  *
  * @author anwen
  */
-public class MongoTextParser extends AbstractParser {
+public class TextParser extends AbstractParser {
     @Override
     public Function<TypeInformation, Boolean> activate() {
         return type -> type.getAnnotation(MongoTextIndex.class) != null;
