@@ -9,7 +9,7 @@ Wrapper<T>
 └─ AbstractChainWrapper<T, Children>
    ├─ QueryChainWrapper<T, Children>
    │  ├─ QueryWrapper<T>
-   │  └─ LambdaQueryChainWrapper<T>  （增加 list/one/page/count 终结操作）
+   │  └─ LambdaQueryChainWrapper<T>  （增加 list/one/findOneAndRemove/page/count 终结操作）
    └─ UpdateChainWrapper<T, Children>
       ├─ UpdateWrapper<T>
       └─ LambdaUpdateChainWrapper<T> （增加 update/remove 终结操作）
@@ -23,6 +23,29 @@ Wrapper<T>
 - `QueryWrapper.lambdaQuery()` 与 `UpdateWrapper.lambdaUpdate()` 调用 `ChainWrappers` 创建新的 chain，并不把当前 Wrapper 已积累的状态转换或复制过去。返回声明也仍是基类 `QueryChainWrapper` / `UpdateChainWrapper`。
 - Query/Update 的终结方法不自动清理状态。`AbstractChainWrapper.clear()` 显式清 condition、order、projection、custom query BSON；`UpdateChainWrapper.clear()` 还清 update 元对象和 custom update BSON。聚合 wrapper 没有对应 clear/reset，pipeline、options 和 `isSkip` 会继续保留。
 - `conditionMetaObjects`/update 列表使用 `CopyOnWriteArrayList`，但 order、projection、custom query BSON 使用普通 `ArrayList`，构建与终结操作也没有统一同步。因此这些 Wrapper/Chain 不是线程安全的共享对象；`clear()` 的 `synchronized` 不能形成完整线程安全契约。
+
+## 原子查找并删除
+
+`ChainQuery.findOneAndRemove()` / `findOneAndRemove(Class<R>)` 沿
+`LambdaQueryChainWrapper → DefaultBaseMapperImpl → AbstractBaseMapper → Execute`
+执行一次 Driver `findOneAndDelete`。集合仍由绑定实体类型确定，返回类型只控制映射。
+Wrapper 的 filter、sort、projection 分别传入删除条件和 `FindOneAndDeleteOptions`；
+返回删除前的文档，未命中返回 `null`，空条件允许匹配任意文档，未排序时不保证选择顺序。
+`DefaultExecute` 与 `SessionExecute` 分别使用无 session / 当前 session 的 Driver 重载。
+执行器不能使用 `Optional.map(...).orElseGet(...)` 包装删除调用，否则未命中返回 null 会再次执行删除。
+
+另提供 `Consumer<FindOneAndDeleteOptions>` 重载（可指定返回类型）。每次执行创建新的选项，
+先设置 Wrapper 的 projection/sort，再执行回调，因此回调显式设置的投影和排序会覆盖 Wrapper，
+其他驱动选项原样透传。回调可以显式传 null 清除排序或投影；null 回调表示仅使用 Wrapper 配置。
+回调配置不会写回 Wrapper，异常发生时不会调用 Driver。
+
+该方法是物理删除，使用独立枚举 `FIND_ONE_AND_REMOVE`。参数策略复用普通
+`Interceptor.executeRemove`，因此租户和逻辑未删除条件仍可增强 filter，动态集合仍通过
+`beforeExecute` 替换末尾 collection 参数。它不触发 `LogicRemoveInterceptor` 的逻辑删除替换，
+也不自动加入按既有枚举白名单激活的数据变更记录、异步多写或分片扩展。
+本地回归位于 `FindOneAndRemoveTest`；Driver 替身测试不等同于真实数据库原子性或事务验证。
+
+用法见 [原子查找并删除](../../find-one-and-remove.md)。
 
 ## 条件如何成为 BSON
 

@@ -1,10 +1,12 @@
 package com.mongoplus.conditions.query;
 
+import com.mongodb.client.model.FindOneAndDeleteOptions;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.model.PageParam;
 import com.mongoplus.model.PageResult;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 查询实现
@@ -39,6 +41,26 @@ public class LambdaQueryChainWrapper<T> extends QueryChainWrapper<T,LambdaQueryC
     @Override
     public <R> R one(Class<R> rClazz) {
         return baseMapper.one(this,clazz,rClazz);
+    }
+
+    @Override
+    public T findOneAndRemove() {
+        return findOneAndRemove(clazz);
+    }
+
+    @Override
+    public <R> R findOneAndRemove(Class<R> rClazz) {
+        return baseMapper.findOneAndRemove(this, clazz, rClazz);
+    }
+
+    @Override
+    public T findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer) {
+        return findOneAndRemove(optionsConfigurer, clazz);
+    }
+
+    @Override
+    public <R> R findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz) {
+        return baseMapper.findOneAndRemove(this, clazz, optionsConfigurer, rClazz);
     }
 
     @Override

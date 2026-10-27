@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.mongoplus.constant.SqlOperationConstant._ID;
 import static com.mongoplus.enums.SpecialConditionEnum.EQ;
@@ -360,6 +361,27 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
             return null;
         }
         return mongoConverter.readDocument(aggregateIterable, typeReference);
+    }
+
+    @Override
+    public <T, R> R findOneAndRemove(String database, String collectionName, Wrapper<T> queryWrapper,
+                                   Class<R> rClazz) {
+        return findOneAndRemove(database, collectionName, queryWrapper, null, rClazz);
+    }
+
+    @Override
+    public <T, R> R findOneAndRemove(String database, String collectionName, Wrapper<T> queryWrapper,
+                                   Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz) {
+        BaseConditionResult condition = queryWrapper.buildCondition();
+        FindOneAndDeleteOptions options = new FindOneAndDeleteOptions()
+                .projection(condition.getProjection())
+                .sort(condition.getSort());
+        if (optionsConfigurer != null) {
+            optionsConfigurer.accept(options);
+        }
+        Document document = factory.getExecute().executeFindOneAndRemove(
+                condition.getCondition(), options, mongoPlusClient.getCollection(database, collectionName));
+        return document == null ? null : mongoConverter.read(document, rClazz);
     }
 
     @Override

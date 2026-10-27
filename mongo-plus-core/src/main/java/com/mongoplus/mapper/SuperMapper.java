@@ -18,6 +18,7 @@ import org.bson.conversions.Bson;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.mongoplus.toolkit.StringPool.EMPTY;
 
@@ -340,6 +341,28 @@ public interface SuperMapper extends BaseIndex {
      * @author anwen
      */
     <T,R> R one(String database,String collectionName,Wrapper<T> queryWrapper,Class<R> rClazz);
+
+    /**
+     * 在指定集合中按条件、排序和投影原子查找并物理删除一个文档。
+     * @param database 数据库
+     * @param collectionName 集合名
+     * @param queryWrapper 查询条件
+     * @param rClazz 返回类型
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <T, R> R findOneAndRemove(String database, String collectionName, Wrapper<T> queryWrapper, Class<R> rClazz);
+
+    /**
+     * 在指定集合中原子查找并物理删除一个文档，回调在 Wrapper 投影和排序写入后执行。
+     * @param database 数据库
+     * @param collectionName 集合名
+     * @param queryWrapper 查询条件
+     * @param optionsConfigurer 选项配置，可覆盖 Wrapper 的投影和排序；null 表示不追加配置
+     * @param rClazz 返回类型
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <T, R> R findOneAndRemove(String database, String collectionName, Wrapper<T> queryWrapper,
+                            Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz);
 
     /**
      * 根据条件查询单个

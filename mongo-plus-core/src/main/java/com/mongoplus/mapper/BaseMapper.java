@@ -15,6 +15,7 @@ import org.bson.conversions.Bson;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /**
@@ -356,6 +357,36 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      */
     <T,R> R one(Wrapper<T> queryWrapper,Class<T> clazz,Class<R> rClazz);
+
+    /**
+     * 按条件、排序和投影原子查找并物理删除一个文档。
+     * @param queryWrapper 查询条件
+     * @param clazz 用于确定数据库和集合的实体类型
+     * @param rClazz 返回类型
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <T, R> R findOneAndRemove(Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz);
+
+    /**
+     * 原子查找并物理删除一个文档，回调在 Wrapper 投影和排序写入后执行。
+     * @param queryWrapper 查询条件
+     * @param clazz 用于确定数据库和集合的实体类型
+     * @param optionsConfigurer 选项配置，可覆盖 Wrapper 的投影和排序；null 表示不追加配置
+     * @param rClazz 返回类型
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <T, R> R findOneAndRemove(Wrapper<T> queryWrapper, Class<T> clazz,
+                            Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz);
+
+    /**
+     * 按条件、排序和投影原子查找并物理删除一个文档。
+     * @param queryWrapper 查询条件
+     * @param clazz 用于确定数据库和集合的实体类型
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    default <T> T findOneAndRemove(Wrapper<T> queryWrapper, Class<T> clazz) {
+        return findOneAndRemove(queryWrapper, clazz, clazz);
+    }
 
     /**
      * 根据条件查询单个

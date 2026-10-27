@@ -1,9 +1,11 @@
 package com.mongoplus.conditions.query;
 
+import com.mongodb.client.model.FindOneAndDeleteOptions;
 import com.mongoplus.model.PageParam;
 import com.mongoplus.model.PageResult;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 查询方法定义
@@ -40,6 +42,35 @@ public interface ChainQuery<T> {
      * @author JiaChaoYang
      */
     <R> R one(Class<R> rClazz);
+
+    /**
+     * 按当前条件、排序和投影，以原子方式查找并物理删除一个文档。
+     * 空条件匹配集合中的任意文档；未指定排序时不保证选中文档的顺序。
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    T findOneAndRemove();
+
+    /**
+     * 以原子方式查找并物理删除一个文档，映射为指定类型。
+     * @param rClazz 返回类型，不影响查询集合的选择
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <R> R findOneAndRemove(Class<R> rClazz);
+
+    /**
+     * 原子查找并物理删除一个文档，在 Wrapper 选项基础上进行配置。
+     * @param optionsConfigurer 选项配置，后设置的投影和排序覆盖 Wrapper 配置；null 表示不追加配置
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    T findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer);
+
+    /**
+     * 原子查找并物理删除一个文档，配置选项并映射为指定类型。
+     * @param optionsConfigurer 选项配置，后设置的投影和排序覆盖 Wrapper 配置；null 表示不追加配置
+     * @param rClazz 返回类型，不影响查询集合的选择
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    <R> R findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz);
 
     /**
      * 分页

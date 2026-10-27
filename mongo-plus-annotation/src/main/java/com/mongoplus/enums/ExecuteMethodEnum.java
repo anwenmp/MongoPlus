@@ -62,7 +62,12 @@ public enum ExecuteMethodEnum {
     /**
      * 批量执行方法
      */
-    BULK_WRITE("executeBulkWrite")
+    BULK_WRITE("executeBulkWrite"),
+
+    /**
+     * 原子查找并物理删除，返回被删除的文档
+     */
+    FIND_ONE_AND_REMOVE("executeFindOneAndRemove")
 
     ;
 

@@ -54,6 +54,16 @@ public interface Execute {
     DeleteResult executeRemoveOne(Bson filter, @Nullable DeleteOptions options, MongoCollection<Document> collection);
 
     /**
+     * 原子查找并物理删除一个文档，对应 Driver 的 findOneAndDelete。
+     * @param filter 删除条件
+     * @param options 排序、投影等选项，可以为 null
+     * @param collection 集合
+     * @return 删除前的文档，未匹配时返回 null
+     */
+    Document executeFindOneAndRemove(Bson filter, @Nullable FindOneAndDeleteOptions options,
+                                     MongoCollection<Document> collection);
+
+    /**
      * 删除执行
      * @param filter 删除条件
      * @param collection 集合

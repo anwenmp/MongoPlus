@@ -18,6 +18,7 @@ import org.bson.conversions.Bson;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * baseMapper默认实现
@@ -129,6 +130,18 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     public <T, R> R one(Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return one(namespace.left, namespace.right, queryWrapper, rClazz);
+    }
+
+    @Override
+    public <T, R> R findOneAndRemove(Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
+        return findOneAndRemove(queryWrapper, clazz, null, rClazz);
+    }
+
+    @Override
+    public <T, R> R findOneAndRemove(Wrapper<T> queryWrapper, Class<T> clazz,
+                                   Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return findOneAndRemove(namespace.left, namespace.right, queryWrapper, optionsConfigurer, rClazz);
     }
 
     @Override

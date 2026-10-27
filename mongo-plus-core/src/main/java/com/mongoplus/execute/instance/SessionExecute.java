@@ -58,6 +58,16 @@ public class SessionExecute implements Execute {
     }
 
     @Override
+    public Document executeFindOneAndRemove(Bson filter, FindOneAndDeleteOptions options,
+                                            MongoCollection<Document> collection) {
+        // 未命中时返回 null，不能用 Optional.map 的空结果触发第二次删除。
+        if (options == null) {
+            return collection.findOneAndDelete(clientSession, filter);
+        }
+        return collection.findOneAndDelete(clientSession, filter, options);
+    }
+
+    @Override
     public BulkWriteResult executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                             BulkWriteOptions options,
                                             MongoCollection<Document> collection) {
