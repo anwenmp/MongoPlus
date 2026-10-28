@@ -3,6 +3,10 @@ mongo-core/target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+/docs
+/generated
+/tools
+AGENTS.md
 
 ### STS ###
 .apt_generated
