@@ -6,6 +6,7 @@ mongo-core/target/
 /docs
 /generated
 /tools
+/.codegraph
 AGENTS.md
 
 ### STS ###
