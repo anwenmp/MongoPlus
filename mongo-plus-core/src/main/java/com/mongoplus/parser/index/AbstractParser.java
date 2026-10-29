@@ -29,7 +29,9 @@ public abstract class AbstractParser implements Parser {
                 mongoIndex.unique(),
                 mongoIndex.sparse(),
                 mongoIndex.background());
-        indexOptions.name(fieldInformation.getCamelCaseName());
+        if (StringUtils.isBlank(mongoIndex.name())) {
+            indexOptions.name(fieldInformation.getCamelCaseName());
+        }
         if (mongoIndex.expireAfterSeconds() >= 0) {
             indexOptions.expireAfter(mongoIndex.expireAfterSeconds(), TimeUnit.SECONDS);
         }

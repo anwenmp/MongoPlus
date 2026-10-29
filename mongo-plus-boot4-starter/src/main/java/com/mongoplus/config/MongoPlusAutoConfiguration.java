@@ -1,6 +1,7 @@
 package com.mongoplus.config;
 
 import com.mongoplus.annotation.collection.CollectionName;
+import com.mongoplus.annotation.SpelAnnotationHandler;
 import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.aware.Aware;
 import com.mongoplus.cache.global.ConversionCache;
@@ -77,7 +78,8 @@ public class MongoPlusAutoConfiguration implements InitializingBean {
                                       MongoDBConfigurationProperty mongoDBConfigurationProperty,
                                       BaseMapper baseMapper,
                                       MongoDBFieldProperty ignore,
-                                      ApplicationContext applicationContext, MongoPlusClient mongoPlusClient) {
+                                      ApplicationContext applicationContext, MongoPlusClient mongoPlusClient,
+                                      SpelAnnotationHandler annotationHandler) {
         this.applicationContext = applicationContext;
         this.mongodbLogProperty = mongodbLogProperty;
         this.mongodbCollectionProperty = mongodbCollectionProperty;
