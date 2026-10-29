@@ -29,6 +29,8 @@ import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Condition;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.AppContext;
+import org.noear.solon.core.Props;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -45,6 +47,8 @@ import static com.mongoplus.toolkit.MongoUtil.getMongo;
 @Configuration
 public class MongoPlusConfiguration {
 
+    private static final String FIELD_PROPERTY_PREFIX = "mongo-plus.configuration.field";
+
     @Inject("${mongo-plus.data.mongodb}")
     private MongoDBConnectProperty mongoDBConnectProperty;
 
@@ -56,6 +60,33 @@ public class MongoPlusConfiguration {
 
     @Inject("${mongo-plus}")
     private MongoDBLogProperty mongoDBLogProperty;
+
+    private final MongoDBFieldProperty mongoDBFieldProperty = new MongoDBFieldProperty();
+
+    @Bean
+    public MongoDBFieldProperty mongoDBFieldProperty(AppContext context) {
+        Props properties = context.cfg();
+        properties.getProp(FIELD_PROPERTY_PREFIX).bindTo(mongoDBFieldProperty);
+        properties.onChange((key, value) -> {
+            if (key.startsWith(FIELD_PROPERTY_PREFIX + ".")) {
+                // 原地绑定已发布的对象，使容器注入引用和 setter 写入的核心缓存同步更新。
+                properties.getProp(FIELD_PROPERTY_PREFIX).bindTo(mongoDBFieldProperty);
+            }
+        });
+        return mongoDBFieldProperty;
+    }
+
+    /**
+     * 保留原无参入口，始终返回容器发布的同一个字段配置对象。
+     */
+    public MongoDBFieldProperty mongoDBFieldProperty() {
+        return mongoDBFieldProperty;
+    }
+
+    @Bean
+    public MongoEncryptorProperty mongoEncryptorProperty() {
+        return new MongoEncryptorProperty();
+    }
 
     /**
      * 将MongoClient注册为Bean

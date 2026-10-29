@@ -1,12 +1,10 @@
 package com.mongoplus.property;
 
 import com.mongoplus.cache.global.PropertyCache;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author JiaChaoYang
  **/
-@ConfigurationProperties(prefix = "mongo-plus.spring")
 public class MongoSpringProperty {
 
     /**

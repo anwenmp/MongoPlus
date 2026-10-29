@@ -26,16 +26,14 @@ import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.SimpleTypeHolder;
 import com.mongoplus.meta.MongoPlusBanner;
 import com.mongoplus.meta.MongoPlusVersion;
-import com.mongoplus.property.MongoDBCollectionProperty;
-import com.mongoplus.property.MongoDBConfigurationProperty;
-import com.mongoplus.property.MongoDBConnectProperty;
-import com.mongoplus.property.MongoDBLogProperty;
 import com.mongoplus.tenant.TenantAspect;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.transactional.MongoPlusTransactionalManager;
 import com.mongoplus.transactional.MongoTransactionalAspect;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import com.mongoplus.property.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,12 +51,7 @@ import static com.mongoplus.toolkit.MongoUtil.getMongo;
  * 连接配置
  * @since 2023-02-09 14:27
  **/
-@EnableConfigurationProperties(value = {
-        MongoDBConnectProperty.class,
-        MongoDBCollectionProperty.class,
-        MongoDBConfigurationProperty.class,
-        MongoDBLogProperty.class
-})
+@Import(MongoPlusPropertyConfiguration.class)
 public class MongoPlusConfiguration {
 
     private final Log log = LogFactory.getLog(MongoPlusConfiguration.class);
@@ -76,6 +69,22 @@ public class MongoPlusConfiguration {
         this.mongoDBConnectProperty = mongodbConnectProperty;
         this.mongoDBConfigurationProperty = mongodbConfigurationProperty;
         this.mongoDBLogProperty = mongoDBLogProperty;
+    }
+
+    /**
+     * 属性绑定完成后才进入客户端及转换器初始化，避免读取尚未绑定的全局缓存。
+     * 原三参数构造器保留，兼容手动创建此配置类的调用方。
+     */
+    @Autowired
+    public MongoPlusConfiguration(MongoDBConnectProperty connectProperty,
+                                  MongoDBConfigurationProperty configurationProperty,
+                                  MongoDBLogProperty logProperty,
+                                  MongoDBCollectionProperty collectionProperty,
+                                  MongoDBFieldProperty fieldProperty,
+                                  MongoLogicDelProperty logicProperty,
+                                  MongoEncryptorProperty encryptorProperty,
+                                  MongoSpringProperty springProperty) {
+        this(connectProperty, configurationProperty, logProperty);
     }
 
     /**

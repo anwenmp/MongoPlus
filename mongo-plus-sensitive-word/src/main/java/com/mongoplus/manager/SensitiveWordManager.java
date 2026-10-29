@@ -8,6 +8,8 @@ import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.property.SensitiveWordProperty;
+import com.mongoplus.property.SensitiveWordConfigurationProperty;
+import com.mongoplus.handler.LoadExtraWord;
 import com.mongoplus.registry.HandlerRegistry;
 import com.mongoplus.toolkit.StringUtils;
 
@@ -30,7 +32,7 @@ public class SensitiveWordManager {
     /**
      * 敏感词配置
      */
-    private final SensitiveWordProperty sensitiveWordProperty;
+    private final SensitiveWordConfigurationProperty sensitiveWordProperty;
 
     /**
      * 敏感词引导类
@@ -49,6 +51,17 @@ public class SensitiveWordManager {
         this.sensitiveWordBs = sensitiveWordBs;
         HandlerRegistry.register(SensitiveWordManager.class, this);
         sensitiveWordProperty.initSensitiveType();
+    }
+
+    /**
+     * 直接消费已经绑定的 core 配置对象，词库扩展仍由可选模块处理。
+     */
+    public SensitiveWordManager(SensitiveWordConfigurationProperty property, LoadExtraWord loadExtraWord) {
+        this.sensitiveWordProperty = property;
+        this.sensitiveWordBs = SensitiveWordProperty.sensitiveWordBs(property,
+                loadExtraWord != null ? loadExtraWord : new LoadExtraWord() {});
+        HandlerRegistry.register(SensitiveWordManager.class, this);
+        SensitiveWordProperty.initSensitiveType(property);
     }
 
     public SensitiveWordBs sensitiveWordBs() {

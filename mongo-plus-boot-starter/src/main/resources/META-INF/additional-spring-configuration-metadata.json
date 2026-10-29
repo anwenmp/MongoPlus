@@ -1,0 +1,385 @@
+{
+  "properties": [
+    {
+      "name": "mongo-plus.configuration.auto-convert-object-id",
+      "description": "自动转换ObjectId",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.configuration.auto-create-index",
+      "description": "自动创建索引",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.auto-create-time-series",
+      "description": "自动创建时间序列",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.auto-id-collection-name",
+      "description": "存放自增id的集合"
+    },
+    {
+      "name": "mongo-plus.configuration.auto-scan-packages",
+      "description": "自动创建相关操作所需配置的包路径,避免多模块下扫描不到"
+    },
+    {
+      "name": "mongo-plus.configuration.banner",
+      "description": "banner打印",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.configuration.collection.block-attack-inner",
+      "description": "防止整个集合更新和删除属性",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.collection.block-attack-inner-order",
+      "description": "用来指定全集合更新删除的拦截器的order，默认1",
+      "defaultValue": 1
+    },
+    {
+      "name": "mongo-plus.configuration.collection.mapping-strategy",
+      "description": "collection名称映射策略",
+      "defaultValue": "ALL_CHAR_LOWERCASE"
+    },
+    {
+      "name": "mongo-plus.configuration.field.camel-to-underline",
+      "description": "驼峰转下划线，将对象属性映射到数据库 因为以前使用下划线转驼峰配置，存入数据库时不会转成下划线，只会查询时转为驼峰 直接配置该配置，则实现映射到数据库会转下划线，映射回对象，则转驼峰",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.field.ignoring-null",
+      "description": "是否忽略null属性",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.configuration.ikun",
+      "description": "是否开启小黑子模式",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.lazy-data-source",
+      "description": "是否懒加载数据源，保留 Solon 原有配置；当前没有核心消费者。",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.logic.auto-fill",
+      "description": "是否开启基于拦截器的逻辑删除字段填充（建议方案：使用数据库默认字段 > 其次是手动设置 > 框架自带拦截器 > 自定义拦截器）",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.logic.logic-data-type",
+      "description": "逻辑删除值的类型,默认String类型",
+      "defaultValue": "DEFAULT"
+    },
+    {
+      "name": "mongo-plus.configuration.logic.logic-delete-field",
+      "description": "逻辑删除全局属性名"
+    },
+    {
+      "name": "mongo-plus.configuration.logic.logic-delete-value",
+      "description": "逻辑删除全局值（默认 1、表示已删除）",
+      "defaultValue": "1"
+    },
+    {
+      "name": "mongo-plus.configuration.logic.logic-not-delete-value",
+      "description": "逻辑未删除全局值（默认 0、表示未删除）",
+      "defaultValue": "0"
+    },
+    {
+      "name": "mongo-plus.configuration.logic.open",
+      "description": "是否开启逻辑删除功能",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.configuration.object-id-convert-type",
+      "description": "是否将Id字段的ObjectId转换为字段的类型",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.data.mongodb.app-name",
+      "description": "指定在连接握手期间提供给MongoDB实例的应用程序的名称。可用于服务器日志和分析 默认null"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.auth-mechanism",
+      "description": "指定驱动程序在提供凭据时应使用的身份验证机制 默认情况下，客户端根据服务器版本选择最安全的机制。有关可能的值，请参阅authMechanism选项"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.auth-mechanism-properties",
+      "description": "将指定身份验证机制的身份验证财产指定为以冒号分隔的财产和值的列表。有关详细信息，请参阅authMechanismProperties选项 默认null"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.auth-source",
+      "description": "指定应验证提供的凭据的数据库 默认admin"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.authentication-database",
+      "description": "如果开启了认证，请在这里配置认证数据库"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.client-key-store",
+      "description": "秘钥存储库，绝对路径"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.compressors",
+      "description": "指定驱动程序将尝试使用的一个或多个压缩算法来压缩发送到连接的MongoDB实例的请求。可能的值包括：zlib、snappy和zstd 默认null"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.connect-timeout-ms",
+      "description": "指定Java驱动程序在超时之前等待连接打开的最长时间（以毫秒为单位）。值0指示驱动程序在等待连接打开时永不超时 默认10毫秒"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.database",
+      "description": "mongodb数据库名称"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.direct-connection",
+      "description": "指定驱动程序必须直接连接到主机 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.heartbeat-frequency-ms",
+      "description": "指定驱动程序在尝试确定群集中每个服务器的当前状态之间等待的频率（以毫秒为单位） 默认10毫秒"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.host",
+      "description": "mongodb地址"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.invalid-host-name-allowed",
+      "description": "是否允许无效的主机名",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.data.mongodb.jks",
+      "description": "jks，绝对路径"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.journal",
+      "description": "指定驱动程序必须等待连接的MongoDB实例对磁盘上的日志文件进行组提交，以执行所有写入操作 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.key-password",
+      "description": "密钥文件密码"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.local-threshold-ms",
+      "description": "当与副本集中的多个MongoDB实例通信时，驱动程序只会向响应时间小于或等于响应时间最快的服务器加上本地阈值（以毫秒为单位）的服务器发送请求，默认15"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.max-connecting",
+      "description": "指定池可以同时建立的最大连接数 默认2"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.max-idle-time-ms",
+      "description": "指定Java驱动程序在关闭连接之前允许池连接空闲的最长时间（以毫秒为单位）。值0表示驱动程序允许池集合空闲的时间没有上限 默认0"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.max-life-time-ms",
+      "description": "指定关闭连接之前，Java驱动程序将继续使用池连接的最长时间（以毫秒为单位）。值为0表示驱动程序可以保持池连接打开的时间没有上限 默认0"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.max-pool-size",
+      "description": "指定连接池在给定时间可以拥有的最大连接数 默认100"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.max-staleness-seconds",
+      "description": "指定在驱动程序停止与辅助设备通信之前，辅助设备的过时程度（以秒为单位）。最小值为90秒或心跳频率加10秒，以较大者为准。 有关详细信息，请参阅maxStalenessSeconds选项。不提供参数或显式指定-1表示不应对辅助设备进行过时检查 默认-1"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.min-pool-size",
+      "description": "指定单个连接池中随时必须存在的最小连接数 默认0"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.password",
+      "description": "密码"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.port",
+      "description": "mongodb端口"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.position",
+      "description": "权重，在使用MongoPlus的分片时，可以使用该配置，设置此数据源的权重，越小权重越高",
+      "defaultValue": -2147483648
+    },
+    {
+      "name": "mongo-plus.data.mongodb.read-preference",
+      "description": "指定读取首选项。有关值的更多信息，请参阅readPreference选项 默认primary"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.read-preference-tags",
+      "description": "指定读取首选项标记。有关值的更多信息，请参阅readPreferenceTags选项 默认null"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.replica-set",
+      "description": "指定提供的连接字符串包括多个主机。如果指定，驱动程序将尝试查找该集合的所有成员 默认null"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.retry-reads",
+      "description": "指定如果由于网络错误导致读取操作失败，驱动程序必须重试支持的读取操作 默认true"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.retry-writes",
+      "description": "指定如果由于网络错误而失败，驱动程序必须重试支持的写入操作默认true"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.server-selection-timeout-ms",
+      "description": "指定驱动程序在引发异常之前等待服务器选择成功的最长时间（毫秒） 默认30秒"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.slave-data-source",
+      "description": "从数据源"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.socket-timeout-ms",
+      "description": "指定Java驱动程序在超时之前等待发送或接收请求的最长时间（以毫秒为单位）。值0指示驱动程序在等待发送或接收请求时永不超时 默认0"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.srv-service-name",
+      "description": "指定驱动程序检索以构建种子列表的SRV资源记录的服务名称。要使用此选项，必须在连接URI中使用DNS种子列表连接格式 默认mongodb"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.ssl",
+      "description": "指定与MongoDB实例的所有通信都应使用TLS/SSL。被tls选项取代 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.tls",
+      "description": "指定与MongoDB实例的所有通信都应使用TLS。取代ssl选项 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.tls-allow-invalid-hostnames",
+      "description": "指定驱动程序应允许TLS连接的证书中包含无效的主机名。取代允许的sslInvalidHostName 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.tls-insecure",
+      "description": "指定驱动程序应允许TLS连接的无效主机名。与将tlsAllowInvalidHostnames设置为true具有相同的效果。要以其他方式配置TLS安全约束，请使用自定义SSLContext 默认false"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.username",
+      "description": "用户名"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.uuid-representation",
+      "description": "指定用于读取和写入操作的UUID表示形式。有关详细信息，请参阅MongoClientSettings.getUuidRepresentation（）方法 默认unspecified"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.w",
+      "description": "指定写入问题。有关值的更多信息，请参阅官方文档 默认1"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.wait-queue-timeout-ms",
+      "description": "指定线程等待连接可用的最长时间（以毫秒为单位），默认120秒"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.wtimeout-ms",
+      "description": "指定写入问题的时间限制（以毫秒为单位）。有关详细信息，请参阅wtimeoutMS选项。值0指示驱动程序从不超时写入操作 默认0"
+    },
+    {
+      "name": "mongo-plus.data.mongodb.zlib-compression-level",
+      "description": "指定Zlib的压缩程度 应该使用来减少对连接的MongoDB实例的请求大小。级别可以从-1到9，较低的值压缩得更快（但会导致较大的请求），较大的值压缩速度较慢（但会造成较小的请求） 默认null"
+    },
+    {
+      "name": "mongo-plus.encryptor.key",
+      "description": "秘钥，对称加密"
+    },
+    {
+      "name": "mongo-plus.encryptor.private-key",
+      "description": "私钥，非对称加密"
+    },
+    {
+      "name": "mongo-plus.encryptor.public-key",
+      "description": "公钥，非对称加密"
+    },
+    {
+      "name": "mongo-plus.format",
+      "description": "是否打开格式化sql",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.log",
+      "description": "是否开启日志",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.log-order",
+      "description": "指定日志拦截器的order，默认为0",
+      "defaultValue": 0
+    },
+    {
+      "name": "mongo-plus.pretty",
+      "description": "是否格式化 mongo 语句为可执行语句",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.enable-email-check",
+      "description": "启用邮箱检测 邮箱等个人信息",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.enable-ipv4-check",
+      "description": "是否启用 ipv4 校验 避免用户通过 ip 绕过网址检测等",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.enable-num-check",
+      "description": "启用连续数字检测",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.enable-url-check",
+      "description": "启用 URL 检测 用于过滤常见的网址信息",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-case",
+      "description": "是否忽略大小写",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-char",
+      "description": "是否忽略特殊字符,如'傻!@#$帽',将会忽略掉其中的特殊字符",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-chinese-style",
+      "description": "是否忽略中文样式",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-english-style",
+      "description": "是否忽略英文样式",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-num-style",
+      "description": "是否忽略数字样式",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-repeat",
+      "description": "是否忽略重复",
+      "defaultValue": false
+    },
+    {
+      "name": "mongo-plus.sensitive-word.ignore-width",
+      "description": "是否忽略全角、半角",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.sensitive-word.sensitive-type",
+      "description": "敏感词校验类型,默认为局部",
+      "defaultValue": "LOCAL"
+    },
+    {
+      "name": "mongo-plus.spring.override-mongo-client",
+      "description": "是否覆盖MongoTemplate的配置",
+      "defaultValue": true
+    },
+    {
+      "name": "mongo-plus.spring.transaction",
+      "description": "是否启用基于spring的事务管理器",
+      "defaultValue": false
+    }
+  ]
+}

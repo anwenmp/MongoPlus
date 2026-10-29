@@ -2,7 +2,6 @@ package com.mongoplus.property;
 
 import com.mongoplus.model.BaseProperty;
 import com.mongoplus.model.SlaveDataSource;
-import org.noear.solon.annotation.Configuration;
 
 import java.util.List;
 
@@ -11,7 +10,6 @@ import java.util.List;
  * 属性文件配置
  * @since 2023-02-09 14:29
  **/
-@Configuration
 public class MongoDBConnectProperty extends BaseProperty {
 
     /**

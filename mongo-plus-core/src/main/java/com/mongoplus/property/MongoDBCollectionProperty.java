@@ -12,12 +12,12 @@ public class MongoDBCollectionProperty {
 
     /**
      * 防止整个集合更新和删除属性
-     */
+    */
     private Boolean blockAttackInner = false;
 
     /**
      * 用来指定全集合更新删除的拦截器的order，默认1
-     */
+    */
     private int blockAttackInnerOrder = 1;
 
     public int getBlockAttackInnerOrder() {

@@ -53,6 +53,42 @@ MyBatisPlus就是可以不用像MyBatis一样写过多的sql语句，Mongo-Plus�
 ### 文档
 文档地址： https://mongoplus.com/
 
+### core 编程式配置
+
+直接使用 `mongo-plus-core` 时，可通过现有 `Configuration` 链式配置全局行为：
+
+```java
+Configuration configuration = Configuration.builder()
+        .camelToUnderline(true)
+        .ignoringNull(true)
+        .autoConvertObjectId(true)
+        .objectIdConvertType(false)
+        .autoIdCollectionName("counters")
+        .logOrder(0)
+        .blockAttackInnerOrder(1)
+        .log(true)
+        .blockAttackInner();
+```
+
+`Configuration` 的完整类名为 `com.mongoplus.config.Configuration`。`log(true)` 输出可执行语句，监听器按 order 从小到大执行。全局加密密钥可使用 `key(...)`、`publicKey(...)`、`privateKey(...)` 配置，日志模式可使用 `ikun(...)` 配置。以上设置在当前 JVM 中共享，应在首次映射、日志或客户端初始化前完成；新建 builder 不会重置它们。
+
+`MongoPlusConfiguration` 中的核心扩展也可直接配置：`codec(...)` 注册 Driver 编解码器，`simpleTypeHolder(...)` 设置简单类型容器，`mongoConverter(...)` 设置 Mapper 转换器，`annotationHandler(...)` 设置集合注解属性解析器，`banner(true)` 开启启动 Banner（core 默认关闭）。
+
+默认连接使用 `connection(url).database(database)`；已有 MongoClient 可用 `mongoClient(...)` 接入，命名数据源使用 `dataSource(name, property)` 或 `dataSource(name, client, property)`。例如以下客户端、属性和转换器由调用方提供：
+
+```java
+Configuration configuration = Configuration.builder()
+        .mongoClient(existingClient)
+        .database("app")
+        .dataSource("reporting", reportingClient, reportingProperty)
+        .mongoConverter(customConverter);
+MongoPlusClient client = configuration.getMongoPlusClient();
+BaseMapper mapper = configuration.getBaseMapper();
+DataSourceManager manager = configuration.getDataSourceManager();
+```
+
+同一个配置在连接参数未改变时复用已构建的客户端，显式设置的 ID 生成器会保留。修改连接或命名数据源配置后，下次获取会重新构建；旧客户端不会自动关闭。Codec 只作用于之后由 MongoPlus 创建的 MongoClient；外部客户端的编解码器和命令监听器由调用方配置。工厂及全局缓存仍在 JVM 内共享。
+
 ### 联系我们
 #### 在使用MongoPlus的过程中，有任何问题和想法或者加入群聊请联系我(卖服务器的不要加了)
 #### v：anwen_529

@@ -1,16 +1,12 @@
 package com.mongoplus.property;
 
 import com.mongoplus.cache.global.PropertyCache;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * 加解密全局配置
  *
  * @author anwen
  */
-@Configuration
-@ConfigurationProperties(prefix = "mongo-plus.encryptor")
 public class MongoEncryptorProperty {
 
     /**

@@ -1,7 +1,6 @@
 package com.mongoplus.property;
 
 import com.mongoplus.cache.global.PropertyCache;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import java.util.List;
  *
  * @author JiaChaoYang
  **/
-@ConfigurationProperties(prefix = "mongo-plus.configuration")
 public class MongoDBConfigurationProperty {
 
     /**
@@ -52,6 +50,19 @@ public class MongoDBConfigurationProperty {
      * 自动创建相关操作所需配置的包路径,避免多模块下扫描不到
      */
     private List<String> autoScanPackages;
+
+    /**
+     * 是否懒加载数据源，保留 Solon 原有配置；当前没有核心消费者。
+     */
+    private Boolean lazyDataSource = false;
+
+    public Boolean getLazyDataSource() {
+        return lazyDataSource;
+    }
+
+    public void setLazyDataSource(Boolean lazyDataSource) {
+        this.lazyDataSource = lazyDataSource;
+    }
 
     public List<String> getAutoScanPackages() {
         return autoScanPackages;

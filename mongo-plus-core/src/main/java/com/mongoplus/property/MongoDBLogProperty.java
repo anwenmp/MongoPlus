@@ -2,14 +2,12 @@ package com.mongoplus.property;
 
 import com.mongoplus.cache.global.OrderCache;
 import com.mongoplus.cache.global.PropertyCache;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author JiaChaoYang
  * 日志属性
  * @since 2023-06-07 23:07
  **/
-@ConfigurationProperties(prefix = "mongo-plus")
 public class MongoDBLogProperty {
 
     /**

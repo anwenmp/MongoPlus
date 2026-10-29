@@ -1,13 +1,11 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.mongoplus.config.MongoPlusPropertyConfiguration,\
     com.mongoplus.config.MongoPlusConfiguration,\
     com.mongoplus.config.MongoPlusAutoConfiguration,\
     com.mongoplus.config.OverrideMongoConfiguration,\
     com.mongoplus.word.SensitiveWordConfiguration,\
-    com.mongoplus.property.MongoSpringProperty,\
-    com.mongoplus.property.MongoDBFieldProperty,\
     com.mongoplus.transactional.MongoTransactionManagerAutoConfiguration,\
-    com.mongoplus.config.MongoPropertyConfiguration,\
-    com.mongoplus.property.MongoLogicDelProperty
+    com.mongoplus.config.MongoPropertyConfiguration
 
 org.springframework.boot.env.EnvironmentPostProcessor=\
   com.mongoplus.property.EncryptionPostProcessor

@@ -8,8 +8,6 @@ import com.mongoplus.datasource.MongoDataSourceAspect;
 import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.mapper.MongoMapper;
-import com.mongoplus.property.MongoDBFieldProperty;
-import com.mongoplus.property.MongoEncryptorProperty;
 import com.mongoplus.proxy.MapperProxy;
 import com.mongoplus.scanner.CollectionScanner;
 import com.mongoplus.scanner.meta.MetadataReader;
@@ -31,8 +29,6 @@ public class XPluginAuto implements Plugin {
         //mongo-plus插件配置
         context.beanMake(MongoPlusConfiguration.class);
         context.beanInterceptorAdd(MongoTransactional.class,new MongoTransactionalAspect());
-        context.beanMake(MongoDBFieldProperty.class);
-        context.beanMake(MongoEncryptorProperty.class);
         context.beanMake(MongoDataSourceAspect.class);
         context.beanMake(TenantAspect.class);
         context.beanMake(MongoLogicIgnoreAspect.class);
