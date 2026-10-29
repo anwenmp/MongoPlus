@@ -1,6 +1,7 @@
 package com.mongoplus.parser.index;
 
 import com.mongodb.client.model.SearchIndexModel;
+import com.mongodb.client.model.SearchIndexType;
 import com.mongoplus.annotation.index.search.MongoSearchField;
 import com.mongoplus.annotation.index.search.MongoSearchIndex;
 import com.mongoplus.annotation.index.search.MongoSearchSort;
@@ -131,6 +132,7 @@ public class SearchParse extends AbstractParser {
         return name.isEmpty() ? DEFAULT_INDEX_NAME : name;
     }
 
+    /** 单个索引的临时配置；实例按索引名称隔离，保存类级与字段级注解的合并结果。 */
     private static final class SearchConfiguration {
         private final MongoSearchIndex index;
         private final String name;
@@ -146,7 +148,8 @@ public class SearchParse extends AbstractParser {
         private SearchIndexModel model() {
             try {
                 Document definition = definition();
-                return name.isEmpty() ? new SearchIndexModel(definition) : new SearchIndexModel(name, definition);
+                // name/type 属于创建模型的元数据，不能混入 definition；vector 字段仍属于普通 search 索引。
+                return new SearchIndexModel(name.isEmpty() ? null : name, definition, SearchIndexType.search());
             } catch (MongoPlusConvertException exception) {
                 throw failure("index " + indexName(name) + ": " + exception.getMessage(), exception);
             }
@@ -164,6 +167,7 @@ public class SearchParse extends AbstractParser {
             require(!(definition instanceof List) && (!(previous instanceof List) || !((List<?>) previous).isEmpty()),
                     "fields." + name, "cannot combine exclusion and indexing or repeat an exclusion");
             if (previous instanceof List) {
+                // 保留每份映射及声明顺序，不按字段名覆盖，也不把不同类型的专属参数拼进同一对象。
                 ((List<Object>) previous).add(definition);
             } else {
                 // 第二种映射出现时才升级为数组，保留单一映射原有的 BSON 结构。
@@ -186,8 +190,14 @@ public class SearchParse extends AbstractParser {
                 mappings.put("fields", fields);
             }
             Document definition = new Document("mappings", mappings);
-            definition.put("numPartitions", index == null ? 1 : index.numPartitions());
-            definition.put("storedSource", index == null ? false : storedSource(index.storedSource()));
+            // 省略未启用的服务端默认项，避免默认定义携带分区或源存储选项的部署要求。
+            if (index != null && index.numPartitions() != 1) {
+                definition.put("numPartitions", index.numPartitions());
+            }
+            Object source = index == null ? false : storedSource(index.storedSource());
+            if (!Boolean.FALSE.equals(source)) {
+                definition.put("storedSource", source);
+            }
             if (index != null) {
                 putAnalyzer(definition, "analyzer", index.analyzer(), index.customAnalyzer(), false);
                 putAnalyzer(definition, "searchAnalyzer", index.searchAnalyzer(), index.customSearchAnalyzer(), false);
@@ -237,6 +247,7 @@ public class SearchParse extends AbstractParser {
         }
     }
 
+    /** 将动态映射的布尔配置或命名类型集引用转换为互斥的 BSON 表达。 */
     static Object dynamicValue(boolean dynamic, String typeSet, String path) {
         if (typeSet.isEmpty()) {
             return dynamic;
@@ -245,6 +256,10 @@ public class SearchParse extends AbstractParser {
         return new Document("typeSet", required(typeSet, path + ".typeSet"));
     }
 
+    /**
+     * 写入分析器名称；可选属性的 DEFAULT 表示省略，保留服务端继承规则。
+     * mandatory 用于同义词等必填分析器，未指定时显式写入 standard。
+     */
     static void putAnalyzer(Document target, String key, Analyzer analyzer, String custom, boolean mandatory) {
         if (!custom.isEmpty()) {
             require(analyzer == Analyzer.DEFAULT, key, "custom and built-in analyzer are mutually exclusive");

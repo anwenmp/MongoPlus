@@ -147,6 +147,8 @@ public @interface MongoSearchIndex {
      * 分析器配置及限制见 {@link MongoSearchSynonym}。</p>
      * <p>例：{@code @MongoSearchSynonym(name = "mySynonyms", sourceCollection = "synonyms")}。</p>
      * <p>免费 M0 集群中，一个索引最多配置一个映射，来源集合最多包含一万条文档。</p>
+     * <p>Atlas Flex 同样使用单个映射；多映射需要 M10 或更高等级。
+     * 本地解析器不识别部署等级，具体配额由服务端检查。</p>
      * <p>此配置不创建来源集合或写入同义词；查询需通过 text 或 phrase 引用映射名称。
      * 来源集合的合法变更由 MongoDB Search 异步更新到同义词映射。</p>
      * @see <a href="https://www.mongodb.com/docs/search/indexes/synonyms/">Synonym Mappings</a>

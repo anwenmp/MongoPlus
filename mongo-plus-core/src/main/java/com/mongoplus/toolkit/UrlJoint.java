@@ -28,6 +28,9 @@ public class UrlJoint {
         if (StringUtils.isNotBlank(baseProperty.getUrl())){
             return baseProperty.getUrl();
         }
+        if (baseProperty.isSrv()) {
+            uri = new StringBuilder("mongodb+srv://");
+        }
         if (StringUtils.isNotBlank(baseProperty.getUsername()) && StringUtils.isNotBlank(baseProperty.getPassword())){
             try {
                 baseProperty.setUsername(URLEncoder.encode(baseProperty.getUsername(), "UTF-8"));
@@ -38,8 +41,12 @@ public class UrlJoint {
             }
             uri.append(baseProperty.getUsername()).append(":").append(baseProperty.getPassword()).append("@");
         }
-        if (StringUtils.isNotBlank(baseProperty.getHost()) && StringUtils.isNotBlank(baseProperty.getPort())){
-            if (baseProperty.getHost().contains(",")){
+        if (StringUtils.isNotBlank(baseProperty.getHost())
+                && (baseProperty.isSrv() || StringUtils.isNotBlank(baseProperty.getPort()))){
+            if (baseProperty.isSrv()) {
+                // SRV 连接由驱动通过 DNS 发现节点及端口，不拼接配置的端口。
+                uri.append(baseProperty.getHost());
+            } else if (baseProperty.getHost().contains(",")){
                 String[] hostArray = baseProperty.getHost().split(",");
                 String[] portArray = baseProperty.getPort().split(",");
                 if (hostArray.length != portArray.length && portArray.length > 1){

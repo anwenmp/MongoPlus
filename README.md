@@ -89,6 +89,22 @@ DataSourceManager manager = configuration.getDataSourceManager();
 
 同一个配置在连接参数未改变时复用已构建的客户端，显式设置的 ID 生成器会保留。修改连接或命名数据源配置后，下次获取会重新构建；旧客户端不会自动关闭。Codec 只作用于之后由 MongoPlus 创建的 MongoClient；外部客户端的编解码器和命令监听器由调用方配置。工厂及全局缓存仍在 JVM 内共享。
 
+### Spring 事务
+
+设置 `mongo-plus.spring.transaction: true` 后，可以使用名为 `mongoPlusTransactionalManager` 的管理器：
+
+```java
+@Transactional(transactionManager = "mongoPlusTransactionalManager",
+        timeout = 5, rollbackFor = Exception.class)
+public void saveOrder() {
+    // 在 Spring 代理调用的方法中使用 MongoPlus Mapper / Service。
+}
+```
+
+`timeout` 及管理器的默认超时应用于新建的物理事务；`REQUIRED` 参与外层时沿用原截止时间，挂起期间继续计时，`REQUIRES_NEW` 独立计时。MongoPlus 在受管 Driver 操作、延迟查询/游标读取和提交前检查截止时间；超时后标记 rollback-only，捕获异常也不能继续提交。操作边界发现超时抛出 `TransactionTimedOutException`；提交前才发现超时，则 abort 后抛出以超时异常为 cause 的 `UnexpectedRollbackException`。
+
+超时检查不会强制中断业务线程或正在阻塞的 Driver I/O，后者仍由 Driver 配置约束；自行创建的客户端/会话不自动加入该事务。提交失败通过 `TransactionSystemException` 保留原始 cause，默认完成状态为 UNKNOWN，不承诺回滚成功或自动重试。Spring 注解保持其默认异常回滚规则；MongoPlus 的 `@MongoTransactional` 仍使用自身的 rollbackFor/noRollbackFor 规则。
+
 ### 联系我们
 #### 在使用MongoPlus的过程中，有任何问题和想法或者加入群聊请联系我(卖服务器的不要加了)
 #### v：anwen_529

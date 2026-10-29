@@ -27,14 +27,18 @@ public class MongoPropertyConfiguration {
             mongoProperties.setUri(mongoDBConnectProperty.getUrl());
         }else {
             mongoProperties.setHost(Arrays.stream(mongoDBConnectProperty.getHost().split(",")).collect(Collectors.toList()).get(0));
-            mongoProperties.setPort(Integer.valueOf(Arrays.stream(mongoDBConnectProperty.getPort().split(",")).collect(Collectors.toList()).get(0)));
+            if (StringUtils.isNotBlank(mongoDBConnectProperty.getPort())) {
+                mongoProperties.setPort(Integer.valueOf(Arrays.stream(mongoDBConnectProperty.getPort().split(",")).collect(Collectors.toList()).get(0)));
+            }
             if (StringUtils.isNotBlank(mongoDBConnectProperty.getUsername())) {
                 mongoProperties.setUsername(mongoDBConnectProperty.getUsername());
             }
             if (StringUtils.isNotBlank(mongoDBConnectProperty.getPassword())) {
                 mongoProperties.setPassword(mongoDBConnectProperty.getPassword().toCharArray());
             }
-            mongoProperties.setAuthenticationDatabase(mongoDBConnectProperty.getAuthenticationDatabase());
+            if (StringUtils.isNotBlank(mongoDBConnectProperty.getAuthenticationDatabase())) {
+                mongoProperties.setAuthenticationDatabase(mongoDBConnectProperty.getAuthenticationDatabase());
+            }
         }
         mongoProperties.setDatabase(Arrays.stream(mongoDBConnectProperty.getDatabase().split(",")).collect(Collectors.toList()).get(0));
     }

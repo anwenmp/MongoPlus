@@ -19,6 +19,7 @@ final class SearchFieldParser {
     private SearchFieldParser() {
     }
 
+    /** 将一份非排除映射转换为 BSON，按当前类型输出适用选项，并拒绝不适用的非默认属性。 */
     @SuppressWarnings("deprecation")
     static Document parse(MongoSearchField field) {
         Document definition = new Document("type", field.type().getValue());
@@ -43,8 +44,9 @@ final class SearchFieldParser {
             case AUTOCOMPLETE:
                 allow(options, "analyzer", "customAnalyzer", "tokenization", "minGrams",
                         "maxGrams", "foldDiacritics", "similarity");
-                definition.append("tokenization", field.tokenization().getValue()).append("minGrams", field.minGrams())
-                        .append("maxGrams", field.maxGrams()).append("foldDiacritics", field.foldDiacritics());
+                putOption(definition, "tokenization", field.tokenization().getValue());
+                definition.append("minGrams", field.minGrams()).append("maxGrams", field.maxGrams())
+                        .append("foldDiacritics", field.foldDiacritics());
                 textOptions(definition, field);
                 break;
             case DOCUMENT:
@@ -57,6 +59,7 @@ final class SearchFieldParser {
                 if ("embeddedDocuments".equals(field.type().getValue())) {
                     allow(options, "storedSource");
                     if (!field.storedSource().isEmpty()) {
+                        // 用临时对象解析单个 JSON 值，保留布尔/对象类型，不能把 JSON 文本作为字符串提交。
                         Document wrapper = object("{\"value\":" + field.storedSource() + "}", "storedSource");
                         require(wrapper.size() == 1, "storedSource", "expected one JSON value");
                         definition.put("storedSource", wrapper.get("value"));
@@ -79,9 +82,9 @@ final class SearchFieldParser {
                 break;
             case VECTOR:
                 allow(options, "numDimensions", "vectorSimilarity", "quantization", "indexingMethod", "hnswOptions");
-                definition.append("numDimensions", field.numDimensions())
-                        .append("quantization", field.quantization().getValue())
-                        .append("indexingMethod", field.indexingMethod().getValue());
+                definition.put("numDimensions", field.numDimensions());
+                putOption(definition, "quantization", field.quantization().getValue());
+                putOption(definition, "indexingMethod", field.indexingMethod().getValue());
                 if (!field.hnswOptions().isEmpty()) {
                     definition.put("hnswOptions", object(field.hnswOptions(), "hnswOptions"));
                 }
@@ -101,7 +104,17 @@ final class SearchFieldParser {
 
     private static void textOptions(Document definition, MongoSearchField field) {
         SearchParse.putAnalyzer(definition, "analyzer", field.analyzer(), field.customAnalyzer(), false);
-        definition.put("similarity", new Document("type", field.similarity().getValue()));
+        if (!field.similarity().getValue().isEmpty()) {
+            // 文本相似度为对象；向量相似度在对应分支输出字符串，两种 BSON 形态不可混用。
+            definition.put("similarity", new Document("type", field.similarity().getValue()));
+        }
+    }
+
+    private static void putOption(Document definition, String key, String value) {
+        // 空字符串是注解的省略哨兵；真实枚举值 none 不为空，仍需正常提交。
+        if (!value.isEmpty()) {
+            definition.put(key, value);
+        }
     }
 
     private static void allow(Set<String> options, String... names) {
@@ -119,6 +132,7 @@ final class SearchFieldParser {
     private static void validateDefault(MongoSearchField field, Method method) {
         String name = method.getName();
         try {
+            // Java 注解无法区分“未填写”和“显式填写默认值”，这里只能拒绝不适用且偏离默认值的配置。
             require(Objects.deepEquals(method.getDefaultValue(), method.invoke(field)), name,
                     "option does not apply to " + field.type().getValue());
         } catch (ReflectiveOperationException exception) {

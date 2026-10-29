@@ -8,6 +8,12 @@ public class BaseProperty {
     private String url;
 
     /**
+     * DNS自动发现
+     * @since 2023/2/10 13:45
+     */
+    private boolean srv = false;
+
+    /**
      * mongodb地址
      * @since 2023/2/10 13:45
      */
@@ -589,6 +595,14 @@ public class BaseProperty {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public boolean isSrv() {
+        return srv;
+    }
+
+    public void setSrv(boolean srv) {
+        this.srv = srv;
     }
 
     public boolean equals(Object o) {

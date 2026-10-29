@@ -47,7 +47,7 @@ public class SearchRepeatableIndexTest {
         BsonDocument second = encode(models.get(1));
         assertEquals("first", models.get(0).getName());
         assertEquals("second", models.get(1).getName());
-        assertEquals(1, first.getInt32("numPartitions").getValue());
+        assertFalse(first.containsKey("numPartitions"));
         assertEquals(2, second.getInt32("numPartitions").getValue());
         assertTrue(first.getBoolean("storedSource").getValue());
         assertEquals(BsonDocument.parse("{include:['price']}"), second.getDocument("storedSource"));

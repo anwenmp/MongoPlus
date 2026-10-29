@@ -14,6 +14,7 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.IndexMetaObject;
+import com.mongoplus.parser.index.Resolver;
 import org.bson.Document;
 
 import java.util.Collection;
@@ -83,14 +84,26 @@ public class AutoUtil {
         });
     }
 
+    /**
+     * 为扫描到的实体统一解析并创建普通索引与 Search 索引。
+     * <p>先完成全部实体的本地解析，再访问数据库；远端 DDL 仍不具备跨实体或跨索引类型的原子性。
+     * 数据源取实体索引配置或当前默认值，创建异常向上传播。</p>
+     *
+     * @param classCollection 已由调用方扫描得到的实体集合
+     * @param mongoPlusClient 用于定位真实数据源和集合的客户端
+     */
     public static void autoCreateIndexes(Collection<Class<?>> classCollection, MongoPlusClient mongoPlusClient){
         if (CollUtil.isEmpty(classCollection)) {
             return;
         }
-        List<IndexMetaObject> indexMetaObjectList = IndexUtil.getIndex(classCollection);
+        Resolver resolver = new Resolver();
+        // 所有实体先完成本地校验，避免后续配置错误发生在已有 DDL 之后。
+        List<IndexMetaObject> indexMetaObjectList = classCollection.stream()
+                .map(resolver::resolve).collect(Collectors.toList());
         if (CollUtil.isNotEmpty(indexMetaObjectList)) {
             indexMetaObjectList.forEach(indexMetaObject -> {
-                if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())){
+                if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())
+                        || CollUtil.isNotEmpty(indexMetaObject.getSearchIndexModels())){
                     String dataSource = DataSourceNameCache.getDataSource();
                     if (StringUtils.isNotBlank(indexMetaObject.getDataSource())){
                         dataSource = indexMetaObject.getDataSource();
@@ -98,7 +111,11 @@ public class AutoUtil {
                     Class<?> clazz = indexMetaObject.getTypeInformation().getClazz();
                     MongoCollection<Document> collection = mongoPlusClient.getCollectionManager(dataSource,clazz)
                             .getCollection(clazz);
-                    collection.createIndexes(indexMetaObject.getIndexModels());
+                    // 普通索引与 Search 分别调用对应接口；普通索引已成功后，Search 远端失败不会回滚它。
+                    if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())) {
+                        collection.createIndexes(indexMetaObject.getIndexModels());
+                    }
+                    SearchIndexCreator.createMissing(collection, indexMetaObject.getSearchIndexModels());
                 }
             });
         }

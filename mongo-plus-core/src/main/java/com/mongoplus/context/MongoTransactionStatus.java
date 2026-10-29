@@ -63,6 +63,20 @@ public class MongoTransactionStatus {
         return rollbackOnly;
     }
 
+    /**
+     * 是否需要在 Driver 执行边界检查超时；纯 core 事务默认不启用。
+     */
+    public boolean hasTimeout() {
+        return false;
+    }
+
+    /**
+     * 托管环境可以覆盖此方法，检查截止时间并标记回滚。
+     * core 不依赖具体容器的超时异常或资源持有器。
+     */
+    public void checkTimeout() {
+    }
+
     public void setRollbackOnly() {
         this.rollbackOnly = true;
     }

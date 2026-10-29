@@ -39,7 +39,7 @@ public @interface MongoSearchField {
      * <p>在 {@link MongoSearchIndex#fields()} 中配置时应留空，由外层索引确定归属。</p>
      * @author anwen
      */
-    String name() default "default";
+    String name() default "";
 
     /**
      * 字段名称
@@ -134,6 +134,7 @@ public @interface MongoSearchField {
 
     /**
      * string、autocomplete：文本评分算法，对应对象 {@code similarity: {"type":"bm25"}}。
+     * <p>NONE 表示省略该选项，使用服务端默认 bm25；不能输出空的 similarity.type。</p>
      * <p>向量字段使用 {@link #vectorSimilarity()}，不能将文本算法写成向量 similarity 字符串。</p>
      */
     SearchSimilarity similarity() default SearchSimilarity.NONE;
@@ -146,7 +147,7 @@ public @interface MongoSearchField {
     String multi() default "";
 
     /**
-     * autocomplete：分词策略，默认 edgeGram。
+     * autocomplete：分词策略，NONE 表示省略，服务端默认 edgeGram。
      */
     SearchTokenization tokenization() default SearchTokenization.NONE;
 
@@ -221,13 +222,14 @@ public @interface MongoSearchField {
     SearchVectorSimilarity vectorSimilarity() default SearchVectorSimilarity.DEFAULT;
 
     /**
-     * vector：自动量化方式，默认 none。自动量化仅用于 float/double 向量。
+     * vector：自动量化方式，EMPTY 表示省略，服务端默认 none；NONE 表示显式输出 none。
+     * <p>自动量化仅用于 float/double 向量。</p>
      * <p>预量化输入应使用 none；binary 要求 numDimensions 为 8 的倍数。</p>
      */
     SearchQuantization quantization() default SearchQuantization.EMPTY;
 
     /**
-     * vector：索引结构，默认 hnsw；flat 使用平面索引，不配置 hnswOptions。
+     * vector：索引结构，NONE 表示省略，服务端默认 hnsw；flat 使用平面索引，不配置 hnswOptions。
      */
     SearchIndexingMethod indexingMethod() default SearchIndexingMethod.NONE;
 

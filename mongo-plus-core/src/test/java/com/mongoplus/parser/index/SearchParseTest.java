@@ -57,7 +57,7 @@ public class SearchParseTest {
     public void dynamicDefinitionKeepsNameOutsideDefinition() {
         SearchIndexModel model = model(Dynamic.class);
         assertEquals("catalog", model.getName());
-        assertEquals(BsonDocument.parse("{mappings:{dynamic:true},numPartitions:2,storedSource:false}"),
+        assertEquals(BsonDocument.parse("{mappings:{dynamic:true},numPartitions:2}"),
                 encode(model));
     }
 
