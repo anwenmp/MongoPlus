@@ -6,9 +6,10 @@ import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
-import java.util.Collections;
+import com.mongoplus.enums.QueryOperatorEnum;
+import org.bson.Document;
 
-import static com.mongoplus.handlers.condition.BuildCondition.condition;
+import java.util.Arrays;
 
 /**
  * expr操作
@@ -23,9 +24,9 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
      * @author JiaChaoYang
      */
     default Children expr(ConditionMetaObject conditionMetaObject) {
-        return addCondition(getBaseCondition(
-                Collections.singletonList(condition().queryCondition(conditionMetaObject))
-        ));
+        String operator = QueryOperatorEnum.getQueryOperator(conditionMetaObject.getCondition()).getOperatorValue();
+        return expr(new QueryWrapper<T>().custom(new Document(operator,
+                Arrays.asList("$" + conditionMetaObject.getColumn(), conditionMetaObject.getValue()))));
     }
 
     /**

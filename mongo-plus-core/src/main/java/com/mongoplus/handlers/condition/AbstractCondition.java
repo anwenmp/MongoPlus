@@ -91,6 +91,7 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
             List<ConditionMetaObject> currentConditionMetaObjectList = finalCompareConditionList.get();
             switch (updateConditionEnum) {
                 case SET:
+                case SET_ON_INSERT:
                 case INC:
                 case MIN:
                 case MAX:

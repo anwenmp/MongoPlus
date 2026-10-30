@@ -32,6 +32,8 @@ public enum UpdateConditionEnum {
 
     PULL_ALL("$pullAll"),
 
+    SET_ON_INSERT("$setOnInsert"),
+
     ;
 
     private final String condition;

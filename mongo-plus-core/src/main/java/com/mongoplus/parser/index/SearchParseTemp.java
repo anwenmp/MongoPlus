@@ -1,17 +1,11 @@
 package com.mongoplus.parser.index;
 
-import ch.qos.logback.core.util.StringUtil;
-import com.mongodb.client.model.SearchIndexDefinition;
 import com.mongodb.client.model.SearchIndexModel;
 import com.mongodb.client.model.SearchIndexType;
-import com.mongoplus.annotation.collection.CollectionField;
 import com.mongoplus.annotation.index.search.MongoSearchField;
 import com.mongoplus.annotation.index.search.MongoSearchIndex;
-import com.mongoplus.annotation.index.search.MongoSearchIndexes;
 import com.mongoplus.bson.MongoPlusDocument;
 import com.mongoplus.cache.codec.MapCodecCache;
-import com.mongoplus.cache.global.PropertyCache;
-import com.mongoplus.conditions.interfaces.query.array.Array;
 import com.mongoplus.domain.MongoPlusIndexException;
 import com.mongoplus.enums.*;
 import com.mongoplus.logging.Log;
@@ -20,15 +14,12 @@ import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.TypeInformation;
 import com.mongoplus.model.IndexMetaObject;
 import com.mongoplus.toolkit.ArrayUtils;
-import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 将搜索索引注解解析为 Driver 搜索索引模型，不执行数据库操作。

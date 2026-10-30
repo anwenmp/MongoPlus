@@ -204,19 +204,19 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case BITS_ALL_CLEAR:
                 mongoPlusBasicDBObject.put(Filters.bitsAllClear(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ALL_SET:
                 mongoPlusBasicDBObject.put(Filters.bitsAllSet(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ANY_CLEAR:
                 mongoPlusBasicDBObject.put(Filters.bitsAnyClear(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ANY_SET:
                 mongoPlusBasicDBObject.put(Filters.bitsAnySet(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case GEO_INTERSECTS:
                 Object geometry = conditionMetaObject.getValue();
