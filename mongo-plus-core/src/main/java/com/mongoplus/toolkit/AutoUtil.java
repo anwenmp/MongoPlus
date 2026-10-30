@@ -85,7 +85,7 @@ public class AutoUtil {
     }
 
     /**
-     * 为扫描到的实体统一解析并创建普通索引与 Search 索引。
+     * 为扫描到的实体统一解析并创建普通索引、Search 和 Vector Search 索引。
      * <p>先完成全部实体的本地解析，再访问数据库；远端 DDL 仍不具备跨实体或跨索引类型的原子性。
      * 数据源取实体索引配置或当前默认值，创建异常向上传播。</p>
      *
@@ -111,7 +111,7 @@ public class AutoUtil {
                     Class<?> clazz = indexMetaObject.getTypeInformation().getClazz();
                     MongoCollection<Document> collection = mongoPlusClient.getCollectionManager(dataSource,clazz)
                             .getCollection(clazz);
-                    // 普通索引与 Search 分别调用对应接口；普通索引已成功后，Search 远端失败不会回滚它。
+                    // 普通索引单独创建，Search/Vector Search 共用管理接口；远端失败不会回滚已有索引。
                     if (CollUtil.isNotEmpty(indexMetaObject.getIndexModels())) {
                         collection.createIndexes(indexMetaObject.getIndexModels());
                     }
