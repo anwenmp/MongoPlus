@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 实体索引注解的统一解析入口，按激活条件调度普通索引与 Search 解析器。
+ * 实体索引注解的统一解析入口，按激活条件调度普通索引、Search 与 Vector Search 解析器。
  * <p>每次解析创建独立元数据，只生成 Driver 模型，不执行数据库操作。</p>
  *
  * @author anwen
@@ -25,7 +25,8 @@ public class Resolver {
             new TextParser(),
             new HashParser(),
             new GeoParser(),
-            new SearchParse()
+            new SearchParse(),
+            new VectorParse()
     );
 
     /**

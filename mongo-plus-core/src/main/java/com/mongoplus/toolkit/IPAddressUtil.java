@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class IPAddressUtil {
 
     // 定义正则表达式
-    private static final String MONGODB_URI_REGEX = "mongodb://([^:]+):([^@]+)@";
+    private static final String MONGODB_URI_REGEX = "(mongodb(?:\\+srv)?://)([^:]+):([^@]+)@";
     private static final String IP_PORT_REGEX = "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}):(\\d{2})(\\d{1,3})";
 
     /**
@@ -24,7 +24,7 @@ public class IPAddressUtil {
 
             while (uriMatcher.find()) {
                 // 替换账号和密码为***
-                String replacement = "mongodb://***:***@";
+                String replacement = uriMatcher.group(1) + "***:***@";
                 uriMatcher.appendReplacement(uriSb, replacement);
             }
             uriMatcher.appendTail(uriSb);

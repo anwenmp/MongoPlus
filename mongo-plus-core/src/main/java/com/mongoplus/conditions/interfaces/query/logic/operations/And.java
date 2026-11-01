@@ -41,7 +41,7 @@ public interface And<T, Children> extends BaseQueryCondition<T, Children> {
      * @author anwen
      */
     default Children and(boolean condition, SFunction<QueryWrapper<T>, QueryWrapper<T>> function) {
-        return condition ? addCondition(getBaseCondition(function)) : typeThis();
+        return condition ? and(function) : typeThis();
     }
 
 

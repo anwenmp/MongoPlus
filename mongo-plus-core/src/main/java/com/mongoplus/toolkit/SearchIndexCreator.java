@@ -7,6 +7,7 @@ import com.mongoplus.domain.MongoPlusConvertException;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
 
@@ -67,8 +68,9 @@ final class SearchIndexCreator {
                     .equals(new ArrayList<>(actual.getDocument("sort").keySet())));
             // STALE 即使 queryable=true 也已停止同步，不能作为健康索引跳过；未知状态保守拒绝。
             boolean acceptedStatus = "READY".equals(status) || "BUILDING".equals(status) || "PENDING".equals(status);
-            if (!"search".equals(current.getString("type")) || actual == null
-                    || !normalized(requested).equals(normalized(actual)) || !sameSort || !acceptedStatus
+            String requestedType = model.getType() == null ? "search" : model.getType().toBsonValue().asString().getValue();
+            if (!requestedType.equals(current.getString("type")) || actual == null
+                    || !normalized(requested, requestedType).equals(normalized(actual, requestedType)) || !sameSort || !acceptedStatus
                     || "READY".equals(status) && Boolean.FALSE.equals(current.get("queryable"))) {
                 throw new MongoPlusConvertException("Search index " + name
                         + " already exists with a different definition/type or an unusable status (" + status
@@ -90,9 +92,13 @@ final class SearchIndexCreator {
      * 在副本上消除默认值白名单，兼容服务端将省略选项显式展开的定义。
      * <p>未知属性、数组顺序和 analyzer/searchAnalyzer 保留，不能通过删除继承相关选项消除真实冲突。</p>
      */
-    private static BsonDocument normalized(BsonDocument definition) {
+    private static BsonDocument normalized(BsonDocument definition, String type) {
         // 转为独立 BSON 树，后续移除选项不能改变 Driver 待提交模型或已有定义的快照。
         BsonDocument copy = BsonDocument.parse(definition.toJson());
+        if ("vectorSearch".equals(type)) {
+            normalizeVectorFields(copy);
+            return copy;
+        }
         removeDefault(copy, "numPartitions", "1");
         removeDefault(copy, "storedSource", "false");
         if (copy.containsKey("mappings") && copy.get("mappings").isDocument()) {
@@ -106,6 +112,34 @@ final class SearchIndexCreator {
             }
         }
         return copy;
+    }
+
+    /** 独立向量索引仅消除其自己的默认值，不使用普通 Search 的 mappings/default 白名单。 */
+    private static void normalizeVectorFields(BsonDocument definition) {
+        BsonValue fields = definition.get("fields");
+        if (fields == null || !fields.isArray()) {
+            return;
+        }
+        for (BsonValue value : fields.asArray()) {
+            if (!value.isDocument()) {
+                continue;
+            }
+            BsonDocument field = value.asDocument();
+            if (!new BsonString("vector").equals(field.get("type"))) {
+                continue;
+            }
+            removeDefault(field, "quantization", "'none'");
+            removeDefault(field, "indexingMethod", "'hnsw'");
+            // flat 不允许 HNSW 选项；不能通过默认值消除把不合法的远端定义视为兼容。
+            BsonValue options = field.get("hnswOptions");
+            if (!field.containsKey("indexingMethod") && options != null && options.isDocument()) {
+                removeDefault(options.asDocument(), "maxEdges", "16");
+                removeDefault(options.asDocument(), "numEdgeCandidates", "100");
+                if (options.asDocument().isEmpty()) {
+                    field.remove("hnswOptions");
+                }
+            }
+        }
     }
 
     private static void normalizeMapping(BsonDocument mapping) {
