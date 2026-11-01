@@ -369,7 +369,7 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
 
     @Override
     public <R> R one(Aggregate<?> aggregate, Class<R> rClazz) {
-        return (R) baseMapper.aggregateOne(aggregate,clazz);
+        return baseMapper.aggregateOne(aggregate,clazz,rClazz);
     }
 
     @Override

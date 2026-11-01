@@ -39,19 +39,19 @@ public class Projection {
     }
 
     public static Projection display(String column){
-        return builder().display(column).build();
+        return builder().column(column).value(1).build();
     }
 
     public static <T> Projection display(SFunction<T,?> column){
-        return builder().display(column).build();
+        return builder().column(column).value(1).build();
     }
 
     public static Projection none(String column){
-        return builder().none(column).build();
+        return builder().column(column).value(0).build();
     }
 
     public static <T> Projection none(SFunction<T,?> column){
-        return builder().none(column).build();
+        return builder().column(column).value(0).build();
     }
 
     public static ProjectionBuilder builder() {

@@ -50,7 +50,7 @@ public interface Index extends SuperIndex {
     }
 
     default void dropIndexes(String collectionName){
-        dropIndex(EMPTY,collectionName);
+        dropIndexes(EMPTY,collectionName);
     }
 
     default void dropIndexes(String collectionName,DropIndexOptions dropIndexOptions){

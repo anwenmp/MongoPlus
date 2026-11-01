@@ -6,8 +6,6 @@ import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.support.SFunction;
 
-import java.util.Collections;
-
 import static com.mongoplus.handlers.condition.BuildCondition.condition;
 
 /**
@@ -25,7 +23,7 @@ public interface Not<T, Children> extends BaseQueryCondition<T, Children> {
      */
     default Children not(ConditionMetaObject conditionMetaObject) {
         return addCondition(getBaseCondition(
-                Collections.singletonList(condition().queryCondition(conditionMetaObject))
+                condition().queryCondition(conditionMetaObject)
         ));
     }
 

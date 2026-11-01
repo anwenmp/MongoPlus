@@ -91,7 +91,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public <T> Children addFields(SFunction<T,?> field, Object value) {
-        return addFields(Field.of(field,value));
+        return addFields(Field.ofNotField(field,value));
     }
 
     @Override
@@ -101,9 +101,8 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children addFields(String field, Collection<?> value) {
-        return addFields(Field.of(field, new BasicDBObject(AggregationOperators.CONCAT_ARRAYS, new ArrayList<Bson>() {{
-            add(new BasicDBObject(AggregationOperators.FIELD + field, value));
-        }})));
+        return addFields(Field.of(field, new BasicDBObject(AggregationOperators.CONCAT_ARRAYS,
+                Arrays.asList(AggregationOperators.FIELD + field, value))));
     }
 
     @Override
@@ -143,7 +142,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public <T> Children set(SFunction<T,?> field, Object value) {
-        return set(Field.of(field,value));
+        return set(Field.ofNotField(field,value));
     }
 
     @Override
@@ -153,9 +152,8 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children set(String field, Collection<?> value) {
-        return set(Field.of(field, new BasicDBObject(AggregationOperators.CONCAT_ARRAYS, new ArrayList<Bson>() {{
-            add(new BasicDBObject(AggregationOperators.FIELD + field, value));
-        }})));
+        return set(Field.of(field, new BasicDBObject(AggregationOperators.CONCAT_ARRAYS,
+                Arrays.asList(AggregationOperators.FIELD + field, value))));
     }
 
     @Override
@@ -390,7 +388,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children metaTextScore(String field) {
-        return sort(Sorts.metaTextScore(field));
+        return sortSpecification(Sorts.metaTextScore(field));
     }
 
     @Override
@@ -667,7 +665,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children unionWith(String collectionName) {
-        return unionWith(new Document(AggregateEnum.UNION_WITH.getValue(), collectionName));
+        return unionWith(collectionName, Collections.emptyList());
     }
 
     @Override
@@ -941,7 +939,7 @@ public class LambdaAggregateWrapper<Children> implements Aggregate<Children>,Agg
 
     @Override
     public Children collation(CollationStrength collationStrength) {
-        this.aggregateOptions.append(AggregateOptionsEnum.COLLATION.getOptions(), Collation.builder().collationStrength(collationStrength).build().asDocument());
+        this.aggregateOptions.append(AggregateOptionsEnum.COLLATION.getOptions(), Collation.builder().collationStrength(collationStrength).build());
         return typedThis;
     }
 

@@ -1,12 +1,16 @@
 package com.mongoplus.conditions.interfaces.query.other.operations;
 
+import com.mongodb.BasicDBObject;
 import com.mongoplus.conditions.interfaces.query.BaseQueryCondition;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
+import com.mongoplus.enums.QueryOperatorEnum;
 import com.mongoplus.support.SFunction;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import static com.mongoplus.handlers.condition.BuildCondition.condition;
 
@@ -20,12 +24,22 @@ public interface Expr<T, Children> extends BaseQueryCondition<T, Children> {
 
     /**
      * 进行计算的表达式
+     * 条件元对象支持 eq/ne/gt/gte/lt/lte 的字段与常量比较；任意表达式使用 Wrapper 重载。
      * @author JiaChaoYang
      */
     default Children expr(ConditionMetaObject conditionMetaObject) {
-        return addCondition(getBaseCondition(
-                Collections.singletonList(condition().queryCondition(conditionMetaObject))
-        ));
+        BasicDBObject query = condition().queryCondition(Collections.singletonList(conditionMetaObject));
+        QueryOperatorEnum operator = QueryOperatorEnum.getQueryOperator(conditionMetaObject.getCondition());
+        if (!Arrays.asList(QueryOperatorEnum.EQ, QueryOperatorEnum.NE, QueryOperatorEnum.GT,
+                QueryOperatorEnum.GTE, QueryOperatorEnum.LT, QueryOperatorEnum.LTE).contains(operator)) {
+            throw new IllegalArgumentException("expr(ConditionMetaObject) requires a comparison condition");
+        }
+        String column = conditionMetaObject.getColumn();
+        Map<?, ?> comparison = (Map<?, ?>) query.get(column);
+        // Query values remain literal, including strings starting with '$' and embedded documents.
+        BasicDBObject expression = new BasicDBObject(operator.getOperatorValue(),
+                Arrays.asList("$" + column, new BasicDBObject("$literal", comparison.get(operator.getOperatorValue()))));
+        return addCondition(getBaseCondition(expression));
     }
 
     /**

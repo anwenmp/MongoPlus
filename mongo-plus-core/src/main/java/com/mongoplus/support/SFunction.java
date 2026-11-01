@@ -180,7 +180,7 @@ public interface SFunction<T,R> extends Function<T,R>, Serializable {
 
         // 从lambda信息取出method、field、class等
         String fieldName = serializedLambda.getImplMethodName().substring("get".length());
-        if (!fieldName.equals(fieldName.toUpperCase())){
+        if (fieldName.length() == 1 || !fieldName.equals(fieldName.toUpperCase())){
             fieldName = fieldName.replaceFirst(fieldName.charAt(0) + "", (fieldName.charAt(0) + "").toLowerCase());
         }
         return fieldName;

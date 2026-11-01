@@ -8,7 +8,6 @@ import com.mongoplus.toolkit.ClassTypeUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +64,7 @@ public interface Push<T, Children> extends BaseUpdateCondition<T, Children> {
         if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
             throw new MongoPlusException("$each requires data of Collection type");
         }
-        return each ? push(column, Collections.singletonList(value)) : push(column,value);
+        return each ? push(column, new PushOptions(), (Collection<?>) value) : push(column,value);
     }
 
     /**
@@ -114,7 +113,7 @@ public interface Push<T, Children> extends BaseUpdateCondition<T, Children> {
         if (each && !ClassTypeUtil.isTargetClass(Collection.class,value.getClass())){
             throw new MongoPlusException("$each requires data of Collection type");
         }
-        return each ? push(column, Collections.singletonList(value)) : push(column,value);
+        return each ? push(column, new PushOptions(), (Collection<?>) value) : push(column,value);
     }
 
     /**
@@ -218,7 +217,7 @@ public interface Push<T, Children> extends BaseUpdateCondition<T, Children> {
      * @author anwen
      */
     default Children push(boolean condition,String column,PushOptions options,Object ... value) {
-        return condition ? push(column,value,options) : typeThis();
+        return condition ? push(column,options,value) : typeThis();
     }
 
     /**

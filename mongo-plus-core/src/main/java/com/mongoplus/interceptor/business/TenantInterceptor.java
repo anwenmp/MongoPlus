@@ -3,8 +3,12 @@ package com.mongoplus.interceptor.business;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
+import com.mongodb.client.model.DeleteManyModel;
+import com.mongodb.client.model.DeleteOneModel;
 import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.ReplaceOneModel;
 import com.mongodb.client.model.UpdateManyModel;
+import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongoplus.aggregate.AggregateWrapper;
 import com.mongoplus.cache.codec.MapCodecCache;
@@ -159,6 +163,29 @@ public class TenantInterceptor implements Interceptor {
                         return new UpdateManyModel<Document>(filter, updateManyModel.getUpdate(),
                                 updateManyModel.getOptions());
                     }
+                } else if (writeModel instanceof UpdateOneModel) {
+                    UpdateOneModel<Document> updateOneModel = (UpdateOneModel<Document>) writeModel;
+                    Bson filter = appendTenantFilter(updateOneModel.getFilter(), collection);
+                    if (updateOneModel.getUpdatePipeline() != null) {
+                        return new UpdateOneModel<Document>(filter, updateOneModel.getUpdatePipeline(),
+                                updateOneModel.getOptions());
+                    }
+                    return new UpdateOneModel<Document>(filter, updateOneModel.getUpdate(),
+                            updateOneModel.getOptions());
+                } else if (writeModel instanceof ReplaceOneModel) {
+                    ReplaceOneModel<Document> replaceOneModel = (ReplaceOneModel<Document>) writeModel;
+                    Bson filter = appendTenantFilter(replaceOneModel.getFilter(), collection);
+                    // A replacement without its tenant field would remove the scoped row's tenant identity.
+                    Document replacement = executeSave(replaceOneModel.getReplacement(), collection);
+                    return new ReplaceOneModel<Document>(filter, replacement, replaceOneModel.getReplaceOptions());
+                } else if (writeModel instanceof DeleteOneModel) {
+                    DeleteOneModel<Document> deleteOneModel = (DeleteOneModel<Document>) writeModel;
+                    return new DeleteOneModel<Document>(appendTenantFilter(deleteOneModel.getFilter(), collection),
+                            deleteOneModel.getOptions());
+                } else if (writeModel instanceof DeleteManyModel) {
+                    DeleteManyModel<Document> deleteManyModel = (DeleteManyModel<Document>) writeModel;
+                    return new DeleteManyModel<Document>(appendTenantFilter(deleteManyModel.getFilter(), collection),
+                            deleteManyModel.getOptions());
                 }
                 return writeModel;
             }).collect(Collectors.toList());

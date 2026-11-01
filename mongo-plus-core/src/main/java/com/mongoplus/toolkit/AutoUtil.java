@@ -59,17 +59,17 @@ public class AutoUtil {
             }
             TypeInformation typeInformation = TypeInformation.of(collectionClass);
             TimeSeriesOptions options = new TimeSeriesOptions(getFieldNameAndCheck(typeInformation,timeSeries.timeField()));
-            options.granularity(timeSeries.granularity());
+            if (timeSeries.bucketMaxSpan() <= 0 && timeSeries.bucketRounding() <= 0) {
+                options.granularity(timeSeries.granularity());
+            }
             if (StringUtils.isNotBlank(timeSeries.metaField())){
                 options.metaField(getFieldNameAndCheck(typeInformation,timeSeries.metaField()));
             }
             if (timeSeries.bucketMaxSpan() > 0){
                 options.bucketMaxSpan(timeSeries.bucketMaxSpan(), TimeUnit.SECONDS);
-                options.metaField(null);
             }
             if (timeSeries.bucketRounding() > 0){
                 options.bucketRounding(timeSeries.bucketRounding(), TimeUnit.SECONDS);
-                options.metaField(null);
             }
             CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions();
             createCollectionOptions.timeSeriesOptions(options);

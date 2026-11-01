@@ -28,7 +28,7 @@ public final class ChainWrappers {
     }
 
     public static <T> UpdateChainWrapper<T, UpdateWrapper<T>> lambdaUpdateChain(){
-        return new UpdateChainWrapper<>();
+        return new UpdateWrapper<>();
     }
 
     public static <T> QueryChainWrapper<T, QueryWrapper<T>> lambdaQueryChain(){

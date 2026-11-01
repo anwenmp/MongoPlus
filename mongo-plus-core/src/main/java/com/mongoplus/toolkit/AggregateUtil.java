@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.model.Collation;
 import com.mongoplus.enums.AggregateOptionsEnum;
+import org.bson.BsonValue;
 import org.bson.conversions.Bson;
 
 import java.util.Objects;
@@ -40,13 +41,18 @@ public class AggregateUtil {
                     aggregateIterable.bypassDocumentValidation(optionsBasicDBObject.getBoolean(key));
                     break;
                 case COMMENT:
-                    aggregateIterable.comment(String.valueOf(optionsBasicDBObject.get(key)));
+                    aggregateIterable.comment((BsonValue) optionsBasicDBObject.get(key));
                     break;
                 case COMMENT_STR:
                     aggregateIterable.comment(optionsBasicDBObject.getString(key));
                     break;
                 case HINT:
-                    aggregateIterable.hint((Bson) optionsBasicDBObject.get(key));
+                    Object hint = optionsBasicDBObject.get(key);
+                    if (hint instanceof String) {
+                        aggregateIterable.hintString((String) hint);
+                    } else {
+                        aggregateIterable.hint((Bson) hint);
+                    }
                     break;
                 case LET:
                     aggregateIterable.let((Bson) optionsBasicDBObject.get(key));

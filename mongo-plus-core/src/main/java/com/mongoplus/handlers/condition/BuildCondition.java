@@ -140,8 +140,9 @@ public class BuildCondition extends AbstractCondition {
                         (Boolean) conditionMetaObject.getValue()));
                 break;
             case NOT:
-                Wrapper<?> notWrapper = (Wrapper<?>) conditionMetaObject.getValue();
-                BasicDBObject notBasicDBObject = notWrapper.buildCondition().getCondition();
+                Object notValue = conditionMetaObject.getValue();
+                BasicDBObject notBasicDBObject = notValue instanceof Wrapper
+                        ? ((Wrapper<?>) notValue).buildCondition().getCondition() : (BasicDBObject) notValue;
                 if (CollUtil.isNotEmpty(notBasicDBObject)) {
                     mongoPlusBasicDBObject.put(notBasicDBObject.size() == 1
                             ? Filters.not(notBasicDBObject)
@@ -149,6 +150,10 @@ public class BuildCondition extends AbstractCondition {
                 }
                 break;
             case EXPR:
+                if (conditionMetaObject.getValue() instanceof BasicDBObject) {
+                    mongoPlusBasicDBObject.put(Filters.expr(conditionMetaObject.getValue()));
+                    break;
+                }
                 Wrapper<?> exprWrapper = (Wrapper<?>) conditionMetaObject.getValue();
                 BaseConditionResult baseConditionResult = exprWrapper.buildCondition();
                 BasicDBObject exprBasicDBObject = baseConditionResult.getCondition();
@@ -204,19 +209,19 @@ public class BuildCondition extends AbstractCondition {
                 break;
             case BITS_ALL_CLEAR:
                 mongoPlusBasicDBObject.put(Filters.bitsAllClear(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ALL_SET:
                 mongoPlusBasicDBObject.put(Filters.bitsAllSet(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ANY_CLEAR:
                 mongoPlusBasicDBObject.put(Filters.bitsAnyClear(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case BITS_ANY_SET:
                 mongoPlusBasicDBObject.put(Filters.bitsAnySet(conditionMetaObject.getColumn(),
-                        (Integer) conditionMetaObject.getValue()));
+                        ((Number) conditionMetaObject.getValue()).longValue()));
                 break;
             case GEO_INTERSECTS:
                 Object geometry = conditionMetaObject.getValue();
@@ -299,7 +304,7 @@ public class BuildCondition extends AbstractCondition {
             if (Objects.isNull(extraValue)) {
                 put(updateBasicDBObject, currentConditionMetaObject);
             } else {
-                Bson pushOptions = buildPushOptions(currentConditionMetaObject.getValue(List.class), extraValue);
+                Bson pushOptions = buildPushOptions(new ArrayList<>((Collection<?>) value), extraValue);
                 updateBasicDBObject.put(currentConditionMetaObject.getColumn(), pushOptions);
             }
         } else {

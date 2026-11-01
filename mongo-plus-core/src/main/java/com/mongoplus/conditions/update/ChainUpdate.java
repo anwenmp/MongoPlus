@@ -66,7 +66,7 @@ public interface ChainUpdate {
      * @author anwen
      */
     default boolean removeOne(){
-        return remove(null);
+        return removeOne(null);
     }
 
     /**

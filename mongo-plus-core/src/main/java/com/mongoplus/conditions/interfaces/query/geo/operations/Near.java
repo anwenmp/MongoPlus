@@ -42,7 +42,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(String fieldName, Point geometry, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName,
                 new GeoNear(geometry,maxDistance,minDistance),
                 Object.class,
@@ -78,7 +78,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(SFunction<T,?> fieldName, Point geometry, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName.getFieldNameLine(),
                 new GeoNear(geometry,maxDistance,minDistance),
                 fieldName.getImplClass(),
@@ -114,7 +114,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(String fieldName, Bson geometry, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName,
                 new GeoNear(geometry,maxDistance,minDistance),
                 Object.class,
@@ -150,7 +150,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(SFunction<T,?> fieldName, Bson geometry, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName.getFieldNameLine(),
                 new GeoNear(geometry,maxDistance,minDistance),
                 fieldName.getImplClass(),
@@ -188,7 +188,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(String fieldName, double x, double y, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName,
                 new GeoNear(new Coordinate(x,y),maxDistance,minDistance),
                 Object.class,
@@ -226,7 +226,7 @@ public interface Near<T, Children> extends BaseQueryCondition<T, Children> {
     default Children near(SFunction<T,?> fieldName, double x, double y, @Nullable Double maxDistance,
                   @Nullable Double minDistance) {
         return addCondition(getBaseCondition(
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
+                "near",
                 fieldName.getFieldNameLine(),
                 new GeoNear(new Coordinate(x,y),maxDistance,minDistance),
                 fieldName.getImplClass(),

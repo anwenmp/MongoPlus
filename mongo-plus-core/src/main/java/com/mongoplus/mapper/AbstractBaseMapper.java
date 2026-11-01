@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 
 import static com.mongoplus.constant.SqlOperationConstant._ID;
 import static com.mongoplus.enums.SpecialConditionEnum.EQ;
+import static com.mongoplus.enums.SpecialConditionEnum.SET;
 import static com.mongoplus.handlers.condition.BuildCondition.condition;
 
 /**
@@ -138,10 +139,11 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
 
     @Override
     public <T> Boolean updateOne(T entity,Wrapper<T> queryWrapper,UpdateOptions options) {
-        MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryWrapper.getConditionMetaObjects(), entity, mongoConverter);
+        Bson filter = queryWrapper.buildCondition().getCondition();
+        Document document = mongoConverter.writeByUpdate(entity);
+        document.remove(_ID);
         MutablePair<String, String> namespace = getNamespace(entity.getClass());
-        return updateOne(namespace.getLeft(), namespace.getRight(), updatePair.getLeft(), updatePair.getRight(),options) > 0;
+        return updateOne(namespace.getLeft(), namespace.getRight(), filter, new BasicDBObject(SET.getCondition(), document),options) > 0;
     }
 
 
@@ -156,9 +158,10 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
     @Override
     public <T> Boolean update(String database, String collectionName, T entity,
                               Wrapper<T> queryWrapper,UpdateOptions options) {
-        MutablePair<BasicDBObject, BasicDBObject> updatePair =
-                ConditionUtil.getUpdateCondition(queryWrapper.getConditionMetaObjects(), entity, mongoConverter);
-        return update(database, collectionName, updatePair.getLeft(), updatePair.getRight(),options) > 0;
+        Bson filter = queryWrapper.buildCondition().getCondition();
+        Document document = mongoConverter.writeByUpdate(entity);
+        document.remove(_ID);
+        return update(database, collectionName, filter, new BasicDBObject(SET.getCondition(), document),options) > 0;
     }
 
     @Override
@@ -273,7 +276,7 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
             countOptionsReal.limit(limitParam);
             return factory.getExecute().executeCount(
                     condition().queryCondition(conditionMetaObjectList),
-                    countOptions,
+                    countOptionsReal,
                     collection);
         }
         return limitParam;
