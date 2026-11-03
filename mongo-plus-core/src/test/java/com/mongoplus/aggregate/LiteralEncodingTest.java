@@ -31,10 +31,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** L01-L05：真实 Java 21 调用绑定及 Driver 严格 BSON；不执行服务器。 */
+/** L01-L05：真实 Java 8+ 调用绑定及 Driver 严格 BSON；不执行服务器。 */
 public class LiteralEncodingTest {
     @Test
-    public void java21BindsAndExecutesL01ThroughL05() throws Exception {
+    public void currentJdkBindsAndExecutesL01ThroughL05() throws Exception {
         String[] bodies = {
                 "Projections.computed(\"raw\",AggregateOperator.literal(\"$amount\"))",
                 "Projections.fields(Projections.computed(\"fixed\",AggregateOperator.literal(100)),"
@@ -55,7 +55,7 @@ public class LiteralEncodingTest {
         };
         StringBuilder source = new StringBuilder("import com.mongoplus.aggregate.*;"
                 + "import com.mongoplus.aggregate.pipeline.*;import org.bson.Document;import java.util.*;"
-                + "public class LiteralActualJava21 {");
+                + "public class LiteralActualJava {");
         for (int i = 0; i < bodies.length; i++) {
             source.append("public static Aggregate<?> l").append(i).append("(){Aggregate<?> a=new AggregateWrapper();"
                     + "a.skip(7);if(a.project(").append(bodies[i]).append(")!=a)throw new AssertionError();"
@@ -83,7 +83,7 @@ public class LiteralEncodingTest {
             }
             Assert.assertTrue(calls.toString(), calls.contains("BOUND com.mongoplus.aggregate.pipeline.Projections.computed(java.lang.String,org.bson.conversions.Bson)"));
             try (URLClassLoader loader = new URLClassLoader(new URL[]{output.toUri().toURL()}, getClass().getClassLoader())) {
-                Class<?> type = Class.forName("LiteralActualJava21", true, loader);
+                Class<?> type = Class.forName("LiteralActualJava", true, loader);
                 for (int i = 0; i < bodies.length; i++) {
                     Aggregate<?> aggregate = (Aggregate<?>) type.getMethod("l" + i).invoke(null);
                     List<Bson> stages = aggregate.getAggregateConditionList();
@@ -176,14 +176,13 @@ public class LiteralEncodingTest {
     }
 
     private static List<String> compile(String text, Path output) throws Exception {
-        Assert.assertEquals("21", System.getProperty("java.specification.version"));
-        JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///LiteralActualJava21.java"), JavaFileObject.Kind.SOURCE) {
+        JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///LiteralActualJava.java"), JavaFileObject.Kind.SOURCE) {
             @Override public CharSequence getCharContent(boolean ignored) { return text; }
         };
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         try (StandardJavaFileManager files = ToolProvider.getSystemJavaCompiler().getStandardFileManager(diagnostics, null, StandardCharsets.UTF_8)) {
             JavacTask task = (JavacTask) ToolProvider.getSystemJavaCompiler().getTask(null, files, diagnostics,
-                    Arrays.asList("-proc:none", "--release", "21", "-Xlint:all", "-Werror", "-classpath",
+                    JavaCompilerTestSupport.currentJdkOptions("-proc:none", "-Xlint:all", "-Werror", "-classpath",
                             System.getProperty("java.class.path"), "-d", output.toString()), null, Collections.singletonList(source));
             Iterable<? extends CompilationUnitTree> units = task.parse();
             task.analyze();
@@ -214,7 +213,7 @@ public class LiteralEncodingTest {
             }
             task.generate();
             Assert.assertFalse(diagnostics.getDiagnostics().toString(), diagnostics.getDiagnostics().stream().anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR));
-            Assert.assertTrue(Files.exists(output.resolve("LiteralActualJava21.class")));
+            Assert.assertTrue(Files.exists(output.resolve("LiteralActualJava.class")));
             return calls;
         }
     }

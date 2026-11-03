@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** 编译并验证 Resolver 的 computed + fields + stage 调用树。 */
@@ -38,7 +39,7 @@ public class AddFieldsSetDocumentReductionTest {
     private static void verify(String stage, boolean listOverload) {
         Bson first = Projections.computed("quantityInt", ConditionOperators.toInt("$quantity"));
         Bson second = Projections.computed("amountText", ConditionOperators.toString("$amount"));
-        Bson body = listOverload ? Projections.fields(List.of(first, second))
+        Bson body = listOverload ? Projections.fields(Arrays.asList(first, second))
                 : Projections.fields(first, second);
         Aggregate<?> aggregate = new AggregateWrapper();
         if ("$addFields".equals(stage)) {
@@ -48,7 +49,7 @@ public class AddFieldsSetDocumentReductionTest {
         }
         assertStage(aggregate, stage,
                 "{quantityInt:{$toInt:'$quantity'},amountText:{$toString:'$amount'}}",
-                List.of("quantityInt", "amountText"));
+                Arrays.asList("quantityInt", "amountText"));
     }
 
     private static void verifyThree(String stage) {
@@ -64,7 +65,7 @@ public class AddFieldsSetDocumentReductionTest {
         }
         assertStage(aggregate, stage,
                 "{zeta:{$toInt:'$quantity'},alpha:{$toString:'$amount'},middle:{$toInt:'$price'}}",
-                List.of("zeta", "alpha", "middle"));
+                Arrays.asList("zeta", "alpha", "middle"));
     }
 
     private static void assertStage(Aggregate<?> aggregate, String stage, String bodyJson,
@@ -73,7 +74,7 @@ public class AddFieldsSetDocumentReductionTest {
         BsonDocument actual = aggregate.getAggregateConditionList().get(0)
                 .toBsonDocument(BsonDocument.class, MongoClientSettings.getDefaultCodecRegistry());
         Assert.assertEquals(BsonDocument.parse("{" + stage + ":" + bodyJson + "}"), actual);
-        Assert.assertEquals(List.of(stage), new ArrayList<>(actual.keySet()));
+        Assert.assertEquals(java.util.Collections.singletonList(stage), new ArrayList<>(actual.keySet()));
         Assert.assertEquals(fieldOrder, new ArrayList<>(actual.getDocument(stage).keySet()));
     }
 }

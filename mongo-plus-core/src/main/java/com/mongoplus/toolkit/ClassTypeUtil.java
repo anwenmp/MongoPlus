@@ -113,11 +113,24 @@ public class ClassTypeUtil {
         return result;
     }
 
+    /**
+     * 读取实体声明字段；JDK 类型仅允许公开字段，不依赖其私有实现布局。
+     * @throws MongoPlusFieldException 试图读取非公开 JDK 字段
+     */
     public static <T> Object getClassFieldValue(T entity,String field){
         Field declaredField;
         try {
             declaredField = entity.getClass().getDeclaredField(field);
-            declaredField.setAccessible(true);
+            if (!Modifier.isPublic(declaredField.getModifiers())
+                    || !Modifier.isPublic(declaredField.getDeclaringClass().getModifiers())) {
+                // 不依赖 JDK 私有实现字段，避免 Java 8 可读、模块化 JDK 拒绝的行为差异。
+                Class<?> declaringClass = declaredField.getDeclaringClass();
+                if (declaringClass.getClassLoader() == null || declaringClass.getName().startsWith("java.")) {
+                    throw new MongoPlusFieldException("Cannot read non-public JDK field: "
+                            + declaringClass.getName() + "." + field);
+                }
+                declaredField.setAccessible(true);
+            }
             return declaredField.get(entity);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -131,7 +144,6 @@ public class ClassTypeUtil {
     public static <T> Object getIdByEntity(T entity,boolean exception){
         Optional<Field> fieldOptional = getFields(ClassTypeUtil.getClass(entity))
                 .stream()
-                .peek(field -> field.setAccessible(true))
                 .filter(field -> field.getAnnotation(ID.class) != null)
                 .findFirst();
         if (!fieldOptional.isPresent()){
@@ -141,6 +153,8 @@ public class ClassTypeUtil {
             throw new MongoPlusFieldException("_id undefined");
         }
         try {
+            // 只开放实际命中的实体 ID，不触碰无注解的 JDK/父类实现字段。
+            fieldOptional.get().setAccessible(true);
             return fieldOptional.get().get(entity);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);

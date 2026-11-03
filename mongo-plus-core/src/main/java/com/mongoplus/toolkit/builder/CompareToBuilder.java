@@ -2,9 +2,9 @@ package com.mongoplus.toolkit.builder;
 
 import com.mongoplus.toolkit.ArrayUtils;
 
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -231,6 +231,13 @@ public class CompareToBuilder implements Builder<Integer> {
             throw new ClassCastException();
         }
         final CompareToBuilder compareToBuilder = new CompareToBuilder();
+        if (lhsClazz == Object.class || lhsClazz.isArray()) {
+            return 0;
+        }
+        // JDK 值类型使用公开的自然顺序，不读取内部字段。
+        if (isPlatformClass(lhsClazz)) {
+            return compareToBuilder.append(lhs, rhs).toComparison();
+        }
         reflectionAppend(lhs, rhs, lhsClazz, compareToBuilder, compareTransients, excludeFields);
         while (lhsClazz.getSuperclass() != null && lhsClazz != reflectUpToClass) {
             lhsClazz = lhsClazz.getSuperclass();
@@ -258,8 +265,23 @@ public class CompareToBuilder implements Builder<Integer> {
             final boolean useTransients,
             final String[] excludeFields) {
 
+        if (builder.comparison != 0 || clazz == Object.class) {
+            return;
+        }
+        // 自定义子类仍比较自身字段；到达 JDK 父类时通过其公开 Comparable 读取值语义。
+        if (isPlatformClass(clazz)) {
+            // 子类 compareTo 可能本身调用 reflectionCompare，不能再次虚调用而形成无限递归。
+            for (Method method : lhs.getClass().getMethods()) {
+                if ("compareTo".equals(method.getName()) && method.getParameterTypes().length == 1
+                        && !isPlatformClass(method.getDeclaringClass())) {
+                    throw new ClassCastException("Cannot reflect JDK superclass " + clazz.getName()
+                            + " through a custom compareTo; compare its public state explicitly");
+                }
+            }
+            builder.append(lhs, rhs);
+            return;
+        }
         final Field[] fields = clazz.getDeclaredFields();
-        AccessibleObject.setAccessible(fields, true);
         for (int i = 0; i < fields.length && builder.comparison == 0; i++) {
             final Field f = fields[i];
             if (!ArrayUtils.contains(excludeFields, f.getName())
@@ -267,6 +289,8 @@ public class CompareToBuilder implements Builder<Integer> {
                     && (useTransients || !Modifier.isTransient(f.getModifiers()))
                     && (!Modifier.isStatic(f.getModifiers()))) {
                 try {
+                    // 先排除 static/transient/显式排除项，再访问实际参与比较的实体字段。
+                    f.setAccessible(true);
                     builder.append(f.get(lhs), f.get(rhs));
                 } catch (final IllegalAccessException e) {
                     // This can't happen. Would get a Security exception instead.
@@ -275,6 +299,10 @@ public class CompareToBuilder implements Builder<Integer> {
                 }
             }
         }
+    }
+
+    private static boolean isPlatformClass(final Class<?> clazz) {
+        return clazz.getClassLoader() == null || clazz.getName().startsWith("java.");
     }
 
     //-----------------------------------------------------------------------

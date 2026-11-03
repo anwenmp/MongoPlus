@@ -29,10 +29,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Q01-Q04 的真实 Java 21 绑定与 Driver 字节验证；不执行服务器或下游 Resolver。 */
+/** Q01-Q04 的真实 Java 8+ 绑定与 Driver 字节验证；不执行服务器或下游 Resolver。 */
 public class QueryPredicateEncodingTest {
     @Test
-    public void java21CompilesAndExecutesEveryRouteWithActualOverloads() throws Exception {
+    public void currentJdkCompilesAndExecutesEveryRouteWithActualOverloads() throws Exception {
         String[] bodies = {
                 "Filters.fields(Filters.eq(\"status\",\"PAID\"),Filters.gte(\"amount\",100))",
                 "Filters.fields(Arrays.asList(Filters.eq(\"status\",\"PAID\"),Filters.gte(\"amount\",100)))",
@@ -51,7 +51,7 @@ public class QueryPredicateEncodingTest {
         StringBuilder text = new StringBuilder("import com.mongoplus.aggregate.*;"
                 + "import com.mongoplus.aggregate.pipeline.AggregateOperator;"
                 + "import com.mongoplus.toolkit.Filters;import java.util.*;"
-                + "public class QueryActualJava21 {");
+                + "public class QueryActualJava {");
         for (int i = 0; i < bodies.length; i++) {
             text.append("public static Aggregate<?> q").append(i).append("(){"
                     + "Aggregate<?> a=new AggregateWrapper();a.skip(7);"
@@ -78,7 +78,7 @@ public class QueryPredicateEncodingTest {
                     "BOUND com.mongoplus.toolkit.Filters.gte(java.lang.String,java.lang.Integer)"));
             Assert.assertTrue(calls.contains("com.mongoplus.aggregate.pipeline.AggregateOperator.gte(java.lang.Object,java.lang.Object)"));
             try (URLClassLoader loader = new URLClassLoader(new URL[]{output.toUri().toURL()}, getClass().getClassLoader())) {
-                Class<?> type = Class.forName("QueryActualJava21", true, loader);
+                Class<?> type = Class.forName("QueryActualJava", true, loader);
                 for (int i = 0; i < bodies.length; i++) {
                     Aggregate<?> aggregate = (Aggregate<?>) type.getMethod("q" + i).invoke(null);
                     List<Bson> stages = aggregate.getAggregateConditionList();
@@ -166,8 +166,7 @@ public class QueryPredicateEncodingTest {
     }
 
     private static List<String> compile(String text, Path output) throws Exception {
-        Assert.assertEquals("必须在 Java 21 运行", "21", System.getProperty("java.specification.version"));
-        JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///QueryActualJava21.java"),
+        JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///QueryActualJava.java"),
                 JavaFileObject.Kind.SOURCE) {
             @Override public CharSequence getCharContent(boolean ignored) { return text; }
         };
@@ -175,7 +174,7 @@ public class QueryPredicateEncodingTest {
         try (StandardJavaFileManager files = ToolProvider.getSystemJavaCompiler()
                 .getStandardFileManager(diagnostics, null, StandardCharsets.UTF_8)) {
             JavacTask task = (JavacTask) ToolProvider.getSystemJavaCompiler().getTask(null, files, diagnostics,
-                    Arrays.asList("-proc:none", "--release", "21", "-Xlint:all", "-Werror",
+                    JavaCompilerTestSupport.currentJdkOptions("-proc:none", "-Xlint:all", "-Werror",
                             "-classpath", System.getProperty("java.class.path"),
                             "-d", output.toString()), null, Collections.singletonList(source));
             Iterable<? extends CompilationUnitTree> units = task.parse();
@@ -206,7 +205,7 @@ public class QueryPredicateEncodingTest {
             task.generate();
             Assert.assertFalse(diagnostics.getDiagnostics().toString(),
                     diagnostics.getDiagnostics().stream().anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR));
-            Assert.assertTrue(Files.exists(output.resolve("QueryActualJava21.class")));
+            Assert.assertTrue(Files.exists(output.resolve("QueryActualJava.class")));
             return calls;
         }
     }

@@ -199,7 +199,7 @@ public class ExpressionResultTypeEncodingTest {
             };
             StringWriter diagnostics = new StringWriter();
             boolean actual = ToolProvider.getSystemJavaCompiler().getTask(diagnostics, null, null,
-                    Arrays.asList("-proc:none", "--release", "8", "-classpath", System.getProperty("java.class.path"),
+                    JavaCompilerTestSupport.java8Options("-proc:none", "-classpath", System.getProperty("java.class.path"),
                             "-d", output.toString()), null, Collections.singletonList(source)).call();
             Assert.assertEquals(diagnostics.toString(), expected, actual);
         } finally {

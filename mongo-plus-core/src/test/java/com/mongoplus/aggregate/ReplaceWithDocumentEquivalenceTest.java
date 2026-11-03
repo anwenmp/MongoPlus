@@ -52,7 +52,7 @@ public class ReplaceWithDocumentEquivalenceTest {
         String source = "import com.mongoplus.aggregate.*;"
                 + "import com.mongoplus.conditions.operation.ConditionOperators;"
                 + "import org.bson.Document;"
-                + "public class ReplaceWithActualJava21 {"
+                + "public class ReplaceWithActualJava {"
                 + "public static Object[] direct(){"
                 + "Aggregate<?> a=new AggregateWrapper(); a.skip(7);"
                 + "Document e=ConditionOperators.mergeObjects(\"$defaults\",\"$profile\");"
@@ -70,7 +70,7 @@ public class ReplaceWithDocumentEquivalenceTest {
             // 单独的 <Document> 类型实参不会强制选择泛型；必须核验编译器绑定结果。
             Assert.assertEquals(Arrays.asList("org.bson.Document", "TExpression", "org.bson.Document"), overloads);
             try (URLClassLoader loader = new URLClassLoader(new URL[]{output.toUri().toURL()}, getClass().getClassLoader())) {
-                Class<?> compiled = Class.forName("ReplaceWithActualJava21", true, loader);
+                Class<?> compiled = Class.forName("ReplaceWithActualJava", true, loader);
                 Object[] direct = (Object[]) compiled.getMethod("direct").invoke(null);
                 Object[] generic = (Object[]) compiled.getMethod("generic").invoke(null);
                 Aggregate<?> left = (Aggregate<?>) direct[0];
@@ -214,9 +214,9 @@ public class ReplaceWithDocumentEquivalenceTest {
     }
 
     private static List<String> compile(String text, Path output) throws Exception {
-        Assert.assertNotNull("该专项测试要求真实 JDK 21 编译器", ToolProvider.getSystemJavaCompiler());
+        Assert.assertNotNull("该专项测试要求完整 JDK 8 或以上版本", ToolProvider.getSystemJavaCompiler());
         JavaFileObject source = new SimpleJavaFileObject(
-                URI.create("string:///ReplaceWithActualJava21.java"), JavaFileObject.Kind.SOURCE) {
+                URI.create("string:///ReplaceWithActualJava.java"), JavaFileObject.Kind.SOURCE) {
             @Override
             public CharSequence getCharContent(boolean ignored) {
                 return text;
@@ -226,7 +226,7 @@ public class ReplaceWithDocumentEquivalenceTest {
         try (StandardJavaFileManager files = ToolProvider.getSystemJavaCompiler()
                 .getStandardFileManager(null, null, java.nio.charset.StandardCharsets.UTF_8)) {
             JavacTask task = (JavacTask) ToolProvider.getSystemJavaCompiler().getTask(diagnostics, files, null,
-                    Arrays.asList("-proc:none", "--release", "21", "-classpath", System.getProperty("java.class.path"),
+                    JavaCompilerTestSupport.currentJdkOptions("-proc:none", "-classpath", System.getProperty("java.class.path"),
                             "-d", output.toString()), null, Collections.singletonList(source));
             Iterable<? extends CompilationUnitTree> units = task.parse();
             task.analyze();
@@ -245,7 +245,7 @@ public class ReplaceWithDocumentEquivalenceTest {
                 }.scan(unit, null);
             }
             task.generate();
-            Assert.assertTrue(diagnostics.toString(), Files.isRegularFile(output.resolve("ReplaceWithActualJava21.class")));
+            Assert.assertTrue(diagnostics.toString(), Files.isRegularFile(output.resolve("ReplaceWithActualJava.class")));
             return overloads;
         }
     }
