@@ -80,9 +80,27 @@ public class SimpleFieldInformation<T> implements FieldInformation {
 
     private T instance;
 
+    /**
+     * 包装已选定的字段，并集中处理可访问性，避免扫描器与构造器重复开放字段。
+     * 显式字段查询仍可传入 static/synthetic 字段；访问失败保留字段上下文及原始原因。
+     *
+     * @param instance 字段所属实例
+     * @param field 已由调用方按入口语义选定的字段
+     * @throws MongoPlusFieldException 无法设置字段可访问性时抛出
+     */
     public SimpleFieldInformation(T instance, Field field) {
         this.instance = instance;
-        field.setAccessible(true);
+        if (!field.isAccessible()) {
+            try {
+                field.setAccessible(true);
+            } catch (RuntimeException e) {
+                MongoPlusFieldException exception = new MongoPlusFieldException("Cannot access field "
+                        + field.getDeclaringClass().getName() + "." + field.getName());
+                // 基类的双参数构造器未同步其 getMessage() 字段，分别保留上下文和原始 cause。
+                exception.initCause(e);
+                throw exception;
+            }
+        }
         this.field = field;
         this.typeClass = field.getType();
     }

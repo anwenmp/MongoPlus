@@ -72,21 +72,23 @@ public interface TypeInformation {
     void setInstance(Object instance);
 
     /**
-     * 获取所有字段，并封装为FieldInformation
+     * 获取用户类及自定义父类的映射字段，过滤 static/synthetic，在 JDK 父类处终止。
+     * JDK 根类型不能作为实体展开，访问或扫描失败会抛出异常。
      *
      * @author anwen
      */
     List<FieldInformation> getFields();
 
     /**
-     * 获取所有字段，并封装为FieldInformation，不包含父类Field
+     * 获取当前用户类的全部声明字段，不包含父类，保留 static/synthetic 字段。
+     * 不用于映射字段过滤；JDK 根类型不能通过该入口展开。
      *
      * @author anwen
      */
     List<FieldInformation> getThisFields();
 
     /**
-     * 根据名称获取一个字段
+     * 按映射名称获取映射字段，包含自定义父类；不存在时返回 null。
      *
      * @param fieldName 字段名
      * @return {@link com.mongoplus.mapping.FieldInformation}
@@ -95,7 +97,8 @@ public interface TypeInformation {
     FieldInformation getField(String fieldName);
 
     /**
-     * 根据名称获取一个字段，不抛出异常
+     * 按 Java 字段名查询当前类声明字段，保留 static/synthetic，不查询父类。
+     * 字段不存在时返回 null；存在但访问失败时抛出保留原始原因的异常。
      *
      * @param fieldName 字段名
      * @return {@link com.mongoplus.mapping.FieldInformation}

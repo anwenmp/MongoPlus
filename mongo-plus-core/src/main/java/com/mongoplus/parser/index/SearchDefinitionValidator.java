@@ -99,7 +99,7 @@ final class SearchDefinitionValidator {
 
     /** path 用于错误定位，prefix 为实际 MongoDB 路径；embedded 标记沿所有后代映射传播。 */
     private void validateMapping(Document mapping, String path, String prefix, boolean embedded) {
-        Object dynamic = mapping.containsKey("dynamic") ? mapping.get("dynamic") : false;
+        Object dynamic = mapping.getOrDefault("dynamic", false);
         if (dynamic instanceof Document) {
             Document reference = (Document) dynamic;
             String name = required(reference.get("typeSet"), path + ".dynamic.typeSet");
@@ -151,8 +151,8 @@ final class SearchDefinitionValidator {
         if (type.equals("string") || type.equals("autocomplete")) {
             boolean autocomplete = type.equals("autocomplete");
             // 官方 Queries and Indexes 的 string|autocomplete 示例说明：字段未配置时使用顶层 analyzer。
-            Object inheritedAnalyzer = definition.containsKey("analyzer") ? definition.get("analyzer") : "lucene.standard";
-            validateAnalyzer(field.containsKey("analyzer") ? field.get("analyzer") : inheritedAnalyzer,
+            Object inheritedAnalyzer = definition.getOrDefault("analyzer", "lucene.standard");
+            validateAnalyzer(field.getOrDefault("analyzer", inheritedAnalyzer),
                     path + ".analyzer", autocomplete, false);
             if (!autocomplete) {
                 validateAnalyzer(field.get("searchAnalyzer"), path + ".searchAnalyzer", false, false);
@@ -288,7 +288,7 @@ final class SearchDefinitionValidator {
                 String fieldPath = (String) field;
                 covered |= vector.equals(fieldPath) || vector.startsWith(fieldPath + ".");
             }
-            require(include ? !covered : covered, path, "vector field must be excluded from storage: " + vector);
+            require(include != covered, path, "vector field must be excluded from storage: " + vector);
         }
     }
 

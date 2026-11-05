@@ -43,6 +43,9 @@ public class MappingMongoConverter extends AbstractMongoConverter {
 
     private final Map<Type, Type> genericTypeCache = new ConcurrentHashMap<>();
 
+    /** 只记录当前线程正在递归的对象身份，允许兄弟路径复用同一子对象。 */
+    private final ThreadLocal<Set<Object>> writePath = new ThreadLocal<>();
+
     public MappingMongoConverter() {
         this.simpleTypeHolder = SimpleCache.getSimpleTypeHolder();
         ignoreType.add(ObjectId.class);
@@ -54,19 +57,37 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         this.ignoreType = ignoreType;
     }
 
+    /**
+     * 写入顶层实体字段，并在显式 owner 等业务回指形成循环时明确失败。
+     *
+     * @param sourceObj 源实体
+     * @param bson 目标文档
+     * @param typeInformation 实体字段元数据
+     * @throws MongoPlusWriteException 存在递归循环引用时抛出
+     */
     @Override
     public void write(Object sourceObj, Bson bson, TypeInformation typeInformation) {
-        processFields(typeInformation.getFields(), bson, true);
+        enterWrite(sourceObj);
+        try {
+            processFields(typeInformation.getFields(), bson, true);
+        } finally {
+            exitWrite(sourceObj);
+        }
     }
 
     /**
-     * 写入内部对象
+     * 写入内部对象，在扫描其合法字段前登记递归身份，并在失败时清理路径。
      * @param sourceObj 源对象
      * @param bson bson
      * @return {@link Bson}
      */
     public Bson writeInternal(Object sourceObj, Bson bson) {
-        processFields(TypeInformation.of(sourceObj).getFields(), bson, false);
+        enterWrite(sourceObj);
+        try {
+            processFields(TypeInformation.of(sourceObj).getFields(), bson, false);
+        } finally {
+            exitWrite(sourceObj);
+        }
         return bson;
     }
 
@@ -156,7 +177,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     }
 
     /**
-     * 属性映射
+     * 按原有策略分派属性映射；集合/数组在转换容器前登记原对象身份。
      * @param sourceObj 源对象
      * @return {@link Object}
      * @author anwen
@@ -180,7 +201,12 @@ public class MappingMongoConverter extends AbstractMongoConverter {
                 simpleTypeHolder.isMongoType(sourceObj.getClass())) {
             resultObj = getPotentiallyConvertedSimpleWrite(sourceObj);
         } else if (ClassTypeUtil.isTargetClass(Collection.class,sourceObj.getClass()) || sourceObj.getClass().isArray()) {
-            resultObj = writeCollectionInternal(BsonUtil.asCollection(sourceObj), new ArrayList<>());
+            enterWrite(sourceObj);
+            try {
+                resultObj = writeCollectionInternal(BsonUtil.asCollection(sourceObj), new ArrayList<>());
+            } finally {
+                exitWrite(sourceObj);
+            }
         } else if (ClassTypeUtil.isTargetClass(Map.class,sourceObj.getClass())) {
             resultObj = writeMapInternal((Map<?, ?>) sourceObj,new Document());
         } else {
@@ -190,7 +216,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
     }
 
     /**
-     * map类型的处理
+     * 按原有 key/value 规则写入 Map，并保护其递归路径免于循环引用。
      * @param obj 源对象
      * @param bson bson
      * @return {@link Bson}
@@ -198,20 +224,55 @@ public class MappingMongoConverter extends AbstractMongoConverter {
      */
     @Override
     public Bson writeMapInternal(Map<?,?> obj,Bson bson) {
-        //循环map
-        obj.forEach((k,v) -> {
-            //如果key是简单类型
-            if (simpleTypeHolder.isSimpleType(k.getClass())){
-                String key = String.valueOf(k);
-                if (PropertyCache.camelToUnderline && !key.startsWith("$")){
-                    key = StringUtils.camelToUnderline(key);
+        enterWrite(obj);
+        try {
+            //循环map
+            obj.forEach((k,v) -> {
+                //如果key是简单类型
+                if (simpleTypeHolder.isSimpleType(k.getClass())){
+                    String key = String.valueOf(k);
+                    if (PropertyCache.camelToUnderline && !key.startsWith("$")){
+                        key = StringUtils.camelToUnderline(key);
+                    }
+                    writeProperties(bson,key,v);
+                }else {
+                    throw new MongoPlusWriteException("Cannot use a complex object as a key value");
                 }
-                writeProperties(bson,key,v);
-            }else {
-                throw new MongoPlusWriteException("Cannot use a complex object as a key value");
-            }
-        });
+            });
+        } finally {
+            exitWrite(obj);
+        }
         return bson;
+    }
+
+    /**
+     * 进入默认递归写路径；不使用 equals/hashCode，以免误判值相等的不同对象。
+     *
+     * @param source 当前待展开对象
+     * @throws MongoPlusWriteException 当前路径已包含该对象时抛出
+     */
+    private void enterWrite(Object source) {
+        Set<Object> path = writePath.get();
+        if (path == null) {
+            path = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+            writePath.set(path);
+        }
+        if (!path.add(source)) {
+            throw new MongoPlusWriteException("Cyclic reference detected while mapping " + source.getClass().getName());
+        }
+    }
+
+    /**
+     * 无论成功或异常都移除当前对象，最外层退出后释放线程本地状态。
+     *
+     * @param source 当前结束展开的对象
+     */
+    private void exitWrite(Object source) {
+        Set<Object> path = writePath.get();
+        path.remove(source);
+        if (path.isEmpty()) {
+            writePath.remove();
+        }
     }
 
     /**

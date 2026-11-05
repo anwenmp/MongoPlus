@@ -184,15 +184,19 @@ public abstract class AbstractCondition implements Condition, UpdateCondition {
      */
     protected Field initFieldCache(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
             EnumValue enumValue = field.getAnnotation(EnumValue.class);
-            if (enumValue != null) {
-                // 如果找到了，但是不以该字段存储，则返回null
-                if (!enumValue.valueStore()) {
-                    return null;
-                }
-                return field;
+
+            if (enumValue == null) {
+                continue;
             }
+
+            // 如果找到了，但是不以该字段存储，则返回null
+            if (!enumValue.valueStore()) {
+                return null;
+            }
+
+            field.setAccessible(true);
+            return field;
         }
         return null;
     }
