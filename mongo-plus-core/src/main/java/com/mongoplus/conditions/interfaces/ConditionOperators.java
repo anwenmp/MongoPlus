@@ -286,7 +286,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson each(Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
+        return com.mongoplus.conditions.operation.ConditionOperators.each(values);
     }
 
     /**
@@ -296,8 +296,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachPosition(Number position,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.POSITION.getValue(), position);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachPosition(position, values);
     }
 
     /**
@@ -307,8 +306,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSlice(Number slice,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.SLICE.getValue(), slice);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachSlice(slice, values);
     }
 
     /**
@@ -319,8 +317,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSort(Object sort,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.SORT.getValue(), sort);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachSort(sort, values);
     }
 
     /**
@@ -330,7 +327,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson each(Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values);
+        return com.mongoplus.conditions.operation.ConditionOperators.each(values);
     }
 
     /**
@@ -340,8 +337,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachPosition(Number position,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
-                .append(AggregateEnum.POSITION.getValue(), position);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachPosition(position, values);
     }
 
     /**
@@ -351,8 +347,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSlice(Number slice,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
-                .append(AggregateEnum.SLICE.getValue(), slice);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachSlice(slice, values);
     }
 
     /**
@@ -363,8 +358,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSort(Object sort,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values)
-                .append(AggregateEnum.SORT.getValue(), sort);
+        return com.mongoplus.conditions.operation.ConditionOperators.eachSort(sort, values);
     }
 
     /**

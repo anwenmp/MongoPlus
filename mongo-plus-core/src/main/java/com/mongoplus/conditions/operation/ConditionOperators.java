@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mongoplus.enums.CommonOperators.*;
@@ -364,7 +365,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson each(Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()));
+        return new Document(AggregateEnum.EACH.getValue(), Arrays.stream(values).collect(Collectors.toList()));
     }
 
     /**
@@ -374,8 +375,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachPosition(Number position,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.POSITION.getValue(), position);
+        return ((Document) each(values))
+                .append(AggregateEnum.POSITION.getValue(), Objects.requireNonNull(position, "position"));
     }
 
     /**
@@ -385,8 +386,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSlice(Number slice,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.SLICE.getValue(), slice);
+        return ((Document) each(values))
+                .append(AggregateEnum.SLICE.getValue(), Objects.requireNonNull(slice, "slice"));
     }
 
     /**
@@ -397,8 +398,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSort(Object sort,Object... values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),Arrays.stream(values).collect(Collectors.toList()))
-                .append(AggregateEnum.SORT.getValue(), sort);
+        return ((Document) each(values))
+                .append(AggregateEnum.SORT.getValue(), Objects.requireNonNull(sort, "sort"));
     }
 
     /**
@@ -408,7 +409,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson each(Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values);
+        return new Document(AggregateEnum.EACH.getValue(), Objects.requireNonNull(values, "values"));
     }
 
     /**
@@ -418,8 +419,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachPosition(Number position,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
-                .append(AggregateEnum.POSITION.getValue(), position);
+        return ((Document) each(values))
+                .append(AggregateEnum.POSITION.getValue(), Objects.requireNonNull(position, "position"));
     }
 
     /**
@@ -429,8 +430,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSlice(Number slice,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(), values)
-                .append(AggregateEnum.SLICE.getValue(), slice);
+        return ((Document) each(values))
+                .append(AggregateEnum.SLICE.getValue(), Objects.requireNonNull(slice, "slice"));
     }
 
     /**
@@ -441,8 +442,8 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson eachSort(Object sort,Collection<?> values){
-        return new Document(AggregateEnum.MERGE_OBJECTS.getValue(),values)
-                .append(AggregateEnum.SORT.getValue(), sort);
+        return ((Document) each(values))
+                .append(AggregateEnum.SORT.getValue(), Objects.requireNonNull(sort, "sort"));
     }
 
     /**
