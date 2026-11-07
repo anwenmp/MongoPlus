@@ -123,6 +123,9 @@ public class BuildCondition extends AbstractCondition {
             case NOR:
                 logic((Wrapper<?>) conditionMetaObject.getValue(), mongoPlusBasicDBObject, Filters::nor);
                 break;
+            case COMBINE:
+                mongoPlusBasicDBObject.put(queryCondition((Wrapper<?>) conditionMetaObject.getValue()).getCondition());
+                break;
             case TYPE:
                 Object typeValue = conditionMetaObject.getValue();
                 if (typeValue instanceof String) {

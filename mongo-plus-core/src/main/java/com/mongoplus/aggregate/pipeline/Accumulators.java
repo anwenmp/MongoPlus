@@ -3,6 +3,7 @@ package com.mongoplus.aggregate.pipeline;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.BsonField;
 import com.mongodb.lang.Nullable;
+import com.mongoplus.model.BaseProperty;
 import com.mongoplus.support.SFunction;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
@@ -10,6 +11,7 @@ import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -1399,6 +1401,27 @@ public final class Accumulators {
      */
     public static <T,R> BsonField mergeObjects(final SFunction<T,?> fieldName, final SFunction<R,?> expression) {
         return mergeObjects(fieldName.getFieldNameLine(), expression.getFieldNameLineOption());
+    }
+
+    /**
+     * 获取表示文档的{@link BsonField}合并结果的 $group 操作的字段名称。如果要合并的文档包含相同的字段名称，则结果文档中的{@link BsonField}将具有最后一个为{@link BsonField}合并的文档的值。
+     *
+     * @param fieldName {@link BsonField} 名称
+     * @param expression 表达式
+     * @return {@link BsonField}
+     * @since 4.4
+     * @since mongodb.driver.manual reference/operator/aggregation/mergeObjects/ $mergeObjects
+     *
+     * @mongoExpression $mergeObjects
+     * @mongoParam fieldName OUTPUT_FIELD_NAME VALUE
+     */
+    @SafeVarargs
+    public static <T,R> BsonField mergeObjects(final SFunction<T,?> fieldName, final SFunction<R,?>... expression) {
+        List<String> expressions = new ArrayList<>();
+        for (SFunction<R, ?> func : expression) {
+            expressions.add(func.getFieldNameLineOption());
+        }
+        return mergeObjects(fieldName.getFieldNameLine(), expressions);
     }
 
     /**
