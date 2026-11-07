@@ -450,7 +450,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson dateFromString(SFunction<?,?> dateString,Object timezone){
-        return dateFromString(dateString.getFieldNameLineOption());
+        return dateFromString(dateString.getFieldNameLineOption(),null,timezone,null,null);
     }
 
     /**
@@ -461,7 +461,7 @@ public class ConditionOperators {
      * @author anwen
      */
     public static Bson dateFromString(SFunction<?,?> dateString,SFunction<?,?> timezone){
-        return dateFromString(dateString,timezone.getFieldNameLineOption());
+        return dateFromString(dateString.getFieldNameLineOption(),null,timezone.getFieldNameLineOption(),null,null);
     }
 
     /**
