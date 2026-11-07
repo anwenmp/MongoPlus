@@ -297,7 +297,7 @@ public final class Accumulators {
     @SafeVarargs
     public static <NExpression,T> BsonField firstN(
             final String fieldName, final NExpression nExpression, final SFunction<T,?>... inExpression) {
-        return firstN(fieldName, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()), nExpression);
+        return firstN(fieldName, nExpression, Arrays.stream(inExpression).map(SFunction::getFieldNameLineOption).collect(toList()));
     }
 
     /**
