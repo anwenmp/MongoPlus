@@ -1421,7 +1421,8 @@ public final class Accumulators {
         for (SFunction<R, ?> func : expression) {
             expressions.add(func.getFieldNameLineOption());
         }
-        return mergeObjects(fieldName.getFieldNameLine(), expressions);
+        // 累加器只接收一个文档表达式；先按参数顺序合并每条记录的对象，再在组内累加。
+        return mergeObjects(fieldName.getFieldNameLine(), new Document("$mergeObjects", expressions));
     }
 
     /**
