@@ -465,7 +465,7 @@ public final class Accumulators {
      */
     public static <NExpression,T,R> BsonField topN(
             final SFunction<T,?> fieldName, final Bson sortBy, final NExpression nExpression, final SFunction<R,?> outExpression) {
-        return topN(fieldName.getFieldNameLine(), sortBy,nExpression,outExpression);
+        return topN(fieldName.getFieldNameLine(), sortBy,nExpression,outExpression.getFieldNameLineOption());
     }
 
     /**
