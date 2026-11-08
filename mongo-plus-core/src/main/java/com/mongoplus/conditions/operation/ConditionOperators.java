@@ -274,7 +274,10 @@ public class ConditionOperators {
 
     /**
      * $mergeObjects操作符
-     * @param value 值
+     * 普通 Getter 保留裸存储名（含 {@code @CollectionField} 别名），不添加 {@code $}。
+     * MongoDB 将裸名视为字符串字面量，在要求文档值的上下文中会拒绝它。
+     * 合并字段中的文档值请使用 {@link #mergeObjectsOption(SFunction)}。
+     * @param value 字段 Getter，不能为 null；不读取实体实例的字段值
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
      */
@@ -284,7 +287,8 @@ public class ConditionOperators {
 
     /**
      * $mergeObjects操作符
-     * @param value 值，带$符
+     * Getter 转为带 {@code $} 的存储字段引用，支持 {@code @CollectionField} 别名。
+     * @param value 文档字段的 Getter，不能为 null
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
      *
@@ -316,7 +320,9 @@ public class ConditionOperators {
 
     /**
      * $mergeObjects操作符
-     * @param functions 值
+     * 按输入顺序保留各 Getter 的裸存储名，不添加 {@code $}，不读取实体实例。
+     * MongoDB 将这些名称视为字符串字面量；合并字段值请使用 Option 入口。
+     * @param functions Getter 集合；集合及其元素不能为 null，空集合生成空数组
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
      */
@@ -327,7 +333,9 @@ public class ConditionOperators {
 
     /**
      * $mergeObjects操作符
-     * @param functions 值，带$符
+     * 按输入顺序生成带 {@code $} 的存储字段引用，支持 {@code @CollectionField} 别名。
+     * 多参数数组用于合并表达式；分组累加器仅接收单个文档表达式。
+     * @param functions 文档字段的 Getter 集合；集合及其元素不能为 null，空集合生成空数组
      * @return {@link org.bson.conversions.Bson}
      * @author anwen
      *

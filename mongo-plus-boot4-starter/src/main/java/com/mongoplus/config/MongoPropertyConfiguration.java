@@ -30,7 +30,9 @@ public class MongoPropertyConfiguration {
             mongoProperties.setUri(mongoDBConnectProperty.getUrl());
         }else {
             mongoProperties.setHost(Arrays.stream(mongoDBConnectProperty.getHost().split(",")).toList().get(0));
-            mongoProperties.setPort(Integer.valueOf(Arrays.stream(mongoDBConnectProperty.getPort().split(",")).toList().get(0)));
+            if (StringUtils.isNotBlank(mongoDBConnectProperty.getPort())) {
+                mongoProperties.setPort(Integer.valueOf(Arrays.stream(mongoDBConnectProperty.getPort().split(",")).toList().get(0)));
+            }
             if (StringUtils.isNotBlank(mongoDBConnectProperty.getUsername())) {
                 mongoProperties.setUsername(mongoDBConnectProperty.getUsername());
             }

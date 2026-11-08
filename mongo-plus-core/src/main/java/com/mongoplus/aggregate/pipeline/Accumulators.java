@@ -340,7 +340,22 @@ public final class Accumulators {
      */
     public static <OutExpression> BsonField top(final String fieldName, final Bson sortBy, final OutExpression outExpression) {
         return sortingPickAccumulator(notNull("fieldName", fieldName), "$top",
-                notNull("sortBy", sortBy), notNull("outExpression", outExpression));
+                notNull("sortBy", sortBy), notNull("outExpression", outExpression instanceof SFunction
+                        ? ((SFunction<?, ?>) outExpression).getFieldNameLineOption() : outExpression));
+    }
+
+    /**
+     * 返回组内排序首项的字段值。单个 Getter 转为带 {@code $} 的存储字段引用，输出为标量表达式。
+     * 原始表达式仍可使用泛型重载；显式 Getter 数组保持数组语义。
+     *
+     * @param fieldName 输出字段名
+     * @param sortBy 组内排序规范
+     * @param outExpression 输出值的 Getter，支持 {@code @CollectionField} 别名，不能为 null
+     * @return 排序首项字段值的累加器
+     * @mongoExpression $top
+     */
+    public static <T> BsonField top(final String fieldName, final Bson sortBy, final SFunction<T, ?> outExpression) {
+        return top(fieldName, sortBy, (Object) outExpression);
     }
 
     /**
@@ -361,6 +376,21 @@ public final class Accumulators {
      */
     public static <OutExpression,T> BsonField top(final SFunction<T,?> fieldName, final Bson sortBy, final OutExpression outExpression) {
         return top(fieldName.getFieldNameLine(),sortBy,outExpression);
+    }
+
+    /**
+     * 返回组内排序首项的字段值。输出字段名使用裸存储别名，输入 Getter 使用带 {@code $} 的字段引用。
+     * 单个 Getter 不包装为数组；需要数组输出时显式传入 Getter 数组。
+     *
+     * @param fieldName 输出字段名的 Getter
+     * @param sortBy 组内排序规范
+     * @param outExpression 输出值的 Getter，支持 {@code @CollectionField} 别名，不能为 null
+     * @return 排序首项字段值的累加器
+     * @mongoExpression $top
+     */
+    public static <T, R> BsonField top(final SFunction<T, ?> fieldName, final Bson sortBy,
+                                     final SFunction<R, ?> outExpression) {
+        return top(fieldName.getFieldNameLine(), sortBy, outExpression);
     }
 
     /**
