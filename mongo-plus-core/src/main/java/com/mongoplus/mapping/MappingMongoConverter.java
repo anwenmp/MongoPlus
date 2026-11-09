@@ -383,7 +383,7 @@ public class MappingMongoConverter extends AbstractMongoConverter {
         //获取Type的Class
         Class<?> metaClass = getRawClass(type);
         // 处理集合元素
-        List valueList = (ArrayList) fieldValue;
+        Collection<?> valueList = (Collection<?>) fieldValue;
         if (simpleTypeHolder.isSimpleType(metaClass)) {
             // 如果泛型类型是简单类型，则直接添加到集合中
             valueList.forEach(value -> collection.add(convertValue(value, metaClass)));
@@ -391,9 +391,16 @@ public class MappingMongoConverter extends AbstractMongoConverter {
             // 如果泛型类型是集合类型，则递归处理
             // 获取集合的泛型类型
             Type collectionType = getGenericTypeClass((ParameterizedType) type, 0);
-            Collection<?> collectionInstance = createCollectionInstance(metaClass);
-            valueList.forEach(value -> convertCollection(collectionType, value, collectionInstance));
-            collection.add(collectionInstance);
+            valueList.forEach(value -> {
+                // 保留嵌套集合中的 null 元素
+                if (value == null) {
+                    collection.add(null);
+                    return;
+                }
+                Collection<?> collectionInstance = createCollectionInstance(metaClass);
+                convertCollection(collectionType, value, collectionInstance);
+                collection.add(collectionInstance);
+            });
         } else if (ClassTypeUtil.isTargetClass(Map.class,metaClass)){
             Type mapType;
             if (type instanceof ParameterizedType){
