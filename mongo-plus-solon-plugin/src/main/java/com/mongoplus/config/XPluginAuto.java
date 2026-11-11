@@ -1,7 +1,5 @@
 package com.mongoplus.config;
 
-import com.mongoplus.annotation.collection.CollectionName;
-import com.mongoplus.annotation.collection.TimeSeries;
 import com.mongoplus.annotation.mapper.Mongo;
 import com.mongoplus.annotation.transactional.MongoTransactional;
 import com.mongoplus.datasource.MongoDataSourceAspect;
@@ -9,7 +7,6 @@ import com.mongoplus.logic.MongoLogicIgnoreAspect;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.mapper.MongoMapper;
 import com.mongoplus.proxy.MapperProxy;
-import com.mongoplus.scanner.CollectionScanner;
 import com.mongoplus.scanner.meta.MetadataReader;
 import com.mongoplus.scanner.meta.MetadataReaderFactory;
 import com.mongoplus.tenant.TenantAspect;

@@ -39,9 +39,11 @@ import com.mongoplus.annotation.mapper.Mongo;
 | `value` | `String[]` | `{}` | 扫描路径 |
 
 ```java
-import com.mongoplus.annotation.MongoMapperScan;
 
-@MongoMapperScan("example.mapper") public class MongoMapperScanExample {}
+
+@MongoMapperScan("example.mapper")
+public class MongoMapperScanExample {
+}
 ```
 
 依据：[mongo-plus-boot-starter源码](https://github.com/anwenmp/MongoPlus/blob/1aacff901e33d33797cb957d883388519ef5ae6f/mongo-plus-boot-starter/src/main/java/com/mongoplus/annotation/MongoMapperScan.java#L12)；[mongo-plus-boot4-starter源码](https://github.com/anwenmp/MongoPlus/blob/1aacff901e33d33797cb957d883388519ef5ae6f/mongo-plus-boot4-starter/src/main/java/com/mongoplus/annotation/MongoMapperScan.java#L12)。后续实现与注册见[专题](../references/integration.md)。

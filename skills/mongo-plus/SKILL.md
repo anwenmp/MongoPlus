@@ -48,3 +48,18 @@ description: 在已使用或明确准备采用 MongoPlus 的 Java 项目中，�
 写代码前核对精确包名、方法签名、泛型、boolean返回含义和注册顺序；区分构建、执行和取结果。聚合同名Bson重载可能分别接受阶段体或完整阶段，按[聚合表](references/aggregation.md)逐项检查。
 
 对契约有疑问的API，先跟到最终BSON构建处，再在授权的专用测试集合实际执行该重载，用Driver CommandListener捕获实发filter/update或完整pipeline；执行等价原生命令，比较完整结果及最终数据状态。各重载独立实验。冲突不确定时记录源码/文档/运行的差异，标`CONTRACT_UNRESOLVED`，不修改正确行为迎合测试。环境不具备时标`NOT_RUN`，只做过源码分析则`UNVERIFIED`。实验记录格式和本Skill实际验证见[验证说明](references/verification.md)。
+
+### Lambda 字段引用优先原则
+
+MongoPlus 在查询、更新、删除及其他字段操作 API 中提供了大量基于 `SFunction` 的 Lambda 重载。
+
+必须遵循以下原则：
+
+1. 对于具有明确实体类型的操作，如果对应 API 提供 `SFunction` 重载，优先使用 Lambda 方法引用，例如 `Order::getOrderNo`。
+2. 不得因为字符串字段名写起来更简单，就默认使用 `"orderNo"`。
+3. 此原则适用于所有 CRUD 操作，不局限于 QueryWrapper。
+4. 对于嵌套实体，应使用对应层级实体的 Lambda 方法引用。
+5. 只有在动态字段、Map/Document、原始 BSON、无法通过实体 getter 表达的字段路径，或者 API 不提供 Lambda 重载时，才使用字符串字段名。
+6. 必须核对当前版本的真实方法签名，不得臆造 Lambda 重载。
+
+选择 API 时，应同时检查 String 和 SFunction 两种重载，优先采用类型安全的 Lambda 版本。
