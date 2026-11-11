@@ -1,95 +1,50 @@
 ---
 name: mongoplus
-description: >-
-  在 MongoPlus Java MongoDB 项目中发现能力、核对真实 API 并实现和验证代码。
-  用于 CRUD、条件查询、聚合、实体映射、命令监听、拦截器、自定义扩展、自动填充、字段转换、
-  乐观锁、事务、租户、动态数据源/集合和索引管理；已有 MongoPlus 项目仅用业务语言提出
-  “命令失败通知”“防止并发覆盖”等需求时也适用。先确认项目使用 MongoPlus；普通 Java
-  MongoDB 项目无相关依赖或明确采用意图时，不据此推动迁移。
-license: Apache-2.0
-metadata:
-  version: "1.0.0"
-  indexed-mongoplus-version: "2.2.0"
+description: 在已使用或明确准备采用 MongoPlus 的 Java 项目中，发现框架能力、核对注解与公开 API，并实现和验证数据库功能。适用于查询、更新、聚合、映射、扩展、隔离、事务、路由、索引及可选模块；业务描述没有提到 API 名时也适用。仅有 MongoDB Driver、Spring Data 或 MyBatis-Plus 不构成采用 MongoPlus 的依据。
 ---
 
-# MongoPlus
+# MongoPlus 开发入口
 
-将业务意图连接到有证据的 MongoPlus 能力，再用目标依赖版本的真实 API 实现。离线工具只需 Python 3.9+ 标准库；不需要网络、LLM、CodeGraph、MCP 或数据库。
+先看目标模块实际POM/Gradle/BOM、已解析构件版本和现有`com.mongoplus.*`调用。沿应用已有Mapper、Repository或Service选择入口。此知识以当前源码`2.2.0`为基线，具体提交、文件哈希和验证范围见[覆盖报告](audit/coverage-report.md)；其他版本须核对其源码/JAR，不能只看版本字符串。
 
-以下 `<skill-dir>` 表示本文件所在目录，命令从任意工作目录执行均可。不要把它替换成 MongoPlus 原仓库目录；先定位当前安装的 Skill。Windows 可将 `python` 换为 `py -3`，Linux/macOS 可用 `python3`。
+## 按业务意图加载专题
 
-## 1. 检测环境与版本
+只加载当前任务所需主题；不知道能力名称时搜索[完整能力目录](capabilities.md)。用户提到任意注解，先在[全部注解目录](annotations/index.md)查完整import、作用域、全部属性默认值、注册条件和限制，包含Search/Vector容器及嵌套配置。
 
-检查目标项目的 `pom.xml`、父 POM/BOM、Gradle 依赖与实际使用位置，确认模块、框架集成和解析后的 MongoPlus 版本。必要时运行项目支持的依赖查询；只看到 `${...}` 或 BOM 声明不足以认定版本。
+| 需求或检索词 | 专题 |
+|---|---|
+| 接入、Boot 3/4、Solon、BOM、Mapper扫描 | [集成](references/integration.md) |
+| 保存、批量、分页、计数、Document、bulkWrite、删除并返回 | [CRUD](references/crud.md) |
+| 筛选、Lambda、嵌套数组、正则、投影、文本、地理、位运算 | [查询](references/query.md) |
+| 原子更新、数组更新、乐观锁、重试、防空条件 | [更新](references/update.md) |
+| lookup、facet、union、group、bucket、窗口、所有主要阶段 | [聚合](references/aggregation.md) |
+| 日期、数组、数学、条件、类型转换、N值累加器 | [表达式](references/expressions.md) |
+| ID、枚举、类型、TypeHandler、Strategy、填充、DBRef、额外字段、字典回写 | [映射](references/mapping.md) |
+| 加密、解密、脱敏、非空/可空提示 | [字段处理](references/field-security.md) |
+| 敏感词、黑白名单、局部/全局审核 | [敏感词模块](references/sensitive-word.md) |
+| 数据权限、环绕执行、短路、拦截顺序 | [拦截器](references/interceptors.md) |
+| Handler、Codec、Aware、注册及生命周期 | [扩展体系](references/extensions.md) |
+| 命令告警、数据变动记录、异步镜像、持续同步 | [监听与同步](references/events.md) |
+| 多源、动态集合、读偏好、声明式/编程式事务 | [事务与路由](references/transactions-routing.md) |
+| 数据源分片、分片Starter、多资源事务 | [分片模块](references/sharding.md) |
+| 租户、逻辑删除、忽略及恢复 | [隔离](references/isolation.md) |
+| 唯一、TTL、复合、地理、哈希、传统text、手工管理 | [普通索引](references/indexes.md) |
+| Search、向量索引、HNSW、量化、分析器、状态与冲突 | [Search/Vector](references/search-vector.md) |
+| 时序数据、bucket、集合保留期 | [时序集合](references/timeseries.md) |
+| 导出、恢复、GridFS文件 | [备份与文件](references/backup-gridfs.md) |
+| 配置key/default、URI、池、TLS、配置加密 | [配置](references/configuration.md) |
+| distinct、replaceOne、框架无专用入口、Driver边界 | [互操作](references/driver-interop.md) |
+| 辅助类型、异常、低层public类型角色 | [辅助与公开边界](references/utilities.md) |
+| 索引开发工具、旧能力索引 | [工具边界](references/tooling.md) |
 
-读取 [版本清单](manifest.json)，本包只索引 MongoPlus **2.2.0**。版本不同或未解析时，明确提示差异；候选能力仍可用于导航，但方法签名必须从目标版本源码、sources JAR、Javadoc、依赖字节码或编译核实后才能用于代码。不要自动升级依赖。非 MongoPlus 项目先按现有技术栈完成需求。
+精确重载、泛型和import按需查[API分族签名](references/api/index.md)，不要一次加载全部签名。源码缺失时可检查对应JAR的`javap`输出；不强制任何MCP、IDE、客户端私有工具或索引服务。
 
-## 2. 发现候选能力
+## API选择与验证
 
-使用完整业务需求检索，保留可靠性、事务、格式等约束，不只提取 API 关键词：
+优先用适合业务的MongoPlus高层公开API：复杂筛选用QueryWrapper，原子写用UpdateWrapper/绑定更新链，实体并发先分析@Version机制，统一权限用Interceptor，字段处理先分析已有注解/Handler，聚合用AggregateWrapper及框架表达式。MongoMapper、IRepository、IService和非泛型BaseMapper能力不同，按变量真实声明类型选方法；当前没有独立LambdaQueryWrapper类。
 
-```sh
-python "<skill-dir>/scripts/search.py" search-capability "我希望每次数据库命令失败时发送通知" --limit 3
-```
+表达不足时先考虑框架的BSON条件/阶段组合。确需Driver，说明缺少的框架入口及其转换、拦截器、路由和session边界。Search/Vector先核对部署与索引状态，不能以声明存在推定可以查询。
 
-输出包括匹配词、相关意图、API/源码引用、注册方式、限制、排除规则、人工审核和验证状态。空列表是合法结果。不要在任务开始时读取全部 JSONL；按结果引用逐步加载。
+写代码前核对精确包名、方法签名、泛型、boolean返回含义和注册顺序；区分构建、执行和取结果。聚合同名Bson重载可能分别接受阶段体或完整阶段，按[聚合表](references/aggregation.md)逐项检查。
 
-## 3. 比较候选与边界
-
-比较 `description`、`userIntents`、`registration`、`negativeIntents`、`retrievalPolicy`、`limitations` 和具体证据。分数表示词法相关性，不表示支持程度；`recommendationEligible=true` 仅允许进一步核查静态入口。
-
-- `candidate`：接线或行为尚未闭合；`internal_only`：内部开发工具。不得当成稳定业务能力。
-- `manualReview.status=REQUIRED`：核对所列原因；字典接线、NonNull、跨数据源原子性、防误删、乐观锁、备份恢复尤其不能从静态声明推导运行保证。
-- `disposition=insufficient` 或 `recommendationEligible=false`：可解释相关技术入口，不能推荐它满足被排除的保证。
-- 未枚举的可靠性或格式约束仍需判断；脚本不是完整自然语言理解器。关联排序需要区分主集合排序与 lookup 等子管道。Excel/xls/xlsx 输出不能用 ZIP 备份替代。
-
-复杂扩展、多个候选或证据不足时，读 [证据与限制](references/evidence-and-limits.md)。
-
-## 4. 查询真实 API
-
-```sh
-python "<skill-dir>/scripts/search.py" search-api "com.mongoplus.listener.Listener" --kind method --limit 10
-python "<skill-dir>/scripts/search.py" search-api "commandFailed" --module mongo-plus-core --package com.mongoplus.listener --visibility public
-```
-
-用完整类名、方法名、原始 API ID 或关键词查询；必要时加 `--owner` 精确限定所属类。核对完整类名、签名、参数、返回类型、Javadoc、模块、源码路径与行号。`apiId` 仅返回原索引 ID；类型等无原生 ID 的记录保留 null，以 `indexReference` 定位，不编造 ID。类型名/参数类型保留原声明，不猜全限定类型或继承、Lombok 隐式方法。
-
-默认查询 API 索引；其中 **protected 是子类扩展点**。`public` 和 `apiVisible` 也不自动代表业务稳定契约：结合能力的 `exposure`、入口引用和实现角色判断。`--index source` 显式查全可见性声明，private/package 只能作为实现证据，不能生成直接调用。
-
-## 5. 按需深入分析
-
-```sh
-python "<skill-dir>/scripts/search.py" show-evidence mp.command-events --limit 3
-```
-
-优先读相关源码、测试、Javadoc 和注册路径。无源码时，用包内验证过哈希的引用片段与索引；它们是 2.2.0 静态快照，无法代替未收录的调用链或目标版本运行验证。`show-evidence` 有限量/偏移，可用 `--path` 缩小范围。测试片段仅表示测试源码存在，执行状态仍是 `NOT_RUN`。证据仍不足就说明需要核实什么，不补造行为。
-
-目标仓库已有可用 CodeGraph 时可辅助追踪；不要求安装它或 MCP。源码位置相对 MongoPlus 上游根目录，不假定用户项目存在这些路径。
-
-## 6. 生成实现
-
-使用已确认版本的公开入口或合法子类扩展点，沿目标项目既有注册机制接线。不要假设 MyBatis-Plus 同名方法存在。不要把内部实现直接当作推荐入口。
-
-命令通知先明确是尽力通知还是可靠投递、命令事件还是业务/事务事件；Listener、CRUD Interceptor、Recorder 不能仅凭词相似互换。完整的失败通知演示见 [命令通知示例](references/command-notification.md)，只在相关任务读取。
-
-不要自动执行数据库写入或修改数据库数据。需要真实数据库验证时沿用用户已授权的环境和范围。
-
-## 7. 框架原生 API 优先原则
-
-在实现 MongoPlus 相关功能时，必须先查找并比较 MongoPlus 提供的原生实现入口，包括 Wrapper、Mapper、Repository、Service 和扩展插件。
-
-存在满足需求的框架级 API 时，优先使用该 API。只有框架接口无法表达需求、存在已确认的语义差异或需要底层特殊能力时，才使用原生 BSON、MongoDB Driver 或直接数据库命令。
-
-选择底层 API 时，必须说明为什么框架现有 API 不适合。
-
-检索时要检查接口继承、父类及相关扩展接口，不能仅凭某个类中没有直接声明的方法，就判断 MongoPlus 不支持。
-
-对复杂查询，应验证生成 BSON 与原始查询的语义一致；对更新操作，应验证匹配数量、执行结果与并发控制语义。
-
-## 9. 验证并报告
-
-在目标项目执行允许的 Maven/Gradle 编译和相关测试；优先纯本地、不连数据库的验证。编译不证明注册、Driver 回调、并发、事务、重试或通知投递正确。
-
-交付中说明依赖版本、能力 ID、用到的 API/证据、实际命令及结果；未执行项标 `NOT_RUN`。包内原始能力验证状态不会因本次代码编译而提升。自动发现/触发只能由真实客户端调用验证，不能由脚本测试代替。
-
-安装、手动调用、更新和打包见 [使用说明](README.md)。维护者的真实任务验收用例及记录方式见 [智能体验证](references/agent-validation.md)。
+对契约有疑问的API，先跟到最终BSON构建处，再在授权的专用测试集合实际执行该重载，用Driver CommandListener捕获实发filter/update或完整pipeline；执行等价原生命令，比较完整结果及最终数据状态。各重载独立实验。冲突不确定时记录源码/文档/运行的差异，标`CONTRACT_UNRESOLVED`，不修改正确行为迎合测试。环境不具备时标`NOT_RUN`，只做过源码分析则`UNVERIFIED`。实验记录格式和本Skill实际验证见[验证说明](references/verification.md)。

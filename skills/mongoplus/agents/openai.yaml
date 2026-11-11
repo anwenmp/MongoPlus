@@ -1,8 +1,7 @@
 interface:
   display_name: "MongoPlus"
-  short_description: "å‘ç° MongoPlus ä¸šåŠ¡èƒ½åŠ›ï¼Œæ ¸å¯¹ç‰ˆæœ¬ä¸çœŸå® Java APIï¼Œå†å®ç°å¹¶éªŒè¯"
-  default_prompt: "ä½¿ç”¨ $mongoplus æ£€æŸ¥å½“å‰é¡¹ç›®ç‰ˆæœ¬ï¼Œä¸º MongoDB å‘½ä»¤å¤±è´¥é€šçŸ¥é€‰æ‹©æœ‰è¯æ®çš„æ‰©å±•ç‚¹å¹¶éªŒè¯å®ç°ã€‚"
-  icon_small: "https://mongoplus.com/logo.svg"
-  icon_large: "https://mongoplus.com/logo.svg"
+  short_description: "MongoPlus Java ¿ª·¢¡¢API ²éÑ¯ÓëÊı¾İ¿â¹¦ÄÜÊµÏÖ"
+  default_prompt: "Ê¹ÓÃ $mongoplus£¬¸ù¾İµ±Ç°ÏîÄ¿Êµ¼ÊÒÀÀµºÍ¹«¿ª API£¬ÊµÏÖÎÒµÄ MongoDB ÒµÎñĞèÇó£¬²¢ÑéÖ¤´úÂëÕıÈ·ĞÔ¡£"
+
 policy:
   allow_implicit_invocation: true
