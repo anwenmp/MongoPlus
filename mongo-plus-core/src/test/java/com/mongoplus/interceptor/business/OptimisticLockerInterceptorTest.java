@@ -1,5 +1,6 @@
 package com.mongoplus.interceptor.business;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -69,6 +70,20 @@ public class OptimisticLockerInterceptorTest {
         Document filter = toDocument(pair.getLeft());
         Document update = toDocument(pair.getRight());
         assertEquals(1, filter.get("version"));
+        assertFalse(((Document) update.get("$set")).containsKey("version"));
+        assertEquals(1, ((Document) update.get("$inc")).get("version"));
+    }
+
+    /** 1.1 $set 的值是 BasicDBObject（驱动旧 API 里很常见） */
+    @Test
+    public void shouldAppendVersionWhenSetIsBasicDBObject() {
+        MutablePair<Bson, Bson> pair = MutablePair.of(
+                new Document("_id", 1),
+                new Document("$set", new BasicDBObject("score", 111).append("version", 1)));
+
+        interceptor.handler(invocation("executeUpdateOne", MutablePair.class, pair), false, versionField);
+
+        Document update = toDocument(pair.getRight());
         assertFalse(((Document) update.get("$set")).containsKey("version"));
         assertEquals(1, ((Document) update.get("$inc")).get("version"));
     }
