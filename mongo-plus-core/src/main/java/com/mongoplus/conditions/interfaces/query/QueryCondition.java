@@ -48,6 +48,20 @@ public interface QueryCondition<T, Children> extends
 
     /**
      * 自定义语句
+     * <p>直接传入 json 字符串，内部按 {@link BasicDBObject#parse(String)} 解析成条件，
+     * 适合把前端、配置或日志里已经拼好的查询条件原样带进来，
+     * 加进来之后依旧可以继续排序、分页、查询总数</p>
+     * <p>与链式条件合并时以 json 为准：同一个字段既在 json 里出现、又被 eq 等条件指定，最终取 json 里的值（custom 条件最后合并）</p>
+     *
+     * @param json json 格式的查询条件，例如 {@code {"age": {"$gt": 18}}}
+     * @return {@link Children}
+     */
+    default Children custom(String json) {
+        return custom(BasicDBObject.parse(json));
+    }
+
+    /**
+     * 自定义语句
      * @param mongoPlusBasicDBObject bson对象
      * @return {@link Children}
      * @author anwen
