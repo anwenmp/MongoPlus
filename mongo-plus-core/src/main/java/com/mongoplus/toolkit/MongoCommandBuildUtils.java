@@ -4,10 +4,14 @@ import com.mongodb.Function;
 import com.mongodb.event.CommandStartedEvent;
 import com.mongoplus.enums.CommandEnum;
 import org.bson.BsonArray;
+import org.bson.BsonBinary;
 import org.bson.BsonDocument;
+import org.bson.BsonRegularExpression;
+import org.bson.BsonTimestamp;
 import org.bson.BsonValue;
 import org.bson.Document;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -160,13 +164,13 @@ public class MongoCommandBuildUtils {
         for (BsonValue delete : bs) {
             BsonDocument query = delete.asDocument();
             if (StringUtils.isBlank(item)) {
-                jsons.add(query.toJson());
+                jsons.add(toShellJson(query));
                 continue;
             }
             BsonValue bsonValue = query.get(item);
             if (Objects.nonNull(bsonValue)) {
                 if (bsonValue.isDocument()) {
-                    jsons.add(bsonValue.toString());
+                    jsons.add(toShellJson(bsonValue.asDocument()));
                 } else {
                     jsons.add(BsonUtil.toJavaType(bsonValue).toString());
                 }
@@ -184,7 +188,7 @@ public class MongoCommandBuildUtils {
     private static String buildByDocument(BsonDocument bs, String item) {
 
         if (StringUtils.isBlank(item)) {
-            return bs.toJson();
+            return toShellJson(bs);
         } else {
             BsonValue bsonValue = bs.get(item);
             // UpdateOneModel 可省略 multi，缺失字段与数组解析保持一致。
@@ -192,7 +196,7 @@ public class MongoCommandBuildUtils {
                 return "";
             }
             if (bsonValue instanceof BsonDocument) {
-                return bsonValue.asDocument().toJson();
+                return toShellJson(bsonValue.asDocument());
             }
             return BsonUtil.toJavaType(bsonValue).toString();
         }
@@ -217,11 +221,157 @@ public class MongoCommandBuildUtils {
         }
         StringBuilder commandBuilder = new StringBuilder("db." + collection + "." + event.getCommandName() + "([");
         for (BsonDocument stage : pipeline) {
-            commandBuilder.append(stage.toJson()).append(", ");
+            commandBuilder.append(toShellJson(stage)).append(", ");
         }
         commandBuilder.delete(commandBuilder.length() - 2, commandBuilder.length()).append("])");
         return commandBuilder.toString();
 
     }
 
+
+    /**
+     * 把 bson 转换成可以直接粘进 mongo shell(mongosh) 执行的 javascript 字面量
+     * <p>驱动自带的 toJson 输出的是 Extended JSON，日期是 {"$date": "..."}、ObjectId 是 {"$oid": "..."}，
+     * 这种格式粘到 shell 里只是一个普通子文档，拿去做查询条件永远匹配不到数据；
+     * 这里按 shell 里的写法输出 ISODate(...)、ObjectId(...) 等构造器调用</p>
+     *
+     * @param value bson 值
+     * @return shell 可执行的 javascript 字面量
+     */
+    private static String toShellJson(BsonValue value) {
+
+        if (Objects.isNull(value)) {
+            return "null";
+        }
+        switch (value.getBsonType()) {
+            case DOCUMENT:
+                return documentToShellJson(value.asDocument());
+            case ARRAY:
+                return arrayToShellJson(value.asArray());
+            case STRING:
+                return quote(value.asString().getValue());
+            case SYMBOL:
+                return quote(value.asSymbol().getSymbol());
+            case INT32:
+                return String.valueOf(value.asInt32().getValue());
+            case INT64:
+                return String.valueOf(value.asInt64().getValue());
+            case DOUBLE:
+                return doubleToShellJson(value.asDouble().getValue());
+            case DECIMAL128:
+                return "NumberDecimal(\"" + value.asDecimal128().getValue() + "\")";
+            case BOOLEAN:
+                return String.valueOf(value.asBoolean().getValue());
+            case DATE_TIME:
+                return "ISODate(\"" + Instant.ofEpochMilli(value.asDateTime().getValue()) + "\")";
+            case OBJECT_ID:
+                return "ObjectId(\"" + value.asObjectId().getValue().toHexString() + "\")";
+            case BINARY:
+                BsonBinary binary = value.asBinary();
+                return "BinData(" + binary.getType() + ", \"" + Base64.getEncoder().encodeToString(binary.getData()) + "\")";
+            case REGULAR_EXPRESSION:
+                BsonRegularExpression regularExpression = value.asRegularExpression();
+                return "/" + regularExpression.getPattern().replace("/", "\\/") + "/" + regularExpression.getOptions();
+            case TIMESTAMP:
+                BsonTimestamp timestamp = value.asTimestamp();
+                return "Timestamp(" + timestamp.getTime() + ", " + timestamp.getInc() + ")";
+            case JAVASCRIPT:
+                return quote(value.asJavaScript().getCode());
+            case JAVASCRIPT_WITH_SCOPE:
+                return "Code(" + quote(value.asJavaScriptWithScope().getCode())
+                        + ", " + documentToShellJson(value.asJavaScriptWithScope().getScope()) + ")";
+            case DB_POINTER:
+                return "DBPointer(" + quote(value.asDBPointer().getNamespace())
+                        + ", ObjectId(\"" + value.asDBPointer().getId().toHexString() + "\"))";
+            case MIN_KEY:
+                return "MinKey()";
+            case MAX_KEY:
+                return "MaxKey()";
+            case UNDEFINED:
+                return "undefined";
+            case NULL:
+            default:
+                return "null";
+        }
+
+    }
+
+    private static String documentToShellJson(BsonDocument document) {
+
+        StringBuilder builder = new StringBuilder("{");
+        boolean first = true;
+        for (Map.Entry<String, BsonValue> entry : document.entrySet()) {
+            if (!first) {
+                builder.append(", ");
+            }
+            first = false;
+            builder.append(quote(entry.getKey())).append(": ").append(toShellJson(entry.getValue()));
+        }
+        return builder.append("}").toString();
+
+    }
+
+    private static String arrayToShellJson(BsonArray array) {
+
+        StringBuilder builder = new StringBuilder("[");
+        for (int i = 0; i < array.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(toShellJson(array.get(i)));
+        }
+        return builder.append("]").toString();
+
+    }
+
+    private static String doubleToShellJson(double value) {
+
+        if (Double.isNaN(value)) {
+            return "NaN";
+        }
+        if (Double.isInfinite(value)) {
+            return value > 0 ? "Infinity" : "-Infinity";
+        }
+        return String.valueOf(value);
+
+    }
+
+    private static String quote(String value) {
+
+        StringBuilder builder = new StringBuilder(value.length() + 2).append('"');
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '"':
+                    builder.append("\\\"");
+                    break;
+                case '\\':
+                    builder.append("\\\\");
+                    break;
+                case '\b':
+                    builder.append("\\b");
+                    break;
+                case '\f':
+                    builder.append("\\f");
+                    break;
+                case '\n':
+                    builder.append("\\n");
+                    break;
+                case '\r':
+                    builder.append("\\r");
+                    break;
+                case '\t':
+                    builder.append("\\t");
+                    break;
+                default:
+                    if (c < 0x20) {
+                        builder.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        builder.append(c);
+                    }
+            }
+        }
+        return builder.append('"').toString();
+
+    }
 }
