@@ -28,6 +28,7 @@ import org.bson.Document;
 import org.bson.codecs.DecoderContext;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -152,7 +153,8 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         } else if (executeMethod == UPDATE_ONE) {
             handleUpdate((MutablePair<Bson,Bson>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == BULK_WRITE) {
-            handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
+            // 处理后的列表要写回实际执行参数，否则重建的模型不会交给驱动执行
+            args[0] = handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
         }
     }
 
@@ -351,19 +353,23 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
 
     /**
      * bulkWrite处理
-     * @param writeModelList bulkWrite参数
+     * @param writeModelList bulkWrite参数，不保证可变
      * @param fieldInformation 乐观锁字段
+     * @return 处理后的参数，调用方需要用它替换原参数
      * @author anwen
      */
-    void handleBulkWrite(List<WriteModel<Document>> writeModelList,
-                         boolean autoVersion,
-                         FieldInformation fieldInformation) {
+    List<WriteModel<Document>> handleBulkWrite(List<WriteModel<Document>> writeModelList,
+                                               boolean autoVersion,
+                                               FieldInformation fieldInformation) {
         if (fieldInformation == null){
-            return;
+            return writeModelList;
         }
         String fieldName = fieldInformation.getCamelCaseName();
-        for (int i = 0; i < writeModelList.size(); i++) {
-            WriteModel<Document> writeModel = writeModelList.get(i);
+        // 调用方可能传入不可变列表(Collections.singletonList、unmodifiableList)，
+        // 重建模型需要替换元素，所以先复制一份可变副本，不直接改调用方的列表
+        List<WriteModel<Document>> handledModelList = new ArrayList<>(writeModelList);
+        for (int i = 0; i < handledModelList.size(); i++) {
+            WriteModel<Document> writeModel = handledModelList.get(i);
             if (writeModel instanceof InsertOneModel) {
                 InsertOneModel<Document> insertOneModel = (InsertOneModel<Document>) writeModel;
                 saveParamHandler(fieldName,insertOneModel.getDocument());
@@ -371,7 +377,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             if (writeModel instanceof UpdateManyModel){
                 UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
                 if (updateManyModel.getUpdatePipeline() != null) {
-                    log.warn("The update pipeline cannot be appended with the optimistic lock condition,skip it,fieldName: " + fieldName);
+                    handleUpdatePipeline(fieldName);
                     continue;
                 }
                 MutablePair<Bson, Bson> updatePair = MutablePair.of(updateManyModel.getFilter(),
@@ -379,11 +385,29 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 updateParamHandler(fieldName, updatePair, autoVersion);
                 if (updatePair.getLeft() != updateManyModel.getFilter()
                         || updatePair.getRight() != updateManyModel.getUpdate()) {
-                    writeModelList.set(i, new UpdateManyModel<>(updatePair.getLeft(),
+                    handledModelList.set(i, new UpdateManyModel<>(updatePair.getLeft(),
                             updatePair.getRight(), updateManyModel.getOptions()));
                 }
             }
         }
+        return handledModelList;
+    }
+
+    /**
+     * 管道更新的处理
+     * <p>管道更新无法在更新语句里追加版本自增({@code $inc}只能用于普通更新文档)，补不了版本条件，
+     * 所以配置了版本缺失异常时按配置拒绝执行，没有配置时保持原来的行为：跳过并告警</p>
+     * @param fieldName 字段名
+     * @author anwen
+     */
+    void handleUpdatePipeline(String fieldName) {
+        if (versionIsNullException != null) {
+            log.debug("The update pipeline cannot provide the optimistic lock condition," +
+                    "reject it,fieldName: " + fieldName);
+            versionIsNullException.fillInStackTrace();
+            throw versionIsNullException;
+        }
+        log.warn("The update pipeline cannot be appended with the optimistic lock condition,skip it,fieldName: " + fieldName);
     }
 
     /**
