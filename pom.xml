@@ -14,6 +14,7 @@
     <inceptionYear>2024</inceptionYear>
 
     <modules>
+        <module>mongo-plus-bom</module>
         <module>mongo-plus-annotation</module>
         <module>mongo-plus-core</module>
         <module>mongo-plus-boot-starter</module>
