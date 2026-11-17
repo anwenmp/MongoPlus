@@ -157,6 +157,13 @@ public class SessionExecute implements Execute {
     }
 
     @Override
+    public UpdateResult executeReplace(Bson filter, Document document, ReplaceOptions options, MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> transactionCollection(collection).replaceOne(clientSession,filter,document,o))
+                .orElseGet(() -> transactionCollection(collection).replaceOne(clientSession,filter,document));
+    }
+
+    @Override
     public String doCreateIndex(Bson bson, MongoCollection<Document> collection) {
         return transactionCollection(collection).createIndex(clientSession,bson);
     }

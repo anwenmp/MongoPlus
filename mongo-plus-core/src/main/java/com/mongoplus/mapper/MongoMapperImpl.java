@@ -311,6 +311,11 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
+    public Long replace(Wrapper<T> wrapper, T entity, ReplaceOptions options) {
+        return baseMapper.replace(wrapper, entity, options);
+    }
+
+    @Override
     public Boolean removeById(Serializable id, DeleteOptions options) {
         Bson filterId = new Document(SqlOperationConstant._ID, ObjectIdUtil.getObjectIdValue(id));
         return baseMapper.removeOne(filterId, clazz,options) >= 1;

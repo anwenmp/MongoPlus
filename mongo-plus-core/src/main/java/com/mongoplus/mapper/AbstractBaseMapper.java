@@ -6,11 +6,13 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
+import com.mongoplus.constant.SqlOperationConstant;
 import com.mongoplus.enums.CommandOperate;
 import com.mongoplus.execute.Execute;
 import com.mongoplus.execute.ExecutorFactory;
@@ -196,6 +198,19 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
         BasicDBObject targetBasicDBObject = new BasicDBObject();
         mongoConverter.write(pair.getRight(), targetBasicDBObject);
         return updateOne(database, collectionName, pair.getLeft(), targetBasicDBObject,options) >= 1;
+    }
+
+    @Override
+    public <T> Long replace(String database, String collectionName, Wrapper<T> wrapper, T entity, ReplaceOptions options) {
+        Document document = new Document();
+        mongoConverter.write(entity, document);
+        document.remove(_ID);
+        BasicDBObject filter = wrapper.buildCondition().getCondition();
+        UpdateResult updateResult = factory.getExecute().executeReplace(filter,
+                document,
+                options,
+                mongoPlusClient.getCollection(database, collectionName));
+        return updateResult.getModifiedCount();
     }
 
     @Override

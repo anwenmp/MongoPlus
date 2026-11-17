@@ -147,6 +147,29 @@ public interface SuperMapper extends BaseIndex {
                    UpdateOptions options);
 
     /**
+     * 根据实体对象替换
+     * @param database 数据库名
+     * @param collectionName 集合名
+     * @param wrapper 查询条件
+     * @param entity 实体对象, 自动移除_id
+     * @return 实际修改的文档数
+     */
+    default <T> Long replace(String database, String collectionName, Wrapper<T> wrapper, T entity) {
+        return replace(database, collectionName, wrapper, entity, null);
+    }
+
+    /**
+     * 根据实体对象替换
+     * @param database 数据库名
+     * @param collectionName 集合名
+     * @param wrapper 查询条件
+     * @param entity 实体对象, 自动移除_id
+     * @param options 替换选项
+     * @return 实际修改的文档数，upsert 新增时为 0
+     */
+    <T> Long replace(String database, String collectionName, Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
+
+    /**
      * 批量操作
      * @param writeModelList writeModelList
      * @return {@link Integer}

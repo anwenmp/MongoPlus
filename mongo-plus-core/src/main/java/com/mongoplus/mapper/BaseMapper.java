@@ -98,6 +98,25 @@ public interface BaseMapper extends Mapper {
     <T> Boolean update(T entity,Wrapper<T> queryWrapper,UpdateOptions options);
 
     /**
+     * 按条件替换实体所在集合的一个文档，替换内容不包含 _id。
+     * @param wrapper 查询条件
+     * @param entity 替换实体，其运行时类型决定数据库和集合
+     * @return 实际修改的文档数
+     */
+    default <T> Long replace(Wrapper<T> wrapper, T entity) {
+        return replace(wrapper, entity, null);
+    }
+
+    /**
+     * 按条件替换实体所在集合的一个文档，替换内容不包含 _id。
+     * @param wrapper 查询条件
+     * @param entity 替换实体，其运行时类型决定数据库和集合
+     * @param options 替换选项，null 表示使用 Driver 默认选项
+     * @return 实际修改的文档数，upsert 新增时为 0
+     */
+    <T> Long replace(Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
+
+    /**
      * 是否存在
      * @param id id
      * @param clazz class

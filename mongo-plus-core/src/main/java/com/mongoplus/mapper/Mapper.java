@@ -1,6 +1,8 @@
 package com.mongoplus.mapper;
 
 import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.interfaces.query.condition.ConditionMetaObject;
 import com.mongoplus.conditions.Wrapper;
@@ -60,6 +62,29 @@ public interface Mapper extends SuperMapper {
      */
     default <T> Boolean update(String collectionName,T entity, Wrapper<T> queryWrapper){
         return update(EMPTY,collectionName,entity,queryWrapper);
+    }
+
+    /**
+     * 在默认数据库中按条件替换一个文档，替换内容不包含 _id。
+     * @param collectionName 集合名
+     * @param wrapper 查询条件
+     * @param entity 替换内容
+     * @return 实际修改的文档数
+     */
+    default <T> Long replace(String collectionName, Wrapper<T> wrapper, T entity) {
+        return replace(collectionName, wrapper, entity, null);
+    }
+
+    /**
+     * 在默认数据库中按条件替换一个文档，替换内容不包含 _id。
+     * @param collectionName 集合名
+     * @param wrapper 查询条件
+     * @param entity 替换内容
+     * @param options 替换选项，null 表示使用 Driver 默认选项
+     * @return 实际修改的文档数，upsert 新增时为 0
+     */
+    default <T> Long replace(String collectionName, Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options) {
+        return replace(EMPTY, collectionName, wrapper, entity, options);
     }
 
     /**

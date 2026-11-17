@@ -140,6 +140,14 @@ public class DefaultExecute implements Execute {
     }
 
     @Override
+    public UpdateResult executeReplace(Bson filter, Document document, ReplaceOptions options,
+                                       MongoCollection<Document> collection) {
+        return Optional.ofNullable(options)
+                .map(o -> collection.replaceOne(filter, document, o))
+                .orElseGet(() -> collection.replaceOne(filter, document));
+    }
+
+    @Override
     public String doCreateIndex(Bson bson, MongoCollection<Document> collection) {
         return collection.createIndex(bson);
     }

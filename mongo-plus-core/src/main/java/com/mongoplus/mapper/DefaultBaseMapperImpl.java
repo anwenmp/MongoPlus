@@ -70,6 +70,12 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
         return update(namespace.left, namespace.right, entity, queryWrapper,options);
     }
 
+    @Override
+    public <T> Long replace(Wrapper<T> wrapper, T entity, ReplaceOptions options) {
+        MutablePair<String, String> namespace = getNamespace(entity.getClass());
+        return replace(namespace.left, namespace.right, wrapper, entity, options);
+    }
+
     /**
      * 查询所有
      *

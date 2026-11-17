@@ -5,6 +5,8 @@ import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongoplus.annotation.comm.Nullable;
 import com.mongoplus.aggregate.Aggregate;
 import com.mongoplus.conditions.Wrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
@@ -264,6 +266,25 @@ public interface MongoMapper<T> {
      * @author JiaChaoYang
      */
     Boolean update(T entity,Wrapper<T> queryWrapper,UpdateOptions options);
+
+    /**
+     * 按条件替换一个文档，替换内容不包含 _id。
+     * @param wrapper 查询条件
+     * @param entity 替换实体，其运行时类型决定数据库和集合
+     * @return 实际修改的文档数
+     */
+    default Long replace(Wrapper<T> wrapper, T entity) {
+        return replace(wrapper, entity, null);
+    }
+
+    /**
+     * 按条件替换一个文档，替换内容不包含 _id。
+     * @param wrapper 查询条件
+     * @param entity 替换实体，其运行时类型决定数据库和集合
+     * @param options 替换选项，null 表示使用 Driver 默认选项
+     * @return 实际修改的文档数，upsert 新增时为 0
+     */
+    Long replace(Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
 
     /**
      * 根据id删除

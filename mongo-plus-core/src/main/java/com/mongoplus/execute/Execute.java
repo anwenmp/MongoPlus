@@ -94,6 +94,17 @@ public interface Execute {
                                MongoCollection<Document> collection);
 
     /**
+     * 替换执行
+     * @param filter 替换条件
+     * @param document 替换内容
+     * @param collection 集合
+     * @return {@link com.mongodb.client.result.UpdateResult}
+     * @author anwen
+     */
+    UpdateResult executeReplace(Bson filter, Document document, @Nullable ReplaceOptions options,
+                                MongoCollection<Document> collection);
+
+    /**
      * 查询执行
      * @param queryBasic 查询条件
      * @param projectionList project
