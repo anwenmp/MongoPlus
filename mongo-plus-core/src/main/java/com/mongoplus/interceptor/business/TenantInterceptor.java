@@ -178,8 +178,10 @@ public class TenantInterceptor implements Interceptor {
                         return new UpdateOneModel<Document>(filter, updateOneModel.getUpdatePipeline(),
                                 updateOneModel.getOptions());
                     }
-                    return new UpdateOneModel<Document>(filter, updateOneModel.getUpdate(),
-                            updateOneModel.getOptions());
+                    if (updateOneModel.getUpdate() != null) {
+                        return new UpdateOneModel<Document>(filter, updateOneModel.getUpdate(),
+                                updateOneModel.getOptions());
+                    }
                 } else if (writeModel instanceof ReplaceOneModel) {
                     ReplaceOneModel<Document> replaceOneModel = (ReplaceOneModel<Document>) writeModel;
                     Bson filter = appendTenantFilter(replaceOneModel.getFilter(), collection);
