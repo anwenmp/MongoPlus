@@ -38,11 +38,11 @@ public class LogListener implements Listener {
 
     @Override
     public void commandStarted(CommandStarted commandStarted) {
-        log.info(commandStarted.getCommandName() + " Statement Execution ==> ");
+        log.debug(commandStarted.getCommandName() + " Statement Execution ==> ");
         if (isPretty()) {
-            log.info(MongoCommandBuildUtils.buildCommand(commandStarted.getCommandStartedEvent()));
+            log.debug(MongoCommandBuildUtils.buildCommand(commandStarted.getCommandStartedEvent()));
         } else {
-            log.info(commandStarted.getCommand());
+            log.debug(commandStarted.getCommand());
         }
     }
 
@@ -57,7 +57,7 @@ public class LogListener implements Listener {
             resultCount = commandSucceeded.getResponse().get("n").asInt32().getValue();
         }
         if (resultCount != null) {
-            log.info(commandSucceeded.getCommandName() + " results of execution ==> " + resultCount);
+            log.debug(commandSucceeded.getCommandName() + " results of execution ==> " + resultCount);
         }
     }
 
