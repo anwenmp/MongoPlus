@@ -408,6 +408,26 @@ public class MongoMapperImpl<T> implements MongoMapper<T> {
     }
 
     @Override
+    public <R> List<R> distinct(String fieldName, Class<R> rClazz) {
+        return baseMapper.distinct(fieldName, clazz, rClazz);
+    }
+
+    @Override
+    public <R> List<R> distinct(String fieldName, TypeReference<R> typeReference) {
+        return baseMapper.distinct(fieldName, clazz, typeReference);
+    }
+
+    @Override
+    public <R> List<R> distinct(String fieldName, Wrapper<T> queryWrapper, Class<R> rClazz) {
+        return baseMapper.distinct(fieldName, queryWrapper, clazz, rClazz);
+    }
+
+    @Override
+    public <R> List<R> distinct(String fieldName, Wrapper<T> queryWrapper, TypeReference<R> typeReference) {
+        return baseMapper.distinct(fieldName, queryWrapper, clazz, typeReference);
+    }
+
+    @Override
     public long count() {
         return baseMapper.count(clazz);
     }

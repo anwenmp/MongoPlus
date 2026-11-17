@@ -303,6 +303,52 @@ public interface SuperMapper extends BaseIndex {
     <T,R> List<R> list(String database,String collectionName,Wrapper<T> queryWrapper, TypeReference<R> typeReference);
 
     /**
+     * 查询字段的所有去重值。
+     * @param database 数据库
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(String database, String collectionName, String fieldName, Class<R> rClazz) {
+        return distinct(database, collectionName, fieldName, null, rClazz);
+    }
+
+    /**
+     * 查询字段的所有去重值，保留字段值的泛型信息。
+     * @param database 数据库
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(String database, String collectionName, String fieldName, TypeReference<R> typeReference) {
+        return distinct(database, collectionName, fieldName, null, typeReference);
+    }
+
+    /**
+     * 去重查询
+     * @param database 数据库
+     * @param collectionName 集合
+     * @param fieldName 字段名
+     * @param queryWrapper 条件, 可以为空
+     * @param rClazz 返回的class
+     * @return {@link List<R>}
+     */
+    <T, R> List<R> distinct(String database, String collectionName, String fieldName, @Nullable Wrapper<T> queryWrapper, Class<R> rClazz);
+
+    /**
+     * 去重查询
+     * @param database 数据库
+     * @param collectionName 集合
+     * @param fieldName 字段名
+     * @param queryWrapper 条件, 可以为空
+     * @param typeReference 返回的class
+     * @return {@link List<R>}
+     */
+    <T, R> List<R> distinct(String database, String collectionName, String fieldName, @Nullable Wrapper<T> queryWrapper, TypeReference<R> typeReference);
+
+    /**
      * 管道查询
      * @param aggregate 管道构建
      * @return {@link List<R>}

@@ -3,6 +3,7 @@ package com.mongoplus.execute.instance;
 import com.mongodb.BasicDBObject;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
@@ -93,6 +94,13 @@ public class DefaultExecute implements Execute {
                 .orElseGet(() -> collection.find(clazz))
                 .projection(projectionList)
                 .sort(sortCond);
+    }
+
+    @Override
+    public <T> DistinctIterable<T> executeDistinct(String fieldName, Bson filter, Class<T> clazz, MongoCollection<Document> collection) {
+        return Optional.ofNullable(filter)
+                .map(f -> collection.distinct(fieldName, f, clazz))
+                .orElseGet(() -> collection.distinct(fieldName, clazz));
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.mongoplus.conditions.query.QueryWrapper;
 import com.mongoplus.conditions.update.UpdateChainWrapper;
 import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageResult;
+import com.mongoplus.support.SFunction;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -288,6 +289,90 @@ public interface BaseMapper extends Mapper {
      * @author anwen
      */
     <T,R> List<R> list(Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference);
+
+    /**
+     * 查询实体集合中字段的所有去重值。
+     * @param fieldName MongoDB 中的字段名
+     * @param clazz 决定数据库和集合的实体类型
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <T, R> List<R> distinct(String fieldName, Class<T> clazz, Class<R> rClazz);
+
+    /**
+     * 查询实体集合中字段的所有去重值。
+     * @param fieldName MongoDB 中的字段名
+     * @param clazz 决定数据库和集合的实体类型
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <T, R> List<R> distinct(String fieldName, Class<T> clazz, TypeReference<R> typeReference);
+
+    /**
+     * 根据条件查询实体集合中字段的去重值。
+     * @param fieldName MongoDB 中的字段名
+     * @param queryWrapper 查询条件，可以为空
+     * @param clazz 决定数据库和集合的实体类型
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <T, R> List<R> distinct(String fieldName, @Nullable Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz);
+
+    /**
+     * 根据条件查询实体集合中字段的去重值。
+     * @param fieldName MongoDB 中的字段名
+     * @param queryWrapper 查询条件，可以为空
+     * @param clazz 决定数据库和集合的实体类型
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <T, R> List<R> distinct(String fieldName, @Nullable Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference);
+
+    /**
+     * 使用实体字段引用查询所有去重值，按字段注解和命名配置解析存储名。
+     * @param fieldName 实体字段的 getter 引用
+     * @param clazz 决定数据库和集合的实体类型
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(SFunction<T, ?> fieldName, Class<T> clazz, Class<R> rClazz) {
+        return distinct(fieldName.getFieldNameLine(), clazz, rClazz);
+    }
+
+    /**
+     * 使用实体字段引用查询所有去重值，保留字段值的泛型信息。
+     * @param fieldName 实体字段的 getter 引用
+     * @param clazz 决定数据库和集合的实体类型
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(SFunction<T, ?> fieldName, Class<T> clazz, TypeReference<R> typeReference) {
+        return distinct(fieldName.getFieldNameLine(), clazz, typeReference);
+    }
+
+    /**
+     * 使用实体字段引用，根据条件查询去重值。
+     * @param fieldName 实体字段的 getter 引用
+     * @param queryWrapper 查询条件，可以为空
+     * @param clazz 决定数据库和集合的实体类型
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(SFunction<T, ?> fieldName, @Nullable Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
+        return distinct(fieldName.getFieldNameLine(), queryWrapper, clazz, rClazz);
+    }
+
+    /**
+     * 使用实体字段引用，根据条件查询去重值，保留字段值的泛型信息。
+     * @param fieldName 实体字段的 getter 引用
+     * @param queryWrapper 查询条件，可以为空
+     * @param clazz 决定数据库和集合的实体类型
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(SFunction<T, ?> fieldName, @Nullable Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference) {
+        return distinct(fieldName.getFieldNameLine(), queryWrapper, clazz, typeReference);
+    }
 
     /**
      * 管道查询

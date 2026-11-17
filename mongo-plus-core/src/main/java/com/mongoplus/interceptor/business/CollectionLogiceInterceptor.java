@@ -45,14 +45,7 @@ public class CollectionLogiceInterceptor implements Interceptor {
     }
 
     Bson remove(Bson filter, MongoCollection<Document> collection) {
-        if (LogicManager.isIgnoreLogic()) {
-            return filter;
-        }
-        Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
-        if (LogicDeleteHandler.close() || Objects.isNull(clazz)) {
-            return filter;
-        }
-        return LogicDeleteHandler.doBsonLogicDel(filter, clazz);
+        return getBson(filter, collection);
     }
 
     @Override
@@ -69,6 +62,11 @@ public class CollectionLogiceInterceptor implements Interceptor {
         Bson query = LogicDeleteHandler.doBsonLogicDel(queryBasic, clazz);
         return new QueryParam(query, projectionList, sortCond);
 
+    }
+
+    @Override
+    public Bson executeDistinct(String fieldName, Bson filter, MongoCollection<Document> collection) {
+        return getBson(filter, collection);
     }
 
     @Override
@@ -178,4 +176,16 @@ public class CollectionLogiceInterceptor implements Interceptor {
         });
         return updatePairList;
     }
+
+    private Bson getBson(Bson filter, MongoCollection<Document> collection) {
+        if (LogicManager.isIgnoreLogic()) {
+            return filter;
+        }
+        Class<?> clazz = LogicDeleteHandler.getBeanClass(collection);
+        if (LogicDeleteHandler.close() || Objects.isNull(clazz)) {
+            return filter;
+        }
+        return LogicDeleteHandler.doBsonLogicDel(filter, clazz);
+    }
+
 }

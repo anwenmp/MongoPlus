@@ -2,10 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoIterable;
+import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
@@ -33,7 +30,12 @@ import com.mongoplus.model.command.ParseCommand;
 import com.mongoplus.parser.command.CommandParse;
 import com.mongoplus.toolkit.*;
 import com.mongoplus.toolkit.Filters;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentReader;
+import org.bson.BsonValue;
 import org.bson.Document;
+import org.bson.codecs.Codec;
+import org.bson.codecs.DecoderContext;
 import org.bson.conversions.Bson;
 
 import java.io.Serializable;
@@ -318,6 +320,38 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
                 mongoPlusClient.getCollection(database, collectionName)
         );
         return mongoConverter.read(documentFindIterable, typeReference);
+    }
+
+    @Override
+    public <T, R> List<R> distinct(String database, String collectionName, String fieldName, Wrapper<T> queryWrapper, Class<R> rClazz) {
+        return distinct(database, collectionName, fieldName, queryWrapper, new TypeReference<R>(rClazz) {});
+    }
+
+    @Override
+    public <T, R> List<R> distinct(String database, String collectionName, String fieldName, Wrapper<T> queryWrapper, TypeReference<R> typeReference) {
+        Bson filter = null;
+        if (queryWrapper != null) {
+            filter = queryWrapper.buildCondition().getCondition();
+        }
+        MongoCollection<Document> collection = mongoPlusClient.getCollection(database, collectionName);
+        DistinctIterable<BsonValue> distinctIterable = factory.getExecute().executeDistinct(
+                fieldName,
+                filter,
+                BsonValue.class,
+                collection);
+        Codec<Document> documentCodec = collection.getCodecRegistry().get(Document.class);
+        DecoderContext decoderContext = DecoderContext.builder().build();
+        List<R> resultList = new ArrayList<>();
+        distinctIterable.forEach(value -> {
+            if (value == null || value.isNull()) {
+                resultList.add(null);
+                return;
+            }
+            // distinct 返回字段值；临时包装后交给 Driver 解码，保留标量、数组和嵌套文档的 BSON 类型。
+            Object source = documentCodec.decode(new BsonDocumentReader(new BsonDocument("value", value)), decoderContext).get("value");
+            resultList.add(source == null ? null : mongoConverter.readInternal(source, typeReference));
+        });
+        return resultList;
     }
 
     @Override

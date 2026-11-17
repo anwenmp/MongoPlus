@@ -3,6 +3,7 @@ package com.mongoplus.execute;
 import com.mongodb.BasicDBObject;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
@@ -105,6 +106,16 @@ public interface Execute {
     <T> FindIterable<T> executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond,
                                      Class<T> clazz,
                                      MongoCollection<Document> collection);
+
+    /**
+     * 去重查询
+     * @param fieldName 要去重的字段名称
+     * @param filter 过滤条件
+     * @param clazz 响应体类型
+     * @return {@link com.mongodb.client.DistinctIterable<T>}
+     */
+    <T> DistinctIterable<T> executeDistinct(String fieldName, Bson filter, Class<T> clazz,
+                                            MongoCollection<Document> collection);
 
     /**
      * 管道执行

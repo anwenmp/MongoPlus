@@ -170,6 +170,52 @@ public interface Mapper extends SuperMapper {
     }
 
     /**
+     * 在默认数据库中查询字段的所有去重值。
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(String collectionName, String fieldName, Class<R> rClazz) {
+        return distinct(EMPTY, collectionName, fieldName, rClazz);
+    }
+
+    /**
+     * 在默认数据库中查询字段的所有去重值。
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(String collectionName, String fieldName, TypeReference<R> typeReference) {
+        return distinct(EMPTY, collectionName, fieldName, typeReference);
+    }
+
+    /**
+     * 在默认数据库中根据条件查询字段的去重值。
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param queryWrapper 查询条件，可以为空
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(String collectionName, String fieldName, Wrapper<T> queryWrapper, Class<R> rClazz) {
+        return distinct(EMPTY, collectionName, fieldName, queryWrapper, rClazz);
+    }
+
+    /**
+     * 在默认数据库中根据条件查询字段的去重值。
+     * @param collectionName 集合
+     * @param fieldName MongoDB 中的字段名
+     * @param queryWrapper 查询条件，可以为空
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <T, R> List<R> distinct(String collectionName, String fieldName, Wrapper<T> queryWrapper, TypeReference<R> typeReference) {
+        return distinct(EMPTY, collectionName, fieldName, queryWrapper, typeReference);
+    }
+
+    /**
      * 管道查询
      * @param aggregate 管道构建
      * @return {@link List<R>}

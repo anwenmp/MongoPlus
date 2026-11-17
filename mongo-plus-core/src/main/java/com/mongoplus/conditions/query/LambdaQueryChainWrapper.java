@@ -2,6 +2,7 @@ package com.mongoplus.conditions.query;
 
 import com.mongodb.client.model.FindOneAndDeleteOptions;
 import com.mongoplus.mapper.BaseMapper;
+import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageParam;
 import com.mongoplus.model.PageResult;
 
@@ -31,6 +32,16 @@ public class LambdaQueryChainWrapper<T> extends QueryChainWrapper<T,LambdaQueryC
     @Override
     public <R> List<R> list(Class<R> rClazz) {
         return baseMapper.list(this,clazz,rClazz);
+    }
+
+    @Override
+    public <R> List<R> distinct(String fieldName, Class<R> rClazz) {
+        return baseMapper.distinct(fieldName, this, clazz, rClazz);
+    }
+
+    @Override
+    public <R> List<R> distinct(String fieldName, TypeReference<R> typeReference) {
+        return baseMapper.distinct(fieldName, this, clazz, typeReference);
     }
 
     @Override

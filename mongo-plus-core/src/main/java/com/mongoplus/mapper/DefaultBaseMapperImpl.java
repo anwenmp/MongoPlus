@@ -103,6 +103,30 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
     }
 
     @Override
+    public <T, R> List<R> distinct(String fieldName, Class<T> clazz, Class<R> rClazz) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return distinct(namespace.left, namespace.right, fieldName, rClazz);
+    }
+
+    @Override
+    public <T, R> List<R> distinct(String fieldName, Class<T> clazz, TypeReference<R> typeReference) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return distinct(namespace.left, namespace.right, fieldName, typeReference);
+    }
+
+    @Override
+    public <T, R> List<R> distinct(String fieldName, Wrapper<T> queryWrapper, Class<T> clazz, Class<R> rClazz) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return distinct(namespace.left, namespace.right, fieldName, queryWrapper, rClazz);
+    }
+
+    @Override
+    public <T, R> List<R> distinct(String fieldName, Wrapper<T> queryWrapper, Class<T> clazz, TypeReference<R> typeReference) {
+        MutablePair<String, String> namespace = getNamespace(clazz);
+        return distinct(namespace.left, namespace.right, fieldName, queryWrapper, typeReference);
+    }
+
+    @Override
     public <T, R> List<R> aggregateList(Aggregate<?> aggregate, Class<T> clazz, Class<R> rClazz) {
         MutablePair<String, String> namespace = getNamespace(clazz);
         return aggregateList(namespace.left, namespace.right, aggregate, rClazz);

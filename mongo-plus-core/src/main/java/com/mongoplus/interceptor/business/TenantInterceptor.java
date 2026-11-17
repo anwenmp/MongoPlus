@@ -101,6 +101,14 @@ public class TenantInterceptor implements Interceptor {
     }
 
     @Override
+    public Bson executeDistinct(String fieldName, Bson filter, MongoCollection<Document> collection) {
+        if (!isTenantIgnored(collection, tenantHandler)) {
+            return appendTenantFilter(filter, collection);
+        }
+        return filter;
+    }
+
+    @Override
     public List<Bson> executeAggregates(List<Bson> aggregateConditionList, MongoCollection<Document> collection) {
         if (!isTenantIgnored(collection, tenantHandler)) {
             boolean hasMatch = aggregateConditionList.stream()

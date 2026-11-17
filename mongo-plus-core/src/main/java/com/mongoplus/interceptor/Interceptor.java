@@ -127,6 +127,17 @@ public interface Interceptor {
     }
 
     /**
+     * 去重查询拦截方法
+     * @param fieldName 字段名
+     * @param filter 查询条件
+     * @param collection 集合对象
+     * @return {@link Bson}
+     */
+    default Bson executeDistinct(String fieldName, Bson filter, MongoCollection<Document> collection) {
+        return filter;
+    }
+
+    /**
      * 管道拦截方法
      *
      * @author JiaChaoYang

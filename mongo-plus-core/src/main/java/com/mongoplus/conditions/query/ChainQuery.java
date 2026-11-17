@@ -1,8 +1,10 @@
 package com.mongoplus.conditions.query;
 
 import com.mongodb.client.model.FindOneAndDeleteOptions;
+import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageParam;
 import com.mongoplus.model.PageResult;
+import com.mongoplus.support.SFunction;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -27,6 +29,42 @@ public interface ChainQuery<T> {
      * @author anwen
      */
     <R> List<R> list(Class<R> rClazz);
+
+    /**
+     * 按当前条件查询字段的去重值。
+     * @param fieldName MongoDB 中的字段名
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <R> List<R> distinct(String fieldName, Class<R> rClazz);
+
+    /**
+     * 按当前条件查询字段的去重值，保留字段值的泛型信息。
+     * @param fieldName MongoDB 中的字段名
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    <R> List<R> distinct(String fieldName, TypeReference<R> typeReference);
+
+    /**
+     * 按当前条件查询实体字段的去重值，按字段注解和命名配置解析存储名。
+     * @param fieldName 实体字段的 getter 引用
+     * @param rClazz 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(SFunction<T, ?> fieldName, Class<R> rClazz) {
+        return distinct(fieldName.getFieldNameLine(), rClazz);
+    }
+
+    /**
+     * 按当前条件查询实体字段的去重值，保留字段值的泛型信息。
+     * @param fieldName 实体字段的 getter 引用
+     * @param typeReference 字段值的返回类型
+     * @return 去重后的字段值
+     */
+    default <R> List<R> distinct(SFunction<T, ?> fieldName, TypeReference<R> typeReference) {
+        return distinct(fieldName.getFieldNameLine(), typeReference);
+    }
 
     /**
      * 获取单个，返回T类型的对象
