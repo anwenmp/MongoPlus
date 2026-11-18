@@ -17,6 +17,7 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.model.MutablePair;
 import com.mongoplus.model.OperationResult;
+import com.mongoplus.toolkit.BsonUtil;
 import com.mongoplus.toolkit.CollUtil;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.BsonArray;
@@ -161,6 +162,7 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
                 executeMethodEnum == ExecuteMethodEnum.SAVE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.UPDATE ||
                 executeMethodEnum == ExecuteMethodEnum.UPDATE_ONE ||
+                executeMethodEnum == ExecuteMethodEnum.REPLACE ||
                 executeMethodEnum == ExecuteMethodEnum.REMOVE ||
                 executeMethodEnum == ExecuteMethodEnum.REMOVE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.BULK_WRITE;
@@ -189,6 +191,8 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
                 return processUpdate(source);
             case UPDATE_ONE:
                 return processUpdateOne(source);
+            case REPLACE:
+                return processReplace(source);
             case REMOVE:
             case REMOVE_ONE:
                 return processRemove(source);
@@ -197,6 +201,16 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
             default:
                 return null;
         }
+    }
+
+    private OperationResult processReplace(Object[] source) {
+        OperationResult operationResult = new OperationResult();
+        operationResult.setOperation(ExecuteMethodEnum.REPLACE.name());
+        operationResult.setChangedData(displayCompleteData
+                ? new Document("filter", BsonUtil.asBsonDocument((Bson) source[0]))
+                        .append("replacement", source[1]).toString()
+                : "1");
+        return operationResult;
     }
 
     private OperationResult processSaveOne(Object[] source) throws DataUpdateLimitationException {

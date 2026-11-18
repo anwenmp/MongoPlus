@@ -67,7 +67,17 @@ public enum ExecuteMethodEnum {
     /**
      * 原子查找并物理删除，返回被删除的文档
      */
-    FIND_ONE_AND_REMOVE("executeFindOneAndRemove")
+    FIND_ONE_AND_REMOVE("executeFindOneAndRemove"),
+
+    /**
+     * 替换单个文档
+     */
+    REPLACE("executeReplace"),
+
+    /**
+     * 去重查询
+     */
+    DISTINCT("executeDistinct")
 
     ;
 

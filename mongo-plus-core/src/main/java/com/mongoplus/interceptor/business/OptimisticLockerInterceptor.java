@@ -22,9 +22,13 @@ import com.mongoplus.model.Retry;
 import com.mongoplus.model.UpdateRetryResult;
 import com.mongoplus.registry.MongoEntityMappingRegistry;
 import com.mongoplus.toolkit.BsonUtil;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonInt32;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -103,21 +107,23 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         ExecuteMethodEnum executeMethod = invocation.getExecuteMethod();
-        if (!hitLock(invocation.getExecuteMethod())) {
+        if (!hitLock(executeMethod)) {
             return invocation.proceed();
         }
         FieldInformation fieldInformation = getVersionFieldInformation(invocation.getCollection());
         if (fieldInformation == null){
             return invocation.proceed();
         }
-        boolean isUpdate = executeMethod == UPDATE || executeMethod == UPDATE_ONE || executeMethod == BULK_WRITE;
+        boolean isReplace = executeMethod == REPLACE;
+        boolean isUpdate = executeMethod == UPDATE || executeMethod == UPDATE_ONE || isReplace || executeMethod == BULK_WRITE;
+        boolean canRetry = !isReplace
+                || ((Document) invocation.getArgs()[1]).get(fieldInformation.getCamelCaseName()) != null;
         Object result = executor(invocation,false);
         if (isUpdate) {
-            if (retry != null) {
+            if (retry != null && canRetry && (!isReplace || !isWriteSuccessful(result, executeMethod))) {
                 result = beforeRetry(result,invocation);
             }
-            if (updateFailException != null &&
-                    getModifiedCount(result) <= 0) {
+            if (updateFailException != null && !isWriteSuccessful(result, executeMethod)) {
                 updateFailException.fillInStackTrace();
                 throw updateFailException;
             }
@@ -148,6 +154,8 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == UPDATE_ONE) {
             handleUpdate((MutablePair<Bson,Bson>)args[0],autoVersion,fieldInformation);
+        } else if (executeMethod == REPLACE && fieldInformation != null) {
+            handleReplace(args, autoVersion, fieldInformation.getCamelCaseName());
         } else if (executeMethod == BULK_WRITE) {
             handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
         }
@@ -200,10 +208,9 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         Condition condition = lock.newCondition();
         int retryCount = 1;
         while (retryCount <= retry.getMaxRetryNum()) {
-            long line = getModifiedCount(result);
             UpdateRetryResult updateRetryResult =
                     new UpdateRetryResult(result, retryCount, invocation.getArgs(), retry);
-            if (line >= 1) {
+            if (isWriteSuccessful(result, invocation.getExecuteMethod())) {
                 if (retry.getOnSuccess() != null) {
                     retry.getOnSuccess().accept(updateRetryResult);
                 }
@@ -227,6 +234,12 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 }
             }
             result = executor(invocation,true);
+        }
+        if (invocation.getExecuteMethod() == REPLACE && isWriteSuccessful(result, REPLACE)) {
+            if (retry.getOnSuccess() != null) {
+                retry.getOnSuccess().accept(new UpdateRetryResult(result, retryCount, invocation.getArgs(), retry));
+            }
+            return result;
         }
         if (retry.getFallback() != null) {
             return retry.getFallback().apply(
@@ -274,6 +287,14 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         }
     }
 
+    private boolean isWriteSuccessful(Object result, ExecuteMethodEnum method) {
+        if (method == REPLACE) {
+            UpdateResult replacement = (UpdateResult) result;
+            return replacement.getMatchedCount() > 0 || replacement.getUpsertedId() != null;
+        }
+        return getModifiedCount(result) > 0;
+    }
+
     /**
      * 命中乐观锁
      * @param executeMethod 执行方法
@@ -285,6 +306,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 executeMethod == SAVE_ONE ||
                 executeMethod == UPDATE ||
                 executeMethod == UPDATE_ONE ||
+                executeMethod == REPLACE ||
                 executeMethod == BULK_WRITE;
     }
 
@@ -352,6 +374,34 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 updatePair.getRight(),
                 autoVersion
         );
+    }
+
+    private void handleReplace(Object[] args, boolean autoVersion, String fieldName) {
+        Document replacement = (Document) args[1];
+        Integer version = replacement.getInteger(fieldName);
+        if (version == null) {
+            log.debug("There is an optimistic lock field, but its value is missing from the replacement: " + fieldName);
+            if (versionIsNullException != null) {
+                versionIsNullException.fillInStackTrace();
+                throw versionIsNullException;
+            }
+            return;
+        }
+
+        BsonDocument filter = args[0] instanceof BsonDocument
+                ? (BsonDocument) args[0]
+                : BsonUtil.asBsonDocument((Bson) args[0]).clone();
+        if (autoVersion) {
+            version = filter.getInt32(fieldName).getValue() + retry.getAutoVersionNum();
+        } else if (filter.containsKey(fieldName)) {
+            // 保留调用方已有的版本条件，顶层版本条件由乐观锁和重试维护。
+            BsonArray original = new BsonArray(Collections.singletonList(filter.clone()));
+            filter.clear();
+            filter.put("$and", original);
+        }
+        filter.put(fieldName, new BsonInt32(version));
+        args[0] = filter;
+        replacement.put(fieldName, version + autoInc);
     }
 
     /**

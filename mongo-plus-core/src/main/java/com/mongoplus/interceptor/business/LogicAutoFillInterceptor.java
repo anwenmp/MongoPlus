@@ -7,7 +7,9 @@ import com.mongoplus.interceptor.Interceptor;
 import com.mongoplus.logic.LogicDeleteHandler;
 import com.mongoplus.manager.LogicManager;
 import com.mongoplus.model.LogicDeleteResult;
+import com.mongoplus.model.MutablePair;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +61,12 @@ public class LogicAutoFillInterceptor implements Interceptor {
         }
         return document;
 
+    }
+
+    @Override
+    public MutablePair<Bson, Document> executeReplace(Bson filter, Document replacement,
+                                                     MongoCollection<Document> collection) {
+        return new MutablePair<>(filter, executeSave(replacement, collection));
     }
 
     @Override

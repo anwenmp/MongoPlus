@@ -4,6 +4,7 @@ import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
+import com.mongodb.client.result.UpdateResult;
 import com.mongoplus.cache.global.DataSourceNameCache;
 import com.mongoplus.domain.MongoPlusDsException;
 import com.mongoplus.enums.ExecuteMethodEnum;
@@ -17,6 +18,9 @@ import com.mongoplus.logging.LogFactory;
 import com.mongoplus.logic.LogicRemove;
 import com.mongoplus.manager.MongoPlusClient;
 import com.mongoplus.model.MutablePair;
+import com.mongoplus.toolkit.BsonUtil;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -26,6 +30,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.mongoplus.constant.SqlOperationConstant._ID;
 import static com.mongoplus.enums.MultipleWrite.*;
 
 /**
@@ -109,6 +114,24 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         if (executeMethod == ExecuteMethodEnum.UPDATE_ONE) {
             executeUpdate((MutablePair<Bson, Bson>) source[0], (UpdateOptions) source[1], collection);
         }
+        if (executeMethod == ExecuteMethodEnum.REPLACE) {
+            // 反射代理各有自己的参数数组，使用可变 BSON 共享内层乐观锁的条件改动。
+            BsonDocument filter = BsonUtil.asBsonDocument((Bson) source[0]).clone();
+            source[0] = filter;
+            UpdateResult result = (UpdateResult) invocation.proceed();
+            // 主库命中后再复制，使用高级拦截器处理过的版本条件和替换文档。
+            if (result.wasAcknowledged()) {
+                BsonValue upsertedId = result.getUpsertedId();
+                if (result.getMatchedCount() > 0 || upsertedId != null) {
+                    Document replacement = (Document) source[1];
+                    if (upsertedId != null) {
+                        replacement = new Document(replacement).append(_ID, upsertedId);
+                    }
+                    executeReplace(filter, replacement, (ReplaceOptions) source[2], collection);
+                }
+            }
+            return result;
+        }
         if (executeMethod == ExecuteMethodEnum.BULK_WRITE) {
             executeBulkWrite((List<WriteModel<Document>>) source[0],(BulkWriteOptions) source[1], collection);
         }
@@ -166,6 +189,14 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
         );
     }
 
+    void executeReplace(Bson filter, Document replacement, ReplaceOptions options, MongoCollection<Document> collection) {
+        executeMultipleWrite(
+                UPDATE,
+                collection,
+                mongoCollection -> execute.executeReplace(filter, replacement, options, mongoCollection)
+        );
+    }
+
     void executeBulkWrite(List<WriteModel<Document>> writeModelList,
                                                        BulkWriteOptions options,
                                                        MongoCollection<Document> collection) {
@@ -179,14 +210,14 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
     void executeMultipleWrite(MultipleWrite multipleWrite,MongoCollection<Document> collection,
                                       Consumer<MongoCollection<Document>> action) {
         MongoNamespace namespace = collection.getNamespace();
+        String sourceDataSource = DataSourceNameCache.getDataSource();
         List<String> multipleWriteTargets = multipleWriteHandler.getMultipleWrite(multipleWrite, namespace);
-        multipleWriteTargets.forEach(dsName -> executor.submit(() -> {
-            if (!dsName.equals(DataSourceNameCache.getDataSource())) {
+        multipleWriteTargets.stream().filter(dsName -> !dsName.equals(sourceDataSource))
+            .forEach(dsName -> executor.submit(() -> {
                 MongoCollection<Document> mongoCollection = getMongoCollection(namespace, dsName);
                 log.info("Executing multiple write operation on data source: " + dsName);
                 action.accept(mongoCollection);
-            }
-        }));
+            }));
     }
 
     MongoCollection<Document> getMongoCollection(MongoNamespace namespace, String dsName) {

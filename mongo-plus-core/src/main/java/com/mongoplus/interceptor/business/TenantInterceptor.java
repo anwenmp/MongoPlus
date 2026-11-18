@@ -95,6 +95,12 @@ public class TenantInterceptor implements Interceptor {
     }
 
     @Override
+    public MutablePair<Bson, Document> executeReplace(Bson filter, Document replacement,
+                                                     MongoCollection<Document> collection) {
+        return new MutablePair<>(appendTenantFilter(filter, collection), executeSave(replacement, collection));
+    }
+
+    @Override
     public QueryParam executeQuery(Bson queryBasic, BasicDBObject projectionList, BasicDBObject sortCond,
                                    MongoCollection<Document> collection) {
         return new QueryParam(appendTenantFilter(queryBasic, collection), projectionList, sortCond);

@@ -177,6 +177,12 @@ public class CollectionLogiceInterceptor implements Interceptor {
         return updatePairList;
     }
 
+    @Override
+    public MutablePair<Bson, Document> executeReplace(Bson filter, Document replacement,
+                                                     MongoCollection<Document> collection) {
+        return new MutablePair<>(getBson(filter, collection), replacement);
+    }
+
     private Bson getBson(Bson filter, MongoCollection<Document> collection) {
         if (LogicManager.isIgnoreLogic()) {
             return filter;
