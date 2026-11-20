@@ -7,6 +7,7 @@ import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.UpdateResult;
 import com.mongoplus.annotation.collection.Version;
+import com.mongoplus.cache.codec.MapCodecCache;
 import com.mongoplus.domain.MongoPlusException;
 import com.mongoplus.domain.OptimisticLockerException;
 import com.mongoplus.enums.ExecuteMethodEnum;
@@ -21,10 +22,13 @@ import com.mongoplus.model.MutablePair;
 import com.mongoplus.model.Retry;
 import com.mongoplus.model.UpdateRetryResult;
 import com.mongoplus.registry.MongoEntityMappingRegistry;
-import com.mongoplus.toolkit.BsonUtil;
+import org.bson.BsonDocument;
+import org.bson.BsonNumber;
 import org.bson.Document;
+import org.bson.codecs.DecoderContext;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -149,7 +153,8 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         } else if (executeMethod == UPDATE_ONE) {
             handleUpdate((MutablePair<Bson,Bson>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == BULK_WRITE) {
-            handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
+            // 处理后的列表要写回实际执行参数，否则重建的模型不会交给驱动执行
+            args[0] = handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
         }
     }
 
@@ -327,11 +332,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             return;
         }
         String fieldName = fieldInformation.getCamelCaseName();
-        updatePairList.forEach(updatePair -> updateParamHandler(fieldName,
-                updatePair.getLeft(),
-                updatePair.getRight(),
-                autoVersion
-        ));
+        updatePairList.forEach(updatePair -> updateParamHandler(fieldName, updatePair, autoVersion));
     }
 
     /**
@@ -347,38 +348,66 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             return;
         }
         String fieldName = fieldInformation.getCamelCaseName();
-        updateParamHandler(fieldName,
-                updatePair.getLeft(),
-                updatePair.getRight(),
-                autoVersion
-        );
+        updateParamHandler(fieldName, updatePair, autoVersion);
     }
 
     /**
      * bulkWrite处理
-     * @param writeModelList bulkWrite参数
+     * @param writeModelList bulkWrite参数，不保证可变
      * @param fieldInformation 乐观锁字段
+     * @return 处理后的参数，调用方需要用它替换原参数
      * @author anwen
      */
-    void handleBulkWrite(List<WriteModel<Document>> writeModelList,
-                         boolean autoVersion,
-                         FieldInformation fieldInformation) {
+    List<WriteModel<Document>> handleBulkWrite(List<WriteModel<Document>> writeModelList,
+                                               boolean autoVersion,
+                                               FieldInformation fieldInformation) {
         if (fieldInformation == null){
-            return;
+            return writeModelList;
         }
         String fieldName = fieldInformation.getCamelCaseName();
-        writeModelList.forEach(writeModel -> {
+        // 调用方可能传入不可变列表(Collections.singletonList、unmodifiableList)，
+        // 重建模型需要替换元素，所以先复制一份可变副本，不直接改调用方的列表
+        List<WriteModel<Document>> handledModelList = new ArrayList<>(writeModelList);
+        for (int i = 0; i < handledModelList.size(); i++) {
+            WriteModel<Document> writeModel = handledModelList.get(i);
             if (writeModel instanceof InsertOneModel) {
                 InsertOneModel<Document> insertOneModel = (InsertOneModel<Document>) writeModel;
                 saveParamHandler(fieldName,insertOneModel.getDocument());
             }
             if (writeModel instanceof UpdateManyModel){
                 UpdateManyModel<Document> updateManyModel = (UpdateManyModel<Document>) writeModel;
-                Bson filterBson = updateManyModel.getFilter();
-                Bson updateBson = updateManyModel.getUpdate();
-                updateParamHandler(fieldName,filterBson,updateBson,autoVersion);
+                if (updateManyModel.getUpdatePipeline() != null) {
+                    handleUpdatePipeline(fieldName);
+                    continue;
+                }
+                MutablePair<Bson, Bson> updatePair = MutablePair.of(updateManyModel.getFilter(),
+                        updateManyModel.getUpdate());
+                updateParamHandler(fieldName, updatePair, autoVersion);
+                if (updatePair.getLeft() != updateManyModel.getFilter()
+                        || updatePair.getRight() != updateManyModel.getUpdate()) {
+                    handledModelList.set(i, new UpdateManyModel<>(updatePair.getLeft(),
+                            updatePair.getRight(), updateManyModel.getOptions()));
+                }
             }
-        });
+        }
+        return handledModelList;
+    }
+
+    /**
+     * 管道更新的处理
+     * <p>管道更新无法在更新语句里追加版本自增({@code $inc}只能用于普通更新文档)，补不了版本条件，
+     * 所以配置了版本缺失异常时按配置拒绝执行，没有配置时保持原来的行为：跳过并告警</p>
+     * @param fieldName 字段名
+     * @author anwen
+     */
+    void handleUpdatePipeline(String fieldName) {
+        if (versionIsNullException != null) {
+            log.debug("The update pipeline cannot provide the optimistic lock condition," +
+                    "reject it,fieldName: " + fieldName);
+            versionIsNullException.fillInStackTrace();
+            throw versionIsNullException;
+        }
+        log.warn("The update pipeline cannot be appended with the optimistic lock condition,skip it,fieldName: " + fieldName);
     }
 
     /**
@@ -396,40 +425,108 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
     /**
      * update参数处理
      * @param fieldName 字段名
-     * @param filterBson 条件
-     * @param updateBson 更新值
+     * @param updatePair 条件与更新值，处理完会将新的条件与更新值写回
+     * @param autoVersion 是否自动版本
      * @author anwen
      */
-    void updateParamHandler(String fieldName, Bson filterBson, Bson updateBson, boolean autoVersion) {
-        Document document = BsonUtil.asDocument(updateBson);
-        Document setDocument = document.get(UpdateConditionEnum.SET.getCondition(), Document.class);
+    void updateParamHandler(String fieldName, MutablePair<Bson, Bson> updatePair, boolean autoVersion) {
+        Document updateDocument = toMutableDocument(updatePair.getRight());
+        Document setDocument = getDocument(updateDocument, UpdateConditionEnum.SET.getCondition());
         Integer versionValue;
-        if (setDocument == null || (versionValue = setDocument.getInteger(fieldName)) == null) {
+        if (setDocument == null || (versionValue = getInteger(setDocument, fieldName)) == null) {
             if (!autoVersion) {
-                log.debug("There is an optimistic lock field, but the original value " +
-                        "of the optimistic lock has not been obtained,fieldName: " + fieldName);
-                if (versionIsNullException != null) {
-                    versionIsNullException.fillInStackTrace();
-                    throw versionIsNullException;
-                }
+                versionValueMissing(fieldName);
                 return;
             }
-            Document filterDocument = BsonUtil.asDocument(filterBson);
-            Integer originalVersionValue = filterDocument.getInteger(fieldName);
-            versionValue = originalVersionValue+ retry.getAutoVersionNum();
-        }
-        BsonUtil.addToMap(filterBson,fieldName,versionValue);
-        BsonUtil.removeFrom(setDocument,fieldName);
-        Object increment = BsonUtil.get(updateBson, INC.getCondition());
-        if (increment instanceof Bson) {
-            Bson incrementBson = (Bson) increment;
-            Bson mergedIncrementBson = BsonUtil.addToMap(incrementBson, fieldName, autoInc);
-            if (mergedIncrementBson != incrementBson) {
-                BsonUtil.addToMap(updateBson, INC.getCondition(), mergedIncrementBson);
+            Integer originalVersionValue = getInteger(toMutableDocument(updatePair.getLeft()), fieldName);
+            if (originalVersionValue == null) {
+                versionValueMissing(fieldName);
+                return;
             }
-        } else {
-            BsonUtil.addToMap(updateBson, INC.getCondition(), new Document(fieldName, autoInc));
+            versionValue = originalVersionValue + (retry == null ? autoInc : retry.getAutoVersionNum());
         }
+        if (setDocument != null) {
+            setDocument.remove(fieldName);
+        }
+        Document filterDocument = toMutableDocument(updatePair.getLeft());
+        filterDocument.put(fieldName, versionValue);
+        Document incrementDocument = getDocument(updateDocument, INC.getCondition());
+        if (incrementDocument == null) {
+            incrementDocument = new Document();
+        }
+        incrementDocument.put(fieldName, autoInc);
+        updateDocument.put(INC.getCondition(), incrementDocument);
+        updatePair.setLeft(filterDocument);
+        updatePair.setRight(updateDocument);
+    }
+
+    /**
+     * 乐观锁原版本号未获取到时的处理
+     * @param fieldName 字段名
+     */
+    void versionValueMissing(String fieldName) {
+        log.debug("There is an optimistic lock field, but the original value " +
+                "of the optimistic lock has not been obtained,fieldName: " + fieldName);
+        if (versionIsNullException != null) {
+            versionIsNullException.fillInStackTrace();
+            throw versionIsNullException;
+        }
+    }
+
+    /**
+     * 将Bson转为可变的Document，已经是Document时直接返回，避免复制带来的额外开销
+     * @param bson bson
+     * @return {@link Document}
+     */
+    Document toMutableDocument(Bson bson) {
+        if (bson == null) {
+            return new Document();
+        }
+        if (bson instanceof Document) {
+            return (Document) bson;
+        }
+        BsonDocument bsonDocument = bson.toBsonDocument(BsonDocument.class, MapCodecCache.getDefaultCodecRegistry());
+        return MapCodecCache.getDefaultCodec().decode(bsonDocument.asBsonReader(), DecoderContext.builder().build());
+    }
+
+    /**
+     * 获取子文档，非Document时转换为Document并写回父文档
+     * @param parent 父文档
+     * @param key 键
+     * @return {@link Document}
+     */
+    Document getDocument(Document parent, String key) {
+        Object value = parent.get(key);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Document) {
+            return (Document) value;
+        }
+        if (value instanceof Map) {
+            Document document = new Document();
+            ((Map<?, ?>) value).forEach((k, v) -> document.put(String.valueOf(k), v));
+            parent.put(key, document);
+            return document;
+        }
+        return null;
+    }
+
+    /**
+     * 获取int类型的值
+     * @param document 文档
+     * @param key 键
+     * @return {@link Integer}
+     */
+    Integer getInteger(Document document, String key) {
+        Object value = document.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        if (value instanceof BsonNumber) {
+            return ((BsonNumber) value).intValue();
+        }
+        return null;
     }
 
     /**
