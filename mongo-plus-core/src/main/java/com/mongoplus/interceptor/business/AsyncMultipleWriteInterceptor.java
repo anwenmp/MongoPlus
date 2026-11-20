@@ -115,9 +115,7 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
             executeUpdate((MutablePair<Bson, Bson>) source[0], (UpdateOptions) source[1], collection);
         }
         if (executeMethod == ExecuteMethodEnum.REPLACE) {
-            // 反射代理各有自己的参数数组，使用可变 BSON 共享内层乐观锁的条件改动。
-            BsonDocument filter = BsonUtil.asBsonDocument((Bson) source[0]).clone();
-            source[0] = filter;
+            BsonDocument filter = shareReplacementFilter(source);
             UpdateResult result = (UpdateResult) invocation.proceed();
             // 主库命中后再复制，使用高级拦截器处理过的版本条件和替换文档。
             if (result.wasAcknowledged()) {
@@ -132,10 +130,35 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
             }
             return result;
         }
+        if (executeMethod == ExecuteMethodEnum.FIND_ONE_AND_REPLACE) {
+            BsonDocument filter = shareReplacementFilter(source);
+            Document result = (Document) invocation.proceed();
+            FindOneAndReplaceOptions options = (FindOneAndReplaceOptions) source[2];
+            if (result != null && (options == null || !options.isUpsert() || result.containsKey(_ID))) {
+                Document replacement = (Document) source[1];
+                Bson target = filter;
+                if (result.containsKey(_ID)) {
+                    Object id = result.get(_ID);
+                    target = Filters.and(filter, Filters.eq(_ID, id));
+                    if (options != null && options.isUpsert()) {
+                        replacement = new Document(replacement).append(_ID, id);
+                    }
+                }
+                executeFindOneAndReplace(target, replacement, options, collection);
+            }
+            return result;
+        }
         if (executeMethod == ExecuteMethodEnum.BULK_WRITE) {
             executeBulkWrite((List<WriteModel<Document>>) source[0],(BulkWriteOptions) source[1], collection);
         }
         return invocation.proceed();
+    }
+
+    private BsonDocument shareReplacementFilter(Object[] source) {
+        // 反射代理各有自己的参数数组，使用可变 BSON 共享内层乐观锁的条件改动。
+        BsonDocument filter = BsonUtil.asBsonDocument((Bson) source[0]).clone();
+        source[0] = filter;
+        return filter;
     }
 
     void executeSave(List<Document> documentList, InsertManyOptions options, MongoCollection<Document> collection) {
@@ -194,6 +217,15 @@ public class AsyncMultipleWriteInterceptor implements AdvancedInterceptor {
                 UPDATE,
                 collection,
                 mongoCollection -> execute.executeReplace(filter, replacement, options, mongoCollection)
+        );
+    }
+
+    void executeFindOneAndReplace(Bson filter, Document replacement, FindOneAndReplaceOptions options,
+                                  MongoCollection<Document> collection) {
+        executeMultipleWrite(
+                UPDATE,
+                collection,
+                mongoCollection -> execute.executeFindOneAndReplace(filter, replacement, options, mongoCollection)
         );
     }
 

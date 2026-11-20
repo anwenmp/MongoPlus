@@ -1,6 +1,7 @@
 package com.mongoplus.conditions.query;
 
 import com.mongodb.client.model.FindOneAndDeleteOptions;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageParam;
 import com.mongoplus.model.PageResult;
@@ -109,6 +110,14 @@ public interface ChainQuery<T> {
      * @return 删除前的文档，未匹配时返回 null
      */
     <R> R findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz);
+
+    default T findOneAndReplace(T entity) {
+        return findOneAndReplace(entity, null);
+    }
+
+    T findOneAndReplace(T entity, FindOneAndReplaceOptions options);
+
+    <R> R findOneAndReplace(T entity, FindOneAndReplaceOptions options, Class<R> rClazz);
 
     /**
      * 分页

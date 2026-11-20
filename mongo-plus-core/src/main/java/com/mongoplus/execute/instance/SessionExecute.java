@@ -164,6 +164,16 @@ public class SessionExecute implements Execute {
     }
 
     @Override
+    public Document executeFindOneAndReplace(Bson filter, Document replacement, FindOneAndReplaceOptions options,
+                                              MongoCollection<Document> collection) {
+        MongoCollection<Document> transactional = transactionCollection(collection);
+        if (options == null) {
+            return transactional.findOneAndReplace(clientSession, filter, replacement);
+        }
+        return transactional.findOneAndReplace(clientSession, filter, replacement, options);
+    }
+
+    @Override
     public String doCreateIndex(Bson bson, MongoCollection<Document> collection) {
         return transactionCollection(collection).createIndex(clientSession,bson);
     }

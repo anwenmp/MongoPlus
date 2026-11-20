@@ -77,7 +77,12 @@ public enum ExecuteMethodEnum {
     /**
      * 去重查询
      */
-    DISTINCT("executeDistinct")
+    DISTINCT("executeDistinct"),
+
+    /**
+     * 原子查找并替换单个文档
+     */
+    FIND_ONE_AND_REPLACE("executeFindOneAndReplace")
 
     ;
 

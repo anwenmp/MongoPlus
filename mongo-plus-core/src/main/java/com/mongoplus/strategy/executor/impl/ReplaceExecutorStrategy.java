@@ -18,10 +18,15 @@ public class ReplaceExecutorStrategy implements MethodExecutorStrategy {
     @Override
     @SuppressWarnings("unchecked")
     public void invoke(Interceptor interceptor, Object[] args) {
-        MutablePair<Bson, Document> replacement = interceptor.executeReplace(
+        MutablePair<Bson, Document> replacement = interceptReplacement(interceptor,
                 (Bson) args[0], (Document) args[1], (MongoCollection<Document>) args[args.length - 1]
         );
         args[0] = replacement.getLeft();
         args[1] = replacement.getRight();
+    }
+
+    protected MutablePair<Bson, Document> interceptReplacement(Interceptor interceptor, Bson filter,
+                                                                Document replacement, MongoCollection<Document> collection) {
+        return interceptor.executeReplace(filter, replacement, collection);
     }
 }

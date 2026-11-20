@@ -129,6 +129,18 @@ public interface Interceptor {
     }
 
     /**
+     * 拦截原子替换并返回文档的操作，默认沿用单文档替换的条件和文档处理。
+     * @param filter 替换条件
+     * @param replacement 完整的替换文档
+     * @param collection 集合对象
+     * @return 替换条件与替换文档，依次对应 left 和 right
+     */
+    default MutablePair<Bson, Document> executeFindOneAndReplace(Bson filter, Document replacement,
+                                                               MongoCollection<Document> collection) {
+        return executeReplace(filter, replacement, collection);
+    }
+
+    /**
      * 查询拦截方法
      *
      * @author JiaChaoYang

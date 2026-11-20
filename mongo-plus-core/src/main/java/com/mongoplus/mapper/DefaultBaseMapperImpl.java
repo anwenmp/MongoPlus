@@ -76,6 +76,13 @@ public class DefaultBaseMapperImpl extends AbstractBaseMapper {
         return replace(namespace.left, namespace.right, wrapper, entity, options);
     }
 
+    @Override
+    public <T, R> R findOneAndReplace(Wrapper<T> wrapper, T entity, FindOneAndReplaceOptions options,
+                                      Class<R> rClazz) {
+        MutablePair<String, String> namespace = getNamespace(entity.getClass());
+        return findOneAndReplace(namespace.left, namespace.right, wrapper, entity, options, rClazz);
+    }
+
     /**
      * 查询所有
      *

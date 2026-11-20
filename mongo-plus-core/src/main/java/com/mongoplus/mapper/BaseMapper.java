@@ -116,6 +116,21 @@ public interface BaseMapper extends Mapper {
      */
     <T> Long replace(Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
 
+    default <T> T findOneAndReplace(Wrapper<T> wrapper, T entity) {
+        return findOneAndReplace(wrapper, entity, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T> T findOneAndReplace(Wrapper<T> wrapper, T entity, @Nullable FindOneAndReplaceOptions options) {
+        return findOneAndReplace(wrapper, entity, options, (Class<T>) entity.getClass());
+    }
+
+    /**
+     * 替换由实体类型定位的集合中的一条匹配文档，并按选项映射返回的文档。
+     */
+    <T, R> R findOneAndReplace(Wrapper<T> wrapper, T entity, @Nullable FindOneAndReplaceOptions options,
+                               Class<R> rClazz);
+
     /**
      * 是否存在
      * @param id id

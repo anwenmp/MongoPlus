@@ -163,6 +163,7 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
                 executeMethodEnum == ExecuteMethodEnum.UPDATE ||
                 executeMethodEnum == ExecuteMethodEnum.UPDATE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.REPLACE ||
+                executeMethodEnum == ExecuteMethodEnum.FIND_ONE_AND_REPLACE ||
                 executeMethodEnum == ExecuteMethodEnum.REMOVE ||
                 executeMethodEnum == ExecuteMethodEnum.REMOVE_ONE ||
                 executeMethodEnum == ExecuteMethodEnum.BULK_WRITE;
@@ -192,7 +193,8 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
             case UPDATE_ONE:
                 return processUpdateOne(source);
             case REPLACE:
-                return processReplace(source);
+            case FIND_ONE_AND_REPLACE:
+                return processReplace(executeMethodEnum, source);
             case REMOVE:
             case REMOVE_ONE:
                 return processRemove(source);
@@ -203,9 +205,9 @@ public class DataChangeRecorderInnerInterceptor implements Interceptor {
         }
     }
 
-    private OperationResult processReplace(Object[] source) {
+    private OperationResult processReplace(ExecuteMethodEnum method, Object[] source) {
         OperationResult operationResult = new OperationResult();
-        operationResult.setOperation(ExecuteMethodEnum.REPLACE.name());
+        operationResult.setOperation(method.name());
         operationResult.setChangedData(displayCompleteData
                 ? new Document("filter", BsonUtil.asBsonDocument((Bson) source[0]))
                         .append("replacement", source[1]).toString()

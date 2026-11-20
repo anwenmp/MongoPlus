@@ -2,7 +2,9 @@ package com.mongoplus.interceptor.business;
 
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.UpdateResult;
@@ -114,16 +116,16 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         if (fieldInformation == null){
             return invocation.proceed();
         }
-        boolean isReplace = executeMethod == REPLACE;
+        boolean isReplace = isReplacementOperation(executeMethod);
         boolean isUpdate = executeMethod == UPDATE || executeMethod == UPDATE_ONE || isReplace || executeMethod == BULK_WRITE;
         boolean canRetry = !isReplace
                 || ((Document) invocation.getArgs()[1]).get(fieldInformation.getCamelCaseName()) != null;
         Object result = executor(invocation,false);
         if (isUpdate) {
-            if (retry != null && canRetry && (!isReplace || !isWriteSuccessful(result, executeMethod))) {
+            if (retry != null && canRetry && (!isReplace || !isWriteSuccessful(result, invocation))) {
                 result = beforeRetry(result,invocation);
             }
-            if (updateFailException != null && !isWriteSuccessful(result, executeMethod)) {
+            if (updateFailException != null && !isWriteSuccessful(result, invocation)) {
                 updateFailException.fillInStackTrace();
                 throw updateFailException;
             }
@@ -154,7 +156,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             handleUpdate((List<MutablePair<Bson,Bson>>)args[0],autoVersion,fieldInformation);
         } else if (executeMethod == UPDATE_ONE) {
             handleUpdate((MutablePair<Bson,Bson>)args[0],autoVersion,fieldInformation);
-        } else if (executeMethod == REPLACE && fieldInformation != null) {
+        } else if (isReplacementOperation(executeMethod) && fieldInformation != null) {
             handleReplace(args, autoVersion, fieldInformation.getCamelCaseName());
         } else if (executeMethod == BULK_WRITE) {
             handleBulkWrite((List<WriteModel<Document>>)args[0],autoVersion,fieldInformation);
@@ -210,7 +212,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         while (retryCount <= retry.getMaxRetryNum()) {
             UpdateRetryResult updateRetryResult =
                     new UpdateRetryResult(result, retryCount, invocation.getArgs(), retry);
-            if (isWriteSuccessful(result, invocation.getExecuteMethod())) {
+            if (isWriteSuccessful(result, invocation)) {
                 if (retry.getOnSuccess() != null) {
                     retry.getOnSuccess().accept(updateRetryResult);
                 }
@@ -235,7 +237,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
             }
             result = executor(invocation,true);
         }
-        if (invocation.getExecuteMethod() == REPLACE && isWriteSuccessful(result, REPLACE)) {
+        if (isReplacementOperation(invocation.getExecuteMethod()) && isWriteSuccessful(result, invocation)) {
             if (retry.getOnSuccess() != null) {
                 retry.getOnSuccess().accept(new UpdateRetryResult(result, retryCount, invocation.getArgs(), retry));
             }
@@ -287,7 +289,18 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
         }
     }
 
-    private boolean isWriteSuccessful(Object result, ExecuteMethodEnum method) {
+    private boolean isReplacementOperation(ExecuteMethodEnum method) {
+        return method == REPLACE || method == FIND_ONE_AND_REPLACE;
+    }
+
+    private boolean isWriteSuccessful(Object result, Invocation invocation) {
+        ExecuteMethodEnum method = invocation.getExecuteMethod();
+        if (method == FIND_ONE_AND_REPLACE) {
+            FindOneAndReplaceOptions options = (FindOneAndReplaceOptions) invocation.getArgs()[2];
+            // upsert with BEFORE returns null after successfully inserting the replacement.
+            return result != null || (options != null && options.isUpsert()
+                    && options.getReturnDocument() == ReturnDocument.BEFORE);
+        }
         if (method == REPLACE) {
             UpdateResult replacement = (UpdateResult) result;
             return replacement.getMatchedCount() > 0 || replacement.getUpsertedId() != null;
@@ -306,7 +319,7 @@ public class OptimisticLockerInterceptor implements AdvancedInterceptor {
                 executeMethod == SAVE_ONE ||
                 executeMethod == UPDATE ||
                 executeMethod == UPDATE_ONE ||
-                executeMethod == REPLACE ||
+                isReplacementOperation(executeMethod) ||
                 executeMethod == BULK_WRITE;
     }
 

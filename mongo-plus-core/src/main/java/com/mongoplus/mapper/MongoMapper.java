@@ -2,6 +2,7 @@ package com.mongoplus.mapper;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.InsertOneOptions;
 import com.mongodb.client.model.UpdateOptions;
@@ -285,6 +286,19 @@ public interface MongoMapper<T> {
      * @return 实际修改的文档数，upsert 新增时为 0
      */
     Long replace(Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
+
+    default T findOneAndReplace(Wrapper<T> wrapper, T entity) {
+        return getBaseMapper().findOneAndReplace(wrapper, entity);
+    }
+
+    default T findOneAndReplace(Wrapper<T> wrapper, T entity, @Nullable FindOneAndReplaceOptions options) {
+        return getBaseMapper().findOneAndReplace(wrapper, entity, options);
+    }
+
+    default <R> R findOneAndReplace(Wrapper<T> wrapper, T entity, @Nullable FindOneAndReplaceOptions options,
+                                    Class<R> rClazz) {
+        return getBaseMapper().findOneAndReplace(wrapper, entity, options, rClazz);
+    }
 
     /**
      * 根据id删除

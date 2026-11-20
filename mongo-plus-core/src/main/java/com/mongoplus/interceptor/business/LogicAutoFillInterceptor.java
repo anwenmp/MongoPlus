@@ -70,6 +70,12 @@ public class LogicAutoFillInterceptor implements Interceptor {
     }
 
     @Override
+    public MutablePair<Bson, Document> executeFindOneAndReplace(Bson filter, Document replacement,
+                                                               MongoCollection<Document> collection) {
+        return executeReplace(filter, replacement, collection);
+    }
+
+    @Override
     public List<WriteModel<Document>> executeBulkWrite(List<WriteModel<Document>> writeModelList, MongoCollection<Document> collection) {
 
         if (LogicManager.isIgnoreLogic()) {

@@ -169,6 +169,29 @@ public interface SuperMapper extends BaseIndex {
      */
     <T> Long replace(String database, String collectionName, Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options);
 
+    default <T> T findOneAndReplace(String database, String collectionName, Wrapper<T> wrapper, T entity) {
+        return findOneAndReplace(database, collectionName, wrapper, entity, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T> T findOneAndReplace(String database, String collectionName, Wrapper<T> wrapper, T entity,
+                                   @Nullable FindOneAndReplaceOptions options) {
+        return findOneAndReplace(database, collectionName, wrapper, entity, options, (Class<T>) entity.getClass());
+    }
+
+    /**
+     * 原子替换一条匹配文档，并按选项返回替换前或替换后的文档。默认返回替换前的文档。
+     * @param database 数据库
+     * @param collectionName 集合
+     * @param wrapper 匹配条件，未指定 options 时也提供排序和投影
+     * @param entity 完整的替换文档
+     * @param options MongoDB Driver 选项
+     * @param rClazz 返回类型
+     * @return 映射后的文档，服务器未返回文档时为 null
+     */
+    <T, R> R findOneAndReplace(String database, String collectionName, Wrapper<T> wrapper, T entity,
+                               @Nullable FindOneAndReplaceOptions options, Class<R> rClazz);
+
     /**
      * 批量操作
      * @param writeModelList writeModelList

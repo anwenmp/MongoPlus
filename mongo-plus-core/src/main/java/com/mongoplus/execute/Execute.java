@@ -105,6 +105,19 @@ public interface Execute {
                                 MongoCollection<Document> collection);
 
     /**
+     * 原子查找并替换一个文档，返回 Driver 选定的替换前或替换后文档。
+     */
+    default Document executeFindOneAndReplace(Bson filter, Document replacement,
+                                              @Nullable FindOneAndReplaceOptions options,
+                                              MongoCollection<Document> collection) {
+        // Driver 可以返回 null；按选项选择重载后只执行一次。
+        if (options == null) {
+            return collection.findOneAndReplace(filter, replacement);
+        }
+        return collection.findOneAndReplace(filter, replacement, options);
+    }
+
+    /**
      * 查询执行
      * @param queryBasic 查询条件
      * @param projectionList project

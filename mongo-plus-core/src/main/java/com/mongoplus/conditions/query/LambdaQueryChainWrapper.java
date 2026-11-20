@@ -1,6 +1,7 @@
 package com.mongoplus.conditions.query;
 
 import com.mongodb.client.model.FindOneAndDeleteOptions;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongoplus.mapper.BaseMapper;
 import com.mongoplus.mapping.TypeReference;
 import com.mongoplus.model.PageParam;
@@ -72,6 +73,16 @@ public class LambdaQueryChainWrapper<T> extends QueryChainWrapper<T,LambdaQueryC
     @Override
     public <R> R findOneAndRemove(Consumer<FindOneAndDeleteOptions> optionsConfigurer, Class<R> rClazz) {
         return baseMapper.findOneAndRemove(this, clazz, optionsConfigurer, rClazz);
+    }
+
+    @Override
+    public T findOneAndReplace(T entity, FindOneAndReplaceOptions options) {
+        return findOneAndReplace(entity, options, clazz);
+    }
+
+    @Override
+    public <R> R findOneAndReplace(T entity, FindOneAndReplaceOptions options, Class<R> rClazz) {
+        return baseMapper.findOneAndReplace(this, entity, options, rClazz);
     }
 
     @Override

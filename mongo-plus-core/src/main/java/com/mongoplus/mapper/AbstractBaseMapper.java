@@ -202,15 +202,40 @@ public abstract class AbstractBaseMapper extends DefaultBaseIndexImpl implements
 
     @Override
     public <T> Long replace(String database, String collectionName, Wrapper<T> wrapper, T entity, ReplaceOptions options) {
-        Document document = new Document();
-        mongoConverter.write(entity, document);
-        document.remove(_ID);
+        Document replacement = replacementDocument(entity);
         BasicDBObject filter = wrapper.buildCondition().getCondition();
         UpdateResult updateResult = factory.getExecute().executeReplace(filter,
-                document,
+                replacement,
                 options,
                 mongoPlusClient.getCollection(database, collectionName));
         return updateResult.getModifiedCount();
+    }
+
+    @Override
+    public <T, R> R findOneAndReplace(String database, String collectionName, Wrapper<T> wrapper, T entity,
+                                      FindOneAndReplaceOptions options, Class<R> rClazz) {
+        BaseConditionResult condition = wrapper.buildCondition();
+        if (options == null) {
+            BasicDBObject projection = condition.getProjection();
+            BasicDBObject sort = condition.getSort();
+            boolean hasProjection = projection != null && !projection.isEmpty();
+            boolean hasSort = sort != null && !sort.isEmpty();
+            if (hasProjection || hasSort) {
+                options = new FindOneAndReplaceOptions()
+                        .projection(hasProjection ? projection : null)
+                        .sort(hasSort ? sort : null);
+            }
+        }
+        Document document = factory.getExecute().executeFindOneAndReplace(condition.getCondition(),
+                replacementDocument(entity), options, mongoPlusClient.getCollection(database, collectionName));
+        return document == null ? null : mongoConverter.read(document, rClazz);
+    }
+
+    private Document replacementDocument(Object entity) {
+        Document document = new Document();
+        mongoConverter.write(entity, document);
+        document.remove(_ID);
+        return document;
     }
 
     @Override

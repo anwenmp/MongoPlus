@@ -1,5 +1,6 @@
 package com.mongoplus.mapper;
 
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongoplus.annotation.comm.Nullable;
@@ -85,6 +86,20 @@ public interface Mapper extends SuperMapper {
      */
     default <T> Long replace(String collectionName, Wrapper<T> wrapper, T entity, @Nullable ReplaceOptions options) {
         return replace(EMPTY, collectionName, wrapper, entity, options);
+    }
+
+    default <T> T findOneAndReplace(String collectionName, Wrapper<T> wrapper, T entity) {
+        return findOneAndReplace(EMPTY, collectionName, wrapper, entity);
+    }
+
+    default <T> T findOneAndReplace(String collectionName, Wrapper<T> wrapper, T entity,
+                                   @Nullable FindOneAndReplaceOptions options) {
+        return findOneAndReplace(EMPTY, collectionName, wrapper, entity, options);
+    }
+
+    default <T, R> R findOneAndReplace(String collectionName, Wrapper<T> wrapper, T entity,
+                                       @Nullable FindOneAndReplaceOptions options, Class<R> rClazz) {
+        return findOneAndReplace(EMPTY, collectionName, wrapper, entity, options, rClazz);
     }
 
     /**
