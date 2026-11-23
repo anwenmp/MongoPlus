@@ -23,7 +23,7 @@ final class FallbackShellConverter {
         if (wirePreference != null) {
             BsonValue preference = ShellCommandSupport.readPreference(wirePreference);
             if (preference == null) {
-                return "";
+                return null;
             }
             body = new BsonDocument();
             body.putAll(command);

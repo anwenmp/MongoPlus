@@ -6,9 +6,12 @@ import com.mongoplus.toolkit.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;
+import org.springframework.boot.origin.Origin;
+import org.springframework.boot.origin.OriginLookup;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
 
 /**
  * 数据解密
@@ -36,30 +39,12 @@ public class EncryptionPostProcessor implements EnvironmentPostProcessor, Ordere
             return;
         }
 
-        environment.getPropertySources().stream()
+        MutablePropertySources propertySources = environment.getPropertySources();
+        propertySources.stream()
                 .filter(OriginTrackedMapPropertySource.class::isInstance)
-                .forEach(propertySource -> {
-                    String sourceName = propertySource.getName();
-                    PropertySource<Object> encryptedPropertySource = new PropertySource<Object>(sourceName) {
-                        @Override
-                        @SuppressWarnings("NullableProblems")
-                        public Object getProperty(String name) {
-                            Object property = propertySource.getProperty(name);
-                            if (property != null) {
-                                String value = property.toString();
-                                if (detected(value)) {
-                                    try {
-                                        return AESExample.decrypt(unWrapper(value), secretKey);
-                                    } catch (Exception e) {
-                                        throw new MongoPlusEncryptException("Configuration decryption failed", e);
-                                    }
-                                }
-                            }
-                            return property;
-                        }
-                    };
-                    environment.getPropertySources().replace(sourceName, encryptedPropertySource);
-                });
+                .map(OriginTrackedMapPropertySource.class::cast)
+                .forEach(source -> propertySources.replace(source.getName(),
+                        new DecryptingPropertySource(source, secretKey)));
     }
 
     @Override
@@ -77,5 +62,50 @@ public class EncryptionPostProcessor implements EnvironmentPostProcessor, Ordere
 
     public String unWrapper(String property) {
         return property.substring(PREFIX.length(), property.length() - SUFFIX.length());
+    }
+
+    /**
+     * 保留 Boot Binder 所需的配置键枚举，并从原配置源读取属性值和来源。
+     */
+    private final class DecryptingPropertySource extends MapPropertySource implements OriginLookup<String> {
+
+        private final OriginTrackedMapPropertySource delegate;
+
+        private final String secretKey;
+
+        private DecryptingPropertySource(OriginTrackedMapPropertySource delegate, String secretKey) {
+            super(delegate.getName(), delegate.getSource());
+            this.delegate = delegate;
+            this.secretKey = secretKey;
+        }
+
+        @Override
+        public Object getProperty(String name) {
+            Object property = delegate.getProperty(name);
+            if (property == null) {
+                return null;
+            }
+
+            String value = property.toString();
+            if (!detected(value)) {
+                return property;
+            }
+
+            try {
+                return AESExample.decrypt(unWrapper(value), secretKey);
+            } catch (Exception e) {
+                throw new MongoPlusEncryptException("Configuration decryption failed", e);
+            }
+        }
+
+        @Override
+        public Origin getOrigin(String name) {
+            return delegate.getOrigin(name);
+        }
+
+        @Override
+        public boolean isImmutable() {
+            return delegate.isImmutable();
+        }
     }
 }

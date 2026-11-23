@@ -1,13 +1,16 @@
 package com.mongoplus.listener.business;
 
 import com.mongoplus.cache.global.OrderCache;
+import com.mongoplus.convert.shell.MongoShellConverter;
 import com.mongoplus.listener.Listener;
 import com.mongoplus.logging.Log;
 import com.mongoplus.logging.LogFactory;
 import com.mongoplus.model.command.CommandFailed;
 import com.mongoplus.model.command.CommandStarted;
 import com.mongoplus.model.command.CommandSucceeded;
-import com.mongoplus.toolkit.MongoCommandBuildUtils;
+import com.mongoplus.toolkit.StringUtils;
+import org.bson.json.JsonMode;
+import org.bson.json.JsonWriterSettings;
 
 import java.util.Objects;
 
@@ -18,36 +21,38 @@ import java.util.Objects;
  */
 public class LogListener implements Listener {
 
-    private static final Log log = LogFactory.getLog(LogListener.class);
-    private boolean pretty;
+    private static final Log log = LogFactory.getLog("com.mongoplus.mapper");
 
-    public boolean isPretty() {
-        return pretty;
-    }
+    private final boolean shell;
 
-    public void setPretty(boolean pretty) {
-        this.pretty = pretty;
-    }
-
-    public LogListener(boolean pretty) {
-        this.pretty = pretty;
-    }
-
-    public LogListener() {
+    public LogListener(boolean shell) {
+        this.shell = shell;
     }
 
     @Override
     public void commandStarted(CommandStarted commandStarted) {
-        log.debug(commandStarted.getCommandName() + " Statement Execution ==> ");
-        if (isPretty()) {
-            log.debug(MongoCommandBuildUtils.buildCommand(commandStarted.getCommandStartedEvent()));
-        } else {
-            log.debug(commandStarted.getCommand());
+        if (!log.isDebugEnabled()) {
+            return;
         }
+        String command = null;
+        if (shell) {
+            String shellCommand = MongoShellConverter.toShell(commandStarted.getCommandStartedEvent());
+            if (StringUtils.isNotBlank(shellCommand)) {
+                command = shellCommand;
+            }
+        }
+        if (StringUtils.isBlank(command)) {
+            command = commandStarted.getCommandDocument()
+                    .toJson(JsonWriterSettings.builder().outputMode(JsonMode.SHELL).build());
+        }
+        log.debug("==>  Preparing: " + command);
     }
 
     @Override
     public void commandSucceeded(CommandSucceeded commandSucceeded) {
+        if (!log.isDebugEnabled()) {
+            return;
+        }
         Integer resultCount = null;
         if (Objects.equals(commandSucceeded.getCommandName(), "find") || Objects.equals(commandSucceeded.getCommandName(), "aggregate")) {
             resultCount = commandSucceeded.getResponse().getDocument("cursor").get("firstBatch").asArray().getValues().size();
@@ -57,15 +62,13 @@ public class LogListener implements Listener {
             resultCount = commandSucceeded.getResponse().get("n").asInt32().getValue();
         }
         if (resultCount != null) {
-            log.debug(commandSucceeded.getCommandName() + " results of execution ==> " + resultCount);
+            log.debug("<==      Total: " + resultCount);
         }
     }
 
     @Override
     public void commandFailed(CommandFailed commandFailed) {
-        String commandName = commandFailed.getCommandName();
-        Throwable throwable = commandFailed.getThrowable();
-        log.error("error ==> : " + commandName + ", " + throwable.getMessage());
+        // Do nothing
     }
 
     @Override

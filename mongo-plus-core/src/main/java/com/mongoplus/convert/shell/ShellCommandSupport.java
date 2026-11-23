@@ -296,10 +296,10 @@ final class ShellCommandSupport {
      */
     static String statement(String target, String method, BsonDocument options, BsonValue... arguments) {
         if (options.isEmpty()) {
-            return call(target, method, arguments) + ";";
+            return call(target, method, arguments);
         }
         BsonValue[] allArguments = Arrays.copyOf(arguments, arguments.length + 1);
         allArguments[arguments.length] = options;
-        return call(target, method, allArguments) + ";";
+        return call(target, method, allArguments);
     }
 }

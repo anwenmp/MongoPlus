@@ -39,16 +39,16 @@ public final class MongoShellConverter {
      */
     public static String toShell(CommandStartedEvent event) {
         if (event == null) {
-            return "";
+            return null;
         }
         try {
             String commandName = event.getCommandName();
             if ("getMore".equalsIgnoreCase(commandName) || "killCursors".equalsIgnoreCase(commandName)) {
-                return "";
+                return null;
             }
             return convert(event.getDatabaseName(), commandName, event.getCommand());
         } catch (RuntimeException exception) {
-            return "";
+            return null;
         }
     }
 
@@ -58,18 +58,18 @@ public final class MongoShellConverter {
     private static String convert(String database, String name, BsonDocument command) {
         if (command == null || name == null || name.isEmpty() || command.isEmpty()
                 || !name.equals(command.getFirstKey())) {
-            return "";
+            return null;
         }
         String wireDatabase = stringField(command, "$db");
         String targetDatabase = database == null || database.isEmpty() ? wireDatabase : database;
         if (targetDatabase == null || targetDatabase.isEmpty()
                 || (command.containsKey("$db") && !targetDatabase.equals(wireDatabase))) {
-            return "";
+            return null;
         }
 
         String key = name.toLowerCase(Locale.ROOT);
         if (requiresOriginalContext(key, command)) {
-            return "";
+            return null;
         }
         BsonDocument replay = new BsonDocument();
         for (Map.Entry<String, BsonValue> field : command.entrySet()) {
