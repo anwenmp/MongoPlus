@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 注册中心
  */
-public class ComponentRegistry {
+public class MongoPlusRegistry {
 
-    private static final Map<Class<?>,Object> resources = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Object> resources = new ConcurrentHashMap<>();
 
     /**
      * 获取实例
@@ -24,8 +24,9 @@ public class ComponentRegistry {
      * @param clazz 实例class
      * @param instance 实例
      */
-    public static <T> void register(Class<T> clazz, T instance) {
+    public static <T> T register(Class<T> clazz, T instance) {
         resources.put(clazz, instance);
+        return instance;
     }
 
     /**
@@ -34,8 +35,8 @@ public class ComponentRegistry {
      * @param <T> 泛型
      */
     @SuppressWarnings("unchecked")
-    public static <T> void register(T instance) {
-        register((Class<T>) instance.getClass(), instance);
+    public static <T> T register(T instance) {
+        return register((Class<T>) instance.getClass(), instance);
     }
 
 }

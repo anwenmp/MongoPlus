@@ -15,7 +15,7 @@
     <name>mongo-plus-solon-plugin</name>
     <packaging>jar</packaging>
     <description>mongo-plus-solon-plugin主程序</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>

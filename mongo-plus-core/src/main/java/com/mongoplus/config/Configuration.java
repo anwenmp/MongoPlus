@@ -417,17 +417,17 @@ public class Configuration {
      * @author JiaChaoYang
      */
     public Configuration log() {
-        return log(false);
+        return log(true);
     }
 
     /**
      * 开启日志打印
      *
-     * @param pretty 是否将 mongo 语句格式化可执行语句
+     * @param shell 是否将 mongo 语句格式化为shell
      * @author loser
      */
-    public Configuration log(Boolean pretty) {
-        ListenerCache.listeners.add(new LogListener(pretty));
+    public Configuration log(boolean shell) {
+        ListenerCache.listeners.add(new LogListener(shell));
         PropertyCache.log = true;
         ListenerCache.sorted();
         return this;

@@ -53,6 +53,10 @@ MyBatisPlus does not need to write too many SQL statements like MyBatis, and Mon
 ### Document
 Document address: https://mongoplus.com/
 
+### Asynchronous command logging
+
+Set `mongo-plus.log-async: true` in Spring Boot to write DEBUG command and result-count logs on a background thread. Logging is synchronous by default and uses the `com.mongoplus.mapper` logger.
+
 ### Contact us
 #### If you have any questions or ideas when using MongoPlus, please contact me
 #### v: anwen_529

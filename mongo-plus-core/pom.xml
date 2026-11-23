@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
     <name>mongo-plus-core</name>
     <description>mongo-plus核心代码</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>

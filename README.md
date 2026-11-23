@@ -89,6 +89,10 @@ DataSourceManager manager = configuration.getDataSourceManager();
 
 同一个配置在连接参数未改变时复用已构建的客户端，显式设置的 ID 生成器会保留。修改连接或命名数据源配置后，下次获取会重新构建；旧客户端不会自动关闭。Codec 只作用于之后由 MongoPlus 创建的 MongoClient；外部客户端的编解码器和命令监听器由调用方配置。工厂及全局缓存仍在 JVM 内共享。
 
+### 异步命令日志
+
+Spring Boot 配置 `mongo-plus.log-async: true` 后，MongoPlus 在后台线程打印 DEBUG 命令日志和结果数量。默认同步打印，日志分类为 `com.mongoplus.mapper`。
+
 ### Spring 事务
 
 设置 `mongo-plus.spring.transaction: true` 后，可以使用名为 `mongoPlusTransactionalManager` 的管理器：

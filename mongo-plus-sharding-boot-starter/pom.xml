@@ -15,7 +15,7 @@
     <name>mongo-plus-sharding-boot-starter</name>
     <packaging>jar</packaging>
     <description>mongo-plus-sharding-boot-starter</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>

@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
     <name>mongo-plus-sensitive-word</name>
     <description>mongo-plus关键字</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>

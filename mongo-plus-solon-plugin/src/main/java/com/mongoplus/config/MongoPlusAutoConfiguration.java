@@ -177,7 +177,8 @@ public class MongoPlusAutoConfiguration {
     private void setListener(AppContext context){
         List<Listener> listeners = ListenerCache.listeners;
         if (mongoDBLogProperty.getLog()){
-            listeners.add(new LogListener(mongoDBLogProperty.getPretty()));
+            listeners.add(new LogListener(mongoDBLogProperty.getShell(),
+                    Boolean.TRUE.equals(mongoDBLogProperty.getLogAsync())));
         }
         if (mongoDBCollectionProperty.getBlockAttackInner()){
             listeners.add(new BlockAttackInnerListener());

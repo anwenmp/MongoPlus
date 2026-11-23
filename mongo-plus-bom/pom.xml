@@ -10,7 +10,7 @@
     <name>mongo-plus-bom</name>
     <version>2.2.0</version>
     <description>mongo-plus-bom</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2025</inceptionYear>
 
     <licenses>
@@ -54,6 +54,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.mongoplus</groupId>
+                <artifactId>mongo-plus-boot</artifactId>
+                <version>${mongoplus.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.mongoplus</groupId>
                 <artifactId>mongo-plus-boot-starter</artifactId>

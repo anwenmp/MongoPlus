@@ -15,7 +15,7 @@
     <name>mongo-plus-boot-starter</name>
     <packaging>jar</packaging>
     <description>mongo-plus-boot-starter主程序</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>
@@ -55,23 +55,12 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.mongoplus</groupId>
-            <artifactId>mongo-plus-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mongoplus</groupId>
-            <artifactId>mongo-plus-sensitive-word</artifactId>
-            <scope>provided</scope>
+            <artifactId>mongo-plus-boot</artifactId>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>

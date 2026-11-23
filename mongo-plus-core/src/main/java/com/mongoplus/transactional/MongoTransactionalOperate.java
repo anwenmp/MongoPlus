@@ -3,7 +3,7 @@ package com.mongoplus.transactional;
 import com.mongodb.ClientSessionOptions;
 import com.mongodb.client.ClientSession;
 import com.mongoplus.manager.MongoPlusClient;
-import com.mongoplus.registry.ComponentRegistry;
+import com.mongoplus.registry.MongoPlusRegistry;
 
 /**
  * Mongo事务
@@ -12,7 +12,7 @@ import com.mongoplus.registry.ComponentRegistry;
  **/
 public class MongoTransactionalOperate {
 
-    private static final MongoPlusClient mongoPlusClient = ComponentRegistry.get(MongoPlusClient.class);
+    private static final MongoPlusClient mongoPlusClient = MongoPlusRegistry.get(MongoPlusClient.class);
 
     /**
      * 创建一个session

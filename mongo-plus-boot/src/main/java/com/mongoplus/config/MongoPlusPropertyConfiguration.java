@@ -1,6 +1,7 @@
 package com.mongoplus.config;
 
 import com.mongoplus.property.*;
+import com.mongoplus.registry.MongoPlusRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -33,7 +34,9 @@ public class MongoPlusPropertyConfiguration {
     @ConditionalOnMissingBean(MongoDBConfigurationProperty.class)
     @ConfigurationProperties(prefix = "mongo-plus.configuration")
     public MongoDBConfigurationProperty mongoDBConfigurationProperty() {
-        return new MongoDBConfigurationProperty();
+        MongoDBConfigurationProperty property = new MongoDBConfigurationProperty();
+        MongoPlusRegistry.register(property);
+        return property;
     }
 
     @Bean("mongo-plus-com.mongoplus.property.MongoDBLogProperty")

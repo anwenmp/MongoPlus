@@ -15,7 +15,7 @@
     <name>mongo-plus-annotation</name>
     <packaging>jar</packaging>
     <description>mongo-plus注解、枚举</description>
-    <url>https://www.mongoplus.com</url>
+    <url>https://mongoplus.com</url>
     <inceptionYear>2024</inceptionYear>
 
     <licenses>

@@ -13,19 +13,32 @@ public class MongoDBLogProperty {
     /**
      * 是否开启日志
      */
-    private Boolean log = false;
+    private Boolean log = true;
 
     /**
-     * 是否格式化 mongo 语句为可执行语句
+     * 打印为shell格式
      */
-    private Boolean pretty = false;
+    private Boolean shell = true;
 
-    public Boolean getPretty() {
-        return pretty;
+    /**
+     * 是否异步打印命令日志
+     */
+    private Boolean logAsync = false;
+
+    public Boolean getShell() {
+        return shell;
     }
 
-    public void setPretty(Boolean pretty) {
-        this.pretty = pretty;
+    public void setShell(Boolean shell) {
+        this.shell = shell;
+    }
+
+    public Boolean getLogAsync() {
+        return logAsync;
+    }
+
+    public void setLogAsync(Boolean logAsync) {
+        this.logAsync = logAsync;
     }
 
     /**

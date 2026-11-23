@@ -6,7 +6,7 @@ import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.mongoplus.manager.MongoPlusClient;
-import com.mongoplus.registry.ComponentRegistry;
+import com.mongoplus.registry.MongoPlusRegistry;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class GridFSBucketManager {
     }
 
     public static GridFSBucketManager create(String database,String bucketName) {
-        MongoDatabase mongoDatabase = ComponentRegistry.get(MongoPlusClient.class).getMongoDatabase(database);
+        MongoDatabase mongoDatabase = MongoPlusRegistry.get(MongoPlusClient.class).getMongoDatabase(database);
         return new GridFSBucketManager(GridFSBuckets.create(mongoDatabase,bucketName));
     }
 

@@ -54,6 +54,6 @@ ReadHandler默认order为Integer.MAX_VALUE，按升序调用；`activate`限定�
 - **C070 ConditionHandler条件转换**：`ConditionHandler`, `BuildCondition`。
 - **C071 Codec与JSR310类型**：`MongoPlusCodec`, `Jsr310CodecProvider`。
 - **C072 Aware命名空间事件**：`Aware`, `NamespaceAware`。
-- **C073 扩展对象注册与生命周期**：`Configuration`, `ComponentRegistry`。
+- **C073 扩展对象注册与生命周期**：`Configuration`, `MongoPlusRegistry`。
 
 源码位置和注册/限制见[能力矩阵](../capabilities.md)；精确重载见[分族签名](api/index.md)；未逐一运行的重载保持UNVERIFIED。

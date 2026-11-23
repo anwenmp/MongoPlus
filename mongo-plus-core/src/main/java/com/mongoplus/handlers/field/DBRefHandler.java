@@ -20,7 +20,7 @@ import com.mongoplus.mapping.FieldInformation;
 import com.mongoplus.mapping.MongoConverter;
 import com.mongoplus.mapping.SimpleFieldInformation;
 import com.mongoplus.mapping.TypeInformation;
-import com.mongoplus.registry.ComponentRegistry;
+import com.mongoplus.registry.MongoPlusRegistry;
 import com.mongoplus.toolkit.Filters;
 import com.mongoplus.toolkit.StringUtils;
 import org.bson.Document;
@@ -84,7 +84,7 @@ public class DBRefHandler implements FieldHandler, ReadHandler, ConditionHandler
 
     @Override
     public Object read(FieldInformation fieldInformation, Object source, MongoConverter mongoConverter) {
-        MongoPlusClient mongoPlusClient = ComponentRegistry.get(MongoPlusClient.class);
+        MongoPlusClient mongoPlusClient = MongoPlusRegistry.get(MongoPlusClient.class);
         com.mongodb.DBRef dbRef = (com.mongodb.DBRef) source;
         MongoCollection<Document> collection = mongoPlusClient.getCollection(
                 dbRef.getDatabaseName(),

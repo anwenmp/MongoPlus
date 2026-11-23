@@ -13,6 +13,10 @@ import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Mongo拦截器，这里可以打印日志
@@ -23,10 +27,24 @@ public class LogListener implements Listener {
 
     private static final Log log = LogFactory.getLog("com.mongoplus.mapper");
 
+    private static final Executor LOG_EXECUTOR = new ThreadPoolExecutor(
+            0, 1, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), task -> {
+                Thread thread = new Thread(task, "mongoplus-command-log");
+                thread.setDaemon(true);
+                return thread;
+            });
+
     private final boolean shell;
 
+    private final boolean async;
+
     public LogListener(boolean shell) {
+        this(shell, false);
+    }
+
+    public LogListener(boolean shell, boolean async) {
         this.shell = shell;
+        this.async = async;
     }
 
     @Override
@@ -45,7 +63,7 @@ public class LogListener implements Listener {
             command = commandStarted.getCommandDocument()
                     .toJson(JsonWriterSettings.builder().outputMode(JsonMode.SHELL).build());
         }
-        log.debug("==>  Preparing: " + command);
+        printDebug("==>  Preparing: " + command);
     }
 
     @Override
@@ -62,7 +80,16 @@ public class LogListener implements Listener {
             resultCount = commandSucceeded.getResponse().get("n").asInt32().getValue();
         }
         if (resultCount != null) {
-            log.debug("<==      Total: " + resultCount);
+            printDebug("<==  Total    : " + resultCount);
+        }
+    }
+
+    private void printDebug(String message) {
+        if (async) {
+            // Driver 回调中的 BSON 可能依赖回调期间有效的缓冲区，只传递已生成的文本。
+            LOG_EXECUTOR.execute(() -> log.debug(message));
+        } else {
+            log.debug(message);
         }
     }
 
