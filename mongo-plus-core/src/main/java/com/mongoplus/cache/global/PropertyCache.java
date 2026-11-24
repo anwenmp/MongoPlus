@@ -23,11 +23,6 @@ public class PropertyCache {
     public static Boolean transaction = false;
 
     /**
-     * 格式化执行语句，默认false
-    */
-    public static Boolean format = false;
-
-    /**
      * 存放自增id的集合
      */
     public static String autoIdCollectionName = "counters";
@@ -61,10 +56,5 @@ public class PropertyCache {
      * 是否将Id字段的ObjectId转换为字段的类型
      */
     public static Boolean objectIdConvertType = false;
-
-    /**
-     * 是否打印日志
-     */
-    public static Boolean log = false;
 
 }

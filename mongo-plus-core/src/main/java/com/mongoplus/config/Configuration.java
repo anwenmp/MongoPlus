@@ -428,7 +428,6 @@ public class Configuration {
      */
     public Configuration log(boolean shell) {
         ListenerCache.listeners.add(new LogListener(shell));
-        PropertyCache.log = true;
         ListenerCache.sorted();
         return this;
     }

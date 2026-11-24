@@ -56,34 +56,17 @@ public class LogListener implements Listener {
             return;
         }
         CommandStartedEvent event = shell ? commandStarted.getCommandStartedEvent() : null;
+        String commandName = event == null ? null : event.getCommandName();
+        String databaseName = event == null ? null : event.getDatabaseName();
         BsonDocument document = commandStarted.getCommandDocument();
-        if (async) {
-            // Driver 回调结束后可能回收 BSON 缓冲区，提交任务前须复制。
-            BsonDocument snapshot = copyDocument(document);
-            CommandStartedEvent eventSnapshot = snapshotEvent(event, document, snapshot);
-            executeLog(() -> logCommand(eventSnapshot, snapshot));
-        } else {
-            logCommand(event, document);
-        }
+        // Driver 回调结束后可能回收 BSON 缓冲区，异步提交前须复制。
+        BsonDocument logDocument = async && document != null ? document.clone() : document;
+        executeLog(() -> logCommand(commandName, databaseName, logDocument));
     }
 
-    private static CommandStartedEvent snapshotEvent(CommandStartedEvent event, BsonDocument document, BsonDocument snapshot) {
-        if (event == null) {
-            return null;
-        }
-        BsonDocument eventCommand = event.getCommand();
-        // 正常分发时两个入口引用同一份 BSON，复用副本。自定义监听器可以替换包装对象中的文档。
-        BsonDocument eventSnapshot = eventCommand == document ? snapshot : copyDocument(eventCommand);
-        return new CommandStartedEvent(event.getRequestContext(), event.getOperationId(), event.getRequestId(),
-                event.getConnectionDescription(), event.getDatabaseName(), event.getCommandName(), eventSnapshot);
-    }
-
-    private static BsonDocument copyDocument(BsonDocument document) {
-        return document == null ? null : document.clone();
-    }
-
-    private void logCommand(CommandStartedEvent event, BsonDocument document) {
-        String command = event == null ? null : MongoShellConverter.toShell(event);
+    private void logCommand(String commandName, String databaseName, BsonDocument document) {
+        String command = commandName == null ? null
+                : MongoShellConverter.toShell(commandName, databaseName, document);
         if (StringUtils.isBlank(command)) {
             command = document.toJson(JsonWriterSettings.builder().outputMode(JsonMode.SHELL).build());
         }

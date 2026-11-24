@@ -15,7 +15,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 public class EncryptionPostProcessor extends EncryptionPostProcessorSupport implements EnvironmentPostProcessor {
 
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, @NonNull SpringApplication application) {
+    public void postProcessEnvironment(@NonNull ConfigurableEnvironment environment, @NonNull SpringApplication application) {
         processEnvironment(environment);
     }
 

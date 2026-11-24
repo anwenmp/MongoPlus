@@ -34,19 +34,14 @@ public final class MongoShellConverter {
     /**
      * 在 Driver 回调内同步读取命令并生成文本。调用结束后即可独立使用返回的字符串。
      *
-     * @param event 当前回调收到的命令开始事件
      * @return 单行 Shell 语句。跳过的事件和无法独立重放的命令返回空字符串
      */
-    public static String toShell(CommandStartedEvent event) {
-        if (event == null) {
-            return null;
-        }
+    public static String toShell(String commandName, String databaseName, BsonDocument command) {
         try {
-            String commandName = event.getCommandName();
             if ("getMore".equalsIgnoreCase(commandName) || "killCursors".equalsIgnoreCase(commandName)) {
                 return null;
             }
-            return convert(event.getDatabaseName(), commandName, event.getCommand());
+            return convert(databaseName, commandName, command);
         } catch (RuntimeException exception) {
             return null;
         }

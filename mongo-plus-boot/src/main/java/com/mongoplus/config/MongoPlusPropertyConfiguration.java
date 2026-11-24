@@ -41,7 +41,7 @@ public class MongoPlusPropertyConfiguration {
 
     @Bean("mongo-plus-com.mongoplus.property.MongoDBLogProperty")
     @ConditionalOnMissingBean(MongoDBLogProperty.class)
-    @ConfigurationProperties(prefix = "mongo-plus")
+    @ConfigurationProperties(prefix = "mongo-plus.log")
     public MongoDBLogProperty mongoDBLogProperty() {
         return new MongoDBLogProperty();
     }
