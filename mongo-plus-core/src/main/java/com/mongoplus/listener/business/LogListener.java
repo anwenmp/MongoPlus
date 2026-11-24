@@ -1,5 +1,6 @@
 package com.mongoplus.listener.business;
 
+import com.mongodb.event.CommandStartedEvent;
 import com.mongoplus.cache.global.OrderCache;
 import com.mongoplus.convert.shell.MongoShellConverter;
 import com.mongoplus.listener.Listener;
@@ -9,14 +10,16 @@ import com.mongoplus.model.command.CommandFailed;
 import com.mongoplus.model.command.CommandStarted;
 import com.mongoplus.model.command.CommandSucceeded;
 import com.mongoplus.toolkit.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
 
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Mongo拦截器，这里可以打印日志
@@ -52,18 +55,39 @@ public class LogListener implements Listener {
         if (!log.isDebugEnabled()) {
             return;
         }
-        String command = null;
-        if (shell) {
-            String shellCommand = MongoShellConverter.toShell(commandStarted.getCommandStartedEvent());
-            if (StringUtils.isNotBlank(shellCommand)) {
-                command = shellCommand;
-            }
+        CommandStartedEvent event = shell ? commandStarted.getCommandStartedEvent() : null;
+        BsonDocument document = commandStarted.getCommandDocument();
+        if (async) {
+            // Driver 回调结束后可能回收 BSON 缓冲区，提交任务前须复制。
+            BsonDocument snapshot = copyDocument(document);
+            CommandStartedEvent eventSnapshot = snapshotEvent(event, document, snapshot);
+            executeLog(() -> logCommand(eventSnapshot, snapshot));
+        } else {
+            logCommand(event, document);
         }
+    }
+
+    private static CommandStartedEvent snapshotEvent(CommandStartedEvent event, BsonDocument document, BsonDocument snapshot) {
+        if (event == null) {
+            return null;
+        }
+        BsonDocument eventCommand = event.getCommand();
+        // 正常分发时两个入口引用同一份 BSON，复用副本。自定义监听器可以替换包装对象中的文档。
+        BsonDocument eventSnapshot = eventCommand == document ? snapshot : copyDocument(eventCommand);
+        return new CommandStartedEvent(event.getRequestContext(), event.getOperationId(), event.getRequestId(),
+                event.getConnectionDescription(), event.getDatabaseName(), event.getCommandName(), eventSnapshot);
+    }
+
+    private static BsonDocument copyDocument(BsonDocument document) {
+        return document == null ? null : document.clone();
+    }
+
+    private void logCommand(CommandStartedEvent event, BsonDocument document) {
+        String command = event == null ? null : MongoShellConverter.toShell(event);
         if (StringUtils.isBlank(command)) {
-            command = commandStarted.getCommandDocument()
-                    .toJson(JsonWriterSettings.builder().outputMode(JsonMode.SHELL).build());
+            command = document.toJson(JsonWriterSettings.builder().outputMode(JsonMode.SHELL).build());
         }
-        printDebug("==>  Preparing: " + command);
+        log.debug("==>  Preparing: " + command);
     }
 
     @Override
@@ -71,25 +95,114 @@ public class LogListener implements Listener {
         if (!log.isDebugEnabled()) {
             return;
         }
-        Integer resultCount = null;
-        if (Objects.equals(commandSucceeded.getCommandName(), "find") || Objects.equals(commandSucceeded.getCommandName(), "aggregate")) {
-            resultCount = commandSucceeded.getResponse().getDocument("cursor").get("firstBatch").asArray().getValues().size();
-        } else if (Objects.equals(commandSucceeded.getCommandName(), "update")) {
-            resultCount = commandSucceeded.getResponse().get("nModified").asInt32().getValue();
-        } else if (Objects.equals(commandSucceeded.getCommandName(), "insert") || Objects.equals(commandSucceeded.getCommandName(), "delete")) {
-            resultCount = commandSucceeded.getResponse().get("n").asInt32().getValue();
+        String commandName = commandSucceeded.getCommandName();
+        if (commandName == null) {
+            return;
         }
-        if (resultCount != null) {
-            printDebug("<==  Total    : " + resultCount);
+        Function<BsonDocument, Long> count;
+        switch (commandName) {
+            case "find":
+            case "aggregate":
+            case "listIndexes":
+                count = response -> batchSize(response, "firstBatch");
+                break;
+            case "getMore":
+                count = response -> batchSize(response, "nextBatch");
+                break;
+            case "distinct":
+                count = response -> arraySize(response.get("values"));
+                break;
+            case "update":
+                count = LogListener::updateCount;
+                break;
+            case "findAndModify":
+                count = LogListener::findAndModifyCount;
+                break;
+            case "insert":
+            case "delete":
+            case "count":
+                count = response -> number(response, "n");
+                break;
+            case "createIndexes":
+                count = LogListener::createdIndexCount;
+                break;
+            default:
+                return;
         }
+        BsonDocument response = commandSucceeded.getResponse();
+        if (response == null) {
+            return;
+        }
+        BsonDocument document = async ? response.clone() : response;
+        executeLog(() -> {
+            Long total = count.apply(document);
+            if (total != null) {
+                log.debug("<==  Total    : " + total);
+            }
+        });
     }
 
-    private void printDebug(String message) {
+    private static Long number(BsonDocument document, String field) {
+        BsonValue value = document.get(field);
+        return value != null && value.isNumber() ? value.asNumber().longValue() : null;
+    }
+
+    private static Long arraySize(BsonValue value) {
+        return value != null && value.isArray() ? (long) value.asArray().size() : null;
+    }
+
+    private static Long batchSize(BsonDocument response, String batch) {
+        BsonValue cursor = response.get("cursor");
+        return cursor != null && cursor.isDocument() ? arraySize(cursor.asDocument().get(batch)) : null;
+    }
+
+    private static Long updateCount(BsonDocument response) {
+        Long modified = number(response, "nModified");
+        if (modified == null) {
+            return null;
+        }
+        Long upserted = arraySize(response.get("upserted"));
+        return upserted == null ? modified : modified + upserted;
+    }
+
+    private static Long findAndModifyCount(BsonDocument response) {
+        // n 同时覆盖匹配、删除和新增。BEFORE 模式下，upsert 插入成功仍可能返回 value:null。
+        BsonValue error = response.get("lastErrorObject");
+        if (error != null && error.isDocument()) {
+            Long count = number(error.asDocument(), "n");
+            if (count != null) {
+                return count;
+            }
+        }
+        BsonValue value = response.get("value");
+        if (value != null) {
+            if (value.isDocument()) {
+                return 1L;
+            }
+            if (value.isNull()) {
+                return 0L;
+            }
+        }
+        return null;
+    }
+
+    private static Long createdIndexCount(BsonDocument response) {
+        Long before = number(response, "numIndexesBefore");
+        Long after = number(response, "numIndexesAfter");
+        return before != null && after != null && after >= before ? after - before : null;
+    }
+
+    private void executeLog(Runnable task) {
         if (async) {
-            // Driver 回调中的 BSON 可能依赖回调期间有效的缓冲区，只传递已生成的文本。
-            LOG_EXECUTOR.execute(() -> log.debug(message));
+            LOG_EXECUTOR.execute(() -> {
+                try {
+                    task.run();
+                } catch (RuntimeException exception) {
+                    log.error("Failed to process MongoDB command log", exception);
+                }
+            });
         } else {
-            log.debug(message);
+            task.run();
         }
     }
 
