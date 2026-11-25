@@ -195,9 +195,9 @@ public abstract class MongoPlusAutoConfigurationSupport implements InitializingB
      */
     private void setListener() {
         List<Listener> listeners = ListenerCache.listeners;
-        if (mongodbLogProperty.getLog()) {
-            listeners.add(new LogListener(mongodbLogProperty.getShell(),
-                    Boolean.TRUE.equals(mongodbLogProperty.getLogAsync())));
+        Log tempLog = LogFactory.getLog("com.mongoplus.mapper");
+        if (tempLog.isDebugEnabled()) {
+            listeners.add(new LogListener(mongodbLogProperty.getShell(), mongodbLogProperty.getLogAsync()));
         }
         if (mongodbCollectionProperty.getBlockAttackInner()) {
             listeners.add(new BlockAttackInnerListener());

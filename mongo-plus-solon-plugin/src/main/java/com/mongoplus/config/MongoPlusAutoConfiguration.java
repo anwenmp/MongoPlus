@@ -176,7 +176,8 @@ public class MongoPlusAutoConfiguration {
      */
     private void setListener(AppContext context){
         List<Listener> listeners = ListenerCache.listeners;
-        if (mongoDBLogProperty.getLog()){
+        Log tempLog = LogFactory.getLog("com.mongoplus.mapper");
+        if (tempLog.isDebugEnabled()){
             listeners.add(new LogListener(mongoDBLogProperty.getShell(),
                     Boolean.TRUE.equals(mongoDBLogProperty.getLogAsync())));
         }
